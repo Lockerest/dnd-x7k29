@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stamina Table</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{--bg:#ece6d8;--sf:#f6f1e4;--tx:#2a2620;--mu:#6d6455;--ln:#cfc6b2;--ac:#a5571a;--hp:#b5443a;--st:#6f8f3d;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#1f242b;--sf:#2a303a;--tx:#e8e2d3;--mu:#a29a89;--ln:#3d4552;--ac:#e09a4a;--hp:#c9574b;--st:#9bbd62;color-scheme:dark}}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 "Source Sans 3",system-ui,sans-serif;padding:12px;max-width:1100px;margin:0 auto;-webkit-text-size-adjust:100%}
+h1,h2{font-family:"Cormorant Garamond",Georgia,serif;margin:0}
+header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:8px}
+h1{font-size:30px}.tag{color:var(--ac);font-weight:600}
+.note{color:var(--mu)}
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:10px;padding:14px;margin-bottom:14px}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+h2{font-size:24px}.sub{color:var(--mu)}
+.meter{position:relative;height:26px;background:var(--bg);border:1px solid var(--ln);border-radius:6px;overflow:hidden;margin:4px 0}
+.meter i{display:block;height:100%}.meter i.hp{background:var(--hp)}.meter i.st{background:var(--st)}
+.meter b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;text-shadow:0 1px 2px #000a}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+button{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:8px 12px;min-height:44px;cursor:pointer;touch-action:manipulation}
+button:hover:not(:disabled){border-color:var(--ac)}button:disabled{opacity:.4;cursor:default}
+button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:1px}
+.ab{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--ln)}
+.ab small{display:block;color:var(--mu)}.ab button{white-space:nowrap}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:8px 0 12px}
+.stats label,.stats span{display:flex;flex-direction:column;font-size:13px;color:var(--mu)}
+.stats b{font-size:18px;color:var(--tx);font-weight:600}
+input,textarea{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:6px 8px;width:100%}
+.log{margin:8px 0 0;padding:0;list-style:none;color:var(--mu);font-size:14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:2}
+.cls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.cls button{text-align:left;padding:10px}.cls small{display:block;color:var(--mu)}
+h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
+#err{color:var(--hp)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-items:start}.grid .card{margin:0}
+.solo{max-width:640px;margin:0 auto}
+select{font:inherit;background:var(--bg);color:var(--tx);border:1px solid var(--ln);border-radius:6px;padding:8px;width:100%;min-height:44px}
+#map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
+@media(max-width:380px){.cls{grid-template-columns:1fr}}
+</style></head><body>
+<!--
+SETUP: paste your Firebase Realtime Database URL below (see the setup steps in chat).
+Database rules: {"rules":{"tables":{"$pin":{".read":true,".write":true}}}}
+-->
+<header><h1>Stamina Table</h1><span><span class="tag" id="role"></span> <button id="tab">Map</button> <button id="sw" hidden></button> <button id="leave" hidden>Leave</button></span></header>
+<div id="err"></div><div id="app"></div>
+<script>
+const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
+const COM=[["Dash",1,"Sprint: move again"],["Dodge Roll",1,"Advantage on a DEX save vs one attack"],["Climb Foe",2,"Athletics check to scale a large enemy for weak-point hits"]];
+const C={
+fighter:{n:"Fighter",d:"Tough, 2 stamina back per turn",hp:14,st:10,rg:2,ab:[["Power Strike",2,"+1d8 damage on a hit"],["Multi-Slash",3,"One extra attack this turn"],["Shield Bash",2,"STR save or target is knocked prone"],["Second Wind",3,"Heal 1d10 + level"]]},
+archer:{n:"Archer",d:"Ranged, steady stamina",hp:11,st:10,rg:2,ab:[["Piercing Shot",2,"+1d6, ignores half cover"],["Triple Volley",3,"Three arrows, each at -2 to hit"],["Pinning Shot",2,"DEX save or speed 0 until your next turn"],["Hunter's Eye",1,"Mark a weak point: next hit crits on 19-20"]]},
+mage:{n:"Mage",d:"Big pool, slow regen",hp:9,st:14,rg:1,ab:[["Firebolt",1,"2d10 fire, ranged"],["Ember Burst",4,"20 ft radius, 6d6 fire, DEX half"],["Arcane Ward",3,"Absorb 5 + level damage"],["Mending Light",3,"Heal 2d8 + INT, once per turn"]]},
+thief:{n:"Thief",d:"Quick, opportunistic",hp:10,st:10,rg:2,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]}};
+const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamina"],["rg","Regen/turn"],["spd","Speed (sq)"],["maxFl","Flasks max"],["souls","Souls"],["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]];
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let pin="",role="",me="",dm=false,canGM=false,chars={},pending=false,timer=null;
+const fail=e=>{$("#err").textContent="Connection problem: "+(e.message||e)};
+const store=()=>{try{localStorage.setItem("st",JSON.stringify({pin,role,me}))}catch(e){}};
+const saved=()=>{try{return JSON.parse(localStorage.getItem("st")||"{}")}catch(e){return{}}};
+async function api(p,m,b){
+ const r=await fetch(DB_URL.replace(/\/$/,"")+"/tables/"+pin+"/"+p+".json",{method:m||"GET",body:b===undefined?undefined:JSON.stringify(b)});
+ if(!r.ok)throw new Error("HTTP "+r.status);return r.json();
+}
+const hash=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))].map(x=>x.toString(16).padStart(2,"0")).join("");
+const meter=(v,m,k)=>`<div class="meter"><i class="${k}" style="width:${m?Math.max(0,Math.min(100,v/m*100)):0}%"></i><b>${v} / ${m}</b></div>`;
+function card(id){
+ const c=chars[id],k=C[c.cls]||C.fighter,own=dm||id===me,abs=COM.concat(k.ab);
+ let h=`<div class="card"><div class="top"><h2>${esc(c.name)}</h2><span class="sub">${k.n} · Lv ${c.level} · AC ${c.ac}</span></div>`;
+ h+=`<h3>Health</h3>${meter(c.hp,c.maxHp,"hp")}`;
+ if(own)h+=`<div class="row">${[-5,-1,1,5].map(n=>`<button data-a="hp" data-id="${id}" data-n="${n}">${n>0?"+":""}${n} HP</button>`).join("")}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask (${c.fl}/${c.maxFl})</button></div>`;
+ h+=`<h3>Stamina</h3>${meter(c.st,c.maxSt,"st")}`;
+ if(own)h+=`<div class="row"><button class="pri" data-a="regen" data-id="${id}">Start of turn: ${(x=>x>0?"+"+x:x)(c.rg-(c.mt==="climb"?2:0))}</button><button data-a="rest" data-id="${id}">Bonfire rest</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>`;
+ h+=`<h3>Mounted</h3><select data-id="${id}" data-f="mt" ${own?"":"disabled"}>${[["","Not mounted"],["climb","Climbing an enemy (-2 St per round)"],["down","Standing on a downed enemy (free)"]].map(([v,l])=>`<option value="${v}" ${(c.mt||"")===v?"selected":""}>${l}</option>`).join("")}</select><h3>Abilities (basic attacks are free)</h3>`;
+ abs.forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}<small>${esc(a[2])}</small></div>${own?`<button data-a="use" data-id="${id}" data-i="${i}" ${c.st<a[1]?"disabled":""}>${a[1]} St</button>`:`<span class="sub">${a[1]} St</span>`}</div>`});
+ h+=`<h3>Stats</h3><div class="stats">`;
+ NUM.forEach(([f,l])=>{h+=dm?`<label>${l}<input type="number" data-id="${id}" data-f="${f}" value="${c[f]??0}"></label>`:`<span>${l}<b>${c[f]??0}</b></span>`});
+ h+=`</div><h3>Conditions</h3><input data-id="${id}" data-f="conds" value="${esc(c.conds)}" ${own?"":"disabled"} placeholder="e.g. Poisoned, Prone">`;
+ h+=`<h3>Notes</h3><textarea rows="2" data-id="${id}" data-f="notes" ${own?"":"disabled"}>${esc(c.notes)}</textarea>`;
+ const lg=(c.log||[]).slice(-5).reverse();
+ if(lg.length)h+=`<ul class="log">${lg.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
+ if(dm)h+=`<div class="row"><button data-a="del" data-id="${id}">Remove character</button></div>`;
+ return h+`</div>`;
+}
+function create(){
+ const ex=Object.entries(chars);
+ return `<div class="card"><h2>Create your character</h2><h3>Name</h3><input id="nm" maxlength="40" placeholder="Character name"><h3>Vocation</h3><div class="cls">${Object.entries(C).map(([k,v])=>`<button data-a="make" data-k="${k}"><b>${v.n}</b><small>${v.d}</small></button>`).join("")}</div>${ex.length?`<h3>Or continue as an existing character</h3><div class="row">${ex.map(([i,c])=>`<button data-a="claim" data-id="${i}">${esc(c.name)}</button>`).join("")}</div>`:""}</div>`;
+}
+function joinScreen(){
+ return `<div class="solo"><div class="card"><h2>Join a table</h2><h3>Table PIN (6+ letters or numbers)</h3><input id="pin" maxlength="30" autocomplete="off" placeholder="e.g. dragon4821">
+ <div class="row"><button class="pri" data-a="joinP">Join as player</button></div>
+ <h3>Game Master PIN (sets it if the table is new)</h3><input id="gpin" type="password" autocomplete="off" placeholder="GM PIN">
+ <div class="row"><button data-a="joinGM">Open as Game Master</button></div></div></div>`;
+}
+function render(){
+ $("#role").textContent=role?(dm?"Game Master":"Player"):"";$("#leave").hidden=!role;$("#sw").hidden=!canGM||!role;$("#sw").textContent=dm?"View as player":"Back to GM";
+ $("#tab").textContent=view==="map"?"Characters":"Map";if(role&&view==="map"){drawMap();return}let h="";
+ if(!role)h=joinScreen();
+ else if(dm){
+  const ids=Object.keys(chars);
+  h+=`<div class="bar"><button class="pri" data-a="regenAll">Next round: regen all</button><button data-a="restAll">Bonfire: rest all</button></div>`;
+  h+=ids.length?'<div class="grid">'+ids.map(card).join("")+'</div>':`<p class="note">No characters yet. Players appear here once they create one. Table PIN: <b>${esc(pin)}</b></p>`;
+ }else h='<div class="solo">'+(chars[me]?card(me):create())+'</div>';
+ $("#app").innerHTML=h;pending=false;
+}
+async function load(){
+ try{const[c0,st]=await Promise.all([api("chars"),api("map/state")]);
+  if(P)return;
+  if(st&&st.iv&&st.iv!==M.iv0){M.img=await api("map/img");M.iv0=st.iv}
+  const sig=JSON.stringify([c0,st]);$("#err").textContent="";if(sig===last)return;last=sig;chars=c0||{};M.state=st||undefined;
+  const a=document.activeElement;
+  if(a&&/INPUT|TEXTAREA/.test(a.tagName)&&$("#app").contains(a))pending=true;else render();
+ }catch(e){fail(e)}
+}
+async function start(){
+ canGM=dm=role==="gm";store();await load();render();clearInterval(timer);timer=setInterval(load,3000);
+}
+function upd(id,p,msg){
+ const c=chars[id];if(!c||(!dm&&id!==me))return;
+ const l=(c.log||[]).slice(-9);if(msg)l.push(msg);
+ const q={...p,log:l};chars[id]={...c,...q};render();
+ api("chars/"+id,"PATCH",q).catch(fail);
+}
+const clamp=(v,m)=>Math.max(0,Math.min(m,v));
+$("#app").addEventListener("click",async e=>{
+ const b=e.target.closest("[data-a]");if(!b||b.disabled)return;
+ const a=b.dataset.a,id=b.dataset.id,c=chars[id],n=+b.dataset.n;
+ if(a==="joinP"||a==="joinGM"){
+  const p=$("#pin").value.trim();
+  if(!/^[A-Za-z0-9]{6,30}$/.test(p)){$("#err").textContent="Table PIN: 6 or more letters/numbers only.";return}
+  pin=p;
+  try{
+   const meta=await api("meta");
+   if(a==="joinP"){
+    if(!meta){$("#err").textContent="No table with that PIN. Ask your GM to open it first.";return}
+    role="player";const s=saved();me=(s.pin===pin&&s.me)||"p"+Math.random().toString(36).slice(2,10);
+   }else{
+    const g=$("#gpin").value;if(g.length<4){$("#err").textContent="GM PIN needs 4+ characters.";return}
+    const gh=await hash(g);
+    if(!meta)await api("meta","PUT",{dm:gh});else if(meta.dm!==gh){$("#err").textContent="Wrong GM PIN.";return}
+    role="gm";me="gm";
+   }
+   $("#err").textContent="";start();
+  }catch(x){fail(x)}
+ }
+ else if(a==="make"){
+  const k=C[b.dataset.k],name=($("#nm").value||"").trim()||"Nameless";
+  const d={name,cls:b.dataset.k,level:1,ac:12,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,souls:0,spd:6,str:10,dex:10,con:10,int:10,wis:10,cha:10,conds:"",notes:"",log:["Joined the party"]};
+  chars[me]=d;render();api("chars/"+me,"PUT",d).catch(fail);
+ }
+ else if(a==="claim"){me=id;store();render()}
+ else if(a==="regenAll"){Object.keys(chars).forEach(i=>{const x=chars[i],[p,m]=turn(x);upd(i,p,m)})}
+ else if(a==="restAll"){Object.keys(chars).forEach(i=>{const x=chars[i];upd(i,{hp:x.maxHp,st:x.maxSt,fl:x.maxFl},"Rested at the bonfire")})}
+ else if(a==="hp")upd(id,{hp:clamp(c.hp+n,c.maxHp)},(n>0?"Healed ":"Took ")+Math.abs(n));
+ else if(a==="st")upd(id,{st:clamp(c.st+n,c.maxSt)});
+ else if(a==="regen"){const[p,m]=turn(c);upd(id,p,m)}
+ else if(a==="rest")upd(id,{hp:c.maxHp,st:c.maxSt,fl:c.maxFl},"Rested at the bonfire");
+ else if(a==="flask"&&c.fl>0){const h=Math.floor(c.maxHp*.4);upd(id,{fl:c.fl-1,hp:clamp(c.hp+h,c.maxHp)},"Drank a flask (+"+h+" HP)")}
+ else if(a==="use"){const ab=COM.concat((C[c.cls]||C.fighter).ab)[+b.dataset.i];if(c.st>=ab[1])upd(id,{st:c.st-ab[1],...(ab[0]==="Climb Foe"?{mt:"climb"}:{})},"Used "+ab[0]+" (-"+ab[1]+" St)")}
+ else if(a==="del"&&confirm("Remove "+c.name+"?")){delete chars[id];render();api("chars/"+id,"DELETE").catch(fail)}
+});
+$("#app").addEventListener("change",e=>{
+ const t=e.target,f=t.dataset.f,id=t.dataset.id;if(!f||!chars[id]||(!dm&&id!==me))return;
+ const num=t.type==="number";if(num&&!dm)return;
+ const v=num?(+t.value||0):t.value;chars[id][f]=v;
+ api("chars/"+id,"PATCH",{[f]:v}).catch(fail);
+});
+let view="chars",M={},sel=null,tool="move",P=null,last="";
+const DASH=COM[0][1],K=(x,y)=>x+","+y;
+function turn(c){const d=c.mt==="climb"?2:0,s=c.st+c.rg-d;if(d&&s<=0)return[{st:0,mt:""},"Out of stamina and fell off!"];return[{st:clamp(s,c.maxSt)},d?"Climbing (-2 St)":""]}
+const setS=p=>{M.state={cols:24,grid:true,...M.state,...p};last="";drawMap();api("map/state","PUT",M.state).catch(fail)};
+function geo(){const s=M.state||{},im=M.img;if(!im||!im.data)return null;const cols=s.cols||24,cs=im.w/cols;return{s,im,cols,cs,rows:Math.floor(im.h/cs),W:new Set(Object.values(s.walls||{}))}}
+function cellAt(e){const g=geo(),v=$("#map");if(!g||!v)return null;const r=v.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*g.cols),y=Math.floor((e.clientY-r.top)/r.height*g.im.h/g.cs);return x<0||y<0||x>=g.cols||y>=g.rows?null:[x,y]}
+function reach(c,g){const d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]],lim=2*(c.spd||6);while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined)continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
+const wallsSvg=(W,cs)=>[...W].map(k=>{const[x,y]=k.split(",");return`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:#14110e;fill-opacity:.85"/>`}).join("");
+const mapTools=g=>`<div class="row"><button data-m="pick">${g?"Change map":"Upload map"}</button><input id="mf" type="file" accept="image/*" hidden>${g?`<label class="sub">Squares across <input id="mc" type="number" min="5" max="80" value="${g.cols}" style="width:72px"></label><button data-m="grid">Grid: ${g.s.grid===false?"off":"on"}</button><button data-m="tool" data-k="move" ${tool==="move"?'class="pri"':""}>Move tokens</button><button data-m="tool" data-k="wall" ${tool==="wall"?'class="pri"':""}>Draw walls</button><button data-m="clr">Clear walls</button>`:""}</div>`;
+function drawMap(){
+ if(view!=="map")return;
+ const g=geo();
+ if(!g){$("#app").innerHTML=`<div class="card"><h2>Map</h2><p class="note">${dm?"Upload a map image to begin.":"The GM hasn't set a map yet."}</p>${dm?mapTools(null):""}</div>`;return}
+ if(!dm&&chars[me])sel=me;
+ const{s,im,cols,cs,rows,W}=g,c=chars[sel],R=c&&c.mx!=null?reach(c,g):{},sp=c?c.spd||6:6;
+ let v=`<svg id="map" viewBox="0 0 ${im.w} ${im.h}"><image href="${im.data}" width="${im.w}" height="${im.h}"/>`;
+ for(const k in R){if(!R[k])continue;const[x,y]=k.split(","),w=R[k]<=sp;v+=`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:${w?"var(--st)":c.st<DASH?"var(--hp)":"var(--ac)"};fill-opacity:.4"/>`}
+ v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;
+ if(s.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#fff;stroke-opacity:.5;stroke-width:${Math.max(1,im.w/800)};fill:none"/>`}
+ for(const i in chars){const t=chars[i];if(t.mx==null)continue;v+=`<circle cx="${(t.mx+.5)*cs}" cy="${(t.my+.5)*cs}" r="${cs*.4}" style="fill:var(--ac);stroke:${i===sel?"#fff":"#000"};stroke-width:${cs/10}"/><text x="${(t.mx+.5)*cs}" y="${(t.my+.5)*cs}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45}px sans-serif">${esc((t.name||"?")[0])}</text>`}
+ v+="</svg>";
+ const chips=Object.keys(chars).filter(i=>dm||i===me).map(i=>`<button data-m="sel" data-id="${i}" ${i===sel?'class="pri"':""}>${esc(chars[i].name)}</button>`).join("");
+ const info=c?(c.mx==null?"Tap the map to place your token.":`Walk up to ${sp} squares (green): free. Dash up to ${2*sp} squares (${c.st<DASH?"red, not enough stamina":"amber"}): ${DASH} stamina. Walls block the way, so routes detour around them.`):"Pick a character to see where it can move.";
+ $("#app").innerHTML=`<div class="card"><div class="row">${chips}</div>${v}<p class="note">${info}${dm?" As GM you can place tokens anywhere.":""}</p>${dm?mapTools(g):""}</div>`;
+}
+function paint(p){const k=K(p[0],p[1]);if(P.add===P.W.has(k))return;P.add?P.W.add(k):P.W.delete(k);$("#wl").innerHTML=wallsSvg(P.W,geo().cs)}
+function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{let sc=Math.min(1,1400/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.round(i.width*sc);c.height=Math.round(i.height*sc);c.getContext("2d").drawImage(i,0,0,c.width,c.height);for(const q of[.8,.65,.5,.35]){const d=c.toDataURL("image/jpeg",q);if(d.length<700000){const iv=Date.now();api("map/img","PUT",{data:d,w:c.width,h:c.height}).then(()=>{M.img={data:d,w:c.width,h:c.height};M.iv0=iv;setS({iv})}).catch(fail);return}}sc*=.8}};i.src=r.result};r.readAsDataURL(f)}
+$("#tab").onclick=()=>{view=view==="map"?"chars":"map";render()};
+$("#app").addEventListener("pointerdown",e=>{
+ if(!e.target.closest("#map"))return;const g=geo(),p=cellAt(e);if(!g||!p)return;const[x,y]=p,k=K(x,y);
+ if(dm&&tool==="wall"){P={add:!g.W.has(k),W:new Set(g.W)};paint(p);return}
+ const c=chars[sel];if(!c||(!dm&&sel!==me))return;
+ if(c.mx==null||dm){upd(sel,{mx:x,my:y},c.mx==null?"Placed on the map":"");return}
+ const n=reach(c,g)[k];if(!n)return;
+ if(n>(c.spd||6)){if(c.st<DASH)return;upd(sel,{mx:x,my:y,st:c.st-DASH},"Dashed "+n+" squares (-"+DASH+" St)")}else upd(sel,{mx:x,my:y},"Moved "+n+" squares");
+});
+addEventListener("pointermove",e=>{if(P){const p=cellAt(e);if(p)paint(p)}});
+const endP=()=>{if(P){const w=[...P.W];P=null;setS({walls:w})}};addEventListener("pointerup",endP);addEventListener("pointercancel",endP);
+$("#app").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;const m=b.dataset.m;
+ if(m==="pick")$("#mf").click();else if(m==="sel"){sel=b.dataset.id;drawMap()}
+ else if(m==="tool"){tool=b.dataset.k;drawMap()}
+ else if(m==="grid")setS({grid:geo().s.grid===false});
+ else if(m==="clr"&&confirm("Remove all walls?"))setS({walls:[]})});
+$("#app").addEventListener("change",e=>{const t=e.target;
+ if(t.id==="mf"&&t.files[0])loadImg(t.files[0]);
+ else if(t.id==="mc")setS({cols:Math.max(5,Math.min(80,+t.value||24))})});
+$("#app").addEventListener("focusout",()=>{setTimeout(()=>{if(pending&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()},0)});
+$("#sw").onclick=()=>{dm=!dm;render()};
+$("#leave").onclick=()=>{try{localStorage.removeItem("st")}catch(e){}clearInterval(timer);role="";canGM=false;dm=false;chars={};view="chars";M={};last="";render()};
+(async()=>{
+ if(DB_URL.startsWith("PASTE")){$("#app").innerHTML='<p class="note">Setup needed: open this file in a text editor and paste your Firebase Realtime Database URL into DB_URL near the top of the script.</p>';return}
+ const s=saved();
+ if(s.pin&&s.role){pin=s.pin;role=s.role;me=s.me;try{if(await api("meta")){await start();return}}catch(e){}role=""}
+ render();
+})();
+</script></body></html>
