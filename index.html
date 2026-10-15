@@ -43,11 +43,12 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
 .pill{font-style:normal;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:1px 8px}.pill.bad{border-color:var(--hp);color:var(--hp)}
 .sb{padding:10px}.sb h2{font-size:20px}
+.av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
 #map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
 @media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 </style></head><body>
 <header><h1>Stamina Table</h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
-<div id="err"></div><div id="app"></div>
+<div id="err"></div><div id="app"></div><input id="icf" type="file" accept="image/*" hidden>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
 const COM=[["Dash",1,"Move up to double your speed. Uses one of your 2 actions."],["Dodge Roll",3,"Reaction: DEX save against one attack, no advantage. Doesn't use an action.","r"],["Climb Foe",2,"Athletics check to mount a large enemy. While mounted it can't attack you, but you lose 4 stamina per round."]];
@@ -60,6 +61,11 @@ const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamin
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ABS=c=>COM.concat((C[c.cls]||C.fighter).ab),DASH=COM[0][1],K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
+let IC={},iconFor=null;
+const ok=c=>c.ap!==false&&c.ap!=="no",A=()=>Object.keys(chars).filter(i=>ok(chars[i]));
+const av=(id,o)=>o.iv&&IC[id]&&IC[id].data?`<img class="av" src="${IC[id].data}" alt="">`:"";
+const pendingHtml=()=>{const l=Object.keys(chars).filter(i=>!ok(chars[i])||chars[i].ap===false);return l.length?`<div class="card sb"><h2>Join requests</h2>${l.map(i=>{const c=chars[i];return`<div class="ab"><div><b>${esc(c.name)}</b><small>${(C[c.cls]||C.fighter).n}${c.ap==="no"?" · declined":""}</small></div><span class="row mini"><button class="pri" data-a="allow" data-id="${i}">Allow</button>${c.ap===false?`<button data-a="deny" data-id="${i}">Deny</button>`:""}</span></div>`}).join("")}</div>`:""};
+const waitHtml=()=>{const c=chars[me],no=c.ap==="no";return`<div class="solo"><div class="card"><h2>${no?"Request declined":"Waiting to be allowed to play"}</h2><p class="note">${no?"The GM hasn't approved this character. If that's a mistake, ask your GM. This page updates by itself if they allow you.":`Your Game Master needs to approve ${esc(c.name)} before you can join the table. This page updates by itself once you're in.`}</p></div></div>`};
 const fail=e=>{$("#err").textContent="Connection problem: "+(e.message||e)};
 const store=()=>{try{localStorage.setItem("st",JSON.stringify({pin,role,me}))}catch(e){}};
 const saved=()=>{try{return JSON.parse(localStorage.getItem("st")||"{}")}catch(e){return{}}};
@@ -76,19 +82,19 @@ const hpBtns=id=>[-5,-1,1,5].map(n=>`<button data-a="hp" data-id="${id}" data-n=
 function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
 function sbox(id){
  const c=chars[id],own=dm||id===me,net=c.rg-(c.mt==="climb"?4:0);
- let h=`<div class="card sb"><div class="top"><h2>${esc(c.name)}</h2><span class="sub">${(C[c.cls]||C.fighter).n} · Actions ${c.used||0}/2</span></div>${meter(c.hp,c.maxHp,"hp")}${meter(c.st,c.maxSt,"st")}${pillsOf(c)}`;
- if(own)h+=`<div class="row mini"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(net)}</button><button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask ${c.fl}/${c.maxFl}</button>${dm?hpBtns(id):""}</div>${mtCtl(id,c)}`;
+ let h=`<div class="card sb"><div class="top"><h2>${av(id,c)}${esc(c.name)}</h2><span class="sub">${(C[c.cls]||C.fighter).n} · Actions ${c.used||0}/2</span></div>${meter(c.hp,c.maxHp,"hp")}${meter(c.st,c.maxSt,"st")}${pillsOf(c)}`;
+ if(own)h+=`<div class="row mini"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(net)}</button><button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask ${c.fl}/${c.maxFl}</button>${dm?hpBtns(id):""}<button data-a="icon" data-id="c:${id}">Icon</button></div>${mtCtl(id,c)}`;
  if(dm&&c.exh)h+=`<div class="row mini"><button data-a="hit" data-id="${id}" data-k="l">Light hit (${c.lh||0}/3)</button><button data-a="hit" data-id="${id}" data-k="h">Heavy hit</button></div>`;
  return h+`</div>`}
 function quick(id){const c=chars[id];return`<div class="card sb"><h3>Quick actions (2 per round, Dodge is a reaction)</h3><div class="row mini">${ABS(c).map((a,i)=>abBtn(id,i,a,c,esc(a[0])+" · "+a[1])).join("")}</div></div>`}
-function allies(){const m=chars[me];if(!m)return"";const l=Object.keys(chars).filter(i=>i!==me&&(chars[i].exh||chars[i].pr));return l.length?`<div class="card sb"><h3>Allies down</h3>${l.map(i=>`<button data-a="help" data-id="${i}" ${m.exh||(m.used||0)>=2?"disabled":""}>Help ${esc(chars[i].name)} up (uses an action)</button>`).join("")}</div>`:""}
+function allies(){const m=chars[me];if(!m)return"";const l=A().filter(i=>i!==me&&(chars[i].exh||chars[i].pr));return l.length?`<div class="card sb"><h3>Allies down</h3>${l.map(i=>`<button data-a="help" data-id="${i}" ${m.exh||(m.used||0)>=2?"disabled":""}>Help ${esc(chars[i].name)} up (uses an action)</button>`).join("")}</div>`:""}
 function card(id){
  const c=chars[id],k=C[c.cls]||C.fighter,own=dm||id===me;
- let h=`<div class="card"><div class="top"><h2>${esc(c.name)}</h2><span class="sub">${k.n} · Lv ${c.level} · AC ${c.ac}</span></div>${pillsOf(c)}`;
+ let h=`<div class="card"><div class="top"><h2>${av(id,c)}${esc(c.name)}</h2><span class="sub">${k.n} · Lv ${c.level} · AC ${c.ac}</span></div>${pillsOf(c)}`;
  h+=`<h3>Health</h3>${meter(c.hp,c.maxHp,"hp")}`;
  if(own)h+=`<div class="row">${hpBtns(id)}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask (${c.fl}/${c.maxFl})</button></div>`;
  h+=`<h3>Stamina · Actions used ${c.used||0}/2</h3>${meter(c.st,c.maxSt,"st")}`;
- if(own)h+=`<div class="row"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4:0))}</button><button data-a="rest" data-id="${id}">Bonfire rest</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>${mtCtl(id,c)}`;
+ if(own)h+=`<div class="row"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4:0))}</button><button data-a="rest" data-id="${id}">Bonfire rest</button><button data-a="icon" data-id="c:${id}">Set icon</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>${mtCtl(id,c)}`;
  h+=`<h3>Abilities (basic attacks are free)</h3>`;
  ABS(c).forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}${a[3]?" (reaction)":""}<small>${esc(a[2])}</small></div>${own?abBtn(id,i,a,c):`<span class="sub">${a[1]} St</span>`}</div>`});
  h+=`<h3>Stats</h3><div class="stats">`;
@@ -100,7 +106,7 @@ function card(id){
  if(dm)h+=`<div class="row"><button data-a="del" data-id="${id}">Remove character</button></div>`;
  return h+`</div>`}
 function create(){
- const ex=Object.entries(chars);
+ const ex=[];
  return `<div class="card"><h2>Create your character</h2><h3>Name</h3><input id="nm" maxlength="40" placeholder="Character name"><h3>Vocation</h3><div class="cls">${Object.entries(C).map(([k,v])=>`<button data-a="make" data-k="${k}"><b>${v.n}</b><small>${v.d}</small></button>`).join("")}</div>${ex.length?`<h3>Or continue as an existing character</h3><div class="row">${ex.map(([i,c])=>`<button data-a="claim" data-id="${i}">${esc(c.name)}</button>`).join("")}</div>`:""}</div>`}
 function joinScreen(){
  return `<div class="solo"><div class="card"><h2>Join a table</h2><h3>Table PIN (6+ letters or numbers)</h3><input id="pin" maxlength="30" autocomplete="off" placeholder="e.g. dragon4821">
@@ -111,7 +117,7 @@ function joinScreen(){
 function enemiesHtml(){
  const ids=Object.keys(enemies);
  let h=`<div class="card"><h2>Enemies</h2>`;
- h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div><b>${esc(e.name)}</b><small>${esc(e.type)}${e.mx==null?" · not placed":""}</small>${dm?meter(e.hp,e.max,"hp")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}<button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
+ h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)}${e.mx==null?" · not placed":""}</small>${dm?meter(e.hp,e.max,"hp")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}<button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
  if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
  return h+`</div>`}
 function diceHtml(){
@@ -141,11 +147,11 @@ function mapHtml(){
  for(const k in R){if(!R[k])continue;const[x,y]=k.split(",");v+=`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:${R[k]<=wl?"var(--st)":(c.used||0)>=2?"var(--hp)":"var(--ac)"};fill-opacity:.4"/>`}
  v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;
  if(m.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2,m.w/450)};fill:none"/>`}
- const tk=(o,key,en)=>{if(o.mx==null)return"";const x=(o.mx+.5)*cs,y=(o.my+.5)*cs,st=`stroke:${key===(dm?sel:"c:"+me)?"#fff":"#000"};stroke-width:${cs/10}`;return(en?`<rect x="${x-cs*.38}" y="${y-cs*.38}" width="${cs*.76}" height="${cs*.76}" rx="${cs*.12}" style="fill:var(--hp);${st}"/>`:`<circle cx="${x}" cy="${y}" r="${cs*.4}" style="fill:var(--ac);${st}"/>`)+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45}px sans-serif">${esc((o.name||"?")[0])}</text>`};
- for(const i in chars)v+=tk(chars[i],"c:"+i,false);for(const i in enemies)v+=tk(enemies[i],"e:"+i,true);
+ const tk=(o,key,en)=>{if(o.mx==null)return"";const id=key.slice(2),x=(o.mx+.5)*cs,y=(o.my+.5)*cs,r=cs*.4,sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;return img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45}px sans-serif">${esc((o.name||"?")[0])}</text>`};
+ for(const i in chars)if(ok(chars[i]))v+=tk(chars[i],"c:"+i,false);for(const i in enemies)v+=tk(enemies[i],"e:"+i,true);
  v+="</svg>";
  const chip=(k,t)=>`<button data-m="sel" data-id="${k}" ${k===sel?'class="pri"':""}>${esc(t)}</button>`;
- const chips=dm?Object.keys(chars).map(i=>chip("c:"+i,chars[i].name)).concat(Object.keys(enemies).map(i=>chip("e:"+i,"👹 "+enemies[i].name))).join(""):"";
+ const chips=dm?A().map(i=>chip("c:"+i,chars[i].name)).concat(Object.keys(enemies).map(i=>chip("e:"+i,"👹 "+enemies[i].name))).join(""):"";
  const info=!s?(dm?"Pick a character or enemy to place or move it.":""):s.e?"As GM you can place enemies anywhere.":c.mx==null?"Tap the map to place your token.":c.exh?`Exhausted: walk only, up to ${wl} squares (green).`:`Walk up to ${sp} squares (green): free. Dash up to ${2*sp} (${(c.used||0)>=2?"red, no actions left":"amber"}): ${DASH} stamina and 1 action; short on stamina means exhaustion. Walls block the way.`;
  return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}</p>${dm?mapTools():""}</div>`}
 const paint=p=>{const k=K(p[0],p[1]);if(P.add===P.W.has(k))return;P.add?P.W.add(k):P.W.delete(k);$("#wl").innerHTML=wallsSvg(P.W,geo().cs)};
@@ -153,20 +159,23 @@ const setM=p=>{const id=mapId();maps[id]={...maps[id],...p};last="";render();api
 function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{let sc=Math.min(1,1400/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.round(i.width*sc);c.height=Math.round(i.height*sc);c.getContext("2d").drawImage(i,0,0,c.width,c.height);for(const q of[.8,.65,.5,.35]){const d=c.toDataURL("image/jpeg",q);if(d.length<700000){const id="m"+Date.now().toString(36),iv=Date.now(),m={name:(f.name||"Map").replace(/\.[^.]+$/,"").slice(0,30),cols:24,grid:true,w:c.width,h:c.height,iv};api("mapimg/"+id,"PUT",{data:d}).then(()=>{IM[id]={data:d,iv};maps[id]=m;gmMap=id;if(!cur){cur=id;api("cur","PUT",id)}last="";render();return api("maps/"+id,"PUT",m)}).catch(fail);return}}sc*=.8}};i.src=r.result};r.readAsDataURL(f)}
 /* ---------- render / sync ---------- */
 function render(){
- $("#role").textContent=role?(dm?"Game Master":"Player"):"";$("#leave").hidden=!role;$("#tab").hidden=!role;$("#sw").hidden=!canGM||!role;
+ $("#role").textContent=role?(dm?"Game Master":"Player"):"";$("#leave").hidden=!role;$("#tab").hidden=!role||(!dm&&!(chars[me]&&ok(chars[me])));$("#sw").hidden=!canGM||!role;
  $("#tab").textContent=view==="sheet"?"Table":"Sheet";$("#sw").textContent=dm?"View as player":"Back to GM";
  let h="";
  if(!role)h=joinScreen();
  else if(!dm&&!chars[me])h='<div class="solo">'+create()+'</div>';
- else if(view==="sheet")h=dm?(Object.keys(chars).length?'<div class="grid">'+Object.keys(chars).map(card).join("")+'</div>':'<p class="note">No characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
+ else if(!dm&&!ok(chars[me]))h=waitHtml();
+ else if(view==="sheet")h=dm?pendingHtml()+(A().length?'<div class="grid">'+A().map(card).join("")+'</div>':'<p class="note">No approved characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
  else{
-  const left=dm?`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Bonfire: all</button></div></div>`+(Object.keys(chars).map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+allies();
+  const left=dm?pendingHtml()+`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Bonfire: all</button></div></div>`+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+allies();
   h=`<div class="tbl"><div>${left}</div><div class="mid">${mapHtml()}</div><div>${enemiesHtml()}${diceHtml()}</div></div>`}
  $("#app").innerHTML=h;pending=false}
 async function load(){
  try{
   const[c0,e0,mp0,cu0,rl]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20")]);
   if(P)return;
+  const need=[];for(const o of[c0||{},e0||{}])for(const[i,x]of Object.entries(o))if(x.iv&&(!IC[i]||IC[i].iv!==x.iv))need.push([i,x.iv]);
+  await Promise.all(need.map(async([i,iv])=>{const d=await api("icons/"+i);if(d)IC[i]={iv,data:d.data}}));
   const mps=mp0||{},ids=Object.keys(mps),live=cu0&&mps[cu0]?cu0:ids[0],id=dm&&gmMap&&mps[gmMap]?gmMap:live;
   if(id&&(!IM[id]||IM[id].iv!==mps[id].iv)){const d=await api("mapimg/"+id);if(d)IM[id]={data:d.data,iv:mps[id].iv}}
   const sig=JSON.stringify([c0,e0,mp0,cu0,rl,id,id&&IM[id]?IM[id].iv:0]);$("#err").textContent="";if(sig===last)return;last=sig;
@@ -223,12 +232,12 @@ $("#app").addEventListener("click",async e=>{
  }
  else if(a==="make"){
   const k=C[b.dataset.k],name=($("#nm").value||"").trim()||"Nameless";
-  const d={name,cls:b.dataset.k,level:1,ac:12,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,souls:0,spd:6,str:10,dex:10,con:10,int:10,wis:10,cha:10,conds:"",notes:"",used:0,log:["Joined the party"]};
+  const d={name,cls:b.dataset.k,level:1,ac:12,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,souls:0,spd:6,str:10,dex:10,con:10,int:10,wis:10,cha:10,conds:"",notes:"",used:0,ap:me==="gm",log:["Joined the party"]};
   chars[me]=d;render();api("chars/"+me,"PUT",d).catch(fail);
  }
  else if(a==="claim"){me=id;store();render()}
- else if(a==="regenAll"){Object.keys(chars).forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)})}
- else if(a==="restAll"){Object.keys(chars).forEach(i=>{const x=chars[i];upd(i,{hp:x.maxHp,st:x.maxSt,fl:x.maxFl,used:0,exh:false,pr:false,lh:0},"Rested at the bonfire")})}
+ else if(a==="regenAll"){A().forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)})}
+ else if(a==="restAll"){A().forEach(i=>{const x=chars[i];upd(i,{hp:x.maxHp,st:x.maxSt,fl:x.maxFl,used:0,exh:false,pr:false,lh:0},"Rested at the bonfire")})}
  else if(a==="hp")upd(id,{hp:clamp(c.hp+n,c.maxHp)},(n>0?"Healed ":"Took ")+Math.abs(n));
  else if(a==="st")upd(id,{st:clamp(c.st+n,c.maxSt)});
  else if(a==="regen"){const[p,m]=turn(c);upd(id,p,m)}
@@ -239,11 +248,14 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="mtd")upd(id,{mt:c.mt==="climb"?"down":"climb"},c.mt==="climb"?"Foe knocked down: no drain":"Foe is back up: -4 St per round");
  else if(a==="hit"){const lh=(c.lh||0)+(b.dataset.k==="l"?1:0),pr=b.dataset.k==="h"||lh>=3;upd(id,{lh:pr?0:lh,pr:pr||!!c.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}
  else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
+ else if(a==="allow")upd(id,{ap:true},"Approved by the GM");
+ else if(a==="deny")upd(id,{ap:"no"},"Declined by the GM");
+ else if(a==="icon"){iconFor=id;$("#icf").value="";$("#icf").click()}
  else if(a==="die")roll(n);
  else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",hp,max:hp};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
  else if(a==="eh"){const x=enemies[id];updE(id,{hp:clamp(x.hp+n,x.max)})}
- else if(a==="edel"&&confirm("Remove this enemy?")){delete enemies[id];if(sel==="e:"+id)sel=null;render();api("enemies/"+id,"DELETE").catch(fail)}
- else if(a==="del"&&confirm("Remove "+c.name+"?")){delete chars[id];render();api("chars/"+id,"DELETE").catch(fail)}
+ else if(a==="edel"&&confirm("Remove this enemy?")){delete enemies[id];if(sel==="e:"+id)sel=null;render();api("enemies/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
+ else if(a==="del"&&confirm("Remove "+c.name+"?")){delete chars[id];render();api("chars/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
 });
 $("#app").addEventListener("pointerdown",e=>{
  if(!e.target.closest("#map"))return;const g=geo(),p=cellAt(e);if(!g||!p)return;const[x,y]=p,k=K(x,y);
@@ -271,9 +283,12 @@ $("#app").addEventListener("change",e=>{
  const v=num?(+t.value||0):t.value;chars[id][f]=v;
  api("chars/"+id,"PATCH",{[f]:v}).catch(fail)});
 $("#app").addEventListener("focusout",()=>{setTimeout(()=>{if(pending&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))render()},0)});
+$("#icf").addEventListener("change",e=>{const f=e.target.files[0],k=iconFor;if(!f||!k)return;const en=k[0]==="e",id=k.slice(2);if(en?!dm:(!dm&&id!==me))return;
+ const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=96;const q=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-q)/2,(i.height-q)/2,q,q,0,0,96,96);const d=c.toDataURL("image/jpeg",.8),iv=Date.now();
+  api("icons/"+id,"PUT",{data:d}).then(()=>{IC[id]={iv,data:d};if(en){updE(id,{iv})}else{chars[id].iv=iv;last="";render();return api("chars/"+id,"PATCH",{iv})}}).catch(fail)};i.src=r.result};r.readAsDataURL(f)});
 $("#tab").onclick=()=>{view=view==="sheet"?"table":"sheet";render()};
 $("#sw").onclick=()=>{dm=!dm;render()};
-$("#leave").onclick=()=>{try{localStorage.removeItem("st")}catch(e){}clearInterval(timer);role="";canGM=false;dm=false;chars={};enemies={};maps={};IM={};last="";render()};
+$("#leave").onclick=()=>{try{localStorage.removeItem("st")}catch(e){}clearInterval(timer);role="";canGM=false;dm=false;chars={};enemies={};maps={};IM={};IC={};last="";render()};
 (async()=>{
  if(DB_URL.startsWith("PASTE")){$("#app").innerHTML='<p class="note">Setup needed: paste your Firebase Realtime Database URL into DB_URL near the top of the script.</p>';return}
  const s=saved();
