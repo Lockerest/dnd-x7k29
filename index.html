@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"><head><meta charset="utf-8"><meta http-equiv="Cache-Control" content="no-cache">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Stamina Table</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
@@ -46,14 +46,20 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
 #map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
 .menu{border:1px solid var(--ac);border-radius:8px;padding:8px;margin:8px 0}
-.dov{position:fixed;inset:0;pointer-events:none;z-index:50}
-.dd{position:fixed;left:0;top:0;width:110px;height:110px;background:var(--sf);border:3px solid var(--ac);border-radius:16px;display:flex;align-items:center;justify-content:center;font:700 46px "Cormorant Garamond",Georgia,serif;color:var(--tx);box-shadow:0 8px 28px #0008}
-.dd.fin{width:auto;min-width:130px;padding:0 28px;font-size:60px;animation:pop .3s ease-out}
+.dov{position:fixed;inset:0;pointer-events:none;z-index:50;perspective:900px}
+.d3{position:absolute;left:0;top:0;width:84px;height:84px;transform-style:preserve-3d}
+.d3 i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--sf);border:2px solid var(--ac);border-radius:10px;font:700 34px "Cormorant Garamond",Georgia,serif;font-style:normal;color:var(--tx)}
+.d3 .f1{transform:translateZ(42px)}.d3 .f2{transform:rotateY(180deg) translateZ(42px)}.d3 .f3{transform:rotateY(90deg) translateZ(42px)}.d3 .f4{transform:rotateY(-90deg) translateZ(42px)}.d3 .f5{transform:rotateX(90deg) translateZ(42px)}.d3 .f6{transform:rotateX(-90deg) translateZ(42px)}
+.dres{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;animation:pop .3s ease-out}
+.dl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:90vw}
+.dc{min-width:84px;height:84px;padding:0 10px;background:var(--sf);border:3px solid var(--ac);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 44px "Cormorant Garamond",Georgia,serif;box-shadow:0 8px 28px #0008}
+.dc small{font:600 12px "Source Sans 3",sans-serif;color:var(--mu)}
+.dt{background:var(--sf);border:2px solid var(--ac);border-radius:10px;padding:6px 16px;font:700 28px "Cormorant Garamond",Georgia,serif;box-shadow:0 8px 28px #0008}
 @keyframes pop{0%{scale:.5}70%{scale:1.15}100%{scale:1}}
 .efld{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.efld label{display:flex;flex-direction:column;font-size:12px;color:var(--mu)}.efld input{width:70px}
 @media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 </style></head><body>
-<header><h1>Stamina Table</h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 6</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="err"></div><div id="app"></div><input id="icf" type="file" accept="image/*" hidden>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
@@ -67,7 +73,7 @@ const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamin
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ABS=c=>COM.concat((C[c.cls]||C.fighter).ab),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
-let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null;
+let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null,tray=[];
 const ok=c=>c.ap!==false&&c.ap!=="no",A=()=>Object.keys(chars).filter(i=>ok(chars[i]));
 const av=(id,o)=>o.iv&&IC[id]&&IC[id].data?`<img class="av" src="${IC[id].data}" alt="">`:"";
 const claimsHtml=()=>{const l=Object.entries(claims||{}).filter(([k,c])=>c.st==="pending");return l.length?`<div class="card sb"><h2>Device requests</h2>${l.map(([k,c])=>`<div class="ab"><div><b>${esc(c.who)}</b> wants to take over <b>${esc(chars[c.target]?chars[c.target].name:"a deleted character")}</b></div><span class="row mini"><button class="pri" data-a="callow" data-id="${k}">Allow</button><button data-a="cdeny" data-id="${k}">Deny</button></span></div>`).join("")}</div>`:""};
@@ -131,20 +137,28 @@ function enemiesHtml(){
  h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":""}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label></div><div class="row mini"><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
  if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><select id="es" style="margin-top:6px"><option value="1">Small/Medium (1×1)</option><option value="2">Large (2×2)</option><option value="3">Huge (3×3)</option><option value="4">Gargantuan (4×4)</option></select><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><input id="esp" type="number" placeholder="Speed in squares (default 6)" style="margin-top:6px"><input id="epm" type="number" placeholder="Poise (0 = no stagger)" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
  return h+`</div>`}
+const trayLabel=a=>{const c={};a.forEach(x=>c[x]=(c[x]||0)+1);return Object.keys(c).map(k=>(c[k]>1?c[k]:"")+"d"+k).join(" + ")};
+const trayHtml=()=>`<div class="row mini"><span class="sub">${tray.length?esc(trayLabel(tray)):"Tap dice to add them, then Roll"}</span><button class="pri" data-a="rollnow" ${tray.length?"":"disabled"}>Roll</button><button data-a="trayclr" ${tray.length?"":"disabled"}>Clear</button></div>`;
+const rollLine=r=>{if(r.ds){const rs=r.ds.map(x=>x.r),sum=rs.reduce((a,b)=>a+b,0);return`${r.s?"🔒 ":""}${esc(r.n)} rolled ${trayLabel(r.ds.map(x=>x.d))}: <b>${rs.join(", ")}</b>${r.m?` ${sg(r.m)}`:""}${rs.length>1||r.m?` = <b>${sum+(r.m||0)}</b>`:""}`}return`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`};
 function diceHtml(){
  const c=chars[me],l=Object.values(rolls||{}).concat(dm?secret.map(s=>({...s,s:1})):[]).sort((a,b)=>a.ts-b.ts).slice(-12).reverse();
- let h=`<div class="card"><h2>Dice</h2><div class="row mini">${[4,6,8,10,12,20,100].map(n=>`<button data-a="die" data-n="${n}">d${n}</button>`).join("")}</div><div class="row"><input id="db" type="number" value="${bonus}" style="width:80px" aria-label="Bonus">`;
+ let h=`<div class="card"><h2>Dice</h2><div class="row mini">${[4,6,8,10,12,20,100].map(n=>`<button data-a="die" data-n="${n}">d${n}</button>`).join("")}</div>${trayHtml()}<div class="row"><input id="db" type="number" value="${bonus}" style="width:80px" aria-label="Bonus">`;
  if(!dm&&c)h+=`<select id="ds" style="width:auto">${[["","No stat"],...["str","dex","con","int","wis","cha"].map(s=>[s,s.toUpperCase()+" "+sg(mod(c[s]))])].map(([v,t])=>`<option value="${v}" ${dstat===v?"selected":""}>${t}</option>`).join("")}</select>`;
  if(dm)h+=`<label class="sub"><input type="checkbox" id="sec" ${secOn?"checked":""} style="width:auto"> Secret</label>`;
- return h+`</div><ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
-function roll(d){
- const c=chars[me],m=(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),r=1+Math.floor(Math.random()*d),e={n:dm?"GM":(c?c.name:"?"),d,r,m,ts:Date.now()};
- const ov=document.createElement("div");ov.className="dov";const bx=document.createElement("div");bx.className="dd";bx.textContent="?";ov.appendChild(bx);document.body.appendChild(ov);
- const W=innerWidth,H=innerHeight,S=110;let x=Math.random()*(W-S),y=Math.random()*(H-S),vx=(Math.random()<.5?-1:1)*(8+Math.random()*7),vy=(Math.random()<.5?-1:1)*(8+Math.random()*7),rot=0,tl=0;const t0=performance.now();
- const done=()=>{bx.className="dd fin";bx.style.left="50%";bx.style.top="50%";bx.style.transform="translate(-50%,-50%)";bx.textContent=m?`${r} ${sg(m)} = ${r+m}`:`${r}`;
+ return h+`</div><ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:rollLine(r)}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
+function roll(ds){
+ const c=chars[me],m=(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),res=ds.map(d=>({d,r:1+Math.floor(Math.random()*d)})),e={n:dm?"GM":(c?c.name:"?"),ds:res,m,ts:Date.now()};
+ const ov=document.createElement("div");ov.className="dov";document.body.appendChild(ov);
+ const W=innerWidth,H=innerHeight,S=84,rnd=()=>(Math.random()<.5?-1:1)*(7+Math.random()*8);
+ const dice=ds.map(d=>{const el=document.createElement("div");el.className="d3";el.innerHTML=[1,2,3,4,5,6].map(f=>`<i class="f${f}">?</i>`).join("");ov.appendChild(el);return{el,d,x:Math.random()*(W-S),y:Math.random()*(H-S),vx:rnd(),vy:rnd(),rx:Math.random()*360,ry:Math.random()*360,rz:0,wx:6+Math.random()*10,wy:6+Math.random()*10}});
+ const done=()=>{const sum=res.reduce((a,b)=>a+b.r,0);ov.innerHTML=`<div class="dres"><div class="dl">${res.map(x=>`<div class="dc"><small>d${x.d}</small>${x.r}</div>`).join("")}</div>${m||res.length>1?`<div class="dt">${res.map(x=>x.r).join(" + ")}${m?` ${sg(m)}`:""} = ${sum+m}</div>`:""}</div>`;
   if(dm&&secOn){secret.push(e);secret=secret.slice(-12);render()}else api("rolls","POST",e).then(()=>{last="";load()}).catch(fail);
   setTimeout(()=>ov.remove(),2000)};
- const step=t=>{if(t-t0>1300){done();return}x+=vx;y+=vy;if(x<0||x>W-S)vx=-vx;if(y<0||y>H-S)vy=-vy;x=Math.max(0,Math.min(W-S,x));y=Math.max(0,Math.min(H-S,y));rot+=vx*4;bx.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;if(t-tl>70){bx.textContent=1+Math.floor(Math.random()*d);tl=t}requestAnimationFrame(step)};
+ const t0=performance.now();let tl=0;
+ const step=t=>{if(t-t0>1500){done();return}
+  dice.forEach(o=>{o.x+=o.vx;o.y+=o.vy;if(o.x<0||o.x>W-S)o.vx=-o.vx;if(o.y<0||o.y>H-S)o.vy=-o.vy;o.x=Math.max(0,Math.min(W-S,o.x));o.y=Math.max(0,Math.min(H-S,o.y));o.rx+=o.wx;o.ry+=o.wy;o.rz+=3;o.el.style.transform=`translate3d(${o.x}px,${o.y}px,0) rotateX(${o.rx}deg) rotateY(${o.ry}deg) rotateZ(${o.rz}deg)`});
+  if(t-tl>90){dice.forEach(o=>o.el.querySelectorAll("i").forEach(i=>{i.textContent=1+Math.floor(Math.random()*o.d)}));tl=t}
+  requestAnimationFrame(step)};
  if(matchMedia("(prefers-reduced-motion:reduce)").matches)done();else requestAnimationFrame(step)}
 /* ---------- map ---------- */
 function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:new Set(Object.values(m.walls||{}))}}
@@ -308,7 +322,9 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="allow")upd(id,{ap:true},"Approved by the GM");
  else if(a==="deny")upd(id,{ap:"no"},"Declined by the GM");
  else if(a==="icon"){iconFor=id;$("#icf").value="";$("#icf").click()}
- else if(a==="die")roll(n);
+ else if(a==="die"){if(tray.length<10){tray.push(n);render()}}
+ else if(a==="trayclr"){tray=[];render()}
+ else if(a==="rollnow"){if(tray.length){const t=tray.slice();tray=[];render();roll(t)}}
  else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",hp,max:hp,sz:+$("#es").value||1,spd:+$("#esp").value||6,bon:0,pm:+$("#epm").value||0,po:+$("#epm").value||0};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
  else if(a==="eh"){const x=enemies[id];updE(id,{hp:clamp(x.hp+n,x.max)})}
  else if(a==="edel"&&confirm("Remove this enemy?")){delete enemies[id];if(sel==="e:"+id)sel=null;render();api("enemies/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
