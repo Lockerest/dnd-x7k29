@@ -57,13 +57,28 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .dt{background:var(--sf);border:2px solid var(--ac);border-radius:10px;padding:6px 16px;font:700 28px "Cormorant Garamond",Georgia,serif;box-shadow:0 8px 28px #0008}
 @keyframes pop{0%{scale:.5}70%{scale:1.15}100%{scale:1}}
 .efld{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.efld label{display:flex;flex-direction:column;font-size:12px;color:var(--mu)}.efld input{width:70px}
+.d3.land{transition:transform .35s ease-out}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--ln);vertical-align:-1px;margin-right:4px;background:var(--sf)}
+.dov[class*=sk-] .dc small{color:inherit;opacity:.75}
+.sk-red .d3 i,.sk-red .dc,.sw.sk-red{background:linear-gradient(135deg,#c62828,#7a0f0f);color:#fff;border-color:#ff8a80}
+.sk-black .d3 i,.sk-black .dc,.sw.sk-black{background:linear-gradient(135deg,#2a2a2e,#050507);color:#f2f2f2;border-color:#6b6b73}
+.sk-pink .d3 i,.sk-pink .dc,.sw.sk-pink{background:linear-gradient(135deg,#ff8fc3,#d6458b);color:#fff;border-color:#ffd0e6}
+.sk-glass .d3 i,.sk-glass .dc,.sw.sk-glass{background:rgba(170,215,255,.28);color:#fff;border-color:rgba(255,255,255,.7);text-shadow:0 1px 3px #0009}
+.sk-lava .d3 i,.sk-lava .dc,.sw.sk-lava{background:radial-gradient(circle at 30% 25%,#ffe27a,#ff7a00 38%,#6d0d00 100%);color:#fff;border-color:#ff9a3d;text-shadow:0 1px 3px #000}
+.sk-veins .d3 i,.sk-veins .dc,.sw.sk-veins{background:linear-gradient(115deg,transparent 38%,rgba(170,20,30,.65) 39.5%,transparent 41.5%),linear-gradient(62deg,transparent 56%,rgba(150,10,25,.55) 57%,transparent 59%),linear-gradient(170deg,transparent 70%,rgba(160,15,28,.5) 71%,transparent 73%),#efe8dc;color:#5b0a13;border-color:#b9423f}
+.sk-galaxy .d3 i,.sk-galaxy .dc,.sw.sk-galaxy{background:radial-gradient(circle at 20% 25%,#fff 0 1px,transparent 2px),radial-gradient(circle at 75% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 30% 20%,#7b4bd6,#1b1245 58%,#05030f);color:#fff;border-color:#8e6bd6}
+.sk-gold .d3 i,.sk-gold .dc,.sw.sk-gold{background:linear-gradient(135deg,#fff1a8,#d4a017 45%,#8a5d00);color:#3a2600;border-color:#fff2b8}
 @media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 6</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 7</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="err"></div><div id="app"></div><input id="icf" type="file" accept="image/*" hidden>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const COM=[["Dodge Roll",3,"Reaction: DEX save against one attack, no advantage. Doesn't use an action.","r"]];
+const COM=[["Dodge Roll",3,"Reaction: ready a dodge. The next attack against you that would hit forces a DEX save (d20 + DEX) against its roll. Beat it and you take nothing. Doesn't use an action.","r"]];
+const PARRY=["Parry",2,"Reaction (needs a shield): ready a parry. The next melee attack that would hit you is parried on a STR check. On success you take nothing and may counter-attack once. Doesn't use an action.","r"];
+const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
+const AD={"Power Strike":{r:1,d:"2d8"},"Multi-Slash":{r:1,d:"2d6"},"Shield Bash":{r:1,d:"1d4",t:1},"Piercing Shot":{r:8,d:"2d6"},"Triple Volley":{r:6,d:"3d4"},"Pinning Shot":{r:6,d:"1d6",t:1},"Firebolt":{r:8,d:"2d10"},"Ember Burst":{r:6,d:"6d6",t:1},"Backstab":{r:1,d:"3d6"},"Cutting Flurry":{r:1,d:"2d6"}};
+const SKINS=[["classic","Classic"],["red","Red"],["black","Obsidian"],["pink","Pink"],["glass","Translucent"],["lava","Lava"],["veins","Veins"],["galaxy","Galaxy"],["gold","Gold"]];
 const C={
 fighter:{n:"Fighter",d:"Tough, 2 stamina back per turn",hp:14,st:10,rg:2,ab:[["Power Strike",2,"+1d8 damage on a hit"],["Multi-Slash",3,"One extra attack this turn"],["Shield Bash",2,"STR save or target is knocked prone"],["Second Wind",3,"Heal 1d10 + level"]]},
 archer:{n:"Archer",d:"Ranged, steady stamina",hp:11,st:10,rg:2,ab:[["Piercing Shot",2,"+1d6, ignores half cover"],["Triple Volley",3,"Three arrows, each at -2 to hit"],["Pinning Shot",2,"DEX save or speed 0 until your next turn"],["Hunter's Eye",1,"Mark a weak point: next hit crits on 19-20"]]},
@@ -71,9 +86,9 @@ mage:{n:"Mage",d:"Big pool, slow regen",hp:9,st:14,rg:1,ab:[["Firebolt",1,"2d10 
 thief:{n:"Thief",d:"Quick, opportunistic",hp:10,st:10,rg:2,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]}};
 const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamina"],["rg","Regen/turn"],["spd","Speed (sq)"],["maxFl","Flasks max"],["souls","Souls"],["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const ABS=c=>COM.concat((C[c.cls]||C.fighter).ab),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
+const ABS=c=>COM.concat(c.shield?[PARRY]:[],(C[c.cls]||C.fighter).ab),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
-let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null,tray=[];
+let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null,tray=[],skin=(()=>{try{return localStorage.getItem("sk")||"classic"}catch(e){return"classic"}})();
 const ok=c=>c.ap!==false&&c.ap!=="no",A=()=>Object.keys(chars).filter(i=>ok(chars[i]));
 const av=(id,o)=>o.iv&&IC[id]&&IC[id].data?`<img class="av" src="${IC[id].data}" alt="">`:"";
 const claimsHtml=()=>{const l=Object.entries(claims||{}).filter(([k,c])=>c.st==="pending");return l.length?`<div class="card sb"><h2>Device requests</h2>${l.map(([k,c])=>`<div class="ab"><div><b>${esc(c.who)}</b> wants to take over <b>${esc(chars[c.target]?chars[c.target].name:"a deleted character")}</b></div><span class="row mini"><button class="pri" data-a="callow" data-id="${k}">Allow</button><button data-a="cdeny" data-id="${k}">Deny</button></span></div>`).join("")}</div>`:""};
@@ -90,20 +105,20 @@ const hash=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new 
 const meter=(v,m,k)=>`<div class="meter"><i class="${k}" style="width:${m?Math.max(0,Math.min(100,v/m*100)):0}%"></i><b>${v} / ${m}</b></div>`;
 const mapId=()=>{const ids=Object.keys(maps),c=cur&&maps[cur]?cur:ids[0];return dm&&gmMap&&maps[gmMap]?gmMap:c};
 /* ---------- characters ---------- */
-function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0,stn:false},d=c.mt==="climb"?4:0,s=c.st+c.rg-d;let m="New round";if(c.exh){const n=(c.exn||2)-1;if(n>0){p.exh=true;p.exn=n;m="Still exhausted ("+n+" round"+(n>1?"s":"")+" left)"}else p.exn=0}
+function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0,stn:false,ddg:false,pry:false,ctr:false},d=c.mt==="climb"?4:0,s=c.st+c.rg-d;let m="New round";if(c.exh){const n=(c.exn||2)-1;if(n>0){p.exh=true;p.exn=n;m="Still exhausted ("+n+" round"+(n>1?"s":"")+" left)"}else p.exn=0}
  if(d&&s<=0){p.st=0;p.mt="";p.mon=null;p.exh=true;m="Drained while climbing: fell off, exhausted!"}else{p.st=clamp(s,c.maxSt);if(d)m="Climbing (-4 St)"}return[p,m]}
-const abBtn=(id,i,a,c,label)=>{const re=a[3]==="r",off=c.exh||c.stn||(!re&&(c.used||0)>=2);return`<button data-a="use" data-id="${id}" data-i="${i}" class="${c.st<a[1]?"warn":""}" ${off?"disabled":""}>${label||a[1]+" St"}</button>`};
+const abBtn=(id,i,a,c,label)=>{if(AD[a[0]])return`<span class="sub">attack: tap a target</span>`;const re=a[3]==="r",off=c.exh||c.stn||(!re&&((c.used||0)>=2||(!dm&&!myTurn("c:"+id))));return`<button data-a="use" data-id="${id}" data-i="${i}" class="${c.st<a[1]?"warn":""}" ${off?"disabled":""}>${label||a[1]+" St"}</button>`};
 const mtCtl=(id,c)=>{const hd=Object.keys(enemies).filter(i=>enemies[i].hd==="c:"+id),b=(c.mt?`<button data-a="unmount" data-id="${id}">${dm?"Drop rider":"Jump off"}</button><button data-a="mtd" data-id="${id}">${c.mt==="climb"?"Foe is down":"Foe is up"}</button>`:"")+hd.map(i=>`<button data-a="putdown" data-id="${i}">Put down ${esc(enemies[i].name)}</button>`).join("");return b?`<div class="row mini">${b}</div>`:""};
 const enPills=(i,e)=>{const x=[];if(e.stun)x.push(e.sg?"Staggered":"Stunned");if(Object.values(chars).some(c=>c.mon===i&&c.mt==="climb"))x.push("Being climbed: can't attack");return x.length?`<div class="pills">${x.map(t=>`<i class="pill bad">${esc(t)}</i>`).join("")}</div>`:""};
 const hpBtns=id=>[-5,-1,1,5].map(n=>`<button data-a="hp" data-id="${id}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("");
-function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted · "+(c.exn||2)+" rd");if(c.stn)x.push("Stunned");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone|Stun/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
+function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted · "+(c.exn||2)+" rd");if(c.stn)x.push("Stunned");if(c.ddg)x.push("Dodging");if(c.pry)x.push("Parrying");if(c.ctr)x.push("Counter ready");if(c.hp<=0)x.push("Down");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone|Stun|Down/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
 function sbox(id){
  const c=chars[id],own=dm||id===me,net=c.rg-(c.mt==="climb"?4:0);
  let h=`<div class="card sb"><div class="top"><h2>${av(id,c)}${esc(c.name)}</h2><span class="sub">${(C[c.cls]||C.fighter).n} · Actions ${c.used||0}/2</span></div>${meter(c.hp,c.maxHp,"hp")}${meter(c.st,c.maxSt,"st")}${pillsOf(c)}`;
- if(own)h+=`<div class="row mini"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(net)}</button><button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask ${c.fl}/${c.maxFl}</button>${dm?hpBtns(id):""}<button data-a="icon" data-id="c:${id}">Icon</button></div>${mtCtl(id,c)}`;
+ if(own)h+=`<div class="row mini"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(net)}</button><button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask ${c.fl}/${c.maxFl}</button>${dm?hpBtns(id):""}<button data-a="icon" data-id="c:${id}">Icon</button>${ini&&ini.ph==="go"&&turnKey()==="c:"+id&&(dm||ini.t<ini.l.length-1)?`<button class="pri" data-a="endturn">End turn</button>`:""}</div>${mtCtl(id,c)}`;
  if(dm&&c.exh)h+=`<div class="row mini"><button data-a="hit" data-id="${id}" data-k="l">Light hit (${c.lh||0}/3)</button><button data-a="hit" data-id="${id}" data-k="h">Heavy hit</button></div>`;
  return h+`</div>`}
-function quick(id){const c=chars[id];return`<div class="card sb"><h3>Quick actions (2 per round, Dodge is a reaction)</h3><div class="row mini">${ABS(c).map((a,i)=>abBtn(id,i,a,c,esc(a[0])+" · "+a[1])).join("")}</div></div>`}
+function quick(id){const c=chars[id];return`<div class="card sb"><h3>Quick actions (2 per round, Dodge is a reaction)</h3><div class="row mini">${ABS(c).map((a,i)=>AD[a[0]]?"":abBtn(id,i,a,c,esc(a[0])+" · "+a[1])).join("")}</div></div>`}
 function allies(){const m=chars[me];if(!m)return"";const l=A().filter(i=>i!==me&&(chars[i].exh||chars[i].pr));return l.length?`<div class="card sb"><h3>Allies down</h3>${l.map(i=>`<button data-a="help" data-id="${i}" ${m.exh||(m.used||0)>=2?"disabled":""}>Help ${esc(chars[i].name)} up (uses an action)</button>`).join("")}</div>`:""}
 function card(id){
  const c=chars[id],k=C[c.cls]||C.fighter,own=dm||id===me;
@@ -111,7 +126,7 @@ function card(id){
  h+=`<h3>Health</h3>${meter(c.hp,c.maxHp,"hp")}`;
  if(own)h+=`<div class="row">${hpBtns(id)}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask (${c.fl}/${c.maxFl})</button></div>`;
  h+=`<h3>Stamina · Actions used ${c.used||0}/2</h3>${meter(c.st,c.maxSt,"st")}`;
- if(own)h+=`<div class="row"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4:0))}</button><button data-a="rest" data-id="${id}">Bonfire rest</button><button data-a="icon" data-id="c:${id}">Set icon</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>${mtCtl(id,c)}`;
+ if(own)h+=`<div class="row"><button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4:0))}</button><button data-a="rest" data-id="${id}">Bonfire rest</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>${mtCtl(id,c)}`;
  h+=`<h3>Abilities (basic attacks are free)</h3>`;
  ABS(c).forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}${a[3]?" (reaction)":""}<small>${esc(a[2])}</small></div>${own?abBtn(id,i,a,c):`<span class="sub">${a[1]} St</span>`}</div>`});
  h+=`<h3>Stats</h3><div class="stats">`;
@@ -134,28 +149,30 @@ function joinScreen(){
 function enemiesHtml(){
  const ids=Object.keys(enemies).filter(i=>dm||(enemies[i].mx!=null&&!eHid(geo(),enemies[i])));
  let h=`<div class="card"><h2>Enemies</h2>`;
- h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":""}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label></div><div class="row mini"><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
- if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><select id="es" style="margin-top:6px"><option value="1">Small/Medium (1×1)</option><option value="2">Large (2×2)</option><option value="3">Huge (3×3)</option><option value="4">Gargantuan (4×4)</option></select><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><input id="esp" type="number" placeholder="Speed in squares (default 6)" style="margin-top:6px"><input id="epm" type="number" placeholder="Poise (0 = no stagger)" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
+ h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":""}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label><label>AC<input type="number" data-ef="ac" data-id="${i}" value="${e.ac??12}"></label><label>Atk +<input type="number" data-ef="ab" data-id="${i}" value="${e.ab??4}"></label><label>Damage<input type="text" data-ef="dm" data-id="${i}" value="${esc(e.dm||"1d8")}" style="width:84px"></label><label>Range<input type="number" data-ef="er" data-id="${i}" value="${e.er||1}"></label><label>Init +<input type="number" data-ef="ib" data-id="${i}" value="${e.ib||0}"></label></div><div class="row mini"><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
+ if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><select id="es" style="margin-top:6px"><option value="1">Small/Medium (1×1)</option><option value="2">Large (2×2)</option><option value="3">Huge (3×3)</option><option value="4">Gargantuan (4×4)</option></select><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><input id="esp" type="number" placeholder="Speed in squares (default 6)" style="margin-top:6px"><input id="epm" type="number" placeholder="Poise (0 = no stagger)" style="margin-top:6px"><input id="eac" type="number" placeholder="AC (default 12)" style="margin-top:6px"><input id="eab" type="number" placeholder="Attack bonus (default 4)" style="margin-top:6px"><input id="edm" placeholder="Damage, e.g. 2d6 (default 1d8)" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
  return h+`</div>`}
 const trayLabel=a=>{const c={};a.forEach(x=>c[x]=(c[x]||0)+1);return Object.keys(c).map(k=>(c[k]>1?c[k]:"")+"d"+k).join(" + ")};
 const trayHtml=()=>`<div class="row mini"><span class="sub">${tray.length?esc(trayLabel(tray)):"Tap dice to add them, then Roll"}</span><button class="pri" data-a="rollnow" ${tray.length?"":"disabled"}>Roll</button><button data-a="trayclr" ${tray.length?"":"disabled"}>Clear</button></div>`;
-const rollLine=r=>{if(r.ds){const rs=r.ds.map(x=>x.r),sum=rs.reduce((a,b)=>a+b,0);return`${r.s?"🔒 ":""}${esc(r.n)} rolled ${trayLabel(r.ds.map(x=>x.d))}: <b>${rs.join(", ")}</b>${r.m?` ${sg(r.m)}`:""}${rs.length>1||r.m?` = <b>${sum+(r.m||0)}</b>`:""}`}return`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`};
+const rollLine=r=>{if(r.ds){const rs=r.ds.map(x=>x.r),sum=rs.reduce((a,b)=>a+b,0);return`${r.s?"🔒 ":""}<i class="sw sk-${esc(r.sk||"classic")}"></i>${esc(r.n)} rolled ${trayLabel(r.ds.map(x=>x.d))}: <b>${rs.join(", ")}</b>${r.m?` ${sg(r.m)}`:""}${rs.length>1||r.m?` = <b>${sum+(r.m||0)}</b>`:""}`}return`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`};
 function diceHtml(){
  const c=chars[me],l=Object.values(rolls||{}).concat(dm?secret.map(s=>({...s,s:1})):[]).sort((a,b)=>a.ts-b.ts).slice(-12).reverse();
  let h=`<div class="card"><h2>Dice</h2><div class="row mini">${[4,6,8,10,12,20,100].map(n=>`<button data-a="die" data-n="${n}">d${n}</button>`).join("")}</div>${trayHtml()}<div class="row"><input id="db" type="number" value="${bonus}" style="width:80px" aria-label="Bonus">`;
  if(!dm&&c)h+=`<select id="ds" style="width:auto">${[["","No stat"],...["str","dex","con","int","wis","cha"].map(s=>[s,s.toUpperCase()+" "+sg(mod(c[s]))])].map(([v,t])=>`<option value="${v}" ${dstat===v?"selected":""}>${t}</option>`).join("")}</select>`;
+ h+=`<select id="dsk" title="Dice style" style="width:auto">${SKINS.map(([v,t])=>`<option value="${v}" ${skin===v?"selected":""}>${t}</option>`).join("")}</select>`;
  if(dm)h+=`<label class="sub"><input type="checkbox" id="sec" ${secOn?"checked":""} style="width:auto"> Secret</label>`;
  return h+`</div><ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:rollLine(r)}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
-function roll(ds){
- const c=chars[me],m=(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),res=ds.map(d=>({d,r:1+Math.floor(Math.random()*d)})),e={n:dm?"GM":(c?c.name:"?"),ds:res,m,ts:Date.now()};
- const ov=document.createElement("div");ov.className="dov";document.body.appendChild(ov);
+function roll(ds,cb,mb){
+ const c=chars[me],m=mb!==undefined?mb:(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),res=ds.map(d=>({d,r:1+Math.floor(Math.random()*d)})),e={n:dm?"GM":(c?c.name:"?"),ds:res,m,ts:Date.now(),sk:skin};
+ const ov=document.createElement("div");ov.className="dov sk-"+skin;document.body.appendChild(ov);
  const W=innerWidth,H=innerHeight,S=84,rnd=()=>(Math.random()<.5?-1:1)*(7+Math.random()*8);
  const dice=ds.map(d=>{const el=document.createElement("div");el.className="d3";el.innerHTML=[1,2,3,4,5,6].map(f=>`<i class="f${f}">?</i>`).join("");ov.appendChild(el);return{el,d,x:Math.random()*(W-S),y:Math.random()*(H-S),vx:rnd(),vy:rnd(),rx:Math.random()*360,ry:Math.random()*360,rz:0,wx:6+Math.random()*10,wy:6+Math.random()*10}});
  const done=()=>{const sum=res.reduce((a,b)=>a+b.r,0);ov.innerHTML=`<div class="dres"><div class="dl">${res.map(x=>`<div class="dc"><small>d${x.d}</small>${x.r}</div>`).join("")}</div>${m||res.length>1?`<div class="dt">${res.map(x=>x.r).join(" + ")}${m?` ${sg(m)}`:""} = ${sum+m}</div>`:""}</div>`;
-  if(dm&&secOn){secret.push(e);secret=secret.slice(-12);render()}else api("rolls","POST",e).then(()=>{last="";load()}).catch(fail);
-  setTimeout(()=>ov.remove(),2000)};
+  if(cb)setTimeout(()=>{ov.remove();cb(res,m)},2000);
+  else{if(dm&&secOn){secret.push(e);secret=secret.slice(-12);render()}else api("rolls","POST",e).then(()=>{last="";load()}).catch(fail);setTimeout(()=>ov.remove(),2000)}};
+ const land=()=>{dice.forEach((o,i)=>{o.el.classList.add("land");o.el.style.transform=`translate3d(${o.x}px,${o.y}px,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`;o.el.querySelector(".f1").textContent=res[i].r});setTimeout(done,1000)};
  const t0=performance.now();let tl=0;
- const step=t=>{if(t-t0>1500){done();return}
+ const step=t=>{if(t-t0>1500){land();return}
   dice.forEach(o=>{o.x+=o.vx;o.y+=o.vy;if(o.x<0||o.x>W-S)o.vx=-o.vx;if(o.y<0||o.y>H-S)o.vy=-o.vy;o.x=Math.max(0,Math.min(W-S,o.x));o.y=Math.max(0,Math.min(H-S,o.y));o.rx+=o.wx;o.ry+=o.wy;o.rz+=3;o.el.style.transform=`translate3d(${o.x}px,${o.y}px,0) rotateX(${o.rx}deg) rotateY(${o.ry}deg) rotateZ(${o.rz}deg)`});
   if(t-tl>90){dice.forEach(o=>o.el.querySelectorAll("i").forEach(i=>{i.textContent=1+Math.floor(Math.random()*o.d)}));tl=t}
   requestAnimationFrame(step)};
@@ -179,9 +196,51 @@ function poiseHit(id,d){const e=enemies[id];if(!e||!(e.pm>0)||e.stun)return;cons
 function tick(){A().forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)});Object.keys(enemies).forEach(i=>{const e=enemies[i];if(e.sg||e.rec)updE(i,{stun:false,sg:false,rec:false,...(e.sg?{po:e.pm||0}:{})})})}
 const shownE=t=>dm||!t.e||(t.o.mx!=null&&!eHid(geo(),t.o));
 const initHtml=()=>{
- if(!ini||!ini.l)return dm?`<div class="card sb"><h2>Turn order</h2><div class="row mini"><button class="pri" data-a="iroll">Roll initiative</button></div><p class="note">Rolls for everyone, sorts the order and starts combat.</p></div>`:"";
- const rows=ini.l.map((u,i)=>{const t=ent(u.k);if(!t)return"";return`<li style="${i===ini.t?"color:var(--ac);font-weight:600":""}">${i===ini.t?"▶ ":""}${esc(shownE(t)?t.o.name:"Unseen enemy")}${dm?` <span class="sub">(${u.v})</span>`:""}</li>`}).join("");
- return`<div class="card sb"><h2>Turn order · Round ${ini.r}</h2><ul class="rl">${rows}</ul>${dm?`<div class="row mini"><button class="pri" data-a="inext">Next turn</button><button data-a="iroll">Re-roll</button><button data-a="iend">End combat</button></div>`:""}</div>`};
+ if(!ini||!ini.l)return dm?`<div class="card sb"><h2>Initiative</h2><div class="row mini"><button class="pri" data-a="istart">Start initiative</button></div><p class="note">Everyone rolls initiative first. Combat starts once all have rolled.</p></div>`:"";
+ const rl=ini.ph==="roll",mine="c:"+me;
+ const rows=ini.l.map((u,i)=>{const t=ent(u.k);if(!t)return"";const nm=shownE(t)?t.o.name:"Unseen enemy",cur=!rl&&i===ini.t;let st="";
+  if(rl)st=u.v==null?`<span class="sub">waiting</span> ${(dm||u.k===mine)?`<span class="mini"><button data-a="iself" data-i="${i}">Roll</button></span>`:""}`:`<span class="sub">${dm||u.k[0]==="c"?"("+u.v+")":"✓"}</span>`;
+  else if(dm||u.k[0]==="c")st=`<span class="sub">(${u.v})</span>`;
+  return`<li style="${cur?"color:var(--ac);font-weight:600":""}">${cur?"▶ ":""}${esc(nm)} ${st}</li>`}).join("");
+ const all=ini.l.every(u=>u.v!=null||!ent(u.k));
+ return`<div class="card sb"><h2>${rl?"Roll initiative":"Turn order · Round "+ini.r}</h2><ul class="rl">${rows}</ul>${dm?(rl?`<div class="row mini"><button data-a="ienemies">Roll enemies</button><button class="pri" data-a="ibegin" ${all?"":"disabled"}>Begin combat</button><button data-a="iend">Cancel</button></div>`:`<div class="row mini"><button class="pri" data-a="inext">Next turn</button><button data-a="istart">New initiative</button><button data-a="iend">End combat</button></div>`):""}</div>`};
+const turnKey=()=>ini&&ini.ph==="go"&&ini.l&&ini.l[ini.t]?ini.l[ini.t].k:null;
+const myTurn=k=>!(ini&&ini.ph==="go")||turnKey()===k;
+const parseD=s=>{const o=[];String(s||"").split("+").forEach(p=>{const m=/(\d*)d(\d+)/.exec(p);if(m)for(let i=0;i<Math.min(+m[1]||1,12);i++)o.push(+m[2])});return o};
+const prof=c=>2+Math.floor(((c.level||1)-1)/4),stat=c=>mod(c[CS[c.cls]||"str"]);
+function gap(a,t){const za=zOf(a),zt=zOf(t);return Math.max(1,t.o.mx-(a.o.mx+za-1),a.o.mx-(t.o.mx+zt-1),t.o.my-(a.o.my+za-1),a.o.my-(t.o.my+zt-1))}
+function atkInfo(A_,k,i){
+ const c=A_.o;
+ if(A_.e){const d=c.dm||"1d8",rng=c.er||1,tb=c.ab??4;return k==="h"?{label:"Heavy attack",rng,dmg:d+"+"+d,tb,db:0,cost:0,po:3,heavy:true}:{label:"Light attack",rng,dmg:d,tb,db:0,cost:0,po:1}}
+ const tb=prof(c)+stat(c),db=stat(c),wr=WR[c.cls]||1;
+ if(k==="l")return{label:"Light attack",rng:wr,dmg:"1d6",tb,db,cost:0,po:1};
+ if(k==="h")return{label:"Heavy attack",rng:wr,dmg:"1d10",tb,db,cost:1,po:3,heavy:true};
+ const ab=ABS(c)[i],d=ab&&AD[ab[0]];return d?{label:ab[0],rng:d.r,dmg:d.d,tb,db,cost:ab[1],po:2,auto:d.t}:null}
+function applyDmg(A_,T,dmg,inf){
+ const o=T.o,nh=Math.max(0,(o.hp||0)-dmg),ts=Date.now();
+ if(T.e){updE(T.id,{hp:nh,ht:ts,hv:dmg});poiseHit(T.id,inf.po||1)}
+ else{upd(T.id,{hp:nh,ht:ts,hv:dmg},A_.o.name+" hits for "+dmg);
+  if(A_.e&&o.exh){const hv=inf.heavy,lh=(o.lh||0)+(hv?0:1),pr=hv||lh>=3;upd(T.id,{lh:pr?0:lh,pr:pr||!!o.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}}
+ ev(A_.o.name+" hits "+o.name+" for "+dmg+(nh===0?(T.e?". "+o.name+" is slain!":". "+o.name+" falls!"):""))}
+function resolveAttack(A_,T,inf){
+ const an=A_.o.name,tn=T.o.name,pl=!A_.e,ac=T.o.ac??12;
+ const onHit=(nat,total)=>{
+  const crit=nat===20,melee=inf.rng<=1;
+  if(!T.e&&!inf.auto){const t=T.o;
+   if(t.ddg||(t.pry&&melee)){
+    const useD=!!t.ddg,dr=1+Math.floor(Math.random()*20)+mod(useD?t.dex:t.str);
+    if(dr>=total){upd(T.id,useD?{ddg:false}:{pry:false,ctr:true},useD?"Dodged "+an:"Parried "+an);ev(tn+(useD?" dodges ":" parries ")+an+"'s attack ("+dr+" vs "+total+")"+(useD?"":" and can counter-attack"));return}
+    upd(T.id,useD?{ddg:false}:{pry:false});ev(tn+(useD?" fails to dodge":" fails to parry")+" ("+dr+" vs "+total+")")}}
+  const dsl=parseD(inf.dmg),list=crit?dsl.concat(dsl):dsl;
+  if(pl)roll(list,res=>applyDmg(A_,T,Math.max(1,res.reduce((a,b)=>a+b.r,0)+inf.db),inf),inf.db);
+  else applyDmg(A_,T,Math.max(1,list.reduce((a,d)=>a+1+Math.floor(Math.random()*d),0)),inf)};
+ if(inf.auto){ev(an+" uses "+inf.label+" on "+tn+" (targeted, no attack roll)");onHit(0,0);return}
+ const fin=(nat,m)=>{const total=nat+m,hit=nat===20||(nat!==1&&total>=ac);
+  if(pl)ev(an+" rolls "+nat+" "+sg(m)+" = "+total+" vs AC "+ac+" ("+inf.label+" on "+tn+"): "+(nat===20?"CRITICAL HIT":hit?"HIT":"MISS"));
+  else if(!hit)ev(an+" misses "+tn+" ("+inf.label+")");
+  if(hit)onHit(nat,total)};
+ if(pl)roll([20],(res,m)=>fin(res[0].r,m),inf.tb);else fin(1+Math.floor(Math.random()*20),inf.tb)}
+function nextTurn(){if(!ini||ini.ph!=="go")return;let t=ini.t,r=ini.r,w=false;const n=ini.l.length;for(let q=0;q<n;q++){t++;if(t>=n){t=0;r++;w=true}if(ent(ini.l[t].k))break}ini={...ini,t,r};if(w)tick();last="";render();api("init","PUT",ini).catch(fail);const u=ent(ini.l[t].k);if(u)ev((w?"Round "+r+". ":"")+"It's "+u.o.name+"'s turn")}
 function fxs(o,en,x,y,r,cs){
  const stun=en?o.stun:o.stn,t=`stroke:#000;stroke-width:${cs*.03}px;paint-order:stroke`;
  if(stun){const cy=y-r*.95;return`<g><animateTransform attributeName="transform" type="rotate" from="0 ${x} ${cy}" to="360 ${x} ${cy}" dur="1.4s" repeatCount="indefinite"/>${[0,1,2].map(i=>{const a=i*2.094;return`<text x="${x+Math.cos(a)*r*.62}" y="${cy+Math.sin(a)*r*.62}" text-anchor="middle" dy=".35em" style="font-size:${cs*.34}px;fill:#ffd84d;${t}">★</text>`}).join("")}</g>`}
@@ -199,7 +258,8 @@ function mapHtml(){
  v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;
  if(m.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2,m.w/450)};fill:none"/>`}
  if(m.fog)v+=`<path id="fgp" d="${fogD(g)}" style="fill:#000;fill-opacity:${dm?.55:1}"/>`;
- const tk=(o,key,en)=>{if(o.mx==null||(en&&!dm&&eHid(g,o)))return"";const id=key.slice(2),z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,r=cs*(z===1?.4:z*.47),sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;const bd=img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45*Math.min(z,2)}px sans-serif">${esc((o.name||"?")[0])}</text>`;return bd+fxs(o,en,x,y,r,cs)+(en?riders(id,x,y,r,cs):"")};
+ const tk=(o,key,en)=>{if(o.mx==null||(en&&!dm&&eHid(g,o)))return"";const id=key.slice(2),z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,r=cs*(z===1?.4:z*.47),sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;const bd=img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45*Math.min(z,2)}px sans-serif">${esc((o.name||"?")[0])}</text>`;const hf=o.ht&&Date.now()-o.ht<4500,shk=hf?`<animateTransform attributeName="transform" type="translate" values="0 0;${-cs*.12} 0;${cs*.12} ${cs*.05};${-cs*.08} 0;${cs*.08} 0;0 0" dur=".5s" repeatCount="1"/>`:"";
+  return`<g>${shk}${bd}${fxs(o,en,x,y,r,cs)}${en?riders(id,x,y,r,cs):""}${hf?`<circle cx="${x}" cy="${y}" r="${r}" style="fill:#ff2a2a;opacity:0"><animate attributeName="opacity" values=".65;0" dur=".7s" repeatCount="1"/></circle><text x="${x}" y="${y-r}" text-anchor="middle" style="font:700 ${cs*.4}px sans-serif;fill:#ff5a4d;stroke:#000;stroke-width:${cs*.04}px;paint-order:stroke;opacity:0">-${o.hv||""}<animate attributeName="y" values="${y-r*.6};${y-r*1.7}" dur="1.2s" repeatCount="1"/><animate attributeName="opacity" values="1;1;0" dur="1.2s" repeatCount="1"/></text>`:""}</g>`};
  for(const i in enemies)if(enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in enemies)if(!enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in chars)if(ok(chars[i])&&!(chars[i].mt&&chars[i].mon))v+=tk(chars[i],"c:"+i,false);
  v+="</svg>";
  const chip=(k,t)=>`<button data-m="sel" data-id="${k}" ${k===sel?'class="pri"':""}>${esc(t)}</button>`;
@@ -247,10 +307,10 @@ function upd(id,p,msg){
 function updE(id,p){enemies[id]={...enemies[id],...p};if(p.mx!=null)Object.keys(chars).forEach(i=>{if(chars[i].mon===id&&chars[i].mt){chars[i]={...chars[i],mx:p.mx,my:p.my};api("chars/"+i,"PATCH",{mx:p.mx,my:p.my}).catch(fail)}});render();api("enemies/"+id,"PATCH",p).catch(fail)}
 const ev=t=>api("rolls","POST",{ev:t,ts:Date.now()}).then(()=>{last="";load()}).catch(fail);
 function useAb(id,i,tn){
- const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||c.stn||(!re&&(c.used||0)>=2))return;
+ const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||c.stn||(!re&&((c.used||0)>=2||(!dm&&!myTurn("c:"+id)))))return;
  const p={};let msg="Used "+a[0]+" (-"+a[1]+" St)"+(tn?" on "+tn:"");
  if(c.st>=a[1])p.st=c.st-a[1];else{p.st=0;p.exh=true;p.mt="";p.mon=null;msg+=" - out of stamina: EXHAUSTED"}
- if(!re)p.used=(c.used||0)+1;
+ if(!re)p.used=(c.used||0)+1;if(a[0]==="Dodge Roll")p.ddg=true;if(a[0]==="Parry")p.pry=true;
  upd(id,p,msg);if(tn)ev(c.name+" uses "+a[0]+" on "+tn)}
 /* ---------- events ---------- */
 $("#app").addEventListener("click",async e=>{
@@ -307,13 +367,20 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="mtd")upd(id,{mt:c.mt==="climb"?"down":"climb"},c.mt==="climb"?"Foe knocked down: no drain":"Foe is back up: -4 St per round");
  else if(a==="hit"){const lh=(c.lh||0)+(b.dataset.k==="l"?1:0),pr=b.dataset.k==="h"||lh>=3;upd(id,{lh:pr?0:lh,pr:pr||!!c.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}
  else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,exn:0,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,exn:0,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
+ else if(a==="shield")upd(id,{shield:!c.shield},c.shield?"Put away the shield":"Equipped a shield");
  else if(a==="mact")doAct(b.dataset.k,+b.dataset.i);
  else if(a==="mcancel"){menu=null;render()}
  else if(a==="putdown"){const x=enemies[id],cr=x&&ent(x.hd);updE(id,{hd:null});if(cr)ev(cr.o.name+" puts down "+x.name)}
  else if(a==="estun"){const x=enemies[id];updE(id,{stun:!x.stun})}
  else if(a==="combat"){combat=!combat;last="";render();api("combat","PUT",combat).catch(fail);ev(combat?"Combat begins: moving costs 1 stamina per square":"Combat ends")}
- else if(a==="iroll"){const l=[];A().forEach(i=>l.push({k:"c:"+i,v:1+Math.floor(Math.random()*20)+mod(chars[i].dex)}));Object.keys(enemies).forEach(i=>{if(enemies[i].mx!=null)l.push({k:"e:"+i,v:1+Math.floor(Math.random()*20)})});l.sort((x,y)=>y.v-x.v);ini={l,t:0,r:1};combat=true;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",true).catch(fail);ev("Initiative rolled. Combat begins.")}
- else if(a==="inext"&&ini){let t=ini.t,r=ini.r,w=false;const n=ini.l.length;for(let q=0;q<n;q++){t++;if(t>=n){t=0;r++;w=true}if(ent(ini.l[t].k))break}ini={...ini,t,r};if(w)tick();last="";render();api("init","PUT",ini).catch(fail);const u=ent(ini.l[t].k);if(u)ev((w?"Round "+r+". ":"")+"It's "+u.o.name+"'s turn")}
+ else if(a==="istart"||a==="iroll"){const l=[];A().forEach(i=>l.push({k:"c:"+i,v:null}));Object.keys(enemies).forEach(i=>{if(enemies[i].mx!=null&&!enemies[i].hd)l.push({k:"e:"+i,v:null})});ini={ph:"roll",l,t:0,r:1};combat=false;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",false).catch(fail);ev("Initiative! Everyone roll to see who goes first.")}
+ else if(a==="iself"&&ini&&ini.ph==="roll"){const i=+b.dataset.i,u=ini.l[i];if(!u||u.v!=null)return;const t=ent(u.k);if(!t)return;
+  const setV=v=>{ini.l[i]={...u,v};last="";render();api("init/l/"+i,"PATCH",{v}).catch(fail);ev(t.o.name+" rolls initiative"+(t.e?"":": "+v))};
+  if(t.e||(dm&&u.k!=="c:"+me))setV(1+Math.floor(Math.random()*20)+(t.e?(t.o.ib||0):mod(t.o.dex)));
+  else if(u.k==="c:"+me)roll([20],(res,m)=>setV(res[0].r+m),mod(t.o.dex)+(+bonus||0))}
+ else if(a==="ienemies"&&ini){ini.l.forEach((u,i)=>{const t=ent(u.k);if(t&&t.e&&u.v==null){const v=1+Math.floor(Math.random()*20)+(t.o.ib||0);ini.l[i]={...u,v};api("init/l/"+i,"PATCH",{v}).catch(fail)}});last="";render()}
+ else if(a==="ibegin"&&ini&&ini.ph==="roll"){if(!ini.l.every(u=>u.v!=null||!ent(u.k)))return;const l=ini.l.filter(u=>ent(u.k)).sort((x,y)=>y.v-x.v||Math.random()-.5);ini={ph:"go",l,t:0,r:1};combat=true;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",true).catch(fail);const u0=ent(l[0].k);ev("Combat begins! "+(u0?u0.o.name+" goes first.":""))}
+ else if((a==="inext"&&dm)||(a==="endturn"&&(dm||turnKey()==="c:"+me)))nextTurn();
  else if(a==="iend"){ini=null;combat=false;last="";render();api("init","DELETE").catch(fail);api("combat","PUT",false).catch(fail);ev("Combat ends")}
  else if(a==="cmode"){claimMode=!claimMode;render()}
  else if(a==="csend"){const who=$("#cn").value.trim().slice(0,30),t=$("#ct").value;if(!who||!t){$("#err").textContent="Enter your name and pick a character.";return}$("#err").textContent="";myClaim={who,target:t,st:"pending",ts:Date.now()};claimMode=false;render();api("claims/"+me,"PUT",myClaim).catch(fail)}
@@ -325,7 +392,7 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="die"){if(tray.length<10){tray.push(n);render()}}
  else if(a==="trayclr"){tray=[];render()}
  else if(a==="rollnow"){if(tray.length){const t=tray.slice();tray=[];render();roll(t)}}
- else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",hp,max:hp,sz:+$("#es").value||1,spd:+$("#esp").value||6,bon:0,pm:+$("#epm").value||0,po:+$("#epm").value||0};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
+ else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",hp,max:hp,sz:+$("#es").value||1,spd:+$("#esp").value||6,bon:0,pm:+$("#epm").value||0,po:+$("#epm").value||0,ac:+$("#eac").value||12,ab:$("#eab").value===""?4:+$("#eab").value,dm:($("#edm").value.trim()||"1d8").slice(0,20),er:1,ib:0};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
  else if(a==="eh"){const x=enemies[id];updE(id,{hp:clamp(x.hp+n,x.max)})}
  else if(a==="edel"&&confirm("Remove this enemy?")){delete enemies[id];if(sel==="e:"+id)sel=null;render();api("enemies/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
  else if(a==="del"&&confirm("Remove "+c.name+"?")){delete chars[id];render();api("chars/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
@@ -337,22 +404,27 @@ function occ(x,y){for(const i in chars){const c=chars[i];if(ok(c)&&!(c.mt&&c.mon
 const follow=(key,x,y)=>Object.keys(enemies).filter(i=>enemies[i].hd===key).forEach(i=>updE(i,{mx:x,my:y}));
 function menuHtml(){
  if(!menu)return"";const a=ent(menu.a),t=ent(menu.t);if(!a||!t||a.o.mx==null||t.o.mx==null){menu=null;return""}
- const near=adj(a,t),c=a.o,tz=zOf(t),can=a.e||(!c.exh&&!c.stn&&(c.used||0)<2),abil=a.e?[]:ABS(c).map((x,i)=>[x,i]).filter(([x])=>!x[3]);
- let h=`<div class="menu"><b>${esc(c.name)} → ${esc(t.o.name)}</b><div class="row mini"><button data-a="mact" data-k="l" ${can?"":"disabled"}>Light attack</button><button data-a="mact" data-k="h" class="${!a.e&&c.st<1?"warn":""}" ${can?"":"disabled"}>Heavy attack${a.e?"":" · 1 St"}</button>`;
- h+=a.e?`<button data-a="mact" data-k="sp">Special attack…</button>`:abil.map(([x,i])=>`<button data-a="mact" data-k="ab" data-i="${i}" class="${c.st<x[1]?"warn":""}" ${can?"":"disabled"}>${esc(x[0])} · ${x[1]} St</button>`).join("");
+ const c=a.o,near=adj(a,t),tz=zOf(t),mine=a.e||dm||myTurn(a.key),can=a.e||(!c.exh&&!c.stn&&(c.used||0)<2&&mine),d=gap(a,t);
+ const bt=(k,i,inf)=>`<button data-a="mact" data-k="${k}" ${i!=null?`data-i="${i}"`:""} class="${!a.e&&inf.cost&&c.st<inf.cost?"warn":""}" ${can&&d<=inf.rng?"":"disabled"}>${inf.label}${inf.cost?" · "+inf.cost+" St":""}${inf.rng>1?" · range "+inf.rng:""}</button>`;
+ let h=`<div class="menu"><b>${esc(c.name)} → ${esc(t.o.name)}</b><div class="row mini">${bt("l",null,atkInfo(a,"l"))}${bt("h",null,atkInfo(a,"h"))}`;
+ if(a.e)h+=`<button data-a="mact" data-k="sp">Special attack…</button>`;
+ else ABS(c).forEach((x,i)=>{if(AD[x[0]])h+=bt("ab",i,atkInfo(a,"ab",i))});
+ if(!a.e&&c.ctr)h+=`<button class="pri" data-a="mact" data-k="ctr" ${d<=(WR[c.cls]||1)?"":"disabled"}>Counter attack (free)</button>`;
  if(!a.e&&t.e&&tz>=2)h+=`<button data-a="mact" data-k="mount" ${near&&can&&!c.mt?"":"disabled"}>Mount (2 St)</button>`;
  if(tz===1){h+=`<button data-a="mact" data-k="push" ${near&&can?"":"disabled"}>Push (1 St)</button>`;if(!a.e&&t.e&&t.o.stun)h+=`<button data-a="mact" data-k="pick" ${near&&can?"":"disabled"}>Pick up (2 St)</button>`}
  if(!a.e&&t.e){const hid=Object.keys(enemies).find(i=>enemies[i].hd===a.key);if(hid&&hid!==t.id)h+=`<button data-a="mact" data-k="throw" ${can&&Math.max(Math.abs(t.o.mx-c.mx),Math.abs(t.o.my-c.my))<=5?"":"disabled"}>Throw ${esc(enemies[hid].name)} · 2 St</button>`}
- return h+`<button data-a="mcancel">Cancel</button></div>${near?"":`<p class="note">Mount, push and pick up need you next to the target.</p>`}</div>`}
+ return h+`<button data-a="mcancel">Cancel</button></div>${mine?"":`<p class="note">It is not your turn: you can only use reactions (Dodge, Parry) or a counter-attack.</p>`}${near?"":`<p class="note">Melee, mount, push and pick up need you next to the target. Ranged attacks show their range.</p>`}</div>`}
 function doAct(k,i){
  const A_=ent(menu.a),T=ent(menu.t);if(!A_||!T){menu=null;render();return}
  if(!dm&&A_.id!==me)return;
  const an=A_.o.name,tn=T.o.name,near=adj(A_,T),c=A_.o,tz=zOf(T);
- const act=(cost,msg,extra)=>{if(A_.e)return 1;if(c.exh||c.stn||(c.used||0)>=2)return 0;const p={used:(c.used||0)+1};let m=msg+(cost?" (-"+cost+" St)":"");if(c.st>=cost){p.st=c.st-cost;Object.assign(p,extra||{})}else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}upd(A_.id,p,m);return p.exh?2:1};
- if(k==="l"||k==="h"){const hv=k==="h",r=act(hv?1:0,hv?"Heavy attack":"Light attack");if(r){ev(an+(hv?" makes a heavy attack on ":" makes a light attack on ")+tn);
-  if(T.e)poiseHit(T.id,hv?3:1);
-  else if(A_.e&&T.o.exh){const lh=(T.o.lh||0)+(hv?0:1),pr=hv||lh>=3;upd(T.id,{lh:pr?0:lh,pr:pr||!!T.o.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}}}
- else if(k==="ab"){useAb(A_.id,i,tn);if(T.e)poiseHit(T.id,2)}
+ const act=(cost,msg,extra)=>{if(A_.e)return 1;if(!dm&&!myTurn(A_.key))return 0;if(c.exh||c.stn||(c.used||0)>=2)return 0;const p={used:(c.used||0)+1};let m=msg+(cost?" (-"+cost+" St)":"");if(c.st>=cost){p.st=c.st-cost;Object.assign(p,extra||{})}else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}upd(A_.id,p,m);return p.exh?2:1};
+ if(k==="l"||k==="h"||k==="ab"||k==="ctr"){
+  const inf=atkInfo(A_,k==="ctr"?"l":k,i);if(!inf)return;
+  if(gap(A_,T)>inf.rng){$("#err").textContent="Out of range: "+inf.label+" reaches "+inf.rng+" square"+(inf.rng>1?"s":"")+".";return}
+  $("#err").textContent="";let go=true;
+  if(k==="ctr")upd(A_.id,{ctr:false},"Counter-attack!");else go=!!act(inf.cost,inf.label+" on "+tn,{});
+  if(go)resolveAttack(A_,T,inf)}
  else if(k==="sp"){const nm=prompt("Name of the special attack?");if(nm)ev(an+" uses "+nm.slice(0,40)+" on "+tn)}
  else if(k==="mount"&&near&&T.e&&tz>=2&&!A_.e&&!c.mt){if(act(2,"Mounted "+tn,{mt:"climb",mon:T.id,mx:T.o.mx,my:T.o.my})===1)ev(an+" climbs onto "+tn+" (Athletics check)")}
  else if(k==="push"&&near&&tz===1){if(act(1,"Pushed "+tn)===1){const g=geo(),za=zOf(A_),nx=T.o.mx+Math.sign(T.o.mx-(c.mx+(za-1)/2)),ny=T.o.my+Math.sign(T.o.my-(c.my+(za-1)/2));
@@ -378,6 +450,7 @@ $("#app").addEventListener("pointerdown",e=>{
  menu=null;
  if(s.e){if(dm)updE(s.id,{mx:Math.min(x,g.cols-(s.o.sz||1)),my:Math.min(y,g.rows-(s.o.sz||1))});return}
  const c=s.o;if(!dm&&s.id!==me)return;
+ if(!dm&&!myTurn("c:"+s.id)){$("#err").textContent="It is not your turn.";return}
  if(c.mx==null||dm){upd(s.id,{mx:x,my:y},c.mx==null?"Placed on the map":"");follow("c:"+s.id,x,y);revealAround(x,y);return}
  const n=reach(c,g)[k];if(!n)return;
  const cost=combat&&!c.exh?n:0,afford=c.st>=cost,q={mx:x,my:y};
@@ -389,12 +462,13 @@ addEventListener("pointermove",e=>{if(P){const p=cellAt(e);if(p)paint(p)}else if
 const endP=()=>{if(P){const w=[...P.W];P=null;setM({walls:w})}if(F){const f=F.a.join("");F=null;setM({fg:f})}};addEventListener("pointerup",endP);addEventListener("pointercancel",endP);
 $("#app").addEventListener("change",e=>{
  const t=e.target,f=t.dataset.f,id=t.dataset.id;
- if(t.dataset.ef){const i=t.dataset.id;if(dm&&enemies[i])updE(i,{[t.dataset.ef]:+t.value||0});return}
+ if(t.dataset.ef){const i=t.dataset.id;if(dm&&enemies[i])updE(i,{[t.dataset.ef]:t.dataset.ef==="dm"?t.value.slice(0,20):(+t.value||0)});return}
  if(t.id==="mf"){if(t.files[0])loadImg(t.files[0]);return}
  if(t.id==="msel"){gmMap=t.value;last="";load();return}
  if(t.id==="mc"){setM({cols:Math.max(5,Math.min(80,+t.value||24)),fg:""});return}
  if(t.id==="db"){bonus=+t.value||0;return}
  if(t.id==="ds"){dstat=t.value;return}
+ if(t.id==="dsk"){skin=t.value;try{localStorage.setItem("sk",skin)}catch(x){}return}
  if(t.id==="sec"){secOn=t.checked;return}
  if(!f||!chars[id]||(!dm&&id!==me))return;
  const num=t.type==="number";if(num&&!dm)return;
