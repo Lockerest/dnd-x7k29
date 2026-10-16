@@ -7,7 +7,7 @@
 :root{--bg:#ece6d8;--sf:#f6f1e4;--tx:#2a2620;--mu:#6d6455;--ln:#cfc6b2;--ac:#a5571a;--hp:#b5443a;--st:#6f8f3d;color-scheme:light}
 @media(prefers-color-scheme:dark){:root{--bg:#1f242b;--sf:#2a303a;--tx:#e8e2d3;--mu:#a29a89;--ln:#3d4552;--ac:#e09a4a;--hp:#c9574b;--st:#9bbd62;color-scheme:dark}}
 *{box-sizing:border-box}html,body{margin:0}
-body{background:var(--bg);color:var(--tx);font:16px/1.45 "Source Sans 3",system-ui,sans-serif;padding:12px;max-width:1400px;margin:0 auto;-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 "Source Sans 3",system-ui,sans-serif;padding:12px;max-width:2200px;margin:0 auto;-webkit-text-size-adjust:100%}
 h1,h2{font-family:"Cormorant Garamond",Georgia,serif;margin:0}
 header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;gap:8px;flex-wrap:wrap}
 header span{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
@@ -39,17 +39,17 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 #err{color:var(--hp)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-items:start}.grid .card{margin:0}
 .solo{max-width:640px;margin:0 auto}
-.tbl{display:grid;grid-template-columns:1fr 3fr 1fr;gap:12px;align-items:start}
+.tbl{display:grid;grid-template-columns:minmax(170px,.55fr) 4.6fr minmax(185px,.7fr);gap:12px;align-items:start}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
 .pill{font-style:normal;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:1px 8px}.pill.bad{border-color:var(--hp);color:var(--hp)}
 .sb{padding:10px}.sb h2{font-size:20px}
 .av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
 #map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
 .menu{border:1px solid var(--ac);border-radius:8px;padding:8px;margin:8px 0}
-.dov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:50}
-.dov div{background:var(--sf);border:2px solid var(--ac);border-radius:14px;width:110px;height:110px;display:flex;align-items:center;justify-content:center;font:700 44px "Cormorant Garamond",Georgia,serif;animation:tumble .6s linear}
-@keyframes tumble{0%{transform:rotate(0) scale(.6)}50%{transform:rotate(360deg) scale(1.1)}100%{transform:rotate(720deg) scale(1)}}
-@media(prefers-reduced-motion:reduce){.dov div{animation:none}}
+.dov{position:fixed;inset:0;pointer-events:none;z-index:50}
+.dd{position:fixed;left:0;top:0;width:110px;height:110px;background:var(--sf);border:3px solid var(--ac);border-radius:16px;display:flex;align-items:center;justify-content:center;font:700 46px "Cormorant Garamond",Georgia,serif;color:var(--tx);box-shadow:0 8px 28px #0008}
+.dd.fin{width:auto;min-width:130px;padding:0 28px;font-size:60px;animation:pop .3s ease-out}
+@keyframes pop{0%{scale:.5}70%{scale:1.15}100%{scale:1}}
 .efld{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}.efld label{display:flex;flex-direction:column;font-size:12px;color:var(--mu)}.efld input{width:70px}
 @media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 </style></head><body>
@@ -67,7 +67,7 @@ const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamin
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ABS=c=>COM.concat((C[c.cls]||C.fighter).ab),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
-let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null;
+let IC={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null;
 const ok=c=>c.ap!==false&&c.ap!=="no",A=()=>Object.keys(chars).filter(i=>ok(chars[i]));
 const av=(id,o)=>o.iv&&IC[id]&&IC[id].data?`<img class="av" src="${IC[id].data}" alt="">`:"";
 const claimsHtml=()=>{const l=Object.entries(claims||{}).filter(([k,c])=>c.st==="pending");return l.length?`<div class="card sb"><h2>Device requests</h2>${l.map(([k,c])=>`<div class="ab"><div><b>${esc(c.who)}</b> wants to take over <b>${esc(chars[c.target]?chars[c.target].name:"a deleted character")}</b></div><span class="row mini"><button class="pri" data-a="callow" data-id="${k}">Allow</button><button data-a="cdeny" data-id="${k}">Deny</button></span></div>`).join("")}</div>`:""};
@@ -84,13 +84,13 @@ const hash=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new 
 const meter=(v,m,k)=>`<div class="meter"><i class="${k}" style="width:${m?Math.max(0,Math.min(100,v/m*100)):0}%"></i><b>${v} / ${m}</b></div>`;
 const mapId=()=>{const ids=Object.keys(maps),c=cur&&maps[cur]?cur:ids[0];return dm&&gmMap&&maps[gmMap]?gmMap:c};
 /* ---------- characters ---------- */
-function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0},d=c.mt==="climb"?4:0,s=c.st+c.rg-d;let m="New round";
+function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0,stn:false},d=c.mt==="climb"?4:0,s=c.st+c.rg-d;let m="New round";if(c.exh){const n=(c.exn||2)-1;if(n>0){p.exh=true;p.exn=n;m="Still exhausted ("+n+" round"+(n>1?"s":"")+" left)"}else p.exn=0}
  if(d&&s<=0){p.st=0;p.mt="";p.mon=null;p.exh=true;m="Drained while climbing: fell off, exhausted!"}else{p.st=clamp(s,c.maxSt);if(d)m="Climbing (-4 St)"}return[p,m]}
-const abBtn=(id,i,a,c,label)=>{const re=a[3]==="r",off=c.exh||(!re&&(c.used||0)>=2);return`<button data-a="use" data-id="${id}" data-i="${i}" class="${c.st<a[1]?"warn":""}" ${off?"disabled":""}>${label||a[1]+" St"}</button>`};
-const mtCtl=(id,c)=>{const hd=Object.keys(enemies).filter(i=>enemies[i].hd==="c:"+id),b=(c.mt?`<button data-a="unmount" data-id="${id}">Unmount</button><button data-a="mtd" data-id="${id}">${c.mt==="climb"?"Foe is down":"Foe is up"}</button>`:"")+hd.map(i=>`<button data-a="putdown" data-id="${i}">Put down ${esc(enemies[i].name)}</button>`).join("");return b?`<div class="row mini">${b}</div>`:""};
+const abBtn=(id,i,a,c,label)=>{const re=a[3]==="r",off=c.exh||c.stn||(!re&&(c.used||0)>=2);return`<button data-a="use" data-id="${id}" data-i="${i}" class="${c.st<a[1]?"warn":""}" ${off?"disabled":""}>${label||a[1]+" St"}</button>`};
+const mtCtl=(id,c)=>{const hd=Object.keys(enemies).filter(i=>enemies[i].hd==="c:"+id),b=(c.mt?`<button data-a="unmount" data-id="${id}">${dm?"Drop rider":"Jump off"}</button><button data-a="mtd" data-id="${id}">${c.mt==="climb"?"Foe is down":"Foe is up"}</button>`:"")+hd.map(i=>`<button data-a="putdown" data-id="${i}">Put down ${esc(enemies[i].name)}</button>`).join("");return b?`<div class="row mini">${b}</div>`:""};
 const enPills=(i,e)=>{const x=[];if(e.stun)x.push(e.sg?"Staggered":"Stunned");if(Object.values(chars).some(c=>c.mon===i&&c.mt==="climb"))x.push("Being climbed: can't attack");return x.length?`<div class="pills">${x.map(t=>`<i class="pill bad">${esc(t)}</i>`).join("")}</div>`:""};
 const hpBtns=id=>[-5,-1,1,5].map(n=>`<button data-a="hp" data-id="${id}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("");
-function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
+function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted · "+(c.exn||2)+" rd");if(c.stn)x.push("Stunned");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone|Stun/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
 function sbox(id){
  const c=chars[id],own=dm||id===me,net=c.rg-(c.mt==="climb"?4:0);
  let h=`<div class="card sb"><div class="top"><h2>${av(id,c)}${esc(c.name)}</h2><span class="sub">${(C[c.cls]||C.fighter).n} · Actions ${c.used||0}/2</span></div>${meter(c.hp,c.maxHp,"hp")}${meter(c.st,c.maxSt,"st")}${pillsOf(c)}`;
@@ -139,14 +139,18 @@ function diceHtml(){
  return h+`</div><ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
 function roll(d){
  const c=chars[me],m=(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),r=1+Math.floor(Math.random()*d),e={n:dm?"GM":(c?c.name:"?"),d,r,m,ts:Date.now()};
- const ov=document.createElement("div");ov.className="dov";ov.innerHTML="<div>?</div>";document.body.appendChild(ov);const bx=ov.firstChild,tm=setInterval(()=>{bx.textContent=1+Math.floor(Math.random()*d)},70);
- setTimeout(()=>{clearInterval(tm);bx.textContent=r;setTimeout(()=>ov.remove(),500);
-  if(dm&&secOn){secret.push(e);secret=secret.slice(-12);render()}else api("rolls","POST",e).then(()=>{last="";load()}).catch(fail)},600)}
+ const ov=document.createElement("div");ov.className="dov";const bx=document.createElement("div");bx.className="dd";bx.textContent="?";ov.appendChild(bx);document.body.appendChild(ov);
+ const W=innerWidth,H=innerHeight,S=110;let x=Math.random()*(W-S),y=Math.random()*(H-S),vx=(Math.random()<.5?-1:1)*(8+Math.random()*7),vy=(Math.random()<.5?-1:1)*(8+Math.random()*7),rot=0,tl=0;const t0=performance.now();
+ const done=()=>{bx.className="dd fin";bx.style.left="50%";bx.style.top="50%";bx.style.transform="translate(-50%,-50%)";bx.textContent=m?`${r} ${sg(m)} = ${r+m}`:`${r}`;
+  if(dm&&secOn){secret.push(e);secret=secret.slice(-12);render()}else api("rolls","POST",e).then(()=>{last="";load()}).catch(fail);
+  setTimeout(()=>ov.remove(),2000)};
+ const step=t=>{if(t-t0>1300){done();return}x+=vx;y+=vy;if(x<0||x>W-S)vx=-vx;if(y<0||y>H-S)vy=-vy;x=Math.max(0,Math.min(W-S,x));y=Math.max(0,Math.min(H-S,y));rot+=vx*4;bx.style.transform=`translate(${x}px,${y}px) rotate(${rot}deg)`;if(t-tl>70){bx.textContent=1+Math.floor(Math.random()*d);tl=t}requestAnimationFrame(step)};
+ if(matchMedia("(prefers-reduced-motion:reduce)").matches)done();else requestAnimationFrame(step)}
 /* ---------- map ---------- */
 function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:new Set(Object.values(m.walls||{}))}}
 function who(){const s=dm?sel:"c:"+me;if(!s)return null;const e=s[0]==="e",id=s.slice(2),o=(e?enemies:chars)[id];return o?{e,id,o}:null}
 function cellAt(e){const g=geo(),v=$("#map");if(!g||!v)return null;const r=v.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*g.cols),y=Math.floor((e.clientY-r.top)/r.height*g.m.h/g.cs);return x<0||y<0||x>=g.cols||y>=g.rows?null:[x,y]}
-function reach(c,g){const sp=c.spd||6,lim=(c.exh?Math.floor(sp/2):sp)-(combat?(c.mvd||0):0),d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined)continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
+function reach(c,g){const sp=c.spd||6,lim=(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0),d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined)continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
 const wallsSvg=(W,cs)=>[...W].map(k=>{const[x,y]=k.split(",");return`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:url(#hatch);stroke:#000;stroke-opacity:.7;stroke-width:${cs/30}"/>`}).join("");
 function mapTools(){
  const ids=Object.keys(maps),g=geo();
@@ -158,12 +162,18 @@ function fogD(g){let d="";for(let y=0;y<g.rows;y++)for(let x=0;x<g.cols;x++)if(f
 function revealAround(x,y){const g=geo();if(!g||!g.m.fog)return;const a=(g.m.fg||"").padEnd(g.cols*g.rows,"0").split("");for(let j=-VR;j<=VR;j++)for(let i=-VR;i<=VR;i++){const xx=x+i,yy=y+j;if(xx<0||yy<0||xx>=g.cols||yy>=g.rows||Math.hypot(i,j)>VR)continue;a[yy*g.cols+xx]="1"}const fg=a.join("");maps[g.id]={...g.m,fg};api("maps/"+g.id,"PATCH",{fg}).catch(fail)}
 function fpaint(p){const g=geo();if(!g||!F)return;F.a[p[1]*g.cols+p[0]]=F.v;const el=$("#fgp");if(el)el.setAttribute("d",fogD({...g,m:{...g.m,fog:true,fg:F.a.join("")}}))}
 function poiseHit(id,d){const e=enemies[id];if(!e||!(e.pm>0)||e.stun)return;const po=Math.max(0,(e.po??e.pm)-d);if(po===0){updE(id,{po:0,stun:true,sg:true});ev(e.name+" is staggered!")}else updE(id,{po})}
-function tick(){A().forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)});Object.keys(enemies).forEach(i=>{const e=enemies[i];if(e.sg)updE(i,{stun:false,sg:false,po:e.pm||0})})}
+function tick(){A().forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)});Object.keys(enemies).forEach(i=>{const e=enemies[i];if(e.sg||e.rec)updE(i,{stun:false,sg:false,rec:false,...(e.sg?{po:e.pm||0}:{})})})}
 const shownE=t=>dm||!t.e||(t.o.mx!=null&&!eHid(geo(),t.o));
 const initHtml=()=>{
  if(!ini||!ini.l)return dm?`<div class="card sb"><h2>Turn order</h2><div class="row mini"><button class="pri" data-a="iroll">Roll initiative</button></div><p class="note">Rolls for everyone, sorts the order and starts combat.</p></div>`:"";
  const rows=ini.l.map((u,i)=>{const t=ent(u.k);if(!t)return"";return`<li style="${i===ini.t?"color:var(--ac);font-weight:600":""}">${i===ini.t?"▶ ":""}${esc(shownE(t)?t.o.name:"Unseen enemy")}${dm?` <span class="sub">(${u.v})</span>`:""}</li>`}).join("");
  return`<div class="card sb"><h2>Turn order · Round ${ini.r}</h2><ul class="rl">${rows}</ul>${dm?`<div class="row mini"><button class="pri" data-a="inext">Next turn</button><button data-a="iroll">Re-roll</button><button data-a="iend">End combat</button></div>`:""}</div>`};
+function fxs(o,en,x,y,r,cs){
+ const stun=en?o.stun:o.stn,t=`stroke:#000;stroke-width:${cs*.03}px;paint-order:stroke`;
+ if(stun){const cy=y-r*.95;return`<g><animateTransform attributeName="transform" type="rotate" from="0 ${x} ${cy}" to="360 ${x} ${cy}" dur="1.4s" repeatCount="indefinite"/>${[0,1,2].map(i=>{const a=i*2.094;return`<text x="${x+Math.cos(a)*r*.62}" y="${cy+Math.sin(a)*r*.62}" text-anchor="middle" dy=".35em" style="font-size:${cs*.34}px;fill:#ffd84d;${t}">★</text>`}).join("")}</g>`}
+ if(!en&&o.exh)return[-1,0,1].map((k,i)=>`<text x="${x+k*r*.6}" y="${y-r}" text-anchor="middle" style="font-size:${cs*.3}px;fill:#e0533f;${t}"><animate attributeName="y" values="${y-r*1.3};${y-r*.55}" dur="1s" begin="${i*.25}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur="1s" begin="${i*.25}s" repeatCount="indefinite"/>▼</text>`).join("");
+ return""}
+function riders(id,x,y,r,cs){return A().filter(i=>chars[i].mon===id&&chars[i].mt).slice(0,3).map((i,k,a)=>{const c=chars[i],bx=x+(k-(a.length-1)/2)*cs*.42,by=y-r*.82,rr=cs*.2,ic=IC[i],img=c.iv&&ic&&ic.data;return`<circle cx="${bx}" cy="${by}" r="${rr}" style="fill:var(--ac);stroke:#fff;stroke-width:${cs/14}"/>`+(img?`<clipPath id="rb${i}"><circle cx="${bx}" cy="${by}" r="${rr}"/></clipPath><image href="${ic.data}" x="${bx-rr}" y="${by-rr}" width="${rr*2}" height="${rr*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#rb${i})"/>`:`<text x="${bx}" y="${by}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.26}px sans-serif">${esc((c.name||"?")[0])}</text>`)}).join("")}
 function reachE(e,g){const z=e.sz||1,lim=(e.spd||6)+(e.bon||0),free=(a,b)=>{if(a<0||b<0||a+z>g.cols||b+z>g.rows)return false;for(let i=0;i<z;i++)for(let j=0;j<z;j++)if(g.W.has(K(a+i,b+j)))return false;return true},d={[K(e.mx,e.my)]:0},q=[[e.mx,e.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||d[k]!==undefined||!free(a,b))continue;d[k]=n+1;q.push([a,b])}}return d}
 function mapHtml(){
  const ids=Object.keys(maps),g=geo();
@@ -175,13 +185,13 @@ function mapHtml(){
  v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;
  if(m.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2,m.w/450)};fill:none"/>`}
  if(m.fog)v+=`<path id="fgp" d="${fogD(g)}" style="fill:#000;fill-opacity:${dm?.55:1}"/>`;
- const tk=(o,key,en)=>{if(o.mx==null||(en&&!dm&&eHid(g,o)))return"";const id=key.slice(2),z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,r=cs*(z===1?.4:z*.47),sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;return img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45*Math.min(z,2)}px sans-serif">${esc((o.name||"?")[0])}</text>`};
- for(const i in enemies)if(enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in enemies)if(!enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in chars)if(ok(chars[i]))v+=tk(chars[i],"c:"+i,false);
+ const tk=(o,key,en)=>{if(o.mx==null||(en&&!dm&&eHid(g,o)))return"";const id=key.slice(2),z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,r=cs*(z===1?.4:z*.47),sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;const bd=img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45*Math.min(z,2)}px sans-serif">${esc((o.name||"?")[0])}</text>`;return bd+fxs(o,en,x,y,r,cs)+(en?riders(id,x,y,r,cs):"")};
+ for(const i in enemies)if(enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in enemies)if(!enemies[i].hd)v+=tk(enemies[i],"e:"+i,true);for(const i in chars)if(ok(chars[i])&&!(chars[i].mt&&chars[i].mon))v+=tk(chars[i],"c:"+i,false);
  v+="</svg>";
  const chip=(k,t)=>`<button data-m="sel" data-id="${k}" ${k===sel?'class="pri"':""}>${esc(t)}</button>`;
  const chips=dm?A().map(i=>chip("c:"+i,chars[i].name)).concat(Object.keys(enemies).map(i=>chip("e:"+i,"👹 "+enemies[i].name))).join(""):"";
- const lim=c?(c.exh?Math.floor(sp/2):sp)-(combat?(c.mvd||0):0):0,info=!s?(dm?"Pick a unit, then tap the map to move it, or tap another token to act on it.":"Tap an enemy token to attack or interact."):s.o.mx==null?"Tap the map to place it.":s.e?`Red squares: this enemy can move up to ${(s.o.spd||6)+(s.o.bon||0)} squares (speed ${s.o.spd||6} + bonus ${s.o.bon||0}). Tap the map to move it, or tap a character to act on it.`:c.exh?`Exhausted: walk only, ${lim} squares left (green), no stamina cost.`:combat?`Combat: moving costs 1 stamina per square, ${lim} squares left this round. Green is affordable, amber means you'd run out of stamina and become exhausted.`:`Out of combat: move up to ${sp} squares for free (green). Tap an enemy token to attack or interact.`;
- return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}</p>${dm?mapTools():""}</div>`}
+ const lim=c?(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0):0,info=!s?(dm?"Pick a unit, then tap the map to move it, or tap another token to act on it.":"Tap an enemy token to attack or interact."):s.o.mx==null?"Tap the map to place it.":s.e?`Red squares: this enemy can move up to ${(s.o.spd||6)+(s.o.bon||0)} squares (speed ${s.o.spd||6} + bonus ${s.o.bon||0}). Tap the map to move it, or tap a character to act on it.`:c.exh?`Exhausted (${c.exn||2} rounds left): you can only move 2 squares at a time, free of stamina.`:combat?`Combat: moving costs 1 stamina per square, ${lim} squares left this round. Green is affordable, amber means you'd run out of stamina and become exhausted.`:`Out of combat: move up to ${sp} squares for free (green). Tap an enemy token to attack or interact.`;
+ return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}${jump?" Tap a free square within 3 squares of the monster to jump there.":""}</p>${jump?`<div class="row mini"><button data-a="jcancel">Cancel jump</button></div>`:""}${dm?mapTools():""}</div>`}
 const paint=p=>{const k=K(p[0],p[1]);if(P.add===P.W.has(k))return;P.add?P.W.add(k):P.W.delete(k);$("#wl").innerHTML=wallsSvg(P.W,geo().cs)};
 const setM=p=>{const id=mapId();maps[id]={...maps[id],...p};last="";render();api("maps/"+id,"PUT",maps[id]).catch(fail)};
 function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{let sc=Math.min(1,1400/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.round(i.width*sc);c.height=Math.round(i.height*sc);c.getContext("2d").drawImage(i,0,0,c.width,c.height);for(const q of[.8,.65,.5,.35]){const d=c.toDataURL("image/jpeg",q);if(d.length<700000){const id="m"+Date.now().toString(36),iv=Date.now(),m={name:(f.name||"Map").replace(/\.[^.]+$/,"").slice(0,30),cols:24,grid:true,w:c.width,h:c.height,iv};api("mapimg/"+id,"PUT",{data:d}).then(()=>{IM[id]={data:d,iv};maps[id]=m;gmMap=id;if(!cur){cur=id;api("cur","PUT",id)}last="";render();return api("maps/"+id,"PUT",m)}).catch(fail);return}}sc*=.8}};i.src=r.result};r.readAsDataURL(f)}
@@ -215,13 +225,15 @@ async function load(){
 async function start(){canGM=dm=role==="gm";gmMap=null;store();await load();render();clearInterval(timer);timer=setInterval(load,3000)}
 function upd(id,p,msg){
  const c=chars[id];if(!c||(!dm&&id!==me))return;
+ if(p.exh===false)p={...p,exn:0};
+ if(typeof p.st==="number"&&p.st<=0&&!c.exh&&p.exh!==true&&p.exh!==false){p={...p,st:0,exh:true,mt:"",mon:null};msg=(msg?msg+" - ":"")+"stamina empty: EXHAUSTED"}
  const l=(c.log||[]).slice(-9);if(msg)l.push(msg);
  const q={...p,log:l};chars[id]={...c,...q};render();
  api("chars/"+id,"PATCH",q).catch(fail)}
-function updE(id,p){enemies[id]={...enemies[id],...p};render();api("enemies/"+id,"PATCH",p).catch(fail)}
+function updE(id,p){enemies[id]={...enemies[id],...p};if(p.mx!=null)Object.keys(chars).forEach(i=>{if(chars[i].mon===id&&chars[i].mt){chars[i]={...chars[i],mx:p.mx,my:p.my};api("chars/"+i,"PATCH",{mx:p.mx,my:p.my}).catch(fail)}});render();api("enemies/"+id,"PATCH",p).catch(fail)}
 const ev=t=>api("rolls","POST",{ev:t,ts:Date.now()}).then(()=>{last="";load()}).catch(fail);
 function useAb(id,i,tn){
- const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||(!re&&(c.used||0)>=2))return;
+ const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||c.stn||(!re&&(c.used||0)>=2))return;
  const p={};let msg="Used "+a[0]+" (-"+a[1]+" St)"+(tn?" on "+tn:"");
  if(c.st>=a[1])p.st=c.st-a[1];else{p.st=0;p.exh=true;p.mt="";p.mon=null;msg+=" - out of stamina: EXHAUSTED"}
  if(!re)p.used=(c.used||0)+1;
@@ -276,10 +288,11 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="rest")upd(id,{hp:c.maxHp,st:c.maxSt,fl:c.maxFl,used:0,mvd:0,exh:false,pr:false,lh:0},"Rested at the bonfire");
  else if(a==="flask"&&c.fl>0){const h=Math.floor(c.maxHp*.4);upd(id,{fl:c.fl-1,hp:clamp(c.hp+h,c.maxHp)},"Drank a flask (+"+h+" HP)")}
  else if(a==="use")useAb(id,+b.dataset.i);
- else if(a==="unmount")upd(id,{mt:"",mon:null},"Unmounted");
+ else if(a==="unmount"){if(dm||!enemies[c.mon]){upd(id,{mt:"",mon:null},dm?"Dropped from the monster":"Unmounted");if(dm)ev(c.name+" is dropped from the monster. The GM decides where they land.")}else{jump={id,on:c.mon};render()}}
+ else if(a==="jcancel"){jump=null;render()}
  else if(a==="mtd")upd(id,{mt:c.mt==="climb"?"down":"climb"},c.mt==="climb"?"Foe knocked down: no drain":"Foe is back up: -4 St per round");
  else if(a==="hit"){const lh=(c.lh||0)+(b.dataset.k==="l"?1:0),pr=b.dataset.k==="h"||lh>=3;upd(id,{lh:pr?0:lh,pr:pr||!!c.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}
- else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
+ else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,exn:0,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,exn:0,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
  else if(a==="mact")doAct(b.dataset.k,+b.dataset.i);
  else if(a==="mcancel"){menu=null;render()}
  else if(a==="putdown"){const x=enemies[id],cr=x&&ent(x.hd);updE(id,{hd:null});if(cr)ev(cr.o.name+" puts down "+x.name)}
@@ -304,11 +317,11 @@ $("#app").addEventListener("click",async e=>{
 const ent=k=>{if(!k)return null;const e=k[0]==="e",id=k.slice(2),o=(e?enemies:chars)[id];return o?{e,id,o,key:k}:null};
 const zOf=t=>t.e?(t.o.sz||1):1;
 function adj(a,t){const za=zOf(a),zt=zOf(t),gx=Math.max(t.o.mx-(a.o.mx+za-1),a.o.mx-(t.o.mx+zt-1)),gy=Math.max(t.o.my-(a.o.my+za-1),a.o.my-(t.o.my+zt-1));return gx<=1&&gy<=1}
-function occ(x,y){for(const i in chars){const c=chars[i];if(ok(c)&&c.mx===x&&c.my===y)return"c:"+i}for(const i in enemies){const e=enemies[i],z=e.sz||1;if(!e.hd&&e.mx!=null&&x>=e.mx&&x<e.mx+z&&y>=e.my&&y<e.my+z)return"e:"+i}return null}
+function occ(x,y){for(const i in chars){const c=chars[i];if(ok(c)&&!(c.mt&&c.mon)&&c.mx===x&&c.my===y)return"c:"+i}for(const i in enemies){const e=enemies[i],z=e.sz||1;if(!e.hd&&e.mx!=null&&x>=e.mx&&x<e.mx+z&&y>=e.my&&y<e.my+z)return"e:"+i}return null}
 const follow=(key,x,y)=>Object.keys(enemies).filter(i=>enemies[i].hd===key).forEach(i=>updE(i,{mx:x,my:y}));
 function menuHtml(){
  if(!menu)return"";const a=ent(menu.a),t=ent(menu.t);if(!a||!t||a.o.mx==null||t.o.mx==null){menu=null;return""}
- const near=adj(a,t),c=a.o,tz=zOf(t),can=a.e||(!c.exh&&(c.used||0)<2),abil=a.e?[]:ABS(c).map((x,i)=>[x,i]).filter(([x])=>!x[3]);
+ const near=adj(a,t),c=a.o,tz=zOf(t),can=a.e||(!c.exh&&!c.stn&&(c.used||0)<2),abil=a.e?[]:ABS(c).map((x,i)=>[x,i]).filter(([x])=>!x[3]);
  let h=`<div class="menu"><b>${esc(c.name)} → ${esc(t.o.name)}</b><div class="row mini"><button data-a="mact" data-k="l" ${can?"":"disabled"}>Light attack</button><button data-a="mact" data-k="h" class="${!a.e&&c.st<1?"warn":""}" ${can?"":"disabled"}>Heavy attack${a.e?"":" · 1 St"}</button>`;
  h+=a.e?`<button data-a="mact" data-k="sp">Special attack…</button>`:abil.map(([x,i])=>`<button data-a="mact" data-k="ab" data-i="${i}" class="${c.st<x[1]?"warn":""}" ${can?"":"disabled"}>${esc(x[0])} · ${x[1]} St</button>`).join("");
  if(!a.e&&t.e&&tz>=2)h+=`<button data-a="mact" data-k="mount" ${near&&can&&!c.mt?"":"disabled"}>Mount (2 St)</button>`;
@@ -319,15 +332,16 @@ function doAct(k,i){
  const A_=ent(menu.a),T=ent(menu.t);if(!A_||!T){menu=null;render();return}
  if(!dm&&A_.id!==me)return;
  const an=A_.o.name,tn=T.o.name,near=adj(A_,T),c=A_.o,tz=zOf(T);
- const act=(cost,msg,extra)=>{if(A_.e)return 1;if(c.exh||(c.used||0)>=2)return 0;const p={used:(c.used||0)+1};let m=msg+(cost?" (-"+cost+" St)":"");if(c.st>=cost){p.st=c.st-cost;Object.assign(p,extra||{})}else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}upd(A_.id,p,m);return p.exh?2:1};
+ const act=(cost,msg,extra)=>{if(A_.e)return 1;if(c.exh||c.stn||(c.used||0)>=2)return 0;const p={used:(c.used||0)+1};let m=msg+(cost?" (-"+cost+" St)":"");if(c.st>=cost){p.st=c.st-cost;Object.assign(p,extra||{})}else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}upd(A_.id,p,m);return p.exh?2:1};
  if(k==="l"||k==="h"){const hv=k==="h",r=act(hv?1:0,hv?"Heavy attack":"Light attack");if(r){ev(an+(hv?" makes a heavy attack on ":" makes a light attack on ")+tn);
   if(T.e)poiseHit(T.id,hv?3:1);
   else if(A_.e&&T.o.exh){const lh=(T.o.lh||0)+(hv?0:1),pr=hv||lh>=3;upd(T.id,{lh:pr?0:lh,pr:pr||!!T.o.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}}}
  else if(k==="ab"){useAb(A_.id,i,tn);if(T.e)poiseHit(T.id,2)}
  else if(k==="sp"){const nm=prompt("Name of the special attack?");if(nm)ev(an+" uses "+nm.slice(0,40)+" on "+tn)}
- else if(k==="mount"&&near&&T.e&&tz>=2&&!A_.e&&!c.mt){if(act(2,"Mounted "+tn,{mt:"climb",mon:T.id})===1)ev(an+" climbs onto "+tn+" (Athletics check)")}
+ else if(k==="mount"&&near&&T.e&&tz>=2&&!A_.e&&!c.mt){if(act(2,"Mounted "+tn,{mt:"climb",mon:T.id,mx:T.o.mx,my:T.o.my})===1)ev(an+" climbs onto "+tn+" (Athletics check)")}
  else if(k==="push"&&near&&tz===1){if(act(1,"Pushed "+tn)===1){const g=geo(),za=zOf(A_),nx=T.o.mx+Math.sign(T.o.mx-(c.mx+(za-1)/2)),ny=T.o.my+Math.sign(T.o.my-(c.my+(za-1)/2));
-  if(g&&nx>=0&&ny>=0&&nx<g.cols&&ny<g.rows&&!g.W.has(K(nx,ny))&&!occ(nx,ny)){if(T.e)updE(T.id,{mx:nx,my:ny});else upd(T.id,{mx:nx,my:ny},"Pushed by "+an);ev(an+" pushes "+tn+" back (STR contest)")}else ev(an+" tries to push "+tn+" but it can't move")}}
+  if(g&&nx>=0&&ny>=0&&nx<g.cols&&ny<g.rows&&!g.W.has(K(nx,ny))&&!occ(nx,ny)){if(T.e)updE(T.id,{mx:nx,my:ny});else upd(T.id,{mx:nx,my:ny},"Pushed by "+an);ev(an+" pushes "+tn+" back (STR contest)")}else{const wall=!g||nx<0||ny<0||nx>=g.cols||ny>=g.rows||g.W.has(K(nx,ny));
+   if(wall){if(T.e)updE(T.id,{stun:true,rec:true});else upd(T.id,{stn:true},"Slammed into a wall: STUNNED");ev(an+" slams "+tn+" into the wall: stunned!")}else ev(an+" tries to push "+tn+" but something blocks the way")}}}
  else if(k==="pick"&&near&&T.e&&T.o.stun&&tz===1&&!A_.e){if(act(2,"Picked up "+tn)===1){updE(T.id,{hd:A_.key,mx:c.mx,my:c.my});ev(an+" picks up the stunned "+tn)}}
  else if(k==="throw"&&T.e&&!A_.e){const hid=Object.keys(enemies).find(i=>enemies[i].hd===A_.key),H=hid&&enemies[hid];
   if(H&&hid!==T.id&&Math.max(Math.abs(T.o.mx-c.mx),Math.abs(T.o.my-c.my))<=5&&act(2,"Threw "+H.name)===1){
@@ -339,6 +353,10 @@ $("#app").addEventListener("pointerdown",e=>{
  if(!e.target.closest("#map"))return;const g=geo(),p=cellAt(e);if(!g||!p)return;const[x,y]=p,k=K(x,y);
  if(dm&&tool==="wall"){P={add:!g.W.has(k),W:new Set(g.W)};paint(p);return}
  if(dm&&(tool==="rev"||tool==="hid")){F={v:tool==="rev"?"1":"0",a:(g.m.fg||"").padEnd(g.cols*g.rows,"0").split("")};fpaint(p);return}
+ if(jump){const c=chars[jump.id],m=enemies[jump.on];if(!c||!m){jump=null;render();return}
+  const z=m.sz||1,dx=Math.max(m.mx-x,x-(m.mx+z-1),0),dy=Math.max(m.my-y,y-(m.my+z-1),0);
+  if(Math.max(dx,dy)>3||g.W.has(k)||occ(x,y)){$("#err").textContent="Pick a free square within 3 squares of the monster.";return}
+  $("#err").textContent="";upd(jump.id,{mt:"",mon:null,mx:x,my:y},"Jumped off "+m.name);ev(c.name+" jumps off "+m.name+" and lands at column "+(x+1)+", row "+(y+1));jump=null;revealAround(x,y);return}
  const s=who();if(!s)return;const mk=dm?sel:"c:"+me,t0=occ(x,y),t=(t0&&!dm&&t0[0]==="e"&&eHid(g,enemies[t0.slice(2)]))?null:t0;
  if(t&&t!==mk){if(!dm&&t[0]==="c")return;menu={a:mk,t};render();return}
  menu=null;
