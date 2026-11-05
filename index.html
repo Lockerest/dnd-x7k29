@@ -88,17 +88,18 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .dw{font:600 18px "Source Sans 3",sans-serif;color:var(--tx);background:var(--sf);border:2px solid var(--ac);border-radius:8px;padding:2px 12px;margin-bottom:4px}
 @media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 11</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 13</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="upd" hidden>⬆ A newer version of the game is out. <button onclick="location.reload()">Reload now</button> (if it still says an old build, close the tab and reopen the link)</div><div id="err"></div><div id="app"></div><div id="qte" hidden></div><div id="ask" hidden></div><input id="icf" type="file" accept="image/*" hidden>
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=11;
-const COM=[["Dodge Roll",3,"Reaction: ready a dodge. The next attack against you that would hit forces a DEX save (d20 + DEX) against its roll. Beat it and you take nothing. Doesn't use an action.","r"]];
-const PARRY=["Parry",2,"Reaction (needs a shield): ready a parry. The next melee attack that would hit you is parried on a STR check. On success you take nothing and may counter-attack once. Doesn't use an action.","r"];
+const BUILD=13,SC=10;
+const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
+const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
-const HEAL={"Second Wind":{d:"1d10",b:c=>c.level||1},"Mending Light":{d:"2d8",b:c=>mod(c.int)}};
-const AD={"Power Strike":{r:1,d:"2d8"},"Multi-Slash":{r:1,d:"2d6"},"Shield Bash":{r:1,d:"1d4",t:1},"Piercing Shot":{r:8,d:"2d6"},"Triple Volley":{r:6,d:"3d4"},"Pinning Shot":{r:6,d:"1d6",t:1},"Firebolt":{r:8,d:"2d10"},"Ember Burst":{r:6,d:"6d6",t:1},"Backstab":{r:1,d:"3d6"},"Cutting Flurry":{r:1,d:"2d6"}};
+const HEAL0={"Second Wind":{d:"1d10",b:c=>c.level||1},"Mending Light":{d:"2d8",b:c=>mod(c.int)}};
+const AD0={"Power Strike":{r:1,d:"2d8"},"Multi-Slash":{r:1,d:"2d6"},"Shield Bash":{r:1,d:"1d4",t:1},"Piercing Shot":{r:8,d:"2d6"},"Triple Volley":{r:6,d:"3d4"},"Pinning Shot":{r:6,d:"1d6",t:1},"Firebolt":{r:8,d:"2d10"},"Ember Burst":{r:6,d:"6d6",t:1},"Backstab":{r:1,d:"3d6"},"Cutting Flurry":{r:1,d:"2d6"}};
+const AD={},HEAL={},CHK={};
 const SKINS=[
 ["classic","Ivory","#e9e2d0","white","plastic"],["black","Obsidian","#1b1b22","black","plastic"],
 ["red","Red","#b3262c",null,"plastic",{name:"red",background:"#b3262c",foreground:"#ffffff",outline:"none",texture:"none"}],
@@ -111,15 +112,15 @@ const SKINS=[
 ["force","Force","#a64ac9","force","glass"],["psychic","Psychic","#d94ab0","psychic","glass"],["necrotic","Necrotic","#3a3a3a","necrotic","glass"],["radiant","Radiant","#f9b333","radiant","glass"],
 ["starynight","Starry Night","#2b3a8a","starynight","glass"],["glitterparty","Glitter","#d96ad9","glitterparty","glass"],["dragons","Dragons","#a02020","dragons","glass"],["rainbow","Rainbow","linear-gradient(90deg,#e33,#fb3,#3c5,#38f,#a4f)","rainbow","glass"]];
 const C={
-fighter:{n:"Fighter",d:"Tough, 2 stamina back per turn",hp:14,st:10,rg:2,ab:[["Power Strike",2,"+1d8 damage on a hit"],["Multi-Slash",3,"One extra attack this turn"],["Shield Bash",2,"STR save or target is knocked prone"],["Second Wind",3,"Heal 1d10 + level"]]},
-archer:{n:"Archer",d:"Ranged, steady stamina",hp:11,st:10,rg:2,ab:[["Piercing Shot",2,"+1d6, ignores half cover"],["Triple Volley",3,"Three arrows, each at -2 to hit"],["Pinning Shot",2,"DEX save or speed 0 until your next turn"],["Hunter's Eye",1,"Mark a weak point: next hit crits on 19-20"]]},
-mage:{n:"Mage",d:"Big pool, slow regen",hp:9,st:14,rg:1,ab:[["Firebolt",1,"2d10 fire, ranged"],["Ember Burst",4,"20 ft radius, 6d6 fire, DEX half"],["Arcane Ward",3,"Absorb 5 + level damage"],["Mending Light",3,"Heal 2d8 + INT, once per turn"]]},
-thief:{n:"Thief",d:"Quick, opportunistic",hp:10,st:10,rg:2,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]}};
+fighter:{n:"Fighter",d:"Tough, 20 stamina back per turn",hp:140,st:100,rg:20,ab:[["Power Strike",2,"+1d8 damage on a hit"],["Multi-Slash",3,"One extra attack this turn"],["Shield Bash",2,"STR save or target is knocked prone"],["Second Wind",3,"Heal 1d10 + level"]]},
+archer:{n:"Archer",d:"Ranged, steady stamina",hp:110,st:100,rg:20,ab:[["Piercing Shot",2,"+1d6, ignores half cover"],["Triple Volley",3,"Three arrows, each at -2 to hit"],["Pinning Shot",2,"DEX save or speed 0 until your next turn"],["Hunter's Eye",1,"Mark a weak point: next hit crits on 19-20"]]},
+mage:{n:"Mage",d:"Big pool, slow regen",hp:90,st:140,rg:10,ab:[["Firebolt",1,"2d10 fire, ranged"],["Ember Burst",4,"20 ft radius, 6d6 fire, DEX half"],["Arcane Ward",3,"Absorb 50 + 10 per level damage"],["Mending Light",3,"Heal 2d8 + INT, once per turn"]]},
+thief:{n:"Thief",d:"Quick, opportunistic",hp:100,st:100,rg:20,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]}};
 const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamina"],["rg","Regen/turn"],["spd","Speed (sq)"],["maxFl","Flasks max"],["souls","Souls"],["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const ABS=c=>COM.concat(c.shield?[PARRY]:[],(C[c.cls]||C.fighter).ab),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
+const ABS=c=>COM.concat(c.shield?[PARRY]:[],eqAbilities(c)),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
-let IC={},PT={},iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null,tray=[],es=null,es2=null,qteId=0,seenR=new Set(),rollsSeeded=false,remoteQ=[],playing=false,dcount=1,skin=(()=>{try{return localStorage.getItem("sk")||"classic"}catch(e){return"classic"}})();
+let IC={},PT={},migDone=new Set(),iconFor=null,claimMode=false,myClaim=null,claims={},combat=false,menu=null,ini=null,F=null,jump=null,tray=[],es=null,es2=null,qteId=0,board={},boardDB=false,boardSig="",seenR=new Set(),rollsSeeded=false,remoteQ=[],playing=false,dcount=1,skin=(()=>{try{return localStorage.getItem("sk")||"classic"}catch(e){return"classic"}})();
 const ok=c=>c.ap!==false&&c.ap!=="no",A=()=>Object.keys(chars).filter(i=>ok(chars[i]));
 const av=(id,o)=>o.iv&&IC[id]&&IC[id].data?`<img class="av" src="${IC[id].data}" alt="">`:"";
 const claimsHtml=()=>{const l=Object.entries(claims||{}).filter(([k,c])=>c.st==="pending");return l.length?`<div class="card sb"><h2>Device requests</h2>${l.map(([k,c])=>`<div class="ab"><div><b>${esc(c.who)}</b> wants to take over <b>${esc(chars[c.target]?chars[c.target].name:"a deleted character")}</b></div><span class="row mini"><button class="pri" data-a="callow" data-id="${k}">Allow</button><button data-a="cdeny" data-id="${k}">Deny</button></span></div>`).join("")}</div>`:""};
@@ -136,15 +137,15 @@ const hash=async s=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new 
 const meter=(v,m,k)=>`<div class="meter"><i class="${k}" style="width:${m?Math.max(0,Math.min(100,v/m*100)):0}%"></i><b>${v} / ${m}</b></div>`;
 const mapId=()=>{const ids=Object.keys(maps),c=cur&&maps[cur]?cur:ids[0];return dm&&gmMap&&maps[gmMap]?gmMap:c};
 /* ---------- characters ---------- */
-function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0,stn:false,ddg:false,pry:false,ctr:false},d=c.mt==="climb"?4:0,s=c.st+c.rg-d;let m="New round";if(c.exh){const n=(c.exn||2)-1;if(n>0){p.exh=true;p.exn=n;m="Still exhausted ("+n+" round"+(n>1?"s":"")+" left)"}else p.exn=0}
- if(d&&s<=0){p.st=0;p.mt="";p.mon=null;p.exh=true;m="Drained while climbing: fell off, exhausted!"}else{p.st=clamp(s,c.maxSt);if(d)m="Climbing (-4 St)"}return[p,m]}
+function turn(c){const p={used:0,mvd:0,exh:false,pr:false,lh:0,stn:false,ddg:false,pry:false,ctr:false},d=c.mt==="climb"?4*SC:0,s=c.st+c.rg-d;let m="New round";if(c.exh){const n=(c.exn||2)-1;if(n>0){p.exh=true;p.exn=n;m="Still exhausted ("+n+" round"+(n>1?"s":"")+" left)"}else p.exn=0}
+ if(d&&s<=0){p.st=0;p.mt="";p.mon=null;p.exh=true;m="Drained while climbing: fell off, exhausted!"}else{p.st=clamp(s,c.maxSt);if(d)m="Climbing (-"+d+" St)"}return[p,m]}
 const abBtn=(id,i,a,c,label)=>{if(AD[a[0]])return`<span class="sub">attack: tap a target</span>`;const re=a[3]==="r",off=c.exh||c.stn||c.hp<=0||(!re&&((c.used||0)>=2||(!dm&&!myTurn("c:"+id))));return`<button data-a="use" data-id="${id}" data-i="${i}" class="${c.st<cst(c,a[1])?"warn":""}" ${off?"disabled":""}>${label||cst(c,a[1])+" St"}</button>`};
 const mtCtl=(id,c)=>{const hd=Object.keys(enemies).filter(i=>enemies[i].hd==="c:"+id),b=(c.mt?`<button data-a="unmount" data-id="${id}">${dm?"Drop rider":"Jump off"}</button><button data-a="mtd" data-id="${id}">${c.mt==="climb"?"Foe is down":"Foe is up"}</button>`:"")+hd.map(i=>`<button data-a="putdown" data-id="${i}">Put down ${esc(enemies[i].name)}</button>`).join("");return b?`<div class="row mini">${b}</div>`:""};
 const enPills=(i,e)=>{const x=[];if(e.hp<=0)x.push("Slain");if(e.stun)x.push(e.sg?"Staggered":"Stunned");if(Object.values(chars).some(c=>c.mon===i&&c.mt==="climb"))x.push("Being climbed: can't attack");return x.length?`<div class="pills">${x.map(t=>`<i class="pill bad">${esc(t)}</i>`).join("")}</div>`:""};
-const hpBtns=id=>[-5,-1,1,5].map(n=>`<button data-a="hp" data-id="${id}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("");
-function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -4 St/round":"On a downed foe");if(c.exh)x.push("Exhausted · "+(c.exn||2)+" rd");if(c.stn)x.push("Stunned");if(c.ddg)x.push("Dodging");if(c.pry)x.push("Parrying");if(c.ctr)x.push("Counter ready");if(c.hp<=0)x.push("Dead");if(c.dth)x.push("Revived · stamina +"+20*c.dth+"% · max HP -20% · rest at a NEW bonfire to cleanse");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone|Stun|Dead/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
+const hpBtns=id=>[-50,-10,10,50].map(n=>`<button data-a="hp" data-id="${id}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("");
+function pillsOf(c){const x=[];if(c.mt)x.push(c.mt==="climb"?"Mounted: -40 St/round":"On a downed foe");if(c.exh)x.push("Exhausted · "+(c.exn||2)+" rd");if(c.stn)x.push("Stunned");if(c.ddg)x.push("Dodging");if(c.pry)x.push("Parrying");if(c.ctr)x.push("Counter ready");if(c.hp<=0)x.push("Dead");if(c.dth)x.push("Revived x"+c.dth+" · stamina +"+15*c.dth+"% · max HP -"+10*c.dth+"% · rest at a NEW bonfire to cleanse");if(c.pr)x.push("Prone");if(c.conds)x.push(c.conds);return x.length?`<div class="pills">${x.map(t=>`<i class="pill ${/Exh|Prone|Stun|Dead/.test(t)?"bad":""}">${esc(t)}</i>`).join("")}</div>`:""}
 function sbox(id){
- const c=chars[id],own=dm||id===me,net=c.rg-(c.mt==="climb"?4:0);
+ const c=chars[id],own=dm||id===me,net=c.rg-(c.mt==="climb"?4*SC:0);
  let h=`<div class="card sb"><div class="top"><h2>${av(id,c)}${esc(c.name)}</h2><span class="sub">${(C[c.cls]||C.fighter).n} · Actions ${c.used||0}/2</span></div>${meter(c.hp,c.maxHp,"hp")}${meter(c.st,c.maxSt,"st")}${pillsOf(c)}`;
  if(own&&c.hp<=0)h+=rvBtns(id,c);
  if(own&&c.hp>0)h+=`<div class="row mini">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(net)}</button>`:""}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask ${c.fl}/${c.maxFl}</button>${dm?hpBtns(id):""}<button data-a="icon" data-id="c:${id}">Icon</button>${ini&&ini.ph==="go"&&turnKey()==="c:"+id&&(dm||ini.t<ini.l.length-1)?`<button class="pri" data-a="endturn">End turn</button>`:""}</div>${mtCtl(id,c)}`;
@@ -166,7 +167,7 @@ function card(id){
  if(own)h+=`<div class="row">${hpBtns(id)}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask (${c.fl}/${c.maxFl})</button></div>`;
  h+=`<h3>Stamina · Actions used ${c.used||0}/2</h3>${meter(c.st,c.maxSt,"st")}`;
  if(own&&c.hp<=0)h+=rvBtns(id,c);
- if(own)h+=`<div class="row">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4:0))}</button>`:""}<button data-a="rest" data-id="${id}" ${c.hp<=0||(!dm&&!nearBf(c))?"disabled":""}>${c.dth&&nearBf(c)&&nearBf(c)!==c.cb?"Rest & cleanse curse":"Bonfire rest"}${!dm&&!nearBf(c)?" (stand by a bonfire)":""}</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-1">-1 St</button><button data-a="st" data-id="${id}" data-n="1">+1 St</button>`:""}</div>${mtCtl(id,c)}`;
+ if(own)h+=`<div class="row">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4*SC:0))}</button>`:""}<button data-a="rest" data-id="${id}" ${c.hp<=0||(!dm&&!nearBf(c))?"disabled":""}>${c.dth&&nearBf(c)&&nearBf(c)!==c.cb?"Rest & cleanse curse":"Bonfire rest"}${!dm&&!nearBf(c)?" (stand by a bonfire)":""}</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-10">-10 St</button><button data-a="st" data-id="${id}" data-n="10">+10 St</button>`:""}</div>${mtCtl(id,c)}`;
  h+=`<h3>Abilities (basic attacks are free)</h3>`;
  ABS(c).forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}${a[3]?" (reaction)":""}<small>${esc(a[2])}</small></div>${own?abBtn(id,i,a,c):`<span class="sub">${a[1]} St</span>`}</div>`});
  h+=`<h3>Stats</h3><div class="stats">`;
@@ -189,7 +190,7 @@ function joinScreen(){
 function enemiesHtml(){
  const ids=Object.keys(enemies).filter(i=>dm||(enemies[i].mx!=null&&!eHid(geo(),enemies[i])));
  let h=`<div class="card"><h2>Enemies</h2>`;
- h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":""}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-5,-1,1,5].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label><label>AC<input type="number" data-ef="ac" data-id="${i}" value="${e.ac??12}"></label><label>Atk +<input type="number" data-ef="ab" data-id="${i}" value="${e.ab??4}"></label><label>Damage<input type="text" data-ef="dm" data-id="${i}" value="${esc(e.dm||"1d8")}" style="width:84px"></label><label>Range<input type="number" data-ef="er" data-id="${i}" value="${e.er||1}"></label><label>Init +<input type="number" data-ef="ib" data-id="${i}" value="${e.ib||0}"></label></div><div class="row mini"><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
+ h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":""}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-50,-10,10,50].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label><label>AC<input type="number" data-ef="ac" data-id="${i}" value="${e.ac??12}"></label><label>Atk +<input type="number" data-ef="ab" data-id="${i}" value="${e.ab??4}"></label><label>Damage<input type="text" data-ef="dm" data-id="${i}" value="${esc(e.dm||"1d8")}" style="width:84px"></label><label>Range<input type="number" data-ef="er" data-id="${i}" value="${e.er||1}"></label><label>Init +<input type="number" data-ef="ib" data-id="${i}" value="${e.ib||0}"></label></div>${skillsEd(i,e)}<div class="row mini"><button data-a="espawn" data-id="${i}">Set spawn</button><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
  if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><select id="es" style="margin-top:6px"><option value="1">Small/Medium (1×1)</option><option value="2">Large (2×2)</option><option value="3">Huge (3×3)</option><option value="4">Gargantuan (4×4)</option></select><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><input id="esp" type="number" placeholder="Speed in squares (default 6)" style="margin-top:6px"><input id="epm" type="number" placeholder="Poise (0 = no stagger)" style="margin-top:6px"><input id="eac" type="number" placeholder="AC (default 12)" style="margin-top:6px"><input id="eab" type="number" placeholder="Attack bonus (default 4)" style="margin-top:6px"><input id="edm" placeholder="Damage, e.g. 2d6 (default 1d8)" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
  return h+`</div>`}
 const trayLabel=a=>{const c={};a.forEach(x=>c[x]=(c[x]||0)+1);return Object.keys(c).map(k=>(c[k]>1?c[k]:"")+"d"+k).join(" + ")};
@@ -269,14 +270,55 @@ function roll(ds,cb,mb){
  if(!waitD4)post();
  play(ds,res,m,skin,null,false,waitD4?post:null,()=>{if(cb)cb(res,m);else if(dm&&secOn)render()})}
 /* ---------- map ---------- */
-function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:new Set(Object.values(m.walls||{}))}}
+const edgeSet=m=>{const E=new Set(Object.values(m.ew||{}));Object.values(m.dr||{}).forEach(d=>{if(!d.o)Object.values(d.e||{}).forEach(k=>E.add(k))});return E};
+function blk(g,x,y,dx,dy){const E=g.E;if(!E||!E.size)return false;
+ const v=(a,b)=>E.has("v,"+a+","+b),h=(a,b)=>E.has("h,"+a+","+b);
+ if(dx&&!dy)return dx>0?v(x+1,y):v(x,y);
+ if(dy&&!dx)return dy>0?h(x,y+1):h(x,y);
+ const ex=dx>0?x+1:x,ey=dy>0?y+1:y;return v(ex,y)||v(ex,y+dy)||h(x,ey)||h(x+dx,ey)}
+function ddEdges(segs,set,cols,rows){
+ const addV=(x,y)=>{if(x>=0&&x<=cols&&y>=0&&y<rows)set.add("v,"+x+","+y)},addH=(x,y)=>{if(x>=0&&x<cols&&y>=0&&y<=rows)set.add("h,"+x+","+y)};
+ segs.forEach(([ax,ay,bx,by])=>{const dx=bx-ax,dy=by-ay,len=Math.hypot(dx,dy);if(len<.05)return;
+  if(Math.abs(dy)<.09){const y=Math.round((ay+by)/2);let c0=Math.round(Math.min(ax,bx)),c1=Math.round(Math.max(ax,bx))-1;if(c1<c0)c1=c0=Math.floor((ax+bx)/2);for(let c=c0;c<=c1;c++)addH(c,y);return}
+  if(Math.abs(dx)<.09){const x=Math.round((ax+bx)/2);let r0=Math.round(Math.min(ay,by)),r1=Math.round(Math.max(ay,by))-1;if(r1<r0)r1=r0=Math.floor((ay+by)/2);for(let r=r0;r<=r1;r++)addV(x,r);return}
+  const n=Math.ceil(len*12);let px=Math.floor(ax+dx*.5/n),py=Math.floor(ay+dy*.5/n);
+  for(let i=1;i<n;i++){const t=(i+.5)/n,cx=Math.floor(ax+dx*t),cy=Math.floor(ay+dy*t);
+   if(cx!==px){addV(Math.max(px,cx),py);if(cy!==py)addV(Math.max(px,cx),cy)}
+   if(cy!==py){addH(cx,Math.max(py,cy));if(cx!==px)addH(px,Math.max(py,cy))}
+   px=cx;py=cy}})}
+function ddParse(j){const rs=j&&j.resolution,img=j&&j.image;if(!rs||!rs.map_size||!img)return null;
+ const ppg=+rs.pixels_per_grid||50,cols=Math.round(+rs.map_size.x),rows=Math.round(+rs.map_size.y),ox=+(rs.map_origin&&rs.map_origin.x)||0,oy=+(rs.map_origin&&rs.map_origin.y)||0;
+ if(!(cols>0&&rows>0))return null;
+ const all=[].concat(j.line_of_sight||[],j.objects_line_of_sight||[]);let mx=0;all.forEach(l=>l.forEach(pt=>{mx=Math.max(mx,pt.x,pt.y)}));
+ const k=mx>Math.max(cols,rows)*1.6?1/ppg:1,P=pt=>[(pt.x-ox)*k,(pt.y-oy)*k],segs=[];
+ all.forEach(l=>{for(let i=0;i+1<l.length;i++){const a=P(l[i]),b=P(l[i+1]);segs.push([a[0],a[1],b[0],b[1]])}});
+ const set=new Set();ddEdges(segs,set,cols,rows);
+ const dr={};(j.portals||[]).forEach((q,i)=>{if(!q.bounds||q.bounds.length<2)return;const a=P(q.bounds[0]),b=P(q.bounds[1]),s2=new Set();ddEdges([[a[0],a[1],b[0],b[1]]],s2,cols,rows);dr["d"+i]={a,b,p:[(a[0]+b[0])/2,(a[1]+b[1])/2],e:[...s2],o:q.closed===false?1:0}});
+ const src=/^data:/.test(img)?img:"data:image/"+(img.startsWith("/9j")?"jpeg":img.startsWith("UklG")?"webp":"png")+";base64,"+img;
+ return{cols,rows,ew:[...set],dr,src}}
+function shrink(src,maxW,limit,cb){const i=new Image();
+ i.onload=()=>{let sc=Math.min(1,maxW/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.round(i.width*sc);c.height=Math.round(i.height*sc);const g=c.getContext("2d");g.fillStyle="#1a1a1a";g.fillRect(0,0,c.width,c.height);g.drawImage(i,0,0,c.width,c.height);
+  for(const q of[.8,.65,.5,.35]){const d=c.toDataURL("image/jpeg",q);if(d.length<limit){cb(d,c.width,c.height);return}}sc*=.8}};
+ i.onerror=()=>{$("#err").textContent="Couldn't read that map image."};i.src=src}
+function saveMap(d,w,h,name,extra){const id="m"+Date.now().toString(36),iv=Date.now(),m={name:String(name).replace(/\.[^.]+$/,"").slice(0,30),cols:24,grid:true,w,h,iv,...extra};
+ api("mapimg/"+id,"PUT",{data:d}).then(()=>{IM[id]={data:d,iv};maps[id]=m;gmMap=id;if(!cur){cur=id;api("cur","PUT",id)}last="";render();return api("maps/"+id,"PUT",m)}).catch(fail)}
+function importDD(f){const r=new FileReader();r.onload=()=>{let j;try{j=JSON.parse(r.result)}catch(e){$("#err").textContent="That file isn't a valid Dungeondraft (.dd2vtt) export.";return}
+ const q=ddParse(j);if(!q){$("#err").textContent="This file has no map image or grid information.";return}
+ $("#err").textContent="Importing "+f.name+"...";
+ shrink(q.src,2000,1300000,(d,w,h)=>{$("#err").textContent="";saveMap(d,w,h,f.name,{cols:q.cols,ew:q.ew,dr:q.dr})})};r.readAsText(f)}
+function edgesSvg(g){const cs=g.cs;let d="";g.E.forEach(k=>{const[t,a,b]=k.split(","),x=+a,y=+b;d+=t==="h"?`M${x*cs} ${y*cs}H${(x+1)*cs}`:`M${x*cs} ${y*cs}V${(y+1)*cs}`});
+ let h=d?`<path d="${d}" style="stroke:#fff;stroke-opacity:.55;stroke-width:${cs*.2};stroke-linecap:round;fill:none"/><path d="${d}" style="stroke:#14110e;stroke-width:${cs*.11};stroke-linecap:round;fill:none"/>`:"";
+ Object.values(g.m.dr||{}).forEach(q=>{const dl=`M${q.a[0]*cs} ${q.a[1]*cs}L${q.b[0]*cs} ${q.b[1]*cs}`;
+  h+=q.o?`<path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs*.06};stroke-dasharray:${cs*.12} ${cs*.12};fill:none"/>`:`<path d="${dl}" style="stroke:#fff;stroke-opacity:.6;stroke-width:${cs*.22};stroke-linecap:round;fill:none"/><path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs*.13};stroke-linecap:round;fill:none"/>`});
+ return h}
+function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:new Set(Object.values(m.walls||{})),E:edgeSet(m)}}
 function who(){const s=dm?sel:"c:"+me;if(!s)return null;const e=s[0]==="e",id=s.slice(2),o=(e?enemies:chars)[id];return o?{e,id,o}:null}
 function cellAt(e){const g=geo(),v=$("#map");if(!g||!v)return null;const r=v.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*g.cols),y=Math.floor((e.clientY-r.top)/r.height*g.m.h/g.cs);return x<0||y<0||x>=g.cols||y>=g.rows?null:[x,y]}
-function reach(c,g){const sp=c.spd||6,lim=(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0),d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined)continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
+function reach(c,g){const sp=c.spd||6,lim=(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0),d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined||blk(g,x,y,dx,dy))continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
 const wallsSvg=(W,cs)=>[...W].map(k=>{const[x,y]=k.split(",");return`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:url(#hatch);stroke:#000;stroke-opacity:.7;stroke-width:${cs/30}"/>`}).join("");
 function mapTools(){
  const ids=Object.keys(maps),g=geo();
- return`<div class="row"><select id="msel" style="width:auto;flex:1">${ids.map(i=>`<option value="${i}" ${i===mapId()?"selected":""}>${esc(maps[i].name)}${i===(cur&&maps[cur]?cur:ids[0])?" (live)":""}</option>`).join("")}</select><button data-m="mnew">New map</button><input id="mf" type="file" accept="image/*" hidden>${ids.length?`<button data-m="mshow">Show to players</button><button data-m="mren">Rename</button><button data-m="mdel">Delete</button>`:""}</div>${g?`<div class="row"><label class="sub">Squares across <input id="mc" type="number" min="5" max="80" value="${g.cols}" style="width:72px"></label><button data-m="grid">Grid: ${g.m.grid===false?"off":"on"}</button><button data-m="tool" data-k="move" ${tool==="move"?'class="pri"':""}>Move tokens</button><button data-m="tool" data-k="wall" ${tool==="wall"?'class="pri"':""}>Draw walls</button><button data-m="clr">Clear walls</button><button data-m="fog">Fog: ${g.m.fog?"on":"off"}</button><button data-m="tool" data-k="rev" ${tool==="rev"?'class="pri"':""}>Reveal</button><button data-m="tool" data-k="hid" ${tool==="hid"?'class="pri"':""}>Hide</button><button data-m="tool" data-k="bf" ${tool==="bf"?'class="pri"':""}>Bonfire</button><button data-m="revall">Reveal all</button><button data-m="hideall">Hide all</button></div>`:""}`}
+ return`<div class="row"><select id="msel" style="width:auto;flex:1">${ids.map(i=>`<option value="${i}" ${i===mapId()?"selected":""}>${esc(maps[i].name)}${i===(cur&&maps[cur]?cur:ids[0])?" (live)":""}</option>`).join("")}</select><button data-m="mnew">New map</button><input id="mf" type="file" accept="image/*" hidden><button data-m="ddimp">Import Dungeondraft</button><input id="ddf" type="file" accept=".dd2vtt,.uvtt,.df2vtt,.json" hidden>${ids.length?`<button data-m="mshow">Show to players</button><button data-m="mren">Rename</button><button data-m="mdel">Delete</button>`:""}</div>${g?`<div class="row"><label class="sub">Squares across <input id="mc" type="number" min="5" max="200" value="${g.cols}" style="width:72px"></label><button data-m="grid">Grid: ${g.m.grid===false?"off":"on"}</button><button data-m="tool" data-k="move" ${tool==="move"?'class="pri"':""}>Move tokens</button><button data-m="tool" data-k="wall" ${tool==="wall"?'class="pri"':""}>Draw walls</button><button data-m="clr">Clear walls</button><button data-m="clrew">Clear imported walls</button><button data-m="fog">Fog: ${g.m.fog?"on":"off"}</button><button data-m="tool" data-k="rev" ${tool==="rev"?'class="pri"':""}>Reveal</button><button data-m="tool" data-k="hid" ${tool==="hid"?'class="pri"':""}>Hide</button><button data-m="tool" data-k="bf" ${tool==="bf"?'class="pri"':""}>Bonfire</button><button data-m="tool" data-k="gd" ${tool==="gd"?'class="pri"':""}>Guild</button><button data-m="tool" data-k="dr" ${tool==="dr"?'class="pri"':""}>Doors</button><button data-m="revall">Reveal all</button><button data-m="hideall">Hide all</button></div>`:""}`}
 const VR=4;
 function fogHid(g,x,y){if(!g.m.fog)return false;if((g.m.fg||"")[y*g.cols+x]==="1")return false;return !A().some(i=>{const c=chars[i];return c.mx!=null&&Math.hypot(x-c.mx,y-c.my)<=VR})}
 function eHid(g,e){if(!g)return false;const z=e.sz||1;for(let i=0;i<z;i++)for(let j=0;j<z;j++)if(!fogHid(g,e.mx+i,e.my+j))return false;return true}
@@ -295,21 +337,65 @@ const initHtml=()=>{
   return`<li style="${cur?"color:var(--ac);font-weight:600":""}">${cur?"▶ ":""}${esc(nm)} ${st}</li>`}).join("");
  const all=ini.l.every(u=>u.v!=null||!ent(u.k));
  return`<div class="card sb"><h2>${rl?"Roll initiative":"Turn order · Round "+ini.r}</h2><ul class="rl">${rows}</ul>${dm?(rl?`<div class="row mini"><button data-a="ienemies">Roll enemies</button><button class="pri" data-a="ibegin" ${all?"":"disabled"}>Begin combat</button><button data-a="iend">Cancel</button></div>`:`<div class="row mini"><button class="pri" data-a="inext">Next turn</button><button data-a="istart">New initiative</button><button data-a="iend">End combat</button></div>`):""}</div>`};
-const cst=(c,b)=>b?Math.ceil(b*(1+.2*(c.dth||0))):0;
+const cst=(c,b)=>b?Math.ceil(b*SC*(1+.15*Math.min(3,c.dth||0))):0;
 const spend=(c,cost,label)=>{cost=cst(c,cost);const p={};let m=label+(cost?" (-"+cost+" St)":"");if(c.st>=cost)p.st=c.st-cost;else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}return[p,m]};
 const bonfires=()=>{const g=geo();return g?Object.values(g.m.bf||{}):[]};
+const STATS_=["str","dex","con","int","wis","cha"];
+const bonusOf=(c,b)=>b==="level"?(c.level||1):STATS_.includes(b)?mod(c[b]):0;
+const slug=n=>String(n).toLowerCase().replace(/[^a-z0-9]+/g,"_").replace(/^_|_$/g,"");
+function defBoard(){const b={};
+ Object.entries(C).forEach(([cls,v])=>v.ab.forEach(a=>{const n=a[0],e={n,c:a[1],l:1,v:cls,k:"util",d:"",r:0,a:0,b:"",t:a[2]};
+  if(AD0[n]){e.k="atk";e.d=AD0[n].d;e.r=AD0[n].r;e.a=AD0[n].t?1:0}
+  else if(HEAL0[n]){e.k="heal";e.d=HEAL0[n].d;e.b=n==="Second Wind"?"level":"int"}
+  else if(n==="Pilfer"){e.k="check";e.b="dex"}
+  b[cls+"_"+slug(n)]=e}));
+ [["fighter","Cleave",3,2,"atk","3d6",1,0,"","A wide swing: 3d6 damage."],["fighter","Heavy Smash",5,3,"atk","4d8",1,0,"","A crushing overhead blow: 4d8."],
+  ["archer","Rapid Shot",3,2,"atk","2d8",8,0,"","Two arrows in one: 2d8."],["archer","Deadeye",5,3,"atk","4d6",10,0,"","A patient, perfect shot: 4d6, long range."],
+  ["mage","Frost Lance",3,2,"atk","3d8",8,0,"","A spear of ice: 3d8."],["mage","Fireball",5,3,"atk","8d6",6,1,"","Explosive: 8d6 to the target, no attack roll."],
+  ["thief","Shadow Strike",3,2,"atk","4d6",1,0,"","Strike from the dark: 4d6."],["thief","Venom Cut",2,2,"atk","2d6",1,1,"","A poisoned nick: 2d6, no attack roll."]
+ ].forEach(([v,n,c,l,k,d,r,a,bb,t])=>{b[v+"_"+slug(n)]={n,c,l,v,k,d,r,a,b:bb,t}});
+ return b}
+function applyBoard(b){board=b;[AD,HEAL,CHK].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));
+ Object.values(b).forEach(e=>{if(!e||!e.n)return;if(e.k==="atk")AD[e.n]={r:+e.r||1,d:e.d||"1d6",t:e.a?1:0};else if(e.k==="heal")HEAL[e.n]={d:e.d||"1d6",b:e.b||""};else if(e.k==="check")CHK[e.n]={b:e.b||"dex"}})}
+const slotsOf=c=>(c.level||1)+3;
+function eqIds(c){if(c.eq&&typeof c.eq==="object")return Object.keys(c.eq).filter(k=>board[k]);
+ return Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1)).slice(0,slotsOf(c))}
+const eqAbilities=c=>eqIds(c).map(k=>board[k]).map(e=>[e.n,+e.c||0,e.t||"",""]);
+const boardEnsure=()=>{if(!boardDB){boardDB=true;api("board","PUT",board).catch(fail)}};
+const KINDS=[["atk","Attack"],["heal","Heal"],["util","Utility"],["check","d20 check"]],VOC=[["any","Any vocation"],["fighter","Fighter"],["archer","Archer"],["mage","Mage"],["thief","Thief"]],BON=[["","none"],["level","level"],["str","STR"],["dex","DEX"],["int","INT"],["wis","WIS"]];
+function boardHtml(){
+ if(dm){
+  const ids=Object.keys(board).sort((a,b)=>(board[a].v||"").localeCompare(board[b].v||"")||(board[a].l||1)-(board[b].l||1));
+  const fl=(id,f,lb,val,w)=>`<label>${lb}<input data-bf="${id}" data-f="${f}" value="${esc(val??"")}" style="width:${w||70}px"></label>`;
+  const sl=(id,f,lb,val,o)=>`<label>${lb}<select data-bf="${id}" data-f="${f}" style="min-height:36px;width:auto">${o.map(([v,t])=>`<option value="${v}" ${val===v?"selected":""}>${t}</option>`).join("")}</select></label>`;
+  return`<div class="card"><h2>Ability board</h2><p class="note">Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a bonfire or a guild (use the Guild map tool). Each level gives one more slot.</p><div class="row"><button class="pri" data-a="badd">Add ability</button><button data-a="bdef">Load default abilities</button></div></div>`+ids.map(id=>{const e=board[id];return`<div class="card sb"><div class="efld">${fl(id,"n","Name",e.n,120)}${sl(id,"v","Vocation",e.v||"any",VOC)}${fl(id,"l","Min level",e.l||1,56)}${fl(id,"c","Cost",e.c||0,56)}${sl(id,"k","Kind",e.k||"util",KINDS)}${fl(id,"d","Dice",e.d||"",70)}${fl(id,"r","Range",e.r||0,56)}<label>Auto-hit<input type="checkbox" data-bf="${id}" data-f="a" ${e.a?"checked":""} style="width:auto"></label>${sl(id,"b","Bonus",e.b||"",BON)}${fl(id,"t","Description",e.t||"",220)}</div><div class="row mini"><button data-a="bdel" data-id="${id}">Remove</button></div></div>`}).join("")}
+ const c=chars[me];if(!c)return"";
+ const here=nearBf(c)||nearGuild(c),eq=new Set(eqIds(c)),slots=slotsOf(c);
+ const avail=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1));
+ const row=k=>{const e=board[k],on=eq.has(k),info=e.k==="atk"?"Damage "+(e.d||"")+", range "+(e.r||1)+(e.a?", auto-hit":""):e.k==="heal"?"Heals "+(e.d||""):e.k==="check"?"d20 check":"";
+  return`<div class="ab"><div><b>${esc(e.n)}</b> <span class="sub">Lv ${e.l||1} · ${cst(c,+e.c||0)} St</span><small>${esc(e.t||"")}${info?" · "+esc(info):""}</small></div><button data-a="${on?"forget":"learn"}" data-id="${k}" ${here&&(on||eq.size<slots)?"":"disabled"}>${on?"Unequip":"Equip"}</button></div>`};
+ return`<div class="solo"><div class="card"><h2>Ability board</h2><p class="note">Equipped ${eq.size} / ${slots}. ${here?"You are at a bonfire or guild: you can change your abilities.":"You can only change abilities next to a bonfire or at a guild."} More slots and abilities unlock as you level up.</p></div><div class="card">${avail.map(row).join("")||`<p class="note">No abilities available yet.</p>`}</div></div>`}
+const skillsEd=(i,e)=>{const sk=e.sk||{};return`<h3>Skills</h3>${Object.keys(sk).map(k=>{const q=sk[k];return`<div class="efld"><label>Name<input data-es="${i}" data-sk="${k}" data-f="n" value="${esc(q.n)}" style="width:100px"></label><label>Damage<input data-es="${i}" data-sk="${k}" data-f="d" value="${esc(q.d)}" style="width:70px"></label><label>Range<input type="number" data-es="${i}" data-sk="${k}" data-f="r" value="${q.r||1}" style="width:56px"></label><label>Type<select data-es="${i}" data-sk="${k}" data-f="t" style="min-height:36px;width:auto"><option value="s" ${q.t!=="a"?"selected":""}>Single</option><option value="a" ${q.t==="a"?"selected":""}>Area</option></select></label><label>Auto-hit<input type="checkbox" data-es="${i}" data-sk="${k}" data-f="a" ${q.a?"checked":""} style="width:auto"></label><button data-a="eskdel" data-id="${i}" data-k="${k}">x</button></div>`}).join("")}<div class="row mini"><button data-a="eskadd" data-id="${i}">+ Add skill</button></div>`};
+const guilds=()=>{const g=geo();return g?Object.values(g.m.gd||{}):[]};
+const nearGuild=c=>{if(!c||c.mx==null)return null;for(const k of guilds()){const[x,y]=k.split(",").map(Number);if(Math.max(Math.abs(x-c.mx),Math.abs(y-c.my))<=1)return k}return null};
 const nearBf=c=>{if(!c||c.mx==null)return null;for(const k of bonfires()){const[x,y]=k.split(",").map(Number);if(Math.max(Math.abs(x-c.mx),Math.abs(y-c.my))<=1)return k}return null};
 const rvBtns=(id,c)=>{const b=bonfires();return`<div class="row mini">${b.length?b.map((k,i)=>`<button class="pri" data-a="revive" data-id="${id}" data-b="${k}">Revive at bonfire ${i+1}</button>`).join(""):`<span class="sub">No bonfire on the map to revive at.</span>`}</div>`};
+function migrate(){
+ Object.keys(chars).forEach(i=>{const c=chars[i];if(!c||c.x10||migDone.has("c"+i))return;migDone.add("c"+i);const p={x10:true};["hp","maxHp","st","maxSt","rg","bmh"].forEach(f=>{if(typeof c[f]==="number")p[f]=c[f]*SC});chars[i]={...c,...p};api("chars/"+i,"PATCH",p).catch(fail)});
+ Object.keys(enemies).forEach(i=>{const e=enemies[i];if(!e||e.x10||migDone.has("e"+i))return;migDone.add("e"+i);const p={x10:true};["hp","max","pm","po","hv"].forEach(f=>{if(typeof e[f]==="number")p[f]=e[f]*SC});enemies[i]={...e,...p};api("enemies/"+i,"PATCH",p).catch(fail)})}
+function respawnEnemies(){let n=0;Object.keys(enemies).forEach(i=>{const e=enemies[i];if((e.sz||1)>=4)return;n++;updE(i,{hp:e.max,po:e.pm||0,stun:false,sg:false,rec:false,hd:null,ht:0,mx:e.hx!=null?e.hx:e.mx,my:e.hy!=null?e.hy:e.my})});if(n)ev("The bonfire flares... the monsters return to their posts")}
 function restAt(id){const c=chars[id];if(!c||c.hp<=0)return;const b=nearBf(c);if(!dm&&!b){$("#err").textContent="You can only rest next to a bonfire.";return}
  const p={hp:c.maxHp,st:c.maxSt,fl:c.maxFl,used:0,mvd:0,exh:false,pr:false,lh:0};let m="Rested at the bonfire";
  if(c.dth&&b&&b!==c.cb){p.maxHp=c.bmh||c.maxHp;p.hp=p.maxHp;p.dth=0;p.cb=null;p.bmh=null;m="Cleansed at a new bonfire: the curse lifts"}
- upd(id,p,m)}
+ upd(id,p,m);respawnEnemies()}
 function tomb(o,en,cs){const z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,w=cs*.62*Math.max(1,z*.8),h=cs*.74*Math.max(1,z*.8);
  return`<g><path d="M${x-w/2} ${y+h/2}V${y-h*.1}A${w/2} ${w/2} 0 0 1 ${x+w/2} ${y-h*.1}V${y+h/2}Z" style="fill:#8a8d94;stroke:#2b2d33;stroke-width:${cs*.05}px"/><text x="${x}" y="${y}" text-anchor="middle" style="font:700 ${cs*.26}px sans-serif;fill:#2b2d33">✝</text><text x="${x}" y="${y+h/2+cs*.28}" text-anchor="middle" style="font:700 ${cs*.26}px sans-serif;fill:#fff;stroke:#000;stroke-width:${cs*.06}px;paint-order:stroke">${esc((o.name||"").slice(0,14))}</text></g>`}
 function showQte(q){const c=chars[me],el=$("#qte");if(!c)return;const can=!c.exh&&!c.stn&&c.hp>0;
- el.innerHTML=`<h2>⚠ ${esc(q.from)} is attacking you!</h2><p class="note" style="margin:2px 0 8px">React now, you have 3 seconds</p><div class="row" style="justify-content:center"><button class="pri" data-q="dodge" ${can?"":"disabled"}>Dodge · ${cst(c,3)} St</button>${c.shield&&q.melee?`<button class="pri" data-q="parry" ${can?"":"disabled"}>Parry · ${cst(c,2)} St</button>`:""}<button data-q="none">Take it</button></div><div class="qbar"></div>`;el.hidden=false;placeOver(el);
+ el.innerHTML=`<h2>⚠ ${esc(q.from)} is attacking you!</h2><p class="note" style="margin:2px 0 8px">Pick a reaction within 3 seconds, then roll your save</p><div class="row" style="justify-content:center"><button class="pri" data-q="dodge" ${can?"":"disabled"}>Dodge · ${cst(c,3)} St</button>${c.shield&&q.melee?`<button class="pri" data-q="parry" ${can?"":"disabled"}>Parry · ${cst(c,2)} St</button>`:""}<button data-q="none">Take it</button></div><div class="qbar"></div>`;el.hidden=false;placeOver(el);
  clearTimeout(showQte.t);showQte.t=setTimeout(()=>{el.hidden=true},3000)}
-async function pollQte(){if(!role||dm)return;try{const q=await api("qte"),el=$("#qte");if(q&&q.tid===me&&!q.res){if(qteId!==q.id){qteId=q.id;showQte(q)}}else if(!q||q.tid!==me)el.hidden=true}catch(e){}}
+async function pollQte(){if(!role||dm)return;try{const q=await api("qte"),el=$("#qte");if(q&&q.tid===me&&!q.res){if(qteId!==q.id){qteId=q.id;if(q.pre)qteAuto(q);else showQte(q)}}else if(!q||q.tid!==me)el.hidden=true}catch(e){}}
+function doSave(kind){const c=chars[me];if(!c)return;roll([20],(res,m)=>{api("qte/sv","PUT",{r:res[0].r,t:res[0].r+m}).catch(fail)},mod(kind==="dodge"?c.dex:c.str))}
+function qteAuto(q){api("qte/res","PUT",q.pre).catch(fail);const el=$("#qte");el.innerHTML=`<h2>⚠ ${esc(q.from)} attacks!</h2><p class="note" style="margin:2px 0 4px">Your readied ${q.pre} goes off. Rolling your save...</p>`;el.hidden=false;placeOver(el);clearTimeout(showQte.t);showQte.t=setTimeout(()=>{el.hidden=true},4000);doSave(q.pre)}
 function startStream(){[es,es2].forEach(x=>x&&x.close());es=es2=null;if(typeof EventSource==="undefined")return;try{const b=DB_URL.replace(/\/$/,"")+"/tables/"+pin+"/";es=new EventSource(b+"qte.json");es.addEventListener("put",pollQte);es.addEventListener("patch",pollQte);es.onerror=()=>{};es2=new EventSource(b+"rolls.json");es2.addEventListener("put",syncRolls);es2.addEventListener("patch",syncRolls);es2.onerror=()=>{}}catch(e){}}
 function placeOver(el){const mp=$("#map"),r=mp&&mp.getBoundingClientRect();let x=innerWidth/2,y=innerHeight/2;
  if(r&&r.width>50){x=Math.max(170,Math.min(innerWidth-170,r.left+r.width/2));y=Math.max(130,Math.min(innerHeight-130,r.top+Math.min(r.height,innerHeight-r.top)/2))}
@@ -342,33 +428,46 @@ function atkInfo(A_,k,i){
  const ab=ABS(c)[i],d=ab&&AD[ab[0]];return d?{label:ab[0],rng:d.r,dmg:d.d,tb,db,cost:ab[1],cs:cst(c,ab[1]),po:2,auto:d.t}:null}
 function applyDmg(A_,T,dmg,inf){
  const o=T.o,nh=Math.max(0,(o.hp||0)-dmg),ts=Date.now();
- if(T.e){updE(T.id,{hp:nh,ht:ts,hv:dmg});poiseHit(T.id,inf.po||1)}
+ if(T.e){updE(T.id,{hp:nh,ht:ts,hv:dmg});poiseHit(T.id,(inf.po||1)*SC)}
  else{upd(T.id,{hp:nh,ht:ts,hv:dmg},A_.o.name+" hits for "+dmg);
   if(A_.e&&o.exh){const hv=inf.heavy,lh=(o.lh||0)+(hv?0:1),pr=hv||lh>=3;upd(T.id,{lh:pr?0:lh,pr:pr||!!o.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}}
  ev(A_.o.name+" hits "+o.name+" for "+dmg+(nh===0?(T.e?". "+o.name+" is slain!":". "+o.name+" falls!"):""))}
 function resolveAttack(A_,T,inf){
  const an=A_.o.name,tn=T.o.name,pl=!A_.e,ac=T.o.ac??12;
- const deal=crit=>{const dsl=parseD(inf.dmg),list=crit?dsl.concat(dsl):dsl;
-  if(pl)roll(list,res=>applyDmg(A_,T,Math.max(1,res.reduce((a,b)=>a+b.r,0)+inf.db),inf),inf.db);
-  else applyDmg(A_,T,Math.max(1,list.reduce((a,d)=>a+1+Math.floor(Math.random()*d),0)),inf)};
- const defend=(kind,total,melee,crit,paid)=>{const t=T.o,useD=kind==="dodge";
-  if(!useD&&!(t.shield&&melee)){deal(crit);return}
+ const deal=(crit,fac)=>{const dsl=parseD(inf.dmg),list=crit?dsl.concat(dsl):dsl,k=fac||1;
+  if(pl)roll(list,res=>applyDmg(A_,T,Math.max(1,res.reduce((a,b)=>a+b.r,0)+inf.db)*SC*k,inf),inf.db);
+  else applyDmg(A_,T,Math.max(1,list.reduce((a,d)=>a+1+Math.floor(Math.random()*d),0))*SC*k,inf)};
+ const finishSave=(kind,sv,total,melee,crit,paid)=>{const t=T.o,useD=kind==="dodge";
+  if(!useD&&!(t.shield&&melee)){deal(crit,1);return}
   if(!paid){const[pp,mm]=spend(t,useD?3:2,useD?"Dodge":"Parry");upd(T.id,pp,mm)}
-  const dr=1+Math.floor(Math.random()*20)+mod(useD?t.dex:t.str);
-  if(dr>=total){if(!useD)upd(T.id,{ctr:true});ev(tn+(useD?" dodges ":" parries ")+an+"'s attack ("+dr+" vs "+total+")"+(useD?"":" and can counter-attack"));return}
-  ev(tn+(useD?" fails to dodge":" fails to parry")+" ("+dr+" vs "+total+")");deal(crit)};
+  if(sv==null)sv=1+Math.floor(Math.random()*20)+mod(useD?t.dex:t.str);
+  const margin=sv-total;
+  if(margin>=0){if(!useD)upd(T.id,{ctr:true});ev(tn+(useD?" dodges ":" parries ")+an+"'s attack (save "+sv+" vs "+total+")"+(useD?"":" and can counter-attack"));return}
+  if(margin>=-2){ev(tn+(useD?" only half dodges":" only half parries")+" (save "+sv+" vs "+total+"): half damage");deal(crit,.5);return}
+  ev(tn+(useD?" fails to dodge":" fails to parry")+" (save "+sv+" vs "+total+"): full damage");deal(crit,1)};
+ const waitSave=(pre,total,melee,crit)=>{const qid=Date.now();
+  api("qte","PUT",{id:qid,tid:T.id,total,melee,from:an,...(pre?{pre}:{})}).catch(fail);
+  ev(an+" attacks "+tn+"! "+(pre?tn+" uses a readied "+pre+".":tn+" has 3 seconds to react."));
+  const t0=Date.now(),poll=async()=>{let q=null;try{q=await api("qte")}catch(e){}
+   const mine=q&&q.id===qid;
+   if(mine&&q.res&&q.sv){api("qte","DELETE").catch(()=>{});finishSave(q.res,q.sv.t,total,melee,crit,!!pre);return}
+   const wait=(pre||(mine&&q.res))?18000:3500;
+   if(Date.now()-t0>wait){api("qte","DELETE").catch(()=>{});if(pre)finishSave(pre,null,total,melee,crit,true);else if(mine&&q.res)finishSave(q.res,null,total,melee,crit,false);else deal(crit,1);return}
+   setTimeout(poll,350)};
+  setTimeout(poll,350)};
  const onHit=(nat,total)=>{const crit=nat===20,melee=inf.rng<=1,t=T.o;
   if(!T.e&&!inf.auto){
-   if(t.ddg||(t.pry&&melee)){const useD=!!t.ddg;upd(T.id,useD?{ddg:false}:{pry:false});defend(useD?"dodge":"parry",total,melee,crit,true);return}
-   if(!pl&&T.id!=="gm"&&t.hp>0&&!t.exh&&!t.stn){const qid=Date.now();api("qte","PUT",{id:qid,tid:T.id,total,melee,from:an}).catch(fail);ev(an+" attacks "+tn+"! "+tn+" has 3 seconds to react.");
-    setTimeout(async()=>{let r=null;try{const q=await api("qte");if(q&&q.id===qid)r=q.res||null}catch(e){}api("qte","DELETE").catch(()=>{});if(r)defend(r,total,melee,crit,false);else deal(crit)},3500);return}}
-  deal(crit)};
+   const ready=t.ddg?"dodge":(t.pry&&melee?"parry":null),canQ=!pl&&T.id!=="gm"&&t.hp>0&&!t.exh&&!t.stn;
+   if(ready){upd(T.id,ready==="dodge"?{ddg:false}:{pry:false});if(canQ)waitSave(ready,total,melee,crit);else finishSave(ready,null,total,melee,crit,true);return}
+   if(canQ){waitSave(null,total,melee,crit);return}}
+  deal(crit,1)};
  if(inf.auto){ev(an+" uses "+inf.label+" on "+tn+" (targeted, no attack roll)");onHit(0,0);return}
  const fin=(nat,m)=>{const total=nat+m,hit=nat===20||(nat!==1&&total>=ac);
   if(pl)ev(an+" rolls "+nat+" "+sg(m)+" = "+total+" vs AC "+ac+" ("+inf.label+" on "+tn+"): "+(nat===20?"CRITICAL HIT":hit?"HIT":"MISS"));
   else if(!hit)ev(an+" misses "+tn+" ("+inf.label+")");
   if(hit)onHit(nat,total)};
- if(pl)roll([20],(res,m)=>fin(res[0].r,m),inf.tb);else{let n=1+Math.floor(Math.random()*20);if(A().some(i=>chars[i].mon===A_.id&&chars[i].mt)){n=Math.min(n,1+Math.floor(Math.random()*20));ev(an+" is struggling with a rider: attacking at disadvantage")}fin(n,inf.tb)}}
+ if(pl)roll([20],(res,m)=>fin(res[0].r,m),inf.tb);
+ else{let n=1+Math.floor(Math.random()*20);if(A().some(i=>chars[i].mon===A_.id&&chars[i].mt)){n=Math.min(n,1+Math.floor(Math.random()*20));ev(an+" is struggling with a rider: attacking at disadvantage")}fin(n,inf.tb)}}
 function nextTurn(){if(!ini||ini.ph!=="go")return;let t=ini.t,r=ini.r,w=false;const n=ini.l.length;for(let q=0;q<n;q++){t++;if(t>=n){t=0;r++;w=true}{const u=ent(ini.l[t].k);if(u&&u.o.hp>0)break}}ini={...ini,t,r};if(w)tick();last="";render();api("init","PUT",ini).catch(fail);const u=ent(ini.l[t].k);if(u)ev((w?"Round "+r+". ":"")+"It's "+u.o.name+"'s turn")}
 function fxs(o,en,x,y,r,cs){
  const stun=en?o.stun:o.stn,t=`stroke:#000;stroke-width:${cs*.03}px;paint-order:stroke`;
@@ -376,7 +475,7 @@ function fxs(o,en,x,y,r,cs){
  if(!en&&o.exh)return[-1,0,1].map((k,i)=>`<text x="${x+k*r*.6}" y="${y-r}" text-anchor="middle" style="font-size:${cs*.3}px;fill:#e0533f;${t}"><animate attributeName="y" values="${y-r*1.3};${y-r*.55}" dur="1s" begin="${i*.25}s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;0" dur="1s" begin="${i*.25}s" repeatCount="indefinite"/>▼</text>`).join("");
  return""}
 function riders(id,x,y,r,cs){return A().filter(i=>chars[i].mon===id&&chars[i].mt).slice(0,3).map((i,k,a)=>{const c=chars[i],bx=x+(k-(a.length-1)/2)*cs*.42,by=y-r*.82,rr=cs*.2,ic=IC[i],img=c.iv&&ic&&ic.data;return`<circle cx="${bx}" cy="${by}" r="${rr}" style="fill:var(--ac);stroke:#fff;stroke-width:${cs/14}"/>`+(img?`<clipPath id="rb${i}"><circle cx="${bx}" cy="${by}" r="${rr}"/></clipPath><image href="${ic.data}" x="${bx-rr}" y="${by-rr}" width="${rr*2}" height="${rr*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#rb${i})"/>`:`<text x="${bx}" y="${by}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.26}px sans-serif">${esc((c.name||"?")[0])}</text>`)}).join("")}
-function reachE(e,g){const z=e.sz||1,lim=(e.spd||6)+(e.bon||0),free=(a,b)=>{if(a<0||b<0||a+z>g.cols||b+z>g.rows)return false;for(let i=0;i<z;i++)for(let j=0;j<z;j++)if(g.W.has(K(a+i,b+j)))return false;return true},d={[K(e.mx,e.my)]:0},q=[[e.mx,e.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||d[k]!==undefined||!free(a,b))continue;d[k]=n+1;q.push([a,b])}}return d}
+function reachE(e,g){const z=e.sz||1,lim=(e.spd||6)+(e.bon||0),free=(a,b)=>{if(a<0||b<0||a+z>g.cols||b+z>g.rows)return false;for(let i=0;i<z;i++)for(let j=0;j<z;j++)if(g.W.has(K(a+i,b+j)))return false;return true},d={[K(e.mx,e.my)]:0},q=[[e.mx,e.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||d[k]!==undefined||!free(a,b)||blk(g,x,y,dx,dy))continue;d[k]=n+1;q.push([a,b])}}return d}
 function mapHtml(){
  const ids=Object.keys(maps),g=geo();
  if(!ids.length)return`<div class="card"><p class="note">${dm?"No maps yet. Upload one to begin.":"The GM hasn't set a map yet."}</p>${dm?mapTools():""}</div>`;
@@ -384,9 +483,10 @@ function mapHtml(){
  const{m,im,cols,cs,rows,W}=g,s=who(),c=s&&!s.e?s.o:null,sp=c?c.spd||6:6,wl=c&&c.exh?Math.floor(sp/2):sp,R=c&&c.mx!=null?reach(c,g):(s&&s.e&&s.o.mx!=null?reachE(s.o,g):{});
  let v=`<svg id="map" viewBox="0 0 ${m.w} ${m.h}"><defs><pattern id="hatch" width="${cs/4}" height="${cs/4}" patternUnits="userSpaceOnUse"><path d="M0 0L${cs/4} ${cs/4}M${cs/4} 0L0 ${cs/4}" style="stroke:#000;stroke-width:${cs/22}"/></pattern></defs><image href="${im.data}" width="${m.w}" height="${m.h}"/>`;
  for(const k in R){if(!R[k])continue;const[x,y]=k.split(",");v+=`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:${s&&s.e?"var(--hp)":combat&&!c.exh&&cst(c,R[k])>c.st?"var(--ac)":"var(--st)"};fill-opacity:.35"/>`}
- v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;
+ v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;v+=edgesSvg(g);
  if(m.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2,m.w/450)};fill:none"/>`}
  v+=bonfires().map(k=>{const[bx,by]=k.split(",").map(Number);return`<text x="${(bx+.5)*cs}" y="${(by+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🔥</text>`}).join("");
+ v+=guilds().map(k=>{const[gx,gy]=k.split(",").map(Number);return`<text x="${(gx+.5)*cs}" y="${(gy+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🍺</text>`}).join("");
  if(m.fog)v+=`<path id="fgp" d="${fogD(g)}" style="fill:#000;fill-opacity:${dm?.55:1}"/>`;
  const tk=(o,key,en)=>{if(o.mx==null||(en&&!dm&&eHid(g,o)))return"";if(o.hp<=0)return tomb(o,en,cs);const id=key.slice(2),z=en?(o.sz||1):1,x=(o.mx+z/2)*cs,y=(o.my+z/2)*cs,r=cs*(z===1?.4:z*.47),sl=key===(dm?sel:"c:"+me)?"#fff":(en?"var(--hp)":"#000"),ic=IC[id],img=o.iv&&ic&&ic.data,ring=`<circle cx="${x}" cy="${y}" r="${r}" style="fill:${en?"var(--hp)":"var(--ac)"};stroke:${sl};stroke-width:${cs/10}"/>`;const bd=img?ring+`<clipPath id="cp${id}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><image href="${ic.data}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/><circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs/10}"/>`:ring+`<text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs*.45*Math.min(z,2)}px sans-serif">${esc((o.name||"?")[0])}</text>`;const hf=o.ht&&Date.now()-o.ht<4500,shk=hf?`<animateTransform attributeName="transform" type="translate" values="0 0;${-cs*.12} 0;${cs*.12} ${cs*.05};${-cs*.08} 0;${cs*.08} 0;0 0" dur=".5s" repeatCount="1"/>`:"";
   return`<g>${shk}${bd}${fxs(o,en,x,y,r,cs)}${en?riders(id,x,y,r,cs):""}${hf?`<circle cx="${x}" cy="${y}" r="${r}" style="fill:#ff2a2a;opacity:0"><animate attributeName="opacity" values=".65;0" dur=".7s" repeatCount="1"/></circle><text x="${x}" y="${y-r}" text-anchor="middle" style="font:700 ${cs*.4}px sans-serif;fill:#ff5a4d;stroke:#000;stroke-width:${cs*.04}px;paint-order:stroke;opacity:0">-${o.hv||""}<animate attributeName="y" values="${y-r*.6};${y-r*1.7}" dur="1.2s" repeatCount="1"/><animate attributeName="opacity" values="1;1;0" dur="1.2s" repeatCount="1"/></text>`:""}</g>`};
@@ -395,18 +495,19 @@ function mapHtml(){
  const chip=(k,t)=>`<button data-m="sel" data-id="${k}" ${k===sel?'class="pri"':""}>${esc(t)}</button>`;
  const chips=dm?A().map(i=>chip("c:"+i,chars[i].name)).concat(Object.keys(enemies).map(i=>chip("e:"+i,"👹 "+enemies[i].name))).join(""):"";
  const lim=c?(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0):0,info=!s?(dm?"Pick a unit, then tap the map to move it, or tap another token to act on it.":"Tap an enemy token to attack or interact."):s.o.mx==null?"Tap the map to place it.":s.e?`Red squares: this enemy can move up to ${(s.o.spd||6)+(s.o.bon||0)} squares (speed ${s.o.spd||6} + bonus ${s.o.bon||0}). Tap the map to move it, or tap a character to act on it.`:c.exh?`Exhausted (${c.exn||2} rounds left): you can only move 2 squares at a time, free of stamina.`:combat?`Combat: moving costs 1 stamina per square, ${lim} squares left this round. Green is affordable, amber means you'd run out of stamina and become exhausted.`:`Out of combat: move up to ${sp} squares for free (green). Tap an enemy token to attack or interact.`;
- return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}${jump?" Tap a free square within 3 squares of the monster to jump there.":""}</p>${jump?`<div class="row mini"><button data-a="jcancel">Cancel jump</button></div>`:""}${dm?mapTools():""}</div>`}
+ return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&tool==="dr"?" Tap a door to open or close it.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}${jump?" Tap a free square within 3 squares of the monster to jump there.":""}</p>${jump?`<div class="row mini"><button data-a="jcancel">Cancel jump</button></div>`:""}${dm?mapTools():""}</div>`}
 const paint=p=>{const k=K(p[0],p[1]);if(P.add===P.W.has(k))return;P.add?P.W.add(k):P.W.delete(k);$("#wl").innerHTML=wallsSvg(P.W,geo().cs)};
 const setM=p=>{const id=mapId();maps[id]={...maps[id],...p};last="";render();api("maps/"+id,"PUT",maps[id]).catch(fail)};
-function loadImg(f){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{let sc=Math.min(1,1400/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.round(i.width*sc);c.height=Math.round(i.height*sc);c.getContext("2d").drawImage(i,0,0,c.width,c.height);for(const q of[.8,.65,.5,.35]){const d=c.toDataURL("image/jpeg",q);if(d.length<700000){const id="m"+Date.now().toString(36),iv=Date.now(),m={name:(f.name||"Map").replace(/\.[^.]+$/,"").slice(0,30),cols:24,grid:true,w:c.width,h:c.height,iv};api("mapimg/"+id,"PUT",{data:d}).then(()=>{IM[id]={data:d,iv};maps[id]=m;gmMap=id;if(!cur){cur=id;api("cur","PUT",id)}last="";render();return api("maps/"+id,"PUT",m)}).catch(fail);return}}sc*=.8}};i.src=r.result};r.readAsDataURL(f)}
+function loadImg(f){const r=new FileReader();r.onload=()=>shrink(r.result,1400,700000,(d,w,h)=>saveMap(d,w,h,f.name||"Map",{}));r.readAsDataURL(f)}
 /* ---------- render / sync ---------- */
 function render(){
  $("#role").textContent=role?(dm?"Game Master":"Player"):"";$("#leave").hidden=!role;$("#tab").hidden=!role||(!dm&&!(chars[me]&&ok(chars[me])));$("#sw").hidden=!canGM||!role;
- $("#tab").textContent=view==="sheet"?"Table":"Sheet";$("#sw").textContent=dm?"View as player":"Back to GM";
+ $("#tab").textContent=view==="sheet"?"Table":"Sheet";$("#tab2").textContent=view==="board"?"Back to table":"Abilities";$("#tab2").hidden=$("#tab").hidden;$("#sw").textContent=dm?"View as player":"Back to GM";
  let h="";
  if(!role)h=joinScreen();
  else if(!dm&&!chars[me])h='<div class="solo">'+(myClaim?claimWait():create())+'</div>';
  else if(!dm&&!ok(chars[me]))h=waitHtml();
+ else if(view==="board")h=boardHtml();
  else if(view==="sheet")h=dm?pendingHtml()+(A().length?'<div class="grid">'+A().map(card).join("")+'</div>':'<p class="note">No approved characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
  else{
   const left=dm?pendingHtml()+`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+allies();
@@ -414,17 +515,18 @@ function render(){
  $("#app").innerHTML=h;pending=false;updateAsk()}
 async function load(){
  try{
-  const[c0,e0,mp0,cu0,rl,cl,cb,ii,mb]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20"),dm?api("claims"):api("claims/"+me),api("combat"),api("init"),api("meta/build")]);
+  const[c0,e0,mp0,cu0,rl,cl,cb,ii,mb,bd]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20"),dm?api("claims"):api("claims/"+me),api("combat"),api("init"),api("meta/build"),api("board")]);
   if(typeof mb==="number"&&mb>BUILD)$("#upd").hidden=false;else if(dm&&(mb==null||mb<BUILD))api("meta","PATCH",{build:BUILD}).catch(()=>{});
   if(P||F)return;
+  {const nb=bd&&Object.keys(bd).length?bd:null,bs=JSON.stringify(nb||0);boardDB=!!nb;if(bs!==boardSig){boardSig=bs;applyBoard(nb||defBoard())}}
   const need=[];for(const o of[c0||{},e0||{}])for(const[i,x]of Object.entries(o))if(x.iv&&(!IC[i]||IC[i].iv!==x.iv))need.push([i,x.iv]);
   await Promise.all(need.map(async([i,iv])=>{const d=await api("icons/"+i);if(d)IC[i]={iv,data:d.data}}));
   await Promise.all(Object.entries(c0||{}).filter(([i,x])=>x.pv&&(!PT[i]||PT[i].pv!==x.pv)).map(async([i,x])=>{const d=await api("portraits/"+i);if(d)PT[i]={pv:x.pv,data:d.data}}));
   const mps=mp0||{},ids=Object.keys(mps),live=cu0&&mps[cu0]?cu0:ids[0],id=dm&&gmMap&&mps[gmMap]?gmMap:live;
   if(id&&(!IM[id]||IM[id].iv!==mps[id].iv)){const d=await api("mapimg/"+id);if(d)IM[id]={data:d.data,iv:mps[id].iv}}
   if(dm)claims=cl||{};else if(cl&&cl.st==="ok"){const old=me;me=cl.target;store();api("claims/"+old,"DELETE").catch(fail);myClaim=null;claimMode=false;last=""}else myClaim=cl||null;
-  const sig=JSON.stringify([c0,e0,mp0,cu0,rl,cl,cb,ii,id,id&&IM[id]?IM[id].iv:0]);$("#err").textContent="";if(sig===last)return;last=sig;
-  chars=c0||{};enemies=e0||{};combat=!!cb;ini=ii||null;maps=mps;cur=cu0;rolls=rl||{};if(dm&&id)gmMap=id;
+  const sig=JSON.stringify([c0,e0,mp0,cu0,rl,cl,cb,ii,bd,id,id&&IM[id]?IM[id].iv:0]);$("#err").textContent="";if(sig===last)return;last=sig;
+  chars=c0||{};enemies=e0||{};combat=!!cb;ini=ii||null;maps=mps;cur=cu0;rolls=rl||{};if(dm&&id)gmMap=id;if(dm)migrate();
   const a=document.activeElement;
   if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("#app").contains(a))pending=true;else render();
  }catch(e){fail(e)}}
@@ -436,7 +538,7 @@ function upd(id,p,msg){
  const l=(c.log||[]).slice(-9);if(msg)l.push(msg);
  const q={...p,log:l};chars[id]={...c,...q};render();
  api("chars/"+id,"PATCH",q).catch(fail)}
-function updE(id,p){enemies[id]={...enemies[id],...p};if(p.mx!=null)Object.keys(chars).forEach(i=>{if(chars[i].mon===id&&chars[i].mt){chars[i]={...chars[i],mx:p.mx,my:p.my};api("chars/"+i,"PATCH",{mx:p.mx,my:p.my}).catch(fail)}});render();api("enemies/"+id,"PATCH",p).catch(fail)}
+function updE(id,p){const e0=enemies[id];if(e0&&p.mx!=null&&e0.hx==null&&p.hx==null)p={...p,hx:p.mx,hy:p.my};enemies[id]={...enemies[id],...p};if(p.mx!=null)Object.keys(chars).forEach(i=>{if(chars[i].mon===id&&chars[i].mt){chars[i]={...chars[i],mx:p.mx,my:p.my};api("chars/"+i,"PATCH",{mx:p.mx,my:p.my}).catch(fail)}});render();api("enemies/"+id,"PATCH",p).catch(fail)}
 const ev=t=>api("rolls","POST",{ev:t,ts:Date.now()}).then(()=>{last="";load()}).catch(fail);
 function useAb(id,i,tn){
  const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||c.stn||c.hp<=0||(!re&&((c.used||0)>=2||(!dm&&!myTurn("c:"+id)))))return;
@@ -444,13 +546,15 @@ function useAb(id,i,tn){
  if(c.st>=k)p.st=c.st-k;else{p.st=0;p.exh=true;p.mt="";p.mon=null;msg+=" - out of stamina: EXHAUSTED"}
  if(!re)p.used=(c.used||0)+1;if(a[0]==="Dodge Roll")p.ddg=true;if(a[0]==="Parry")p.pry=true;
  upd(id,p,msg);if(tn)ev(c.name+" uses "+a[0]+" on "+tn);
- if(HEAL[a[0]]){const h=HEAL[a[0]],bb=h.b(c);roll(parseD(h.d),res=>{const amt=res.reduce((x,y)=>x+y.r,0)+bb,cc=chars[id];upd(id,{hp:clamp(cc.hp+amt,cc.maxHp)},"Healed "+amt);ev(c.name+" heals "+amt+" with "+a[0])},bb)}
- if(a[0]==="Pilfer"){const bb=mod(c.dex)+prof(c);roll([20],res=>ev(c.name+" tries to lift an item: Sleight of Hand "+(res[0].r+bb)),bb)}}
+ if(HEAL[a[0]]){const h=HEAL[a[0]],bb=bonusOf(c,h.b);roll(parseD(h.d),res=>{const amt=(res.reduce((x,y)=>x+y.r,0)+bb)*SC,cc=chars[id];upd(id,{hp:clamp(cc.hp+amt,cc.maxHp)},"Healed "+amt);ev(c.name+" heals "+amt+" with "+a[0])},bb)}
+ if(CHK[a[0]]){const bb=bonusOf(c,CHK[a[0]].b)+prof(c);roll([20],res=>ev(c.name+" tries "+a[0]+": "+(res[0].r+bb)),bb)}}
 /* ---------- events ---------- */
 $("#app").addEventListener("click",async e=>{
  const bm=e.target.closest("[data-m]");
  if(bm){const m=bm.dataset.m;
   if(m==="mnew")$("#mf").click();
+  else if(m==="ddimp")$("#ddf").click();
+  else if(m==="clrew"){if(confirm("Remove all imported walls and doors from this map?"))setM({ew:[],dr:{}})}
   else if(m==="sel"){sel=bm.dataset.id;render()}
   else if(m==="tool"){tool=bm.dataset.k;render()}
   else if(m==="grid")setM({grid:geo().m.grid===false});
@@ -484,23 +588,23 @@ $("#app").addEventListener("click",async e=>{
  }
  else if(a==="make"){
   const k=C[b.dataset.k],name=($("#nm").value||"").trim()||"Nameless";
-  const d={name,cls:b.dataset.k,level:1,ac:12,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,souls:0,spd:6,str:10,dex:10,con:10,int:10,wis:10,cha:10,conds:"",notes:"",used:0,ap:me==="gm",log:["Joined the party"]};
+  const d={name,cls:b.dataset.k,level:1,ac:12,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,x10:true,souls:0,spd:6,str:10,dex:10,con:10,int:10,wis:10,cha:10,conds:"",notes:"",used:0,ap:me==="gm",log:["Joined the party"]};
   chars[me]=d;render();api("chars/"+me,"PUT",d).catch(fail);
  }
  else if(a==="claim"){me=id;store();render()}
  else if(a==="regenAll"){tick()}
- else if(a==="restAll"){A().forEach(i=>{const x=chars[i];if(x.hp<=0)return;upd(i,{hp:x.maxHp,st:x.maxSt,fl:x.maxFl,used:0,mvd:0,exh:false,pr:false,lh:0},"Rested at the bonfire")})}
+ else if(a==="restAll"){A().forEach(i=>{const x=chars[i];if(x.hp<=0)return;upd(i,{hp:x.maxHp,st:x.maxSt,fl:x.maxFl,used:0,mvd:0,exh:false,pr:false,lh:0},"Rested at the bonfire")});respawnEnemies()}
  else if(a==="hp")upd(id,{hp:clamp(c.hp+n,c.maxHp)},(n>0?"Healed ":"Took ")+Math.abs(n));
  else if(a==="st")upd(id,{st:clamp(c.st+n,c.maxSt)});
  else if(a==="regen"){const[p,m]=turn(c);upd(id,p,m)}
  else if(a==="rest")restAt(id);
- else if(a==="revive"){if(!c||c.hp>0)return;const[bx,by]=b.dataset.b.split(",").map(Number),base=c.bmh||c.maxHp,nm=Math.max(1,Math.round(base*.8));
-  upd(id,{bmh:base,maxHp:nm,hp:nm,st:c.maxSt,dth:(c.dth||0)+1,cb:b.dataset.b,mx:bx,my:by,exh:false,stn:false,pr:false,mt:"",mon:null,used:0,mvd:0},"Revived at a bonfire: max HP -20%, stamina costs +"+20*((c.dth||0)+1)+"%");ev(c.name+" rises again at a bonfire, weaker than before");revealAround(bx,by)}
+ else if(a==="revive"){if(!c||c.hp>0)return;const[bx,by]=b.dataset.b.split(",").map(Number),base=c.bmh||c.maxHp,nd=Math.min(3,(c.dth||0)+1),nm=Math.max(5,Math.round(base*(1-.1*nd)/5)*5);
+  upd(id,{bmh:base,maxHp:nm,hp:nm,st:c.maxSt,dth:nd,cb:b.dataset.b,mx:bx,my:by,exh:false,stn:false,pr:false,mt:"",mon:null,used:0,mvd:0},"Revived at a bonfire (curse x"+nd+"): max HP -"+10*nd+"%, stamina costs +"+15*nd+"%");ev(c.name+" rises again at a bonfire, weaker than before (curse x"+nd+")");revealAround(bx,by)}
  else if(a==="flask"&&c.fl>0){const h=Math.floor(c.maxHp*.4);upd(id,{fl:c.fl-1,hp:clamp(c.hp+h,c.maxHp)},"Drank a flask (+"+h+" HP)")}
  else if(a==="use")useAb(id,+b.dataset.i);
  else if(a==="unmount"){if(dm||!enemies[c.mon]){upd(id,{mt:"",mon:null},dm?"Dropped from the monster":"Unmounted");if(dm)ev(c.name+" is dropped from the monster. The GM decides where they land.")}else{jump={id,on:c.mon};render()}}
  else if(a==="jcancel"){jump=null;render()}
- else if(a==="mtd")upd(id,{mt:c.mt==="climb"?"down":"climb"},c.mt==="climb"?"Foe knocked down: no drain":"Foe is back up: -4 St per round");
+ else if(a==="mtd")upd(id,{mt:c.mt==="climb"?"down":"climb"},c.mt==="climb"?"Foe knocked down: no drain":"Foe is back up: -40 St per round");
  else if(a==="hit"){const lh=(c.lh||0)+(b.dataset.k==="l"?1:0),pr=b.dataset.k==="h"||lh>=3;upd(id,{lh:pr?0:lh,pr:pr||!!c.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}
  else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,exn:0,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,exn:0,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
  else if(a==="shield")upd(id,{shield:!c.shield},c.shield?"Put away the shield":"Equipped a shield");
@@ -523,7 +627,16 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="deny")upd(id,{ap:"no"},"Declined by the GM");
  else if(a==="icon"){iconFor=id;$("#icf").value="";$("#icf").click()}
  else if(a==="die"){roll(Array(Math.max(1,Math.min(10,dcount))).fill(n))}
- else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",hp,max:hp,sz:+$("#es").value||1,spd:+$("#esp").value||6,bon:0,pm:+$("#epm").value||0,po:+$("#epm").value||0,ac:+$("#eac").value||12,ab:$("#eab").value===""?4:+$("#eab").value,dm:($("#edm").value.trim()||"1d8").slice(0,20),er:1,ib:0};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
+ else if(a==="espawn"){const x=enemies[id];if(x&&x.mx!=null)updE(id,{hx:x.mx,hy:x.my})}
+ else if(a==="badd"){const bid="x"+Math.random().toString(36).slice(2,7);boardEnsure();board[bid]={n:"New ability",c:2,l:1,v:"any",k:"atk",d:"2d6",r:1,a:0,b:"",t:""};applyBoard(board);api("board/"+bid,"PUT",board[bid]).catch(fail);render()}
+ else if(a==="bdef"){if(confirm("Replace the whole board with the default abilities?")){applyBoard(defBoard());boardDB=true;api("board","PUT",board).catch(fail);render()}}
+ else if(a==="bdel"&&confirm("Remove this ability from the board?")){boardEnsure();delete board[id];applyBoard(board);api("board/"+id,"DELETE").catch(fail);render()}
+ else if(a==="learn"||a==="forget"){const cc=chars[me];if(!cc)return;if(!dm&&!(nearBf(cc)||nearGuild(cc))){$("#err").textContent="You can only change abilities next to a bonfire or at a guild.";return}
+  const cur=new Set(eqIds(cc));if(a==="learn"){if(cur.size>=slotsOf(cc))return;cur.add(id)}else cur.delete(id);
+  const eq={_:true};cur.forEach(k=>{eq[k]=true});upd(me,{eq},(a==="learn"?"Equipped ":"Unequipped ")+(board[id]?board[id].n:"an ability"))}
+ else if(a==="eskadd"){const k="s"+Math.random().toString(36).slice(2,6),q={n:"New skill",d:"2d6",r:1,t:"s",a:0};enemies[id].sk={...(enemies[id].sk||{}),[k]:q};api("enemies/"+id+"/sk/"+k,"PUT",q).catch(fail);render()}
+ else if(a==="eskdel"){if(enemies[id]&&enemies[id].sk)delete enemies[id].sk[b.dataset.k];api("enemies/"+id+"/sk/"+b.dataset.k,"DELETE").catch(fail);render()}
+ else if(a==="eadd"){const nm=$("#en").value.trim(),ty=$("#et").value.trim(),hp=+$("#eh").value||10*SC;if(!nm)return;const i="e"+Math.random().toString(36).slice(2,8),d={name:nm,type:ty||"Monster",x10:true,hp,max:hp,sz:+$("#es").value||1,spd:+$("#esp").value||6,bon:0,pm:+$("#epm").value||0,po:+$("#epm").value||0,ac:+$("#eac").value||12,ab:$("#eab").value===""?4:+$("#eab").value,dm:($("#edm").value.trim()||"1d8").slice(0,20),er:1,ib:0};enemies[i]=d;render();api("enemies/"+i,"PUT",d).catch(fail)}
  else if(a==="eh"){const x=enemies[id];updE(id,{hp:clamp(x.hp+n,x.max)})}
  else if(a==="edel"&&confirm("Remove this enemy?")){delete enemies[id];if(sel==="e:"+id)sel=null;render();api("enemies/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail)}
  else if(a==="del"&&confirm("Remove "+c.name+"?")){delete chars[id];render();api("chars/"+id,"DELETE").catch(fail);api("icons/"+id,"DELETE").catch(fail);api("portraits/"+id,"DELETE").catch(fail)}
@@ -538,7 +651,7 @@ function menuHtml(){
  const c=a.o,near=adj(a,t),tz=zOf(t),mine=a.e||dm||myTurn(a.key),can=(a.e||(!c.exh&&!c.stn&&(c.used||0)<2&&mine))&&c.hp>0&&!(a.e&&!t.e&&t.o.mon===a.id&&t.o.mt),d=gap(a,t),rider=a.e&&!t.e&&t.o.mon===a.id&&t.o.mt;
  const bt=(k,i,inf)=>`<button data-a="mact" data-k="${k}" ${i!=null?`data-i="${i}"`:""} class="${!a.e&&inf.cs&&c.st<inf.cs?"warn":""}" ${can&&d<=inf.rng?"":"disabled"}>${inf.label}${inf.cs?" · "+inf.cs+" St":""}${inf.rng>1?" · range "+inf.rng:""}</button>`;
  let h=`<div class="menu"><b>${esc(c.name)} → ${esc(t.o.name)}</b><div class="row mini">${bt("l",null,atkInfo(a,"l"))}${bt("h",null,atkInfo(a,"h"))}`;
- if(a.e)h+=`<button data-a="mact" data-k="aoe">Area attack (everyone nearby)</button><button data-a="mact" data-k="sp">Special attack…</button>`;
+ if(a.e){h+=`<button data-a="mact" data-k="aoe">Area attack (everyone nearby)</button>`;Object.entries(c.sk||{}).forEach(([k2,s2])=>{const area=s2.t==="a";h+=`<button data-a="mact" data-k="sk" data-i="${k2}" ${area||d<=(+s2.r||1)?"":"disabled"}>${esc(s2.n)}${area?" (area)":" · range "+(+s2.r||1)}</button>`});h+=`<button data-a="mact" data-k="sp">Special attack…</button>`}
  else ABS(c).forEach((x,i)=>{if(AD[x[0]])h+=bt("ab",i,atkInfo(a,"ab",i))});
  if(!a.e&&c.ctr)h+=`<button class="pri" data-a="mact" data-k="ctr" ${d<=(WR[c.cls]||1)?"":"disabled"}>Counter attack (free)</button>`;
  if(!a.e&&t.e&&tz>=2)h+=`<button data-a="mact" data-k="mount" ${near&&can&&!c.mt?"":"disabled"}>Mount (${cst(c,2)} St)</button>`;
@@ -548,7 +661,7 @@ function menuHtml(){
 function doAct(k,i){
  const A_=ent(menu.a),T=ent(menu.t);if(!A_||!T){menu=null;render();return}
  if(!dm&&A_.id!==me)return;
- if(A_.e&&!T.e&&T.o.mon===A_.id&&T.o.mt&&k!=="aoe"&&k!=="sp"){$("#err").textContent="It cannot attack its rider, only use an area attack.";return}
+ if(A_.e&&!T.e&&T.o.mon===A_.id&&T.o.mt&&k!=="aoe"&&k!=="sp"&&!(k==="sk"&&((A_.o.sk||{})[i]||{}).t==="a")){$("#err").textContent="It cannot attack its rider, only use an area attack.";return}
  const an=A_.o.name,tn=T.o.name,near=adj(A_,T),c=A_.o,tz=zOf(T);
  const act=(cost,msg,extra)=>{if(A_.e)return 1;if(!dm&&!myTurn(A_.key))return 0;if(c.exh||c.stn||c.hp<=0||(c.used||0)>=2)return 0;const p={used:(c.used||0)+1};cost=cst(c,cost);let m=msg+(cost?" (-"+cost+" St)":"");if(c.st>=cost){p.st=c.st-cost;Object.assign(p,extra||{})}else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}upd(A_.id,p,m);return p.exh?2:1};
  if(k==="l"||k==="h"||k==="ab"||k==="ctr"){
@@ -557,22 +670,27 @@ function doAct(k,i){
   $("#err").textContent="";let go=true;
   if(k==="ctr")upd(A_.id,{ctr:false},"Counter-attack!");else go=!!act(inf.cost,inf.label+" on "+tn,{});
   if(go)resolveAttack(A_,T,inf)}
+ else if(k==="sk"&&A_.e){const sk=(c.sk||{})[i];if(!sk)return;const tb=c.ab??4,mk=(rng,auto)=>({label:sk.n,rng,dmg:sk.d||"1d8",tb,db:0,cost:0,po:0,auto,heavy:true});
+  if(sk.t==="a"){ev(an+" uses "+sk.n+"!");A().forEach(id=>{const ch=chars[id];if(ch.hp<=0||ch.mx==null)return;const tt={e:false,id,o:ch,key:"c:"+id};if(gap(A_,tt)<=Math.max(1,+sk.r||2))resolveAttack(A_,tt,mk(99,true))})}
+  else{if(gap(A_,T)>(+sk.r||1)){$("#err").textContent="Out of range: "+sk.n+" reaches "+(+sk.r||1)+" square(s).";return}resolveAttack(A_,T,mk(+sk.r||1,!!sk.a))}}
  else if(k==="aoe"&&A_.e){const d0=c.dm||"1d8",inf={label:"Area attack",rng:99,dmg:d0+"+"+d0,tb:0,db:0,cost:0,po:0,auto:true,heavy:true};ev(an+" unleashes an area attack!");A().forEach(id=>{const ch=chars[id];if(ch.hp<=0||ch.mx==null)return;const tt={e:false,id,o:ch,key:"c:"+id};if(gap(A_,tt)<=Math.max(2,c.er||1))resolveAttack(A_,tt,inf)})}
  else if(k==="sp"){const nm=prompt("Name of the special attack?");if(nm)ev(an+" uses "+nm.slice(0,40)+" on "+tn)}
  else if(k==="mount"&&near&&T.e&&tz>=2&&!A_.e&&!c.mt){if(act(2,"Mounted "+tn,{mt:"climb",mon:T.id,mx:T.o.mx,my:T.o.my})===1)ev(an+" climbs onto "+tn+" (Athletics check)")}
  else if(k==="push"&&near&&tz===1){if(act(1,"Pushed "+tn)===1){const g=geo(),za=zOf(A_),nx=T.o.mx+Math.sign(T.o.mx-(c.mx+(za-1)/2)),ny=T.o.my+Math.sign(T.o.my-(c.my+(za-1)/2));
-  if(g&&nx>=0&&ny>=0&&nx<g.cols&&ny<g.rows&&!g.W.has(K(nx,ny))&&!occ(nx,ny)){if(T.e)updE(T.id,{mx:nx,my:ny});else upd(T.id,{mx:nx,my:ny},"Pushed by "+an);ev(an+" pushes "+tn+" back (STR contest)")}else{const wall=!g||nx<0||ny<0||nx>=g.cols||ny>=g.rows||g.W.has(K(nx,ny));
+  if(g&&nx>=0&&ny>=0&&nx<g.cols&&ny<g.rows&&!g.W.has(K(nx,ny))&&!blk(g,T.o.mx,T.o.my,nx-T.o.mx,ny-T.o.my)&&!occ(nx,ny)){if(T.e)updE(T.id,{mx:nx,my:ny});else upd(T.id,{mx:nx,my:ny},"Pushed by "+an);ev(an+" pushes "+tn+" back (STR contest)")}else{const wall=!g||nx<0||ny<0||nx>=g.cols||ny>=g.rows||g.W.has(K(nx,ny))||blk(g,T.o.mx,T.o.my,nx-T.o.mx,ny-T.o.my);
    if(wall){if(T.e)updE(T.id,{stun:true,rec:true});else upd(T.id,{stn:true},"Slammed into a wall: STUNNED");ev(an+" slams "+tn+" into the wall: stunned!")}else ev(an+" tries to push "+tn+" but something blocks the way")}}}
  else if(k==="pick"&&near&&T.e&&T.o.stun&&tz===1&&!A_.e){if(act(2,"Picked up "+tn)===1){updE(T.id,{hd:A_.key,mx:c.mx,my:c.my});ev(an+" picks up the stunned "+tn)}}
  else if(k==="throw"&&T.e&&!A_.e){const hid=Object.keys(enemies).find(i=>enemies[i].hd===A_.key),H=hid&&enemies[hid];
   if(H&&hid!==T.id&&Math.max(Math.abs(T.o.mx-c.mx),Math.abs(T.o.my-c.my))<=5&&act(2,"Threw "+H.name)===1){
    const g=geo(),zt=zOf(T);let land=null;
    for(let r=1;r<=zt+1&&!land;r++)for(let dx=-r;dx<=zt+r-1&&!land;dx++)for(let dy=-r;dy<=zt+r-1&&!land;dy++){const x=T.o.mx+dx,y=T.o.my+dy;if(x<0||y<0||(g&&(x>=g.cols||y>=g.rows||g.W.has(K(x,y))))||occ(x,y)||(x>=T.o.mx&&x<T.o.mx+zt&&y>=T.o.my&&y<T.o.my+zt))continue;land=[x,y]}
-   updE(hid,land?{hd:null,mx:land[0],my:land[1]}:{hd:null});ev(an+" hurls "+H.name+" at "+tn+"!");poiseHit(T.id,3)}}
+   updE(hid,land?{hd:null,mx:land[0],my:land[1]}:{hd:null});ev(an+" hurls "+H.name+" at "+tn+"!");poiseHit(T.id,3*SC)}}
  menu=null;render()}
 $("#app").addEventListener("pointerdown",e=>{
  if(!e.target.closest("#map"))return;const g=geo(),p=cellAt(e);if(!g||!p)return;const[x,y]=p,k=K(x,y);
  if(dm&&tool==="wall"){P={add:!g.W.has(k),W:new Set(g.W)};paint(p);return}
+ if(dm&&tool==="dr"){const ds=g.m.dr||{};let best=null,bd=1.7;Object.keys(ds).forEach(k2=>{const q=ds[k2],dd=Math.hypot(q.p[0]-(x+.5),q.p[1]-(y+.5));if(dd<bd){bd=dd;best=k2}});if(best){const dr2={...ds};dr2[best]={...ds[best],o:ds[best].o?0:1};setM({dr:dr2})}return}
+ if(dm&&tool==="gd"){const gd=Object.values(g.m.gd||{}),key=x+","+y,i=gd.indexOf(key);if(i>=0)gd.splice(i,1);else gd.push(key);setM({gd});return}
  if(dm&&tool==="bf"){const bf=Object.values(g.m.bf||{}),key=x+","+y,i=bf.indexOf(key);if(i>=0)bf.splice(i,1);else bf.push(key);setM({bf});return}
  if(dm&&(tool==="rev"||tool==="hid")){F={v:tool==="rev"?"1":"0",a:(g.m.fg||"").padEnd(g.cols*g.rows,"0").split("")};fpaint(p);return}
  if(jump){const c=chars[jump.id],m=enemies[jump.on];if(!c||!m){jump=null;render();return}
@@ -598,9 +716,16 @@ const endP=()=>{if(P){const w=[...P.W];P=null;setM({walls:w})}if(F){const f=F.a.
 $("#app").addEventListener("change",e=>{
  const t=e.target,f=t.dataset.f,id=t.dataset.id;
  if(t.dataset.ef){const i=t.dataset.id;if(dm&&enemies[i])updE(i,{[t.dataset.ef]:t.dataset.ef==="dm"?t.value.slice(0,20):(+t.value||0)});return}
+ if(t.dataset.bf){if(!dm)return;const bid=t.dataset.bf,f=t.dataset.f,e=board[bid];if(!e)return;boardEnsure();
+  let v=t.type==="checkbox"?(t.checked?1:0):t.value;if(["c","l","r"].includes(f))v=+v||0;
+  if(f==="n"){v=String(v).trim().slice(0,30)||"Ability";if(Object.keys(board).some(k=>k!==bid&&board[k].n===v))v+=" 2"}
+  board[bid]={...e,[f]:v};applyBoard(board);api("board/"+bid+"/"+f,"PUT",v).catch(fail);render();return}
+ if(t.dataset.es){const eid=t.dataset.es,k=t.dataset.sk,f=t.dataset.f;if(!dm||!enemies[eid]||!(enemies[eid].sk||{})[k])return;
+  const v=t.type==="checkbox"?(t.checked?1:0):(f==="r"?(+t.value||1):t.value);enemies[eid].sk[k][f]=v;api("enemies/"+eid+"/sk/"+k+"/"+f,"PUT",v).catch(fail);return}
+ if(t.id==="ddf"){if(t.files[0])importDD(t.files[0]);t.value="";return}
  if(t.id==="mf"){if(t.files[0])loadImg(t.files[0]);return}
  if(t.id==="msel"){gmMap=t.value;last="";load();return}
- if(t.id==="mc"){setM({cols:Math.max(5,Math.min(80,+t.value||24)),fg:""});return}
+ if(t.id==="mc"){setM({cols:Math.max(5,Math.min(200,+t.value||24)),fg:""});return}
  if(t.id==="db"){bonus=+t.value||0;return}
  if(t.id==="ds"){dstat=t.value;return}
  if(t.id==="dn"){dcount=Math.max(1,Math.min(10,+t.value||1));return}
@@ -615,11 +740,13 @@ $("#icf").addEventListener("change",e=>{const f=e.target.files[0],k=iconFor;if(!
  if(k[0]==="p"){portraitUpload(f,id);return}
  const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=96;const q=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-q)/2,(i.height-q)/2,q,q,0,0,96,96);const d=c.toDataURL("image/jpeg",.8),iv=Date.now();
   api("icons/"+id,"PUT",{data:d}).then(()=>{IC[id]={iv,data:d};if(en){updE(id,{iv})}else{chars[id].iv=iv;last="";render();return api("chars/"+id,"PATCH",{iv})}}).catch(fail)};i.src=r.result};r.readAsDataURL(f)});
-$("#qte").addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b||b.disabled)return;$("#qte").hidden=true;clearTimeout(showQte.t);if(b.dataset.q!=="none")api("qte/res","PUT",b.dataset.q).catch(fail)});
+$("#qte").addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b||b.disabled)return;const k=b.dataset.q;$("#qte").hidden=true;clearTimeout(showQte.t);if(k!=="none"){api("qte/res","PUT",k).catch(fail);doSave(k)}});
 $("#ask").addEventListener("click",e=>{const b=e.target.closest("button[data-i]");if(!b)return;$("#ask").hidden=true;rollInit(+b.dataset.i)});
+$("#tab2").onclick=()=>{view=view==="board"?"table":"board";render()};
 $("#tab").onclick=()=>{view=view==="sheet"?"table":"sheet";render()};
 $("#sw").onclick=()=>{dm=!dm;render()};
 $("#leave").onclick=()=>{try{localStorage.removeItem("st")}catch(e){}[es,es2].forEach(x=>x&&x.close());es=es2=null;rollsSeeded=false;seenR.clear();$("#qte").hidden=true;$("#ask").hidden=true;clearInterval(timer);role="";canGM=false;dm=false;chars={};enemies={};maps={};IM={};IC={};PT={};last="";render()};
+applyBoard(defBoard());
 initDice();addEventListener("resize",()=>dicePool.forEach(x=>{if(x.ready)try{x.box.resizeWorld()}catch(e){}}));
 (async()=>{
  if(DB_URL.startsWith("PASTE")){$("#app").innerHTML='<p class="note">Setup needed: paste your Firebase Realtime Database URL into DB_URL near the top of the script.</p>';return}
