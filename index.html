@@ -125,20 +125,32 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 .scn .dmg.crit{color:#ffd24a;font-size:40px}.scn .dmg.miss,.scn .dmg.dodge{color:#cfd8e8;font-size:28px}.scn .dmg.parry{color:#7ec8ff;font-size:28px}
 @keyframes dmgu{0%{opacity:0;transform:translateY(10px) scale(.6)}25%{opacity:1;transform:translateY(-6px) scale(1.15)}100%{opacity:1;transform:translateY(-28px)}}
 .gw{position:fixed;inset:0;z-index:68;pointer-events:none;overflow:hidden}
-.gws{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(255,214,102,.55),rgba(255,170,40,.28) 60%,rgba(255,150,20,.12));opacity:0;animation:gws 4.6s both}
-@keyframes gws{0%{opacity:0}25%{opacity:1}70%{opacity:.6}100%{opacity:0}}
-.gwr{position:absolute;border-radius:50%;transform:translate(-50%,-50%) scale(0);background:radial-gradient(circle,rgba(255,215,100,0) 0,rgba(255,215,100,0) 52%,rgba(255,228,140,.95) 66%,rgba(255,190,60,.55) 76%,rgba(255,190,60,0) 86%);animation:gwr 3.6s cubic-bezier(.3,.6,.4,1) both;mix-blend-mode:screen}
-.gwr.b{animation-delay:.5s;opacity:.6}
+.gws{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(150,112,40,.16),rgba(120,88,30,.08) 65%,transparent);opacity:0;animation:gws 4s both}
+@keyframes gws{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.gwr{position:absolute;border-radius:50%;transform:translate(-50%,-50%) scale(0);background:radial-gradient(circle,rgba(0,0,0,0) 0,rgba(0,0,0,0) 56%,rgba(170,130,52,.5) 70%,rgba(140,104,40,.28) 78%,rgba(140,104,40,0) 88%);animation:gwr 4s cubic-bezier(.3,.6,.4,1) both}
 @keyframes gwr{0%{transform:translate(-50%,-50%) scale(0);opacity:1}85%{opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
-.gwt{position:absolute;left:0;right:0;top:12%;text-align:center;font:700 clamp(26px,6vw,56px) "Cormorant Garamond",Georgia,serif;color:#ffe9a8;text-shadow:0 0 18px #ffb52e,0 3px 0 #5a3a00;opacity:0;animation:gwt 4.4s .4s both;letter-spacing:.08em}
-@keyframes gwt{0%{opacity:0;transform:translateY(12px)}25%{opacity:1;transform:none}75%{opacity:1}100%{opacity:0}}
+.bos{position:fixed;inset:0;z-index:72;pointer-events:none;overflow:hidden;animation:scin .2s both}.bos.out{animation:scout .6s both}
+.bos::before{content:"";position:absolute;inset:0;backdrop-filter:grayscale(1) brightness(.5) contrast(1.1);-webkit-backdrop-filter:grayscale(1) brightness(.5) contrast(1.1);background:radial-gradient(circle,rgba(0,0,0,.2),rgba(0,0,0,.82))}
+.bos::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;animation:bflash .4s both}
+@keyframes bflash{0%{opacity:.75}100%{opacity:0}}
+.bbar{position:absolute;left:0;right:0;height:13vh;background:#000;z-index:2}.bbar.t{top:0;animation:bbt .5s both}.bbar.b{bottom:0;animation:bbb .5s both}
+@keyframes bbt{from{transform:translateY(-100%)}}@keyframes bbb{from{transform:translateY(100%)}}
+.bwrap{position:absolute;inset:13vh 0;display:flex;align-items:center;justify-content:center;gap:4vw;flex-wrap:wrap;padding:0 6vw;z-index:1}
+.bimg{height:min(52vh,460px);aspect-ratio:3/4;object-fit:cover;object-position:top;border:3px solid #c9a24a;box-shadow:0 0 70px #000;animation:bimg 3.5s both;background:#111}
+.bimg.em{display:flex;align-items:center;justify-content:center;font:700 120px "Cormorant Garamond",Georgia,serif;color:#c9a24a}
+@keyframes bimg{0%{opacity:0;transform:translateX(70px) scale(1.06)}12%{opacity:1;transform:none}100%{opacity:1;transform:translateX(-14px) scale(1.03)}}
+.btx{flex:1 1 260px;max-width:620px;text-align:center}
+.btx small{display:block;letter-spacing:.38em;text-transform:uppercase;color:#c9a24a;font:600 clamp(13px,2vw,22px) "Source Sans 3",sans-serif;opacity:0;animation:btx 1s .5s both}
+.btx i{display:block;height:3px;background:linear-gradient(90deg,transparent,#a8281c,transparent);margin:12px 0;transform:scaleX(0);animation:bln .8s .6s both}
+.btx b{display:block;font:700 clamp(34px,7vw,92px)/1.05 "Cormorant Garamond",Georgia,serif;color:#f3e7c9;text-shadow:0 4px 0 #000,0 0 30px #8a1c10;letter-spacing:.04em;opacity:0;animation:btx 1s .9s both}
+@keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}@keyframes bln{to{transform:scaleX(1)}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 15</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 17</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="upd" hidden>⬆ A newer version of the game is out. <button onclick="location.reload()">Reload now</button> (if it still says an old build, close the tab and reopen the link)</div><div id="err"></div><div id="app"></div><div id="qte" hidden></div><div id="ask" hidden></div><div id="ovw" hidden></div><input id="icf" type="file" accept="image/*" hidden>
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=15,SC=10;
+const BUILD=17,SC=10;
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
@@ -213,7 +225,7 @@ function card(id){
  if(own)h+=`<div class="row">${hpBtns(id)}<button data-a="flask" data-id="${id}" ${c.fl<1?"disabled":""}>Flask (${c.fl}/${c.maxFl})</button></div>`;
  h+=`<h3>Stamina · Actions used ${c.used||0}/2</h3>${meter(c.st,c.maxSt,"st")}`;
  if(own&&c.hp<=0)h+=rvBtns(id,c);
- if(own)h+=`<div class="row">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4*SC:0))}</button>`:""}<button data-a="rest" data-id="${id}" ${c.hp<=0||(!dm&&!nearAl(c))?"disabled":""}>${c.dth&&nearAl(c)&&nearAl(c)!==c.cb?"Altar rest & cleanse curse":"Altar rest"}${!dm&&!nearAl(c)?" (stand by an altar)":""}</button><button data-a="restb" data-id="${id}" ${c.hp<=0||(!dm&&!nearBf(c))?"disabled":""}>Bonfire rest${!dm&&!nearBf(c)?" (stand by a bonfire)":""}</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-10">-10 St</button><button data-a="st" data-id="${id}" data-n="10">+10 St</button>`:""}</div>${mtCtl(id,c)}`;
+ if(own)h+=`<div class="row">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4*SC:0))}</button>`:""}<button data-a="rest" data-id="${id}" ${c.hp<=0||(!dm&&!nearAl(c))?"disabled":""}>${c.dth&&nearAl(c)&&nearAl(c)!==c.cb?"Altar rest & cleanse curse":"Altar rest"}${!dm&&!nearAl(c)?" (stand by an altar)":""}</button><button data-a="restb" data-id="${id}" ${c.hp<=0||(!dm&&!nearBf(c))?"disabled":""}>Bonfire rest${!dm&&!nearBf(c)?" (stand by a bonfire)":""}</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button><button data-a="armor" data-id="${id}">Armor: ${isHeavy(c)?"heavy":"light"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-10">-10 St</button><button data-a="st" data-id="${id}" data-n="10">+10 St</button>`:""}</div>${mtCtl(id,c)}`;
  h+=`<h3>Abilities (basic attacks are free)</h3>`;
  ABS(c).forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}${a[3]?" (reaction)":""}<small>${esc(a[2])}</small></div>${own?abBtn(id,i,a,c):`<span class="sub">${a[1]} St</span>`}</div>`});
  h+=`<h3>Stats</h3><div class="stats">`;
@@ -237,20 +249,20 @@ function joinScreen(){
 function enemiesHtml(){
  const ids=Object.keys(enemies).filter(i=>dm||(enemies[i].mx!=null&&onMap(enemies[i])&&!eHid(geo(),enemies[i])));
  let h=`<div class="card"><h2>Enemies</h2>`;
- h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":(dm&&e.mp&&maps[e.mp]?" · on "+esc(maps[e.mp].name):"")}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-50,-10,10,50].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label><label>AC<input type="number" data-ef="ac" data-id="${i}" value="${e.ac??12}"></label><label>Atk +<input type="number" data-ef="ab" data-id="${i}" value="${e.ab??4}"></label><label>Damage<input type="text" data-ef="dm" data-id="${i}" value="${esc(e.dm||"1d8")}" style="width:84px"></label><label>Range<input type="number" data-ef="er" data-id="${i}" value="${e.er||1}"></label><label>Init +<input type="number" data-ef="ib" data-id="${i}" value="${e.ib||0}"></label><label>Rank<select data-ef="rk" data-id="${i}" style="min-height:36px;width:auto">${Object.entries(RK).map(([v,t])=>`<option value="${v}" ${rankOf(e)===v?"selected":""}>${t}</option>`).join("")}</select></label></div>${skillsEd(i,e)}<div class="row mini"><button data-a="espawn" data-id="${i}">Set spawn</button><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="icon" data-id="p:${i}">Portrait</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
+ h+=ids.length?ids.map(i=>{const e=enemies[i];return`<div class="ab"><div>${av(i,e)}<b>${esc(e.name)}</b><small>${esc(e.type)} · ${e.sz||1}×${e.sz||1}${e.mx==null?" · not placed":(dm&&e.mp&&maps[e.mp]?" · on "+esc(maps[e.mp].name):"")}</small>${enPills(i,e)}${dm?meter(e.hp,e.max,"hp")+(e.pm>0?`<small>Poise</small>`+meter(e.po??e.pm,e.pm,"st"):"")+`<div class="row mini">${[-50,-10,10,50].map(n=>`<button data-a="eh" data-id="${i}" data-n="${n}">${n>0?"+":""}${n}</button>`).join("")}</div><div class="efld"><label>Speed<input type="number" data-ef="spd" data-id="${i}" value="${e.spd||6}"></label><label>Bonus<input type="number" data-ef="bon" data-id="${i}" value="${e.bon||0}"></label><label>Poise<input type="number" data-ef="pm" data-id="${i}" value="${e.pm||0}"></label><label>AC<input type="number" data-ef="ac" data-id="${i}" value="${e.ac??12}"></label><label>Atk +<input type="number" data-ef="ab" data-id="${i}" value="${e.ab??4}"></label><label>Damage<input type="text" data-ef="dm" data-id="${i}" value="${esc(e.dm||"1d8")}" style="width:84px"></label><label>Range<input type="number" data-ef="er" data-id="${i}" value="${e.er||1}"></label><label>Init +<input type="number" data-ef="ib" data-id="${i}" value="${e.ib||0}"></label><label>Rank<select data-ef="rk" data-id="${i}" style="min-height:36px;width:auto">${Object.entries(RK).map(([v,t])=>`<option value="${v}" ${rankOf(e)===v?"selected":""}>${t}</option>`).join("")}</select></label><label>Title<input type="text" data-ef="bt" data-id="${i}" value="${esc(e.bt||"")}" placeholder="Guardian of Frost" style="width:150px"></label></div>${skillsEd(i,e)}<div class="row mini"><button data-a="eauto" data-id="${i}">Auto turn</button><button data-a="bintro" data-id="${i}">Boss intro</button><button data-a="espawn" data-id="${i}">Set spawn</button><button data-a="estun" data-id="${i}">${e.stun?"Unstun":"Stun"}</button><button data-a="icon" data-id="e:${i}">Icon</button><button data-a="icon" data-id="p:${i}">Portrait</button><button data-a="edel" data-id="${i}">Remove</button></div>`:""}</div></div>`}).join(""):`<p class="note">None in sight.</p>`;
  if(dm)h+=`<h3>Add enemy</h3><input id="en" maxlength="30" placeholder="Name"><input id="et" list="tp" maxlength="30" placeholder="Type" style="margin-top:6px"><datalist id="tp"><option>Goblin<option>Troll<option>Ogre<option>Griffin<option>Dragon<option>Wolf</datalist><select id="es" style="margin-top:6px"><option value="1">Small/Medium (1×1)</option><option value="2">Large (2×2)</option><option value="3">Huge (3×3)</option><option value="4">Gargantuan (4×4)</option></select><input id="eh" type="number" placeholder="HP" style="margin-top:6px"><input id="esp" type="number" placeholder="Speed in squares (default 6)" style="margin-top:6px"><input id="epm" type="number" placeholder="Poise (0 = no stagger)" style="margin-top:6px"><input id="eac" type="number" placeholder="AC (default 12)" style="margin-top:6px"><input id="eab" type="number" placeholder="Attack bonus (default 4)" style="margin-top:6px"><input id="edm" placeholder="Damage, e.g. 2d6 (default 1d8)" style="margin-top:6px"><div class="row" style="margin-top:6px"><button data-a="eadd">Add</button></div>`;
  return h+`</div>`}
 const trayLabel=a=>{const c={};a.forEach(x=>c[x]=(c[x]||0)+1);return Object.keys(c).map(k=>(c[k]>1?c[k]:"")+"d"+k).join(" + ")};
 const trayHtml=()=>`<div class="row mini"><span class="sub">${tray.length?esc(trayLabel(tray)):"Tap dice to add them, then Roll"}</span><button class="pri" data-a="rollnow" ${tray.length?"":"disabled"}>Roll</button><button data-a="trayclr" ${tray.length?"":"disabled"}>Clear</button></div>`;
 const rollLine=r=>{if(r.ds){const rs=r.ds.map(x=>x.r),sum=rs.reduce((a,b)=>a+b,0);return`${r.s?"🔒 ":""}<i class="sw" style="background:${swOf(r.sk)}"></i>${esc(r.n)} rolled ${trayLabel(r.ds.map(x=>x.d))}: <b>${rs.join(", ")}</b>${r.m?` ${sg(r.m)}`:""}${rs.length>1||r.m?` = <b>${sum+(r.m||0)}</b>`:""}`}return`${r.s?"🔒 ":""}${esc(r.n)} rolled d${r.d}: <b>${r.r}</b>${r.m?` ${sg(r.m)} = <b>${r.r+r.m}</b>`:""}`};
 function diceHtml(){
- const c=chars[me],l=Object.values(rolls||{}).filter(r=>!r.fx&&!r.wave).concat(dm?secret.map(s=>({...s,s:1})):[]).sort((a,b)=>a.ts-b.ts).slice(-12).reverse();
+ const c=chars[me],l=Object.values(rolls||{}).filter(r=>!r.fx&&!r.wave&&!r.boss).concat(dm?secret.map(s=>({...s,s:1})):[]).sort((a,b)=>a.ts-b.ts).slice(-12).reverse();
  let h=`<div class="card"><h2>Dice</h2><div class="row mini">${[4,6,8,10,12,20,100].map(n=>`<button data-a="die" data-n="${n}">d${n}</button>`).join("")}</div><div class="row mini"><label class="sub">How many <input id="dn" type="number" min="1" max="10" value="${dcount}" style="width:64px"></label><span class="sub">Tap a die to throw it now</span></div><div class="row"><input id="db" type="number" value="${bonus}" style="width:80px" aria-label="Bonus">`;
  if(!dm&&c)h+=`<select id="ds" style="width:auto">${[["","No stat"],...["str","dex","con","int","wis","cha"].map(s=>[s,s.toUpperCase()+" "+sg(mod(c[s]))])].map(([v,t])=>`<option value="${v}" ${dstat===v?"selected":""}>${t}</option>`).join("")}</select>`;
  h+=`<select id="dsk" title="Dice style" style="width:auto">${SKINS.map(([v,t])=>`<option value="${v}" ${skin===v?"selected":""}>${t}</option>`).join("")}</select>`;
- h+=`<label class="sub"><input type="checkbox" id="sceneck" ${sceneOn?"checked":""} style="width:auto"> Attack scenes</label>`;
+ h+=`<label class="sub"><input type="checkbox" id="sceneck" ${sceneOn?"checked":""} style="width:auto"> Attack scenes</label><label class="sub"><input type="checkbox" id="sndck" ${sndOn?"checked":""} style="width:auto"> Sound</label><input type="range" id="sndvol" min="0" max="100" value="${Math.round(sndVol*100)}" style="width:90px" aria-label="Volume">${dm?`<button data-a="tltog">${tlShow?"Hide":"Show"} test lab</button>`:""}`;
  if(dm)h+=`<label class="sub"><input type="checkbox" id="sec" ${secOn?"checked":""} style="width:auto"> Secret</label>`;
- return h+`</div><ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:rollLine(r)}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
+ return h+`</div>${dm&&tlShow?tlHtml():""}<ul class="rl">${l.map(r=>`<li>${r.ev?`<i>${esc(r.ev)}</i>`:rollLine(r)}</li>`).join("")||"<li>No rolls yet.</li>"}</ul></div>`}
 const LIBV="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/";
 let dicePool=[],libBad=false,playQ=[];
 const skinOf=id=>SKINS.find(x=>x[0]===id)||SKINS[0],swOf=id=>skinOf(id)[2];
@@ -356,24 +368,27 @@ function importDD(f){const r=new FileReader();r.onload=()=>{let j;try{j=JSON.par
  shrink(q.src,2000,1300000,(d,w,h)=>{$("#err").textContent="";saveMap(d,w,h,f.name,{cols:q.cols,ew:q.ew,dr:q.dr})})};r.readAsText(f)}
 function edgesSvg(g){const cs=g.cs;let d="";g.E.forEach(k=>{const[t,a,b]=k.split(","),x=+a,y=+b;d+=t==="h"?`M${x*cs} ${y*cs}H${(x+1)*cs}`:`M${x*cs} ${y*cs}V${(y+1)*cs}`});
  let h=d?`<path d="${d}" style="stroke:#fff;stroke-opacity:.55;stroke-width:${cs*.2};stroke-linecap:round;fill:none"/><path d="${d}" style="stroke:#14110e;stroke-width:${cs*.11};stroke-linecap:round;fill:none"/>`:"";
- Object.values(g.m.dr||{}).forEach(q=>{const dl=`M${q.a[0]*cs} ${q.a[1]*cs}L${q.b[0]*cs} ${q.b[1]*cs}`;
+ Object.values(g.m.dr||{}).forEach(q=>{if(q.c){const[cx,cy]=q.c.split(",").map(Number),x=cx*cs,y=cy*cs;h+=q.o?`<rect x="${x+cs*.04}" y="${y+cs*.04}" width="${cs*.92}" height="${cs*.92}" style="fill:none;stroke:#8a5a2b;stroke-width:${cs*.06};stroke-dasharray:${cs*.12} ${cs*.12}"/>`:`<rect x="${x+cs*.05}" y="${y+cs*.05}" width="${cs*.9}" height="${cs*.9}" rx="${cs*.08}" style="fill:#8a5a2b;stroke:#2a1a0a;stroke-width:${cs*.05}"/><path d="M${x+cs*.5} ${y+cs*.1}V${y+cs*.9}" style="stroke:#2a1a0a;stroke-width:${cs*.03}"/><circle cx="${x+cs*.72}" cy="${y+cs*.5}" r="${cs*.06}" style="fill:#e8c26a"/>`;return}
+  const dl=`M${q.a[0]*cs} ${q.a[1]*cs}L${q.b[0]*cs} ${q.b[1]*cs}`;
   h+=q.o?`<path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs*.06};stroke-dasharray:${cs*.12} ${cs*.12};fill:none"/>`:`<path d="${dl}" style="stroke:#fff;stroke-opacity:.6;stroke-width:${cs*.22};stroke-linecap:round;fill:none"/><path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs*.13};stroke-linecap:round;fill:none"/>`});
  return h}
-function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:new Set(Object.values(m.walls||{})),E:edgeSet(m)}}
+const doorW=m=>{const W=new Set(Object.values(m.walls||{}));Object.values(m.dr||{}).forEach(d=>{if(d.c&&!d.o)W.add(d.c)});return W};
+function geo(){const id=mapId(),m=maps[id],im=IM[id];if(!m||!im)return null;const cols=m.cols||24,cs=m.w/cols;return{id,m,im,cols,cs,rows:Math.floor(m.h/cs),W:doorW(m),E:edgeSet(m)}}
 function who(){const s=dm?sel:"c:"+me;if(!s)return null;const e=s[0]==="e",id=s.slice(2),o=(e?enemies:chars)[id];return o?{e,id,o}:null}
 function cellAt(e){const g=geo(),v=$("#map");if(!g||!v)return null;const r=v.getBoundingClientRect(),x=Math.floor((e.clientX-r.left)/r.width*g.cols),y=Math.floor((e.clientY-r.top)/r.height*g.m.h/g.cs);return x<0||y<0||x>=g.cols||y>=g.rows?null:[x,y]}
 function reach(c,g){const sp=c.spd||6,lim=(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0),d={[K(c.mx,c.my)]:0},q=[[c.mx,c.my]];while(q.length){const[x,y]=q.shift(),n=d[K(x,y)];if(n>=lim)continue;for(let dx=-1;dx<2;dx++)for(let dy=-1;dy<2;dy++){const a=x+dx,b=y+dy,k=K(a,b);if(!(dx||dy)||a<0||b<0||a>=g.cols||b>=g.rows||g.W.has(k)||d[k]!==undefined||blk(g,x,y,dx,dy))continue;if(dx&&dy&&(g.W.has(K(x+dx,y))||g.W.has(K(x,y+dy))))continue;d[k]=n+1;q.push([a,b])}}return d}
 const wallsSvg=(W,cs)=>[...W].map(k=>{const[x,y]=k.split(",");return`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:url(#hatch);stroke:#000;stroke-opacity:.7;stroke-width:${cs/30}"/>`}).join("");
 function mapTools(){
  const ids=Object.keys(maps),g=geo();
- return`<div class="row"><select id="msel" style="width:auto;flex:1">${ids.map(i=>`<option value="${i}" ${i===mapId()?"selected":""}>${esc(maps[i].name)}${i===(cur&&maps[cur]?cur:ids[0])?" (live)":""}</option>`).join("")}</select><button data-m="mnew">New map</button><input id="mf" type="file" accept="image/*" hidden><button data-m="ddimp">Import Dungeondraft</button><input id="ddf" type="file" accept=".dd2vtt,.uvtt,.df2vtt,.json" hidden>${ids.length?`<button data-m="mshow">Show to players</button><button data-m="mren">Rename</button><button data-m="mdel">Delete</button>`:""}</div>${g?`<div class="row"><label class="sub">Squares across <input id="mc" type="number" min="5" max="200" value="${g.cols}" style="width:72px"></label><button data-m="grid">Grid: ${g.m.grid===false?"off":"on"}</button><button data-m="tool" data-k="move" ${tool==="move"?'class="pri"':""}>Move tokens</button><button data-m="tool" data-k="wall" ${tool==="wall"?'class="pri"':""}>Draw walls</button><button data-m="clr">Clear walls</button><button data-m="clrew">Clear imported walls</button><button data-m="fog">Fog: ${g.m.fog?"on":"off"}</button><button data-m="tool" data-k="rev" ${tool==="rev"?'class="pri"':""}>Reveal</button><button data-m="tool" data-k="hid" ${tool==="hid"?'class="pri"':""}>Hide</button><button data-m="tool" data-k="al" ${tool==="al"?'class="pri"':""}>Altar</button><button data-m="tool" data-k="bf" ${tool==="bf"?'class="pri"':""}>Bonfire</button><button data-m="tool" data-k="gd" ${tool==="gd"?'class="pri"':""}>Guild</button><button data-m="tool" data-k="dr" ${tool==="dr"?'class="pri"':""}>Doors</button><button data-m="tool" data-k="pin" ${tool==="pin"?'class="pri"':""}>Pins</button><button data-m="tool" data-k="en" ${tool==="en"?'class="pri"':""}>Entry</button><button data-m="ovt">Overview: ${g.m.ov===false?"off":"on"}</button><button data-m="revall">Reveal all</button><button data-m="hideall">Hide all</button></div>`:""}`}
+ return`<div class="row"><select id="msel" style="width:auto;flex:1">${ids.map(i=>`<option value="${i}" ${i===mapId()?"selected":""}>${esc(maps[i].name)}${i===(cur&&maps[cur]?cur:ids[0])?" (live)":""}</option>`).join("")}</select><button data-m="mnew">New map</button><input id="mf" type="file" accept="image/*" hidden><button data-m="ddimp">Import Dungeondraft</button><input id="ddf" type="file" accept=".dd2vtt,.uvtt,.df2vtt,.json" hidden>${ids.length?`<button data-m="mshow">Show to players</button><button data-m="mren">Rename</button><button data-m="mdel">Delete</button>`:""}</div>${g?`<div class="row"><label class="sub">Squares across <input id="mc" type="number" min="5" max="200" value="${g.cols}" style="width:72px"></label><button data-m="grid">Grid: ${g.m.grid===false?"off":"on"}</button><button data-m="tool" data-k="move" ${tool==="move"?'class="pri"':""}>Move tokens</button><button data-m="tool" data-k="wall" ${tool==="wall"?'class="pri"':""}>Draw walls</button><button data-m="clr">Clear walls</button><button data-m="clrew">Clear imported walls</button><button data-m="fog">Fog: ${g.m.fog?"on":"off"}</button><button data-m="tool" data-k="rev" ${tool==="rev"?'class="pri"':""}>Reveal</button><button data-m="tool" data-k="hid" ${tool==="hid"?'class="pri"':""}>Hide</button><button data-m="tool" data-k="al" ${tool==="al"?'class="pri"':""}>Altar</button><button data-m="tool" data-k="bf" ${tool==="bf"?'class="pri"':""}>Bonfire</button><button data-m="tool" data-k="gd" ${tool==="gd"?'class="pri"':""}>Guild</button><button data-m="tool" data-k="dr" ${tool==="dr"?'class="pri"':""}>Doors</button><button data-m="tool" data-k="nd" ${tool==="nd"?'class="pri"':""}>Place door</button><button data-m="tool" data-k="pin" ${tool==="pin"?'class="pri"':""}>Pins</button><button data-m="tool" data-k="en" ${tool==="en"?'class="pri"':""}>Entry</button><button data-m="ovt">Overview: ${g.m.ov===false?"off":"on"}</button><button data-m="revall">Reveal all</button><button data-m="hideall">Hide all</button><button data-m="mki" data-k="al">Altar icon</button><button data-m="mki" data-k="bf">Bonfire icon</button><button data-m="mki" data-k="gd">Guild icon</button><button data-m="mkx">Default icons</button><input id="mkf" type="file" accept="image/*" hidden></div>`:""}`}
 const liveId=()=>{const ids=Object.keys(maps);return cur&&maps[cur]?cur:ids[0]};
 const onMap=o=>!o.mp||o.mp===mapId(),onLive=o=>!o.mp||o.mp===liveId();
 const VR=4;
-function fogHid(g,x,y){if(!g.m.fog)return false;if((g.m.fg||"")[y*g.cols+x]==="1")return false;return !A().some(i=>{const c=chars[i];return c.mx!=null&&onMap(c)&&Math.hypot(x-c.mx,y-c.my)<=VR})}
+function los(g,x0,y0,x1,y1){const n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));let px=x0,py=y0;for(let i=1;i<=n;i++){const t=i/n,cx=Math.round(x0+(x1-x0)*t),cy=Math.round(y0+(y1-y0)*t),dx=cx-px,dy=cy-py;if(dx||dy){if(blk(g,px,py,Math.sign(dx),Math.sign(dy)))return false;if(i<n&&g.W.has(K(cx,cy)))return false}px=cx;py=cy}return true}
+function fogHid(g,x,y){if(!g.m.fog)return false;if((g.m.fg||"")[y*g.cols+x]==="1")return false;return !A().some(i=>{const c=chars[i];return c.mx!=null&&onMap(c)&&Math.hypot(x-c.mx,y-c.my)<=VR&&los(g,c.mx,c.my,x,y)})}
 function eHid(g,e){if(!g)return false;const z=e.sz||1;for(let i=0;i<z;i++)for(let j=0;j<z;j++)if(!fogHid(g,e.mx+i,e.my+j))return false;return true}
 function fogD(g){let d="";for(let y=0;y<g.rows;y++)for(let x=0;x<g.cols;x++)if(fogHid(g,x,y))d+=`M${x*g.cs} ${y*g.cs}h${g.cs}v${g.cs}h${-g.cs}z`;return d}
-function revealAround(x,y){const g=geo();if(!g||!g.m.fog)return;const a=(g.m.fg||"").padEnd(g.cols*g.rows,"0").split("");for(let j=-VR;j<=VR;j++)for(let i=-VR;i<=VR;i++){const xx=x+i,yy=y+j;if(xx<0||yy<0||xx>=g.cols||yy>=g.rows||Math.hypot(i,j)>VR)continue;a[yy*g.cols+xx]="1"}const fg=a.join("");maps[g.id]={...g.m,fg};api("maps/"+g.id,"PATCH",{fg}).catch(fail)}
+function revealAround(x,y){const g=geo();if(!g||!g.m.fog)return;const a=(g.m.fg||"").padEnd(g.cols*g.rows,"0").split("");for(let j=-VR;j<=VR;j++)for(let i=-VR;i<=VR;i++){const xx=x+i,yy=y+j;if(xx<0||yy<0||xx>=g.cols||yy>=g.rows||Math.hypot(i,j)>VR||!los(g,x,y,xx,yy))continue;a[yy*g.cols+xx]="1"}const fg=a.join("");maps[g.id]={...g.m,fg};api("maps/"+g.id,"PATCH",{fg}).catch(fail)}
 function fpaint(p){const g=geo();if(!g||!F)return;F.a[p[1]*g.cols+p[0]]=F.v;const el=$("#fgp");if(el)el.setAttribute("d",fogD({...g,m:{...g.m,fog:true,fg:F.a.join("")}}))}
 function poiseHit(id,d){const e=enemies[id];if(!e||!(e.pm>0)||e.stun)return;const po=Math.max(0,(e.po??e.pm)-d);if(po===0){updE(id,{po:0,stun:true,sg:true});ev(e.name+" is staggered!")}else updE(id,{po})}
 function tick(){A().forEach(i=>{const[p,m]=turn(chars[i]);upd(i,p,m)});Object.keys(enemies).forEach(i=>{const e=enemies[i];if(e.sg||e.rec)updE(i,{stun:false,sg:false,rec:false,...(e.sg?{po:e.pm||0}:{})})})}
@@ -386,7 +401,7 @@ const initHtml=()=>{
   else if(dm||u.k[0]==="c")st=`<span class="sub">(${u.v})</span>`;
   return`<li style="${cur?"color:var(--ac);font-weight:600":""}">${cur?"▶ ":""}${esc(nm)} ${st}</li>`}).join("");
  const all=ini.l.every(u=>u.v!=null||!ent(u.k));
- return`<div class="card sb"><h2>${rl?"Roll initiative":"Turn order · Round "+ini.r}</h2><ul class="rl">${rows}</ul>${dm?(rl?`<div class="row mini"><button data-a="ienemies">Roll enemies</button><button class="pri" data-a="ibegin" ${all?"":"disabled"}>Begin combat</button><button data-a="iend">Cancel</button></div>`:`<div class="row mini"><button class="pri" data-a="inext">Next turn</button><button data-a="istart">New initiative</button><button data-a="iend">End combat</button></div>`):""}</div>`};
+ return`<div class="card sb"><h2>${rl?"Roll initiative":"Turn order · Round "+ini.r}</h2><ul class="rl">${rows}</ul>${dm?(rl?`<div class="row mini"><button data-a="ienemies">Roll enemies</button><button class="pri" data-a="ibegin" ${all?"":"disabled"}>Begin combat</button><button data-a="iend">Cancel</button></div>`:`<div class="row mini">${autoBtn()}<button class="pri" data-a="inext">Next turn</button><button data-a="istart">New initiative</button><button data-a="iend">End combat</button></div>`):""}</div>`};
 const effMax=(base,dth,ft)=>Math.max(5,Math.round(base*(1-.1*Math.min(3,dth||0)-.01*Math.min(10,ft||0))));
 const fatPatch=(c,dmg,nh)=>{const base=c.bmh||c.maxHp,fa=(c.fa||0)+dmg,ft=Math.min(10,Math.floor(fa/(base*.1)));if(ft===(c.ft||0))return{fa};const mx=effMax(base,c.dth||0,ft);return{fa,ft,bmh:base,maxHp:mx,hp:Math.min(nh,mx)}};
 const RK={n:"Normal",l:"Large",m:"Mini-boss",u:"Unique"},rankOf=e=>e.rk||((e.sz||1)>=4?"u":"n");
@@ -440,13 +455,13 @@ function migrate(){
  Object.keys(maps).forEach(i=>{const m=maps[i];if(!m||m.v2||migDone.has("m"+i))return;migDone.add("m"+i);const bf=Object.values(m.bf||{});maps[i]={...m,v2:1,...(bf.length?{al:bf,bf:null}:{})};api("maps/"+i,"PATCH",{v2:1,...(bf.length?{al:bf,bf:null}:{})}).catch(fail)});
  Object.keys(chars).forEach(i=>{const c=chars[i];if(!c||c.x10||migDone.has("c"+i))return;migDone.add("c"+i);const p={x10:true};["hp","maxHp","st","maxSt","rg","bmh"].forEach(f=>{if(typeof c[f]==="number")p[f]=c[f]*SC});chars[i]={...c,...p};api("chars/"+i,"PATCH",p).catch(fail)});
  Object.keys(enemies).forEach(i=>{const e=enemies[i];if(!e||e.x10||migDone.has("e"+i))return;migDone.add("e"+i);const p={x10:true};["hp","max","pm","po","hv"].forEach(f=>{if(typeof e[f]==="number")p[f]=e[f]*SC});enemies[i]={...e,...p};api("enemies/"+i,"PATCH",p).catch(fail)})}
-function respawnEnemies(){let n=0;Object.keys(enemies).forEach(i=>{const e=enemies[i];if(rankOf(e)==="u")return;n++;updE(i,{hp:e.max,po:e.pm||0,stun:false,sg:false,rec:false,hd:null,ht:0,mx:e.hx!=null?e.hx:e.mx,my:e.hy!=null?e.hy:e.my,mp:e.hm||e.mp})});if(n)ev("The monsters return to their posts (unique foes stay dead)")}
+function respawnEnemies(){let n=0;Object.keys(enemies).forEach(i=>{const e=enemies[i];if(rankOf(e)==="u")return;n++;updE(i,{hp:e.max,bi:false,po:e.pm||0,stun:false,sg:false,rec:false,hd:null,ht:0,mx:e.hx!=null?e.hx:e.mx,my:e.hy!=null?e.hy:e.my,mp:e.hm||e.mp})});if(n)ev("The monsters return to their posts (unique foes stay dead)")}
 function altarWave(key){if(Date.now()-lastWave<8000)return;lastWave=Date.now();const g=geo();let x=g?g.cols/2:0,y=g?g.rows/2:0;if(key){const q=key.split(",").map(Number);x=q[0]+.5;y=q[1]+.5}
  const w={m:mapId(),x,y};playWave(w);api("rolls","POST",{wave:w,ts:Date.now(),by:me}).catch(()=>{});setTimeout(respawnEnemies,1500);ev("The Golden Wave sweeps across the land...")}
 function playWave(w){const g=geo(),v=$("#map"),r=v&&v.getBoundingClientRect();let cx=innerWidth/2,cy=innerHeight/2;
  if(g&&r&&r.width>50&&(!w.m||w.m===g.id)){cx=r.left+w.x*g.cs/g.m.w*r.width;cy=r.top+w.y*g.cs/g.m.w*r.width}
  const D=2.6*Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy)),st=`left:${cx}px;top:${cy}px;width:${D}px;height:${D}px`,el=document.createElement("div");el.className="gw";
- el.innerHTML=`<div class="gws"></div><div class="gwr" style="${st}"></div><div class="gwr b" style="${st}"></div><div class="gwt">✦ The Golden Wave ✦</div>`;
+ el.innerHTML=`<div class="gws"></div><div class="gwr" style="${st}"></div>`;sChime();
  document.body.appendChild(el);setTimeout(()=>el.remove(),5200)}
 function restAt(id,kind){const c=chars[id];if(!c||c.hp<=0)return;const a=nearAl(c),b=nearBf(c),base=c.bmh||c.maxHp;
  if(kind==="bf"){if(!dm&&!b){$("#err").textContent="You can only use a bonfire when standing next to one.";return}
@@ -477,10 +492,14 @@ function rollInit(i){if(!ini||ini.ph!=="roll")return;const u=ini.l[i];if(!u||u.v
 async function syncRolls(){if(!role)return;try{const r=await api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=10"),ks=Object.keys(r||{});
  if(!rollsSeeded){ks.forEach(k=>seenR.add(k));rollsSeeded=true;return}
  const fresh=ks.filter(k=>!seenR.has(k));fresh.forEach(k=>seenR.add(k));
- fresh.slice(-5).forEach(k=>{const e=r[k];if(e&&e.wave){if(e.by!==me&&Date.now()-e.ts<20000)playWave(e.wave);return}if(e&&e.fx){if(e.by!==me&&Date.now()-e.ts<15000)playScene(e.fx);return}if(!e||!e.ds||e.by===me||e.s||Date.now()-e.ts>60000)return;play(e.ds.map(x=>x.d),e.ds,e.m||0,e.sk||"classic",e.n,true,null,null)})}catch(x){}}
+ fresh.slice(-5).forEach(k=>{const e=r[k];if(e&&e.boss){if(e.by!==me&&Date.now()-e.ts<15000)playBoss(e.boss);return}if(e&&e.wave){if(e.by!==me&&Date.now()-e.ts<20000)playWave(e.wave);return}if(e&&e.fx){if(e.by!==me&&Date.now()-e.ts<15000)playScene(e.fx);return}if(!e||!e.ds||e.by===me||e.s||Date.now()-e.ts>60000)return;play(e.ds.map(x=>x.d),e.ds,e.m||0,e.sk||"classic",e.n,true,null,null)})}catch(x){}}
 function pumpRolls(){if(playing||!remoteQ.length)return;playing=true;const e=remoteQ.shift();play(e.ds.map(x=>x.d),e.ds,e.m||0,e.sk||"classic",e.n,true,null,()=>{playing=false;pumpRolls()})}
-const restBtn=(id,c)=>{const a=nearAl(c),b=nearBf(c);if(!a&&!b&&!c.dth&&!c.ft)return"";const cl=c.dth&&a&&a!==c.cb;
+const nearDoors=c=>{const g=geo();if(!g||c.mx==null)return[];return Object.entries(g.m.dr||{}).filter(([k,q])=>q.p&&Math.hypot(q.p[0]-(c.mx+.5),q.p[1]-(c.my+.5))<=1.6).slice(0,3)};
+const doorBtns=(id,c)=>{if(c.hp<=0)return"";const l=nearDoors(c);return l.length?`<div class="row mini">${l.map(([k,q])=>`<button data-a="door" data-id="${id}" data-k="${k}">${q.o?"Close":"Open"} door</button>`).join("")}</div>`:""};
+const restBtn=(id,c)=>restBtn0(id,c)+doorBtns(id,c);
+const restBtn0=(id,c)=>{const a=nearAl(c),b=nearBf(c);if(!a&&!b&&!c.dth&&!c.ft)return"";const cl=c.dth&&a&&a!==c.cb;
  return`<div class="row mini">${a?`<button class="${cl?"pri":""}" data-a="rest" data-id="${id}">${cl?"Rest at altar & cleanse curse":"Rest at altar (resets the world)"}</button>`:""}${b?`<button data-a="restb" data-id="${id}">Rest at bonfire (clears fatigue)</button>`:""}${c.dth&&!cl?`<span class="sub">${a?"This is the altar you were revived at. Find a different altar to cleanse the curse.":"Find a different altar than the one you were revived at to cleanse the curse."}</span>`:""}</div>`};
+const autoBtn=()=>{const u=ini&&ini.l&&ini.l[ini.t],e=u&&u.k[0]==='e'?enemies[u.k.slice(2)]:null;return e&&e.hp>0?`<button class="pri" data-a="eauto" data-id="${u.k.slice(2)}">Run ${esc(e.name)}'s turn</button>`:""};
 const turnKey=()=>ini&&ini.ph==="go"&&ini.l&&ini.l[ini.t]?ini.l[ini.t].k:null;
 const myTurn=k=>!(ini&&ini.ph==="go")||turnKey()===k;
 const parseD=s=>{const o=[];String(s||"").split("+").forEach(p=>{const m=/(\d*)d(\d+)/.exec(p);if(m)for(let i=0;i<Math.min(+m[1]||1,12);i++)o.push(+m[2])});return o};
@@ -494,15 +513,58 @@ function atkInfo(A_,k,i){
  if(k==="h")return{label:"Heavy attack",rng:wr,dmg:"1d10",tb,db,cost:1,cs:cst(c,1),po:3,heavy:true};
  const ab=ABS(c)[i],d=ab&&AD[ab[0]];return d?{label:ab[0],rng:d.r,dmg:d.d,tb,db,cost:ab[1],cs:cst(c,ab[1]),po:2,auto:d.t}:null}
 let sceneOn=(()=>{try{return localStorage.getItem("sc")!=="0"}catch(e){return true}})(),sceneQ=[],sceneBusy=false;
-const FXK=[[/fire|flame|burn|ember|inferno|meteor|blaze|pyro|lava/i,"fire"],[/ice|frost|freez|snow|blizzard|cold/i,"ice"],[/bolt|lightning|thunder|shock|spark|storm/i,"bolt"],[/arrow|shot|bow|volley|snipe|pierc/i,"arrow"],[/poison|venom|toxic|acid|spit/i,"poison"]];
-const FXE={fire:"🔥",ice:"❄️",bolt:"⚡",poison:"☠️"};
+const FXK=[[/shield|bash|slam|smash|bonk/i,"bash"],[/fire|flame|burn|ember|inferno|meteor|blaze|pyro|lava/i,"fire"],[/ice|frost|freez|snow|blizzard|cold/i,"ice"],[/bolt|lightning|thunder|shock|spark|storm/i,"bolt"],[/arrow|shot|bow|volley|snipe|pierc/i,"arrow"],[/poison|venom|toxic|acid|spit/i,"poison"]];
+const FXE={fire:"🔥",ice:"❄️",bolt:"⚡",poison:"☠️",bash:"💥"};
+let sndOn=(()=>{try{return localStorage.getItem("sn")!=="0"}catch(e){return true}})(),sndVol=(()=>{try{const v=localStorage.getItem("sv");return v==null?.5:Math.max(0,Math.min(1,+v||0))}catch(e){return .5}})(),AC=null,NB=null,OUT=null;
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=Math.floor(AC.sampleRate*1.5),b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;NB=b;OUT=AC.createDynamicsCompressor();OUT.connect(AC.destination)}catch(e){AC=null}}if(AC&&AC.state==="suspended")AC.resume().catch(()=>{});return AC}
+["pointerdown","keydown","touchend"].forEach(n=>document.addEventListener(n,()=>{if(sndOn)ac()},{passive:true}));
+const mg=()=>AC&&sndOn&&sndVol>0&&AC.state==="running"?AC:null;
+function sNoise(t,d,o){const c=mg();if(!c)return;o=o||{};const T0=c.currentTime+t,s0=c.createBufferSource(),f=c.createBiquadFilter(),v=c.createGain();s0.buffer=NB;s0.playbackRate.value=.85+Math.random()*.3;f.type=o.type||"bandpass";f.Q.value=o.q||1;f.frequency.setValueAtTime(o.f1||1000,T0);if(o.f2)f.frequency.exponentialRampToValueAtTime(o.f2,T0+d);v.gain.setValueAtTime(.0001,T0);v.gain.exponentialRampToValueAtTime(Math.max(.0002,(o.g||.3)*sndVol),T0+(o.att||.005));v.gain.exponentialRampToValueAtTime(.0001,T0+d);s0.connect(f);f.connect(v);v.connect(OUT);s0.start(T0,Math.random()*.2,d+.05)}
+function sTone(t,fr,d,o){const c=mg();if(!c)return;o=o||{};const T0=c.currentTime+t,x=c.createOscillator(),v=c.createGain();x.type=o.type||"sine";x.frequency.setValueAtTime(fr,T0);if(o.f2)x.frequency.exponentialRampToValueAtTime(o.f2,T0+d);v.gain.setValueAtTime(.0001,T0);v.gain.exponentialRampToValueAtTime(Math.max(.0002,(o.g||.2)*sndVol),T0+(o.att||.003));v.gain.exponentialRampToValueAtTime(.0001,T0+d);x.connect(v);v.connect(OUT);x.start(T0);x.stop(T0+d+.05)}
+const sWhoosh=(t,h)=>sNoise(t,h?.32:.24,{type:"bandpass",f1:500,f2:h?2200:3000,q:.7,g:h?.4:.3,att:.1});
+const sSlice=t=>{sNoise(t,.13,{type:"highpass",f1:3200,g:.55,att:.002});sNoise(t,.09,{type:"bandpass",f1:1800,f2:900,q:1.2,g:.35,att:.002});sTone(t,150,.14,{g:.3,f2:60})};
+const sThunk=t=>{sTone(t,120,.14,{g:.4,f2:55});sNoise(t,.08,{type:"lowpass",f1:900,g:.3,att:.002})};
+function sClang(t,parry,gs){const b=parry?1050+Math.random()*120:700+Math.random()*100,g=(gs||1)*(parry?.16:.12),dec=parry?.9:.45;
+ [[1,1],[1.58,.7],[2.76,.8],[4.1,.5],[5.43,.45],[8.1,.3]].forEach(([r,a],i)=>sTone(t,b*r,dec/(1+i*.3),{type:i%2?"triangle":"sine",g:g*a,att:.001}));
+ sNoise(t,.06,{type:"highpass",f1:4000,g:parry?.7:.5,att:.001});sNoise(t,.2,{type:"bandpass",f1:6000,f2:3500,q:4,g:parry?.18:.1,att:.004});
+ if(parry){sTone(Math.max(0,t-.02),2400,.12,{type:"sawtooth",g:.05,f2:6500});sTone(t+.06,b*2.76,.5,{g:.06,att:.001});sTone(t+.06,b*1.58,.6,{g:.05,att:.001})}}
+const sBash=t=>{sTone(t,100,.3,{g:.6,f2:40});sNoise(t,.12,{type:"lowpass",f1:1200,g:.45,att:.002});sClang(t,false,.55)};
+function sRoll(t,heavy){if(heavy){for(let i=0;i<6;i++){const q=t+i*.07+Math.random()*.03;sNoise(q,.07,{type:"bandpass",f1:2000+Math.random()*2500,q:6,g:.22,att:.002});sTone(q,1500+Math.random()*2500,.05,{type:"square",g:.04})}sNoise(t,.4,{type:"lowpass",f1:500,g:.25,att:.08});sTone(t+.38,90,.2,{g:.35,f2:50})}
+ else{sNoise(t,.28,{type:"bandpass",f1:350,f2:900,q:.5,g:.2,att:.08});sNoise(t+.2,.22,{type:"bandpass",f1:500,f2:1200,q:.6,g:.15,att:.06});sTone(t+.38,80,.15,{g:.25,f2:50})}}
+function sTwang(t){sTone(t,300,.3,{type:"triangle",g:.25,f2:190});sNoise(t,.1,{type:"highpass",f1:2500,g:.2,att:.003});sNoise(t+.15,.2,{type:"bandpass",f1:2500,f2:1500,q:1,g:.15,att:.05})}
+function sCast(t,k){if(k==="fire")sNoise(t,.5,{type:"lowpass",f1:2000,f2:500,g:.35,att:.15});else if(k==="ice"){[2600,3300,3900].forEach((f,i)=>sTone(t+i*.06,f,.4,{g:.09}))}else if(k==="bolt")sTone(t,500,.3,{type:"sawtooth",g:.08,f2:1500});else sNoise(t,.35,{type:"bandpass",f1:300,f2:1200,q:2,g:.2,att:.12})}
+function sElem(t,k){if(k==="fire"){sNoise(t,.55,{type:"lowpass",f1:2200,f2:600,g:.5,att:.01});sTone(t,90,.4,{g:.5,f2:40});for(let i=0;i<6;i++)sNoise(t+.05+Math.random()*.4,.03,{type:"highpass",f1:3000,g:.3,att:.001})}
+ else if(k==="ice"){sNoise(t,.1,{type:"highpass",f1:4500,g:.5,att:.001});[2800,3600,4700,5600].forEach((f,i)=>sTone(t+i*.03,f,.5,{g:.08}));sTone(t,200,.2,{g:.3,f2:70})}
+ else if(k==="bolt"){sNoise(t,.25,{type:"highpass",f1:1500,g:.6,att:.001});sTone(t,2200,.3,{type:"sawtooth",g:.1,f2:90});sTone(t,70,.4,{g:.4,f2:35})}
+ else{for(let i=0;i<5;i++)sTone(t+i*.06,250+Math.random()*350,.1,{g:.18,f2:500+Math.random()*400});sNoise(t,.35,{type:"bandpass",f1:3500,q:2,g:.12,att:.05})}}
+function sBell(t,f,g){[[1,1,1.6],[2.41,.45,1],[3.92,.3,.6],[5.95,.15,.35]].forEach(([r,a,d])=>sTone(t,f*r,d,{g:g*a,att:.002}))}
+function sChime(){[0,.16,.31,.52,.74,1.05].forEach((t,i)=>sBell(t,[2350,2900,2620,3300,2480,3100][i],.11*(1-i*.1)))}
+function sBoss(){sTone(0,70,1.6,{g:.5,f2:35,att:.01});sNoise(0,1.4,{type:"lowpass",f1:300,f2:80,g:.5,att:.4});[110,116.5,165].forEach(f=>sTone(.1,f,1.8,{type:"sawtooth",g:.07,att:.25}));sClang(.55,false,.9);sTone(.55,55,1.2,{g:.6,f2:28})}
+function playBoss(b){if(!sceneOn||!b)return;const im=imgFor(b.k),el=document.createElement("div");el.className="bos";
+ el.innerHTML=`<div class="bbar t"></div><div class="bbar b"></div><div class="bwrap">${im?`<img class="bimg" src="${im}" alt="">`:`<div class="bimg em">${esc(String(b.n||"?").slice(0,1).toUpperCase())}</div>`}<div class="btx">${b.t?`<small>${esc(b.t)}</small>`:""}<i></i><b>${esc(b.n)}</b></div></div>`;
+ document.body.appendChild(el);sBoss();setTimeout(()=>el.classList.add("out"),3100);setTimeout(()=>el.remove(),3700)}
+function bossIntro(id){const e=enemies[id];if(!e)return;const b={k:"e:"+id,n:e.name,t:e.bt||""};playBoss(b);api("rolls","POST",{boss:b,ts:Date.now(),by:me}).catch(()=>{})}
+function introBosses(){const g=geo(),id=Object.keys(enemies).find(i=>{const e=enemies[i];return e&&!e.bi&&e.hp>0&&e.mx!=null&&onLive(e)&&["m","u"].includes(rankOf(e))&&!(g&&eHid(g,e))});if(id){bossIntro(id);updE(id,{bi:true})}}
+function sfx(f){if(!mg())return;const k=f.k||"slash",o=f.o||"hit",ranged=k!=="slash"&&k!=="heavy"&&k!=="bash";
+ if(!ranged)sWhoosh(.3,k==="heavy");else if(k==="arrow")sTwang(.25);else sCast(.2,k);
+ if(o==="hit"){if(k==="slash")sSlice(.62);else if(k==="heavy"){sSlice(.6);sSlice(.77)}else if(k==="bash")sBash(.62);else if(k==="arrow")sThunk(.6);else sElem(.6,k);if(f.c)sTone(.62,70,.45,{g:.45,f2:32})}
+ else if(o==="parry")sClang(.62,true);
+ else if(o==="dodge")sRoll(.5,f.ha)}
+const isHeavy=o=>o&&o.ha!=null?!!o.ha:!!(o&&o.cls==="fighter");
+let tlShow=false,tlA="t:Test Hero",tlT="t:Test Dummy",tlK="slash";
+const TLK=[["slash","Slash"],["heavy","Double slash (heavy)"],["bash","Shield bash"],["fire","Fireball"],["ice","Frost"],["bolt","Lightning"],["arrow","Arrow"],["poison","Poison"]];
+const tlOpts=()=>{const o=[["t:Test Hero","Test Hero (dummy)"],["t:Test Dummy","Test Dummy (dummy)"]];Object.keys(chars).forEach(i=>o.push(["c:"+i,chars[i].name+" (player)"]));Object.keys(enemies).forEach(i=>o.push(["e:"+i,enemies[i].name+" (enemy)"]));return o};
+const tlHtml=()=>{const op=v=>tlOpts().map(([k,t])=>`<option value="${k}" ${v===k?"selected":""}>${esc(t)}</option>`).join("");return`<div class="row mini"><label class="sub">Attacker <select id="tla" style="width:auto">${op(tlA)}</select></label><label class="sub">Target <select id="tlt" style="width:auto">${op(tlT)}</select></label><label class="sub">Attack <select id="tlk" style="width:auto">${TLK.map(([v,t])=>`<option value="${v}" ${tlK===v?"selected":""}>${t}</option>`).join("")}</select></label></div><div class="row mini">${[["hit","Hit"],["crit","Critical hit"],["miss","Miss"],["dodge","Dodge"],["parry","Parry"]].map(([v,t])=>`<button data-a="tlab" data-o="${v}">${t}</button>`).join("")}<button data-a="tlwave">Golden Wave</button></div><p class="note">Plays only on your screen: no dice, no damage.</p>`};
+let MK={},MKV=null,mkFor=null;
+const mkImg=(k,x,y,sz)=>`<image href="${MK[k]}" x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" preserveAspectRatio="xMidYMid meet"/>`;
+
 function fxKind(l,h,r){l=String(l||"");for(const[x,k]of FXK)if(x.test(l))return k;if(r>1)return"arrow";return h?"heavy":"slash"}
 function imgFor(k){const id=String(k).slice(2);if(PT[id]&&PT[id].data)return PT[id].data;if(IC[id]&&IC[id].data)return IC[id].data;return null}
 function fxScene(f){playScene(f);api("rolls","POST",{fx:f,ts:Date.now(),by:me}).catch(()=>{})}
 function playScene(f){if(!sceneOn||!f||!f.a||!f.t)return;if(sceneQ.length<4)sceneQ.push(f);if(!sceneBusy)nextScene()}
 const figH=(k,n,cls)=>{const im=imgFor(k);return`<div class="fig ${cls}">${im?`<img src="${im}" alt="">`:`<div class="em">${esc(String(n||"?").slice(0,1).toUpperCase())}</div>`}<b>${esc(n||"")}</b></div>`};
-function nextScene(){const f=sceneQ.shift();if(!f){sceneBusy=false;return}sceneBusy=true;
- const k=f.k||"slash",o=f.o||"hit",ranged=k!=="slash"&&k!=="heavy",tc=o==="hit"?"hit":o==="parry"?"parry":"dodge";
+function nextScene(){const f=sceneQ.shift();if(!f){sceneBusy=false;return}sceneBusy=true;sfx(f);
+ const k=f.k||"slash",o=f.o||"hit",ranged=k!=="slash"&&k!=="heavy"&&k!=="bash",tc=o==="hit"?"hit":o==="parry"?"parry":"dodge";
  let fx="";if(o==="hit")fx=k==="slash"?`<div class="fx slash"><i></i></div>`:k==="heavy"?`<div class="fx slash"><i></i><u></u></div>`:k==="arrow"?`<div class="fx arrow"><span>➤</span></div>`:`<div class="fx em"><span>${FXE[k]||"💥"}</span></div>`;
  else if(o==="parry")fx=`<div class="fx em"><span>🛡️</span></div>`;
  const tx=o==="hit"?(f.c?"CRIT! ":"")+"-"+f.d:o==="miss"?"MISS":o==="dodge"?"DODGED":"PARRIED";
@@ -512,14 +574,14 @@ function nextScene(){const f=sceneQ.shift();if(!f){sceneBusy=false;return}sceneB
  setTimeout(()=>el.classList.add("out"),1900);setTimeout(()=>{el.remove();nextScene()},2300)}
 function applyDmg(A_,T,dmg,inf){
  const o=T.o,nh=Math.max(0,(o.hp||0)-dmg),ts=Date.now();
- fxScene({a:(A_.e?"e:":"c:")+A_.id,t:(T.e?"e:":"c:")+T.id,k:fxKind(inf.label,inf.heavy,inf.rng),o:"hit",d:dmg,c:!!inf.crit,an:A_.o.name,tn:o.name,l:inf.label});
+ fxScene({a:(A_.e?"e:":"c:")+A_.id,t:(T.e?"e:":"c:")+T.id,k:fxKind(inf.label,inf.heavy,inf.rng),o:"hit",d:dmg,c:!!inf.crit,an:A_.o.name,tn:o.name,l:inf.label,ha:isHeavy(o)});
  if(T.e){updE(T.id,{hp:nh,ht:ts,hv:dmg});poiseHit(T.id,(inf.po||1)*SC)}
  else{const fp=fatPatch(o,dmg,nh);upd(T.id,{hp:nh,ht:ts,hv:dmg,...fp},A_.o.name+" hits for "+dmg+(fp.ft!==undefined?" (fatigue "+fp.ft+"%)":""));
   if(A_.e&&o.exh){const hv=inf.heavy,lh=(o.lh||0)+(hv?0:1),pr=hv||lh>=3;upd(T.id,{lh:pr?0:lh,pr:pr||!!o.pr},pr?"Knocked prone!":"Light hit "+lh+"/3")}}
  ev(A_.o.name+" hits "+o.name+" for "+dmg+(nh===0?(T.e?". "+o.name+" is slain!":". "+o.name+" falls!"):""))}
 function resolveAttack(A_,T,inf){
  const an=A_.o.name,tn=T.o.name,pl=!A_.e,ac=T.o.ac??12;
- const sc=o=>fxScene({a:(A_.e?"e:":"c:")+A_.id,t:(T.e?"e:":"c:")+T.id,k:fxKind(inf.label,inf.heavy,inf.rng),o,d:0,c:false,an,tn,l:inf.label});
+ const sc=o=>fxScene({a:(A_.e?"e:":"c:")+A_.id,t:(T.e?"e:":"c:")+T.id,k:fxKind(inf.label,inf.heavy,inf.rng),o,d:0,c:false,an,tn,l:inf.label,ha:isHeavy(T.o)});
  const deal=(crit,fac)=>{const dsl=parseD(inf.dmg),list=crit?dsl.concat(dsl):dsl,k=fac||1;
   if(pl)roll(list,res=>applyDmg(A_,T,Math.max(1,res.reduce((a,b)=>a+b.r,0)+inf.db)*SC*k,{...inf,crit}),inf.db);
   else applyDmg(A_,T,Math.max(1,list.reduce((a,d)=>a+1+Math.floor(Math.random()*d),0))*SC*k,{...inf,crit})};
@@ -594,9 +656,9 @@ function mapHtml(tbl){
  for(const k in R){if(!R[k])continue;const[x,y]=k.split(",");v+=`<rect x="${x*cs}" y="${y*cs}" width="${cs}" height="${cs}" style="fill:${s&&s.e?"var(--hp)":combat&&!c.exh&&cst(c,R[k])>c.st?"var(--ac)":"var(--st)"};fill-opacity:.35"/>`}
  v+=`<g id="wl">${wallsSvg(W,cs)}</g>`;v+=edgesSvg(g);
  if(m.grid!==false){let d="";for(let i=0;i<=cols;i++)d+=`M${i*cs} 0V${rows*cs}`;for(let j=0;j<=rows;j++)d+=`M0 ${j*cs}H${cols*cs}`;v+=`<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2,m.w/450)};fill:none"/>`}
- v+=altars().map(k=>{const[ax,ay]=k.split(",").map(Number),cx=(ax+.5)*cs,cy=(ay+.5)*cs;return`<g><circle cx="${cx}" cy="${cy}" r="${cs*.52}" style="fill:#ffc830;opacity:.35"><animate attributeName="opacity" values=".2;.5;.2" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="${cx}" cy="${cy}" r="${cs*.4}" style="fill:#3a2a08;stroke:#f5c542;stroke-width:${cs*.05}px"/><path d="M${cx} ${cy-cs*.3}L${cx+cs*.2} ${cy}L${cx} ${cy+cs*.3}L${cx-cs*.2} ${cy}Z" style="fill:#ffd866;stroke:#fff3b0;stroke-width:${cs*.02}px"/></g>`}).join("");
- v+=bonfires().map(k=>{const[bx,by]=k.split(",").map(Number);return`<text x="${(bx+.5)*cs}" y="${(by+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🔥</text>`}).join("");
- v+=guilds().map(k=>{const[gx,gy]=k.split(",").map(Number);return`<text x="${(gx+.5)*cs}" y="${(gy+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🍺</text>`}).join("");
+ v+=altars().map(k=>{const[ax,ay]=k.split(",").map(Number),cx=(ax+.5)*cs,cy=(ay+.5)*cs;if(MK.al)return mkImg("al",cx,cy,cs*1.2);return`<g><circle cx="${cx}" cy="${cy}" r="${cs*.52}" style="fill:#ffc830;opacity:.35"><animate attributeName="opacity" values=".2;.5;.2" dur="2.4s" repeatCount="indefinite"/></circle><circle cx="${cx}" cy="${cy}" r="${cs*.4}" style="fill:#3a2a08;stroke:#f5c542;stroke-width:${cs*.05}px"/><path d="M${cx} ${cy-cs*.3}L${cx+cs*.2} ${cy}L${cx} ${cy+cs*.3}L${cx-cs*.2} ${cy}Z" style="fill:#ffd866;stroke:#fff3b0;stroke-width:${cs*.02}px"/></g>`}).join("");
+ v+=bonfires().map(k=>{const[bx,by]=k.split(",").map(Number);if(MK.bf)return mkImg("bf",(bx+.5)*cs,(by+.5)*cs,cs*1.2);return`<text x="${(bx+.5)*cs}" y="${(by+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🔥</text>`}).join("");
+ v+=guilds().map(k=>{const[gx,gy]=k.split(",").map(Number);if(MK.gd)return mkImg("gd",(gx+.5)*cs,(gy+.5)*cs,cs*1.2);return`<text x="${(gx+.5)*cs}" y="${(gy+.5)*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">🍺</text>`}).join("");
  Object.values(m.pn||{}).forEach(pq=>{if(!dm&&fogHid(g,Math.floor(pq.x),Math.floor(pq.y)))return;v+=`<text x="${pq.x*cs}" y="${pq.y*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.8}px">📍</text><text x="${pq.x*cs}" y="${(pq.y+.8)*cs}" text-anchor="middle" style="font:700 ${cs*.34}px sans-serif;fill:#fff;stroke:#000;stroke-width:${cs*.07}px;paint-order:stroke">${esc(pq.l||"")}</text>`});
  if(dm&&m.en)v+=`<text x="${m.en[0]*cs}" y="${m.en[1]*cs}" text-anchor="middle" dy=".35em" style="font-size:${cs*.7}px">🚩</text>`;
  if(m.fog)v+=`<path id="fgp" d="${fogD(g)}" style="fill:#000;fill-opacity:${dm?.55:1}"/>`;
@@ -608,7 +670,7 @@ function mapHtml(tbl){
  const chips=dm?A().filter(i=>onMap(chars[i])).map(i=>chip("c:"+i,chars[i].name)).concat(Object.keys(enemies).filter(i=>onMap(enemies[i])).map(i=>chip("e:"+i,"👹 "+enemies[i].name))).join(""):"";
  const lim=c?(c.stn?0:c.exh?2:sp)-(combat?(c.mvd||0):0):0,info=!s?(dm?"Pick a unit, then tap the map to move it, or tap another token to act on it.":"Tap an enemy token to attack or interact."):s.o.mx==null?"Tap the map to place it.":s.e?`Red squares: this enemy can move up to ${(s.o.spd||6)+(s.o.bon||0)} squares (speed ${s.o.spd||6} + bonus ${s.o.bon||0}). Tap the map to move it, or tap a character to act on it.`:c.exh?`Exhausted (${c.exn||2} rounds left): you can only move 2 squares at a time, free of stamina.`:combat?`Combat: moving costs 1 stamina per square, ${lim} squares left this round. Green is affordable, amber means you'd run out of stamina and become exhausted.`:`Out of combat: move up to ${sp} squares for free (green). Tap an enemy token to attack or interact.`;
  if(tbl)return v;
- return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&tool==="dr"?" Tap a door to open or close it.":""}${dm&&tool==="pin"?" Tap empty ground to add a pin, or tap a pin to travel, rename or delete it.":""}${dm&&tool==="en"?" Tap where the party should arrive on this map.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}${jump?" Tap a free square within 3 squares of the monster to jump there.":""}</p>${jump?`<div class="row mini"><button data-a="jcancel">Cancel jump</button></div>`:""}${dm?mapTools():""}</div>`}
+ return`<div class="card">${chips?`<div class="row mini">${chips}</div>`:""}${v}${menuHtml()}<p class="note">${info}${dm&&tool==="wall"?" Tap or drag to draw walls.":""}${dm&&tool==="dr"?(Object.keys((geo()||{m:{}}).m.dr||{}).length?" Tap a door to open or close it.":" This map has no doors. Doors only come from an imported Dungeondraft or Dungeon Alchemist map."):""}${dm&&tool==="nd"?" Tap a square to place a door there. Tap a door you placed to remove it.":""}${dm&&tool==="pin"?" Tap empty ground to add a pin, or tap a pin to travel, rename or delete it.":""}${dm&&tool==="en"?" Tap where the party should arrive when they travel to this map through a pin.":""}${dm&&(tool==="rev"||tool==="hid")?" Tap or drag to "+(tool==="rev"?"reveal":"hide")+" areas.":""}${dm&&mapId()!==(cur&&maps[cur]?cur:ids[0])?" You're editing a map players can't see yet.":""}${jump?" Tap a free square within 3 squares of the monster to jump there.":""}</p>${jump?`<div class="row mini"><button data-a="jcancel">Cancel jump</button></div>`:""}${dm?mapTools():""}</div>`}
 const paint=p=>{const k=K(p[0],p[1]);if(P.add===P.W.has(k))return;P.add?P.W.add(k):P.W.delete(k);$("#wl").innerHTML=wallsSvg(P.W,geo().cs)};
 const setM=p=>{const id=mapId();maps[id]={...maps[id],...p};last="";render();api("maps/"+id,"PUT",maps[id]).catch(fail)};
 function loadImg(f){const r=new FileReader();r.onload=()=>shrink(r.result,1400,700000,(d,w,h)=>saveMap(d,w,h,f.name||"Map",{}));r.readAsDataURL(f)}
@@ -640,7 +702,8 @@ function render(){
  $("#app").innerHTML=h;pending=false;updateAsk();updateOv();applyTv()}
 async function load(){
  try{
-  const[c0,e0,mp0,cu0,rl,cl,cb,ii,mb,bd]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20"),dm?api("claims"):api("claims/"+me),api("combat"),api("init"),api("meta/build"),api("board")]);
+  const[c0,e0,mp0,cu0,rl,cl,cb,ii,mb,bd,mki]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20"),dm?api("claims"):api("claims/"+me),api("combat"),api("init"),api("meta/build"),api("board"),api("meta/mki")]);
+  if((mki||null)!==MKV){const d=await api("mkicons");MK={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)MK[k]=d[k].data});MKV=mki||null;last=""}
   if(typeof mb==="number"&&mb>BUILD)$("#upd").hidden=false;else if(dm&&(mb==null||mb<BUILD))api("meta","PATCH",{build:BUILD}).catch(()=>{});
   if(P||F)return;
   {const nb=bd&&Object.keys(bd).length?bd:null,bs=JSON.stringify(nb||0);boardDB=!!nb;if(bs!==boardSig){boardSig=bs;applyBoard(nb||defBoard())}}
@@ -680,6 +743,8 @@ $("#app").addEventListener("click",async e=>{
  if(bm){const m=bm.dataset.m;
   if(m==="mnew")$("#mf").click();
   else if(m==="ddimp")$("#ddf").click();
+  else if(m==="mki"){mkFor=bm.dataset.k;$("#mkf").value="";$("#mkf").click()}
+  else if(m==="mkx"){if(confirm("Go back to the default altar, bonfire and guild icons?")){const st=Date.now();MK={};MKV=st;last="";render();api("mkicons","DELETE").then(()=>api("meta","PATCH",{mki:st})).catch(fail)}}
   else if(m==="ovt")setM({ov:geo().m.ov===false});
   else if(m==="clrew"){if(confirm("Remove all imported walls and doors from this map?"))setM({ew:[],dr:{}})}
   else if(m==="sel"){sel=bm.dataset.id;render()}
@@ -727,6 +792,15 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="regen"){const[p,m]=turn(c);upd(id,p,m)}
  else if(a==="rest")restAt(id,"al");
  else if(a==="restb")restAt(id,"bf");
+ else if(a==="eauto")enemyAuto(id);
+ else if(a==="bintro")bossIntro(id);
+ else if(a==="door"){const g=geo(),dk=b.dataset.k,q=g&&(g.m.dr||{})[dk];if(!q||!c||(!dm&&id!==me))return;
+  if(combat&&!dm){if(!myTurn("c:"+id)){$("#err").textContent="It is not your turn.";return}if(c.exh||c.stn||(c.used||0)>=2){$("#err").textContent="You have no action left to use the door.";return}upd(id,{used:(c.used||0)+1})}
+  const nq={...q,o:q.o?0:1};maps[g.id]={...g.m,dr:{...(g.m.dr||{}),[dk]:nq}};last="";render();api("maps/"+g.id+"/dr/"+dk,"PUT",nq).catch(fail);ev(c.name+(nq.o?" opens":" closes")+" a door");if(c.mx!=null)revealAround(c.mx,c.my)}
+ else if(a==="tltog"){tlShow=!tlShow;last="";render()}
+ else if(a==="tlwave"){const g=geo();playWave({m:mapId(),x:g?g.cols/2:0,y:g?g.rows/2:0})}
+ else if(a==="tlab"){const o=b.dataset.o,cr=o==="crit",ob=k=>k[0]==="c"?chars[k.slice(2)]:k[0]==="e"?enemies[k.slice(2)]:null,nm=k=>k.startsWith("t:")?k.slice(2):((ob(k)||{}).name||"?"),was=sceneOn;sceneOn=true;playScene({a:tlA,t:tlT,k:tlK,o:cr?"hit":o,d:cr?240:120,c:cr,an:nm(tlA),tn:nm(tlT),l:"Test",ha:isHeavy(ob(tlT))});sceneOn=was}
+ else if(a==="armor")upd(id,{ha:!isHeavy(c)},isHeavy(c)?"Changed into light armor":"Put on heavy armor");
  else if(a==="revive"){if(!c||c.hp>0)return;const[bx,by]=b.dataset.b.split(",").map(Number),base=c.bmh||c.maxHp,nd=Math.min(3,(c.dth||0)+1),nm=effMax(base,nd,0),wipe=A().every(i=>i===id||chars[i].hp<=0);
   upd(id,{bmh:base,maxHp:nm,hp:nm,st:c.maxSt,fl:c.maxFl,fa:0,ft:0,dth:nd,cb:b.dataset.b,mx:bx,my:by,exh:false,stn:false,pr:false,mt:"",mon:null,used:0,mvd:0},"Revived at an altar (curse x"+nd+"): max HP -"+10*nd+"%, stamina costs +"+15*nd+"%");ev(c.name+" rises again at an altar, weaker than before (curse x"+nd+")");revealAround(bx,by);if(wipe){ev("The whole party has fallen...");altarWave(b.dataset.b)}}
  else if(a==="flask"&&c.fl>0){const h=Math.floor(c.maxHp*.4);upd(id,{fl:c.fl-1,hp:clamp(c.hp+h,c.maxHp)},"Drank a flask (+"+h+" HP)")}
@@ -745,7 +819,7 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="istart"||a==="iroll"){const l=[];A().filter(i=>chars[i].hp>0&&onLive(chars[i])).forEach(i=>l.push({k:"c:"+i,v:null}));Object.keys(enemies).forEach(i=>{if(enemies[i].mx!=null&&!enemies[i].hd&&enemies[i].hp>0&&onLive(enemies[i]))l.push({k:"e:"+i,v:null})});ini={ph:"roll",l,t:0,r:1};combat=false;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",false).catch(fail);ev("Initiative! Everyone roll to see who goes first.")}
  else if(a==="iself")rollInit(+b.dataset.i)
  else if(a==="ienemies"&&ini){ini.l.forEach((u,i)=>{const t=ent(u.k);if(t&&t.e&&u.v==null){const v=1+Math.floor(Math.random()*20)+(t.o.ib||0);ini.l[i]={...u,v};api("init/l/"+i,"PATCH",{v}).catch(fail)}});last="";render()}
- else if(a==="ibegin"&&ini&&ini.ph==="roll"){if(!ini.l.every(u=>u.v!=null||!ent(u.k)))return;const l=ini.l.filter(u=>ent(u.k)).sort((x,y)=>y.v-x.v||Math.random()-.5);ini={ph:"go",l,t:0,r:1};combat=true;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",true).catch(fail);const u0=ent(l[0].k);ev("Combat begins! "+(u0?u0.o.name+" goes first.":""))}
+ else if(a==="ibegin"&&ini&&ini.ph==="roll"){if(!ini.l.every(u=>u.v!=null||!ent(u.k)))return;setTimeout(introBosses,500);const l=ini.l.filter(u=>ent(u.k)).sort((x,y)=>y.v-x.v||Math.random()-.5);ini={ph:"go",l,t:0,r:1};combat=true;last="";render();api("init","PUT",ini).catch(fail);api("combat","PUT",true).catch(fail);const u0=ent(l[0].k);ev("Combat begins! "+(u0?u0.o.name+" goes first.":""))}
  else if((a==="inext"&&dm)||(a==="endturn"&&(dm||turnKey()==="c:"+me)))nextTurn();
  else if(a==="iend"){ini=null;combat=false;last="";render();api("init","DELETE").catch(fail);api("combat","PUT",false).catch(fail);ev("Combat ends")}
  else if(a==="cmode"){claimMode=!claimMode;render()}
@@ -791,6 +865,19 @@ function menuHtml(){
  if(tz===1){h+=`<button data-a="mact" data-k="push" ${near&&can?"":"disabled"}>Push (${cst(c,1)} St)</button>`;if(!a.e&&t.e&&t.o.stun)h+=`<button data-a="mact" data-k="pick" ${near&&can?"":"disabled"}>Pick up (${cst(c,2)} St)</button>`}
  if(!a.e&&t.e){const hid=Object.keys(enemies).find(i=>enemies[i].hd===a.key);if(hid&&hid!==t.id)h+=`<button data-a="mact" data-k="throw" ${can&&Math.max(Math.abs(t.o.mx-c.mx),Math.abs(t.o.my-c.my))<=5?"":"disabled"}>Throw ${esc(enemies[hid].name)} · ${cst(c,2)} St</button>`}
  return h+`<button data-a="mcancel">Cancel</button></div>${rider?`<p class="note">This target is riding it: it can only hit them with an area attack.</p>`:""}${mine?"":`<p class="note">It is not your turn: you can only use reactions (Dodge, Parry) or a counter-attack.</p>`}${near?"":`<p class="note">Melee, mount, push and pick up need you next to the target. Ranged attacks show their range.</p>`}</div>`}
+function enemyAuto(id){const e=enemies[id],g=geo();if(!dm||!e||!g||e.hp<=0||e.mx==null||e.hd)return;
+ if(e.stun){ev(e.name+" is stunned and cannot act");return}
+ const A_={e:true,id,o:e,key:"e:"+id},z=e.sz||1,rng=Math.max(1,e.er||1);
+ const tg=A().map(i=>({e:false,id:i,o:chars[i],key:"c:"+i})).filter(t=>t.o.hp>0&&t.o.mx!=null&&onMap(t.o)&&onMap(e)&&!t.o.mt);
+ if(!tg.length){ev(e.name+" finds no one to attack");return}
+ const t=tg.reduce((a,b)=>gap(A_,a)<=gap(A_,b)?a:b);
+ if(gap(A_,t)>rng){const d=reachE(e,g),free=(a,b)=>{for(let i=0;i<z;i++)for(let j=0;j<z;j++){const o=occ(a+i,b+j);if(o&&o!=="e:"+id)return false}return true},zt=zOf(t);let best=null;
+  Object.keys(d).forEach(k2=>{const[a,b]=k2.split(",").map(Number);if(!free(a,b))return;const q=Math.max(1,t.o.mx-(a+z-1),a-(t.o.mx+zt-1),t.o.my-(b+z-1),b-(t.o.my+zt-1)),inR=q<=rng,sc=(inR?(rng>1?-q:0):1000+q*10)+d[k2]*.01;if(!best||sc<best.sc)best={a,b,sc}});
+  if(best&&(best.a!==e.mx||best.b!==e.my)){updE(id,{mx:best.a,my:best.b,mp:mapId()});ev(e.name+" advances on "+t.o.name)}}
+ const A2=ent("e:"+id);if(!A2)return;if(gap(A2,t)>rng){render();return}
+ const sk=Object.entries(e.sk||{}).filter(([k2,q])=>q.t==="a"?tg.some(tt=>gap(A2,tt)<=Math.max(1,+q.r||2)):gap(A2,t)<=(+q.r||1));
+ let k="l",i2;if(sk.length&&Math.random()<.5){k="sk";i2=sk[Math.floor(Math.random()*sk.length)][0]}else if(Math.random()<.3)k="h";
+ menu={a:"e:"+id,t:t.key};doAct(k,i2)}
 function doAct(k,i){
  const A_=ent(menu.a),T=ent(menu.t);if(!A_||!T){menu=null;render();return}
  if(!dm&&A_.id!==me)return;
@@ -821,9 +908,10 @@ function doAct(k,i){
  menu=null;render()}
 $("#app").addEventListener("pointerdown",e=>{
  if(!e.target.closest("#map"))return;if(role==="table")return;const g=geo(),p=cellAt(e);if(!g||!p)return;const[x,y]=p,k=K(x,y);
- if(dm&&tool==="wall"){P={add:!g.W.has(k),W:new Set(g.W)};paint(p);return}
+ if(dm&&tool==="wall"){P={add:!g.W.has(k),W:new Set(Object.values(g.m.walls||{}))};paint(p);return}
  if(dm&&tool==="pin"){const ps=g.m.pn||{};let best=null,bd=1.2;Object.keys(ps).forEach(k3=>{const q=ps[k3],dd=Math.hypot(q.x-(x+.5),q.y-(y+.5));if(dd<bd){bd=dd;best=k3}});if(best)pinMenu(best);else pinNew(x+.5,y+.5);return}
  if(dm&&tool==="en"){setM({en:[x+.5,y+.5]});return}
+ if(dm&&tool==="nd"){const ds={...(g.m.dr||{})};let ex=null;Object.keys(ds).forEach(k2=>{if(ds[k2].c===k)ex=k2});if(ex)delete ds[ex];else ds["d"+Math.random().toString(36).slice(2,6)]={c:k,p:[x+.5,y+.5],o:0};setM({dr:ds,walls:Object.values(g.m.walls||{}).filter(q=>q!==k)});return}
  if(dm&&tool==="dr"){const ds=g.m.dr||{};let best=null,bd=1.7;Object.keys(ds).forEach(k2=>{const q=ds[k2],dd=Math.hypot(q.p[0]-(x+.5),q.p[1]-(y+.5));if(dd<bd){bd=dd;best=k2}});if(best){const dr2={...ds};dr2[best]={...ds[best],o:ds[best].o?0:1};setM({dr:dr2})}return}
  if(dm&&tool==="gd"){const gd=Object.values(g.m.gd||{}),key=x+","+y,i=gd.indexOf(key);if(i>=0)gd.splice(i,1);else gd.push(key);setM({gd});return}
  if(dm&&tool==="al"){const al=Object.values(g.m.al||{}),key=x+","+y,i=al.indexOf(key);if(i>=0)al.splice(i,1);else al.push(key);setM({al});return}
@@ -851,7 +939,7 @@ addEventListener("pointermove",e=>{if(P){const p=cellAt(e);if(p)paint(p)}else if
 const endP=()=>{if(P){const w=[...P.W];P=null;setM({walls:w})}if(F){const f=F.a.join("");F=null;setM({fg:f})}};addEventListener("pointerup",endP);addEventListener("pointercancel",endP);
 $("#app").addEventListener("change",e=>{
  const t=e.target,f=t.dataset.f,id=t.dataset.id;
- if(t.dataset.ef){const i=t.dataset.id;if(dm&&enemies[i])updE(i,{[t.dataset.ef]:t.dataset.ef==="dm"?t.value.slice(0,20):t.dataset.ef==="rk"?t.value:(+t.value||0)});return}
+ if(t.dataset.ef){const i=t.dataset.id;if(dm&&enemies[i])updE(i,{[t.dataset.ef]:t.dataset.ef==="dm"?t.value.slice(0,20):t.dataset.ef==="rk"?t.value:t.dataset.ef==="bt"?t.value.slice(0,40):(+t.value||0)});return}
  if(t.dataset.bf){if(!dm)return;const bid=t.dataset.bf,f=t.dataset.f,e=board[bid];if(!e)return;boardEnsure();
   let v=t.type==="checkbox"?(t.checked?1:0):t.value;if(["c","l","r"].includes(f))v=+v||0;
   if(f==="n"){v=String(v).trim().slice(0,30)||"Ability";if(Object.keys(board).some(k=>k!==bid&&board[k].n===v))v+=" 2"}
@@ -870,6 +958,10 @@ $("#app").addEventListener("change",e=>{
  if(t.id==="dn"){dcount=Math.max(1,Math.min(10,+t.value||1));return}
  if(t.id==="dsk"){skin=t.value;try{localStorage.setItem("sk",skin)}catch(x){}return}
  if(t.id==="sec"){secOn=t.checked;return}
+ if(t.id==="sndck"){sndOn=t.checked;try{localStorage.setItem("sn",sndOn?"1":"0")}catch(x){}if(sndOn)ac();return}
+ if(t.id==="sndvol"){sndVol=(+t.value||0)/100;try{localStorage.setItem("sv",String(sndVol))}catch(x){}ac();sSlice(0);return}
+ if(t.id==="tla"){tlA=t.value;return}if(t.id==="tlt"){tlT=t.value;return}if(t.id==="tlk"){tlK=t.value;return}
+ if(t.id==="mkf"){const f=t.files[0],k=mkFor;t.value="";if(!f||!k||!dm)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=128;const g2=c.getContext("2d"),q=Math.min(128/im.width,128/im.height);g2.drawImage(im,(128-im.width*q)/2,(128-im.height*q)/2,im.width*q,im.height*q);const d=c.toDataURL("image/png"),st=Date.now();MK[k]=d;api("mkicons/"+k,"PUT",{data:d}).then(()=>api("meta","PATCH",{mki:st})).then(()=>{MKV=st;last="";render()}).catch(fail)};im.src=r.result};r.readAsDataURL(f);return}
  if(t.id==="sceneck"){sceneOn=t.checked;try{localStorage.setItem("sc",sceneOn?"1":"0")}catch(x){}return}
  if(!f||!chars[id]||(!dm&&id!==me))return;
  const num=t.type==="number";if(num&&!dm)return;
