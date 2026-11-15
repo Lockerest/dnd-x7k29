@@ -146,12 +146,12 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 .btx b{display:block;font:700 clamp(34px,7vw,92px)/1.05 "Cormorant Garamond",Georgia,serif;color:#f3e7c9;text-shadow:0 4px 0 #000,0 0 30px #8a1c10;letter-spacing:.04em;opacity:0;animation:btx 1s .9s both}
 @keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}@keyframes bln{to{transform:scaleX(1)}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 20</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 22</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="upd" hidden>⬆ A newer version of the game is out. <button onclick="location.reload()">Reload now</button> (if it still says an old build, close the tab and reopen the link)</div><div id="err"></div><div id="app"></div><div id="qte" hidden></div><div id="ask" hidden></div><div id="ovw" hidden></div><input id="icf" type="file" accept="image/*" hidden>
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=20,SC=10;
+const BUILD=22,SC=10;
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
@@ -469,12 +469,12 @@ function playWave(w){const g=geo(),v=$("#map"),r=v&&v.getBoundingClientRect();le
  playBuf("altar",0)||sChime();
  const W=innerWidth,H=innerHeight,dpr=Math.min(2,devicePixelRatio||1),cv=document.createElement("canvas");cv.width=W*dpr;cv.height=H*dpr;cv.style.cssText="position:fixed;left:0;top:0;width:100%;height:100%;z-index:68;pointer-events:none";
  const ctx=cv.getContext("2d");if(!ctx)return;document.body.appendChild(cv);
- const Rm=1.08*Math.hypot(Math.max(cx,W-cx),Math.max(cy,H-cy)),trail=Math.min(Rm*.55,680),N=Math.min(4200,Math.round(W*H/520)),DUR=4600,P=[];
- for(let i=0;i<N;i++)P.push({a:Math.random()*6.2832,o:Math.pow(Math.random(),2.4),s:1.4+Math.random()*2.6,p:Math.random()*6.28,j:(Math.random()-.5)*14,h:Math.random()});
+ const Rm=1.08*Math.hypot(Math.max(cx,W-cx),Math.max(cy,H-cy)),trail=Math.min(Rm*.55,680),N=Math.min(8000,Math.round(W*H/200)),DUR=4600,P=[];
+ for(let i=0;i<N;i++)P.push({a:Math.random()*6.2832,o:Math.pow(Math.random(),2.4),s:.7+Math.random()*1.2,p:Math.random()*6.28,j:(Math.random()-.5)*14,h:Math.random()});
  const t0=performance.now(),fr=now=>{const t=Math.min(1,(now-t0)/DUR);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);const front=Rm*(1-Math.pow(1-t,2.2)),env=t<.08?t/.08:t>.7?Math.max(0,(1-t)/.3):1;
   ctx.lineWidth=34;ctx.strokeStyle=`rgba(176,136,56,${.16*env})`;ctx.beginPath();ctx.arc(cx,cy,Math.max(1,front),0,6.2832);ctx.stroke();ctx.lineWidth=9;ctx.strokeStyle=`rgba(214,176,92,${.3*env})`;ctx.beginPath();ctx.arc(cx,cy,Math.max(1,front),0,6.2832);ctx.stroke();
   for(const q of P){const rr=front-q.o*trail;if(rr<2)continue;const al=Math.min(1,Math.pow(1-q.o,1.5)*env*(.7+.3*Math.sin(now*.006+q.p))*1.05);if(al<.02)continue;
-   const x=cx+Math.cos(q.a)*rr+Math.sin(q.p+now*.001)*q.j*q.o,y=cy+Math.sin(q.a)*rr+Math.cos(q.p+now*.001)*q.j*q.o;ctx.fillStyle=q.h>.75?`rgba(236,210,140,${al})`:`rgba(196,152,64,${al})`;ctx.beginPath();ctx.arc(x,y,q.s*(1.1-q.o*.5),0,6.2832);ctx.fill()}
+   const x=cx+Math.cos(q.a)*rr+Math.sin(q.p+now*.001)*q.j*q.o,y=cy+Math.sin(q.a)*rr+Math.cos(q.p+now*.001)*q.j*q.o;ctx.globalAlpha=al;ctx.fillStyle=q.h>.75?"#ecd28c":"#c49840";const r2=q.s*(1.1-q.o*.5);ctx.fillRect(x-r2,y-r2,r2*2,r2*2)}ctx.globalAlpha=1;
   if(t<1)requestAnimationFrame(fr);else cv.remove()};
  requestAnimationFrame(fr);setTimeout(()=>cv.remove(),DUR+800)}
 function restAt(id,kind){const c=chars[id];if(!c||c.hp<=0)return;const a=nearAl(c),b=nearBf(c),base=c.bmh||c.maxHp;
@@ -572,9 +572,9 @@ function playTheme(buf,D){const c=mg();if(!c||!buf)return false;const x=c.create
  x.connect(v);v.connect(AC.destination);if(REV){x.connect(w);w.connect(REV)}x.start(T);x.stop(T+D+.4);return true}
 const BOSSN=["Aethelric","Arachne","Kernunos","Nameless King","Odi'ram","Xibalba","Izat'al"];
 const thHtml=()=>{const rows=BOSSN.map(n=>[tslug(n),n]);Object.keys(TH).forEach(k=>{if(!rows.some(r=>r[0]===k))rows.push([k,TH[k].n||k])});return`<h3>Boss themes</h3><p class="note">One short theme per boss (about 700 KB max). It plays during the boss intro, up to 10 seconds. A theme is matched to a monster by its name, or you can pick it in that monster's Theme box. Add halfway and optional bosses too.</p><input id="thf" type="file" accept="audio/*" hidden>${rows.map(([k,n])=>`<div class="row mini"><span class="sub" style="min-width:210px">${esc(n)}: ${TH[k]?"<b>theme loaded</b>":"none"}</span>${TH[k]?`<button data-a="thpv" data-k="${k}">Play</button>`:""}<button data-a="thup" data-k="${k}" data-n="${esc(n)}">${TH[k]?"Replace":"Upload"}</button>${TH[k]?`<button data-a="thdel" data-k="${k}">Remove</button>`:""}</div>`).join("")}<div class="row mini"><button data-a="thnew">Add another boss theme</button></div>`};
-function playBuf(k,t){const c=mg(),b=SB[k];if(!c||!b)return false;const T=c.currentTime+t,d=b.duration,x=c.createBufferSource(),v=c.createGain(),w=c.createGain(),vol=Math.min(1,sndVol*1.4),fo=Math.min(.4,d*.45),fi=Math.min(.03,d*.2);x.buffer=b;
- v.gain.setValueAtTime(.0001,T);v.gain.exponentialRampToValueAtTime(vol,T+fi);v.gain.setValueAtTime(vol,T+d-fo);v.gain.exponentialRampToValueAtTime(.0001,T+d);
- w.gain.setValueAtTime(.12,T);w.gain.linearRampToValueAtTime(.12,T+d*.55);w.gain.linearRampToValueAtTime(vol*1.6,T+d-fo*.4);
+function playBuf(k,t){const c=mg(),b=SB[k];if(!c||!b)return false;const T=c.currentTime+t,d=b.duration,x=c.createBufferSource(),v=c.createGain(),w=c.createGain(),vol=Math.min(1,sndVol*1.4),fo=Math.min(.25,Math.max(.03,d*.08)),fi=Math.min(.02,d*.1),lg=d>1.2;x.buffer=b;
+ v.gain.setValueAtTime(.0001,T);v.gain.exponentialRampToValueAtTime(vol,T+fi);v.gain.setValueAtTime(vol,T+d-fo);v.gain.linearRampToValueAtTime(.0001,T+d);
+ if(lg){w.gain.setValueAtTime(.12,T);w.gain.linearRampToValueAtTime(.12,T+d*.7);w.gain.linearRampToValueAtTime(vol*1.6,T+d-fo*.4)}else w.gain.setValueAtTime(.3,T);
  x.connect(v);v.connect(c.destination);if(REV){x.connect(w);w.connect(REV)}x.start(T);x.stop(T+d+.05);return true}
 const sndHtml=()=>`<h3>Custom sounds</h3><p class="note">Upload short royalty-free clips (about 450 KB max each). Slots without a clip use the built-in sound. Everyone hears your clips.</p><input id="sndf" type="file" accept="audio/*" hidden>${SLOTS.map(([k,t])=>`<div class="row mini"><span class="sub" style="min-width:210px">${t}: ${SD[k]?"<b>custom</b>":"built-in"}</span><button data-a="snpv" data-k="${k}">Play</button><button data-a="snup" data-k="${k}">Upload</button>${SD[k]?`<button data-a="sndel" data-k="${k}">Remove</button>`:""}</div>`).join("")}<label class="sub">Reverb (this device) <input type="range" id="rvamt" min="0" max="100" value="${Math.round(rvAmt*100)}" style="width:120px"></label>${thHtml()}`;
 function sfx(f){if(!mg())return;const k=f.k||"slash",o=f.o||"hit",ranged=k!=="slash"&&k!=="heavy"&&k!=="bash";
@@ -729,7 +729,7 @@ function render(){
  else if(view==="board")h=boardHtml();
  else if(view==="sheet")h=dm?pendingHtml()+(A().length?'<div class="grid">'+A().map(card).join("")+'</div>':'<p class="note">No approved characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
  else{
-  const left=dm?pendingHtml()+`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
+  const left=dm?pendingHtml()+`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+bkHtml()+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
   h=`<div class="tbl"><div>${left}</div><div class="mid">${mapHtml()}</div><div>${initHtml()}${enemiesHtml()}${diceHtml()}</div></div>`}
  $("#app").innerHTML=h;pending=false;updateAsk();updateOv();applyTv()}
 async function load(){
@@ -828,6 +828,8 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="rest")restAt(id,"al");
  else if(a==="restb")restAt(id,"bf");
  else if(a==="eauto")enemyAuto(id);
+ else if(a==="bkexp"){bkExport(false).then(n=>{$("#err").textContent="Backup downloaded ("+n+" sections).";last="";render()}).catch(fail)}
+ else if(a==="bkimp"){const el=$("#bkf");if(el){el.value="";el.click()}}
  else if(a==="bintro")bossIntro(id);
  else if(a==="door"){const g=geo(),dk=b.dataset.k,q=g&&(g.m.dr||{})[dk];if(!q||!c||(!dm&&id!==me))return;
   if(combat&&!dm){if(!myTurn("c:"+id)){$("#err").textContent="It is not your turn.";return}if(c.exh||c.stn||(c.used||0)>=2){$("#err").textContent="You have no action left to use the door.";return}upd(id,{used:(c.used||0)+1})}
@@ -907,6 +909,16 @@ function menuHtml(){
  if(tz===1){h+=`<button data-a="mact" data-k="push" ${near&&can?"":"disabled"}>Push (${cst(c,1)} St)</button>`;if(!a.e&&t.e&&t.o.stun)h+=`<button data-a="mact" data-k="pick" ${near&&can?"":"disabled"}>Pick up (${cst(c,2)} St)</button>`}
  if(!a.e&&t.e){const hid=Object.keys(enemies).find(i=>enemies[i].hd===a.key);if(hid&&hid!==t.id)h+=`<button data-a="mact" data-k="throw" ${can&&Math.max(Math.abs(t.o.mx-c.mx),Math.abs(t.o.my-c.my))<=5?"":"disabled"}>Throw ${esc(enemies[hid].name)} · ${cst(c,2)} St</button>`}
  return h+`<button data-a="mcancel">Cancel</button></div>${rider?`<p class="note">This target is riding it: it can only hit them with an area attack.</p>`:""}${mine?"":`<p class="note">It is not your turn: you can only use reactions (Dodge, Parry) or a counter-attack.</p>`}${near?"":`<p class="note">Melee, mount, push and pick up need you next to the target. Ranged attacks show their range.</p>`}</div>`}
+const dbBase=()=>DB_URL.replace(/\/$/,"")+"/tables/"+pin;
+async function bkExport(auto){const r=await fetch(dbBase()+".json");if(!r.ok)throw new Error("HTTP "+r.status);const j=(await r.json())||{};delete j.rolls;delete j.qte;
+ const blob=new Blob([JSON.stringify({app:"stamina-table",pin,saved:new Date().toISOString(),build:BUILD,data:j})],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);
+ a.download=(auto?"safety-copy-":"golden-wave-backup-")+new Date().toISOString().slice(0,16).replace(/[:T]/g,"-")+".json";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},3000);
+ if(!auto)try{localStorage.setItem("bk",String(Date.now()))}catch(e){}return Object.keys(j).length}
+async function bkRestore(o){await bkExport(true);const d=o.data,base=dbBase(),cur=(await(await fetch(base+".json?shallow=true")).json())||{};
+ for(const k of Object.keys(cur)){if(k!=="meta"&&!(k in d)){const r=await fetch(base+"/"+k+".json",{method:"DELETE"});if(!r.ok)throw new Error("HTTP "+r.status)}}
+ for(const k of Object.keys(d)){if(k==="meta")continue;const r=await fetch(base+"/"+k+".json",{method:"PUT",body:JSON.stringify(d[k])});if(!r.ok)throw new Error("HTTP "+r.status)}}
+const bkHtml=()=>{let t=0;try{t=+localStorage.getItem("bk")||0}catch(e){}const days=t?Math.floor((Date.now()-t)/864e5):null;
+ return`<div class="card sb"><h3>Backup</h3><div class="row mini"><button data-a="bkexp">Download backup</button><button data-a="bkimp">Restore backup</button><input id="bkf" type="file" accept=".json,application/json" hidden></div><p class="note">${days===null?"No backup made on this device yet. Download one now and after every session.":days===0?"Last backup from this device: today.":"Last backup from this device: "+days+" day"+(days>1?"s":"")+" ago."+(days>=7?" Time for a new one.":"")} Keeps characters, enemies, maps, art, sounds and themes in one file.</p></div>`};
 function enemyAuto(id){const e=enemies[id],g=geo();if(!dm||!e||!g||e.hp<=0||e.mx==null||e.hd)return;
  if(e.stun){ev(e.name+" is stunned and cannot act");return}
  const A_={e:true,id,o:e,key:"e:"+id},z=e.sz||1,rng=Math.max(1,e.er||1);
@@ -1002,6 +1014,10 @@ $("#app").addEventListener("change",e=>{
  if(t.id==="sec"){secOn=t.checked;return}
  if(t.id==="sndck"){sndOn=t.checked;try{localStorage.setItem("sn",sndOn?"1":"0")}catch(x){}if(sndOn)ac();return}
  if(t.id==="sndvol"){sndVol=(+t.value||0)/100;try{localStorage.setItem("sv",String(sndVol))}catch(x){}ac();sSlice(0);return}
+ if(t.id==="bkf"){const f=t.files[0];t.value="";if(!f||!dm)return;const r=new FileReader();r.onload=async()=>{let o;try{o=JSON.parse(r.result)}catch(e){$("#err").textContent="That file is not a valid backup.";return}
+  if(!o||o.app!=="stamina-table"||!o.data||typeof o.data!=="object"){$("#err").textContent="That file is not a Stamina Table backup.";return}
+  if(!confirm("Restore this backup"+(o.saved?" from "+o.saved.slice(0,16).replace("T"," "):"")+"?\n\nThis REPLACES everything on this table (characters, enemies, maps, sounds). A safety copy of the current table downloads first."))return;
+  try{await bkRestore(o);alert("Backup restored. The page will reload.");location.reload()}catch(e){fail(e)}};r.readAsText(f);return}
  if(t.id==="rvamt"){rvAmt=(+t.value||0)/100;try{localStorage.setItem("rv",String(rvAmt))}catch(x){}ac();if(RVG)RVG.gain.value=rvAmt*1.2;sClang(0,false,.6);return}
  if(t.id==="thf"){const f=t.files[0],q=thFor;t.value="";if(!f||!q||!dm)return;if(f.size>700000){$("#err").textContent="That theme is too big (max about 700 KB). Trim it to 10 seconds or lower its quality.";return}
   const r=new FileReader();r.onload=()=>{const u=r.result,c=ac();if(!c){$("#err").textContent="Audio isn't available in this browser.";return}
