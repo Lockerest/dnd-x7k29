@@ -147,12 +147,12 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 .btx b{display:block;font:700 clamp(34px,7vw,92px)/1.05 "Cormorant Garamond",Georgia,serif;color:#f3e7c9;text-shadow:0 4px 0 #000,0 0 30px #8a1c10;letter-spacing:.04em;opacity:0;animation:btx 1s .9s both}
 @keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}@keyframes bln{to{transform:scaleX(1)}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 23</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)" id="bld">build 23</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="upd" hidden>⬆ A newer version of the game is out. <button onclick="location.reload()">Reload now</button> (if it still says an old build, close the tab and reopen the link)</div><div id="err"></div><div id="app"></div><div id="qte" hidden></div><div id="ask" hidden></div><div id="ovw" hidden></div><input id="icf" type="file" accept="image/*" hidden>
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=29,SC=10;
+const BUILD=30,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
