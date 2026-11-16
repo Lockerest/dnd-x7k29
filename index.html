@@ -44,7 +44,7 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
 .pill{font-style:normal;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:1px 8px}.pill.bad{border-color:var(--hp);color:var(--hp)}
 .sb{padding:10px}.sb h2{font-size:20px}
-.av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
+.abi{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:4px}.abe{margin-right:4px}.av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
 #map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
 .menu{border:1px solid var(--ac);border-radius:8px;padding:8px;margin:8px 0}
 .dov{position:fixed;inset:0;pointer-events:none;z-index:50;perspective:900px}
@@ -152,13 +152,13 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=23,SC=10;
+const BUILD=29,SC=10;
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
-const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
+const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
 const HEAL0={"Second Wind":{d:"1d10",b:c=>c.level||1},"Mending Light":{d:"2d8",b:c=>mod(c.int)}};
 const AD0={"Power Strike":{r:1,d:"2d8"},"Multi-Slash":{r:1,d:"2d6"},"Shield Bash":{r:1,d:"1d4",t:1},"Piercing Shot":{r:8,d:"2d6"},"Triple Volley":{r:6,d:"3d4"},"Pinning Shot":{r:6,d:"1d6",t:1},"Firebolt":{r:8,d:"2d10"},"Ember Burst":{r:6,d:"6d6",t:1},"Backstab":{r:1,d:"3d6"},"Cutting Flurry":{r:1,d:"2d6"}};
-const AD={},HEAL={},CHK={};
+const AD={},HEAL={},CHK={},HC={},ABN={};
 const SKINS=[
 ["classic","Ivory","#e9e2d0","white","plastic"],["black","Obsidian","#1b1b22","black","plastic"],
 ["red","Red","#b3262c",null,"plastic",{name:"red",background:"#b3262c",foreground:"#ffffff",outline:"none",texture:"none"}],
@@ -174,8 +174,13 @@ const C={
 fighter:{n:"Fighter",d:"Tough, 20 stamina back per turn",hp:140,st:100,rg:20,ab:[["Power Strike",2,"+1d8 damage on a hit"],["Multi-Slash",3,"One extra attack this turn"],["Shield Bash",2,"STR save or target is knocked prone"],["Second Wind",3,"Heal 1d10 + level"]]},
 archer:{n:"Archer",d:"Ranged, steady stamina",hp:110,st:100,rg:20,ab:[["Piercing Shot",2,"+1d6, ignores half cover"],["Triple Volley",3,"Three arrows, each at -2 to hit"],["Pinning Shot",2,"DEX save or speed 0 until your next turn"],["Hunter's Eye",1,"Mark a weak point: next hit crits on 19-20"]]},
 mage:{n:"Mage",d:"Big pool, slow regen",hp:90,st:140,rg:10,ab:[["Firebolt",1,"2d10 fire, ranged"],["Ember Burst",4,"20 ft radius, 6d6 fire, DEX half"],["Arcane Ward",3,"Absorb 50 + 10 per level damage"],["Mending Light",3,"Heal 2d8 + INT, once per turn"]]},
-thief:{n:"Thief",d:"Quick, opportunistic",hp:100,st:100,rg:20,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]}};
-const NUM=[["level","Level"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamina"],["rg","Regen/turn"],["spd","Speed (sq)"],["maxFl","Flasks max"],["souls","Souls"],["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]];
+thief:{n:"Thief",d:"Quick, opportunistic",hp:100,st:100,rg:20,ab:[["Backstab",2,"+2d6 with advantage or ally adjacent"],["Cutting Flurry",2,"Two quick light-weapon attacks"],["Smoke Bomb",3,"5 ft cloud, heavily obscured, free Disengage"],["Pilfer",1,"Sleight of Hand to lift an item mid-fight"]]},
+warrior:{n:"Warrior",d:"Heavy weapons, hits hard",hp:150,st:100,rg:20,ab:[["Heavy Swing",2,"A big two-handed swing"],["Guard Break",3,"Smash through a shield"],["Brace",1,"Plant your feet: harder to stagger"]]},
+sorcerer:{n:"Sorcerer",d:"Elemental caster, wide area",hp:90,st:140,rg:10,ab:[["Elemental Bolt",1,"A bolt of fire, ice or lightning"],["Burning Ground",3,"Scorch an area"],["Frost Veil",3,"Resist cold and fire for the fight"]]},
+spearhand:{n:"Mystic Spearhand",d:"Spear and magick, pulls enemies in",hp:120,st:110,rg:20,ab:[["Spear Thrust",1,"A reaching thrust"],["Sweeping Lance",2,"A wide spear sweep"],["Pull Stance",2,"Ready to pull an enemy in"]]},
+magickarcher:{n:"Magick Archer",d:"Enchanted arrows and sigils",hp:100,st:120,rg:15,ab:[["Enchanted Arrow",1,"An arrow charged with magick"],["Sigil Shot",2,"An arrow that leaves a sigil"],["Healing Sigil",3,"Heal 2d6 + INT"]]},
+trickster:{n:"Trickster",d:"Illusions and decoys",hp:100,st:110,rg:20,ab:[["Quick Jab",1,"A fast jab"],["Mirror Step",2,"Step aside and leave an image"],["Distract",1,"Dex check to pull attention"]]}};
+const NUM=[["level","Level"],["atn","Attunements"],["ac","AC"],["maxHp","Max HP"],["maxSt","Max stamina"],["rg","Regen/turn"],["spd","Speed (sq)"],["maxFl","Flasks max"],["souls","Souls"],["str","STR"],["dex","DEX"],["con","CON"],["int","INT"],["wis","WIS"],["cha","CHA"]];
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const ABS=c=>COM.concat(c.shield?[PARRY]:[],eqAbilities(c)),K=(x,y)=>x+","+y,clamp=(v,m)=>Math.max(0,Math.min(m,v)),mod=s=>Math.floor(((s||10)-10)/2),sg=n=>n>=0?"+"+n:""+n;
 let pin="",role="",me="",dm=false,canGM=false,chars={},enemies={},maps={},cur=null,rolls={},secret=[],IM={},view="table",gmMap=null,sel=null,tool="move",P=null,last="",pending=false,timer=null,bonus=0,dstat="",secOn=true;
@@ -212,10 +217,10 @@ function sbox(id){
  if(own&&c.hp>0)h+=restBtn(id,c);
  if(dm&&c.exh)h+=`<div class="row mini"><button data-a="hit" data-id="${id}" data-k="l">Light hit (${c.lh||0}/3)</button><button data-a="hit" data-id="${id}" data-k="h">Heavy hit</button></div>`;
  return h+`</div>`}
-function quick(id){const c=chars[id];return`<div class="card sb"><h3>Quick actions (2 per round)</h3><div class="row mini">${ABS(c).map((a,i)=>AD[a[0]]||a[3]==="r"?"":abBtn(id,i,a,c,esc(a[0])+" · "+cst(c,a[1]))).join("")}</div></div>`}
+function quick(id){const c=chars[id];return`<div class="card sb"><h3>Quick actions (2 per round)</h3><div class="row mini">${ABS(c).map((a,i)=>AD[a[0]]||a[3]==="r"?"":abBtn(id,i,a,c,abIc(a[0])+esc(a[0])+" · "+cst(c,a[1]))).join("")}</div></div>`}
 const shortT=t=>{t=String(t||"").trim();const m=t.match(/^.{20,110}?[.;](\s|$)/);return m?m[0].trim():(t.length>110?t.slice(0,107)+"...":t)};
 function abSum(id){const c=chars[id];if(!c)return"";const l=eqIds(c).map(k=>board[k]).filter(Boolean);if(!l.length)return"";
- return`<div class="card sb"><h3>Your abilities</h3>${l.map(e=>{const info=e.k==="atk"?(e.d||"")+(e.r?" · range "+e.r:"")+(e.a?" · auto-hit":""):e.k==="heal"?"heals "+(e.d||""):e.k==="check"?"d20 check":"";return`<div class="ab"><div><b>${esc(e.n)}</b> <span class="sub">${cst(c,+e.c||0)} St${info?" · "+esc(info):""}</span><small>${esc(e.sd||shortT(e.t))}</small></div></div>`}).join("")}</div>`}
+ return`<div class="card sb"><h3>Your abilities</h3>${l.map(e=>{const info=e.k==="atk"?(e.d||"")+(e.r?" · range "+e.r:"")+(e.a?" · auto-hit":""):e.k==="heal"?"heals "+(e.d||""):e.k==="check"?"d20 check":"";return`<div class="ab"><div>${abIc(e.n)}<b>${esc(e.n)}</b> <span class="sub">${cst(c,+e.c||0)} St${gInfo(c,e)}${info?" · "+esc(info):""}</span><small>${esc(e.sd||shortT(e.t))}</small></div></div>`}).join("")}</div>`}
 function allies(){const m=chars[me];if(!m)return"";const l=A().filter(i=>i!==me&&(chars[i].exh||chars[i].pr));return l.length?`<div class="card sb"><h3>Allies down</h3>${l.map(i=>`<button data-a="help" data-id="${i}" ${m.exh||(m.used||0)>=2?"disabled":""}>Help ${esc(chars[i].name)} up (uses an action)</button>`).join("")}</div>`:""}
 const FR={fighter:["#c8553d","⚔️"],archer:["#4f9d4a","🏹"],mage:["#5b6fe0","🔮"],thief:["#8d7fa8","🗡️"]};
 function bossArtUpload(f,id){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{let sc=Math.min(1,1100/i.height,900/i.width);for(;;){const c=document.createElement("canvas");c.width=Math.max(1,Math.round(i.width*sc));c.height=Math.max(1,Math.round(i.height*sc));c.getContext("2d").drawImage(i,0,0,c.width,c.height);let d=c.toDataURL("image/webp",.9);if(!d.startsWith("data:image/webp"))d=c.toDataURL("image/png");
@@ -235,6 +240,7 @@ function card(id){
  if(own)h+=`<div class="row">${dm?`<button class="pri" data-a="regen" data-id="${id}">Start of turn ${sg(c.rg-(c.mt==="climb"?4*SC:0))}</button>`:""}<button data-a="rest" data-id="${id}" ${c.hp<=0||(!dm&&!nearAl(c))?"disabled":""}>${c.dth&&nearAl(c)&&nearAl(c)!==c.cb?"Altar rest & cleanse curse":"Altar rest"}${!dm&&!nearAl(c)?" (stand by an altar)":""}</button><button data-a="restb" data-id="${id}" ${c.hp<=0||(!dm&&!nearBf(c))?"disabled":""}>Bonfire rest${!dm&&!nearBf(c)?" (stand by a bonfire)":""}</button><button data-a="icon" data-id="c:${id}">Set icon</button><button data-a="shield" data-id="${id}">Shield: ${c.shield?"on":"off"}</button><button data-a="armor" data-id="${id}">Armor: ${isHeavy(c)?"heavy":"light"}</button>${dm?`<button data-a="st" data-id="${id}" data-n="-10">-10 St</button><button data-a="st" data-id="${id}" data-n="10">+10 St</button>`:""}</div>${mtCtl(id,c)}`;
  h+=`<h3>Abilities (basic attacks are free)</h3>`;
  ABS(c).forEach((a,i)=>{h+=`<div class="ab"><div>${esc(a[0])}${a[3]?" (reaction)":""}<small>${esc(a[2])}</small></div>${own?abBtn(id,i,a,c):`<span class="sub">${a[1]} St</span>`}</div>`});
+ if(dm){const as=Object.keys(atSet(c));if(as.length)h+=`<div class="row mini"><span class="sub">Attuned:</span>${as.map(k=>`<button data-a="atrel" data-id="${id}" data-k="${k}">Release ${esc(board[k].n)}</button>`).join("")}</div>`}
  h+=`<h3>Stats</h3><div class="stats">`;
  NUM.forEach(([f,l])=>{h+=dm?`<label>${l}<input type="number" data-id="${id}" data-f="${f}" value="${c[f]??0}"></label>`:`<span>${l}<b>${c[f]??0}</b></span>`});
  h+=`</div><h3>Conditions</h3><input data-id="${id}" data-f="conds" value="${esc(c.conds)}" ${own?"":"disabled"} placeholder="e.g. Poisoned">`;
@@ -414,6 +420,8 @@ const fatPatch=(c,dmg,nh)=>{const base=c.bmh||c.maxHp,fa=(c.fa||0)+dmg,ft=Math.m
 const RK={n:"Normal",l:"Large",m:"Mini-boss",u:"Unique"},rankOf=e=>e.rk||((e.sz||1)>=4?"u":"n");
 let lastWave=0;
 const cst=(c,b)=>b?Math.ceil(b*SC*(1+.15*Math.min(3,c.dth||0))):0;
+const hcPatch=(c,n)=>{const pct=HC[n];if(!pct)return{};const base=c.bmh||c.maxHp,loss=Math.min(c.hp-1,Math.round(base*pct/100));if(loss<=0)return{};const nh=c.hp-loss;return{hp:nh,...fatPatch(c,loss,nh)}};
+const abIc=n=>{const k=ABN[n],e=k&&board[k];if(!e)return"";if(ABI[k])return`<img class="abi" src="${ABI[k]}" alt="">`;return e.ic?`<span class="abe">${esc(e.ic)}</span>`:""};
 const spend=(c,cost,label)=>{cost=cst(c,cost);const p={};let m=label+(cost?" (-"+cost+" St)":"");if(c.st>=cost)p.st=c.st-cost;else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}return[p,m]};
 const bonfires=()=>{const g=geo();return g?Object.values(g.m.bf||{}):[]};
 const altars=()=>{const g=geo();return g?Object.values(g.m.al||{}):[]};
@@ -432,26 +440,103 @@ function defBoard(){const b={};
   ["thief","Shadow Strike",3,2,"atk","4d6",1,0,"","Strike from the dark: 4d6."],["thief","Venom Cut",2,2,"atk","2d6",1,1,"","A poisoned nick: 2d6, no attack roll."]
  ].forEach(([v,n,c,l,k,d,r,a,bb,t])=>{b[v+"_"+slug(n)]={n,c,l,v,k,d,r,a,b:bb,t}});
  return b}
-function applyBoard(b){board=b;[AD,HEAL,CHK].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));
- Object.values(b).forEach(e=>{if(!e||!e.n)return;if(e.k==="atk")AD[e.n]={r:+e.r||1,d:e.d||"1d6",t:e.a?1:0};else if(e.k==="heal")HEAL[e.n]={d:e.d||"1d6",b:e.b||""};else if(e.k==="check")CHK[e.n]={b:e.b||"dex"}})}
-const slotsOf=c=>(c.level||1)+3;
-function eqIds(c){if(c.eq&&typeof c.eq==="object")return Object.keys(c.eq).filter(k=>board[k]);
- return Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1)).slice(0,slotsOf(c))}
+const VROWS=[
+["fighter","Rending Combo",3,3,"atk","3d8",1,0,"","Three rapid weapon swings, 3d8 in total.","⚔️","4d8+4d6",10],
+["fighter","Shield Wall",5,3,"util","",0,0,"","Take hits meant for an ally within 1 square and resist them until your next turn.","🛡️"],
+["fighter","Bulwark Charge",6,3,"atk","3d8",3,0,"","Rush up to 3 squares and slam in. STR save or pushed 10 ft.","🐗","4d8+3d6",15],
+["fighter","Cyclone Slash",7,4,"atk","4d8",1,0,"","Spin and hit everything adjacent. STR save or knocked prone.","🌀"],
+["fighter","Indomitable",9,0,"util","",0,0,"","Passive. Once per altar rest, drop to 1 HP instead of 0.","🏔️"],
+["fighter","Oathbreaker",10,5,"atk","6d10",1,0,"","One heavy strike that ignores poise.","💥","9d10",20],
+["archer","Arrowstorm",3,3,"atk","3d6",8,0,"","Three arrows in a burst, 3d6 in total.","🏹","8d6",10],
+["archer","Nailing Shot",5,2,"atk","2d6",8,0,"","DEX save or speed 0 until your next turn.","📌"],
+["archer","Wildfire Arrow",6,3,"atk","3d8",10,0,"","A fire arrow that burns a 5 ft area.","🔥","4d8+3d6",15],
+["archer","Predator's Eye",7,3,"util","",0,0,"","Your next 2 shots crit on 19-20 and ignore cover.","👁️"],
+["archer","Rain of Arrows",9,4,"atk","4d6",10,1,"","15 ft area, DEX save for half.","🌧️"],
+["archer","Dragonpiercer",10,5,"atk","8d8",12,0,"","A line shot that hits everything within 60 ft.","🐉","11d8",20],
+["mage","Arcane Barrage",3,3,"atk","3d10",8,0,"","Three seeking bolts, 3d10 force in total.","🔮","4d12",10],
+["mage","Ward of Ages",5,3,"util","",0,0,"","Absorb 50 + 10 per level damage on an ally within 30 ft.","🔰"],
+["mage","Lightning Lash",6,3,"atk","4d8",8,0,"","A whip of lightning.","⚡","5d8+2d6",15],
+["mage","Frostbind",7,4,"atk","5d6",6,0,"","15 ft cone of cold. CON save or speed halved for 2 rounds.","❄️"],
+["mage","Mirror Image",9,3,"util","",0,0,"","Three decoys that each soak one attack.","🪞"],
+["mage","Meteor Fall",10,5,"atk","12d6",8,1,"","Takes a round to charge, then 30 ft radius of fire.","☄️","15d6",20],
+["thief","Shadow Flurry",3,3,"atk","3d6",1,0,"","Three light strikes, 3d6 in total.","🗡️","8d6",10],
+["thief","Choking Smoke",5,3,"util","",0,0,"","5 ft cloud: enemies inside have disadvantage on attacks.","💨"],
+["thief","Venomous Edge",6,3,"atk","3d6",1,1,"","A poisoned cut, no attack roll.","☠️","7d6",15],
+["thief","Marked for Death",7,3,"util","",0,0,"","Pick a target: advantage and +1d8 against it for the fight.","🎯"],
+["thief","Ghost Step",9,2,"util","",0,0,"","After being hit, vanish and reappear up to 15 ft away.","👻"],
+["thief","Heartseeker",10,5,"atk","10d6",1,0,"","Auto-crit from behind or with an ally adjacent.","💀","13d6",20],
+["warrior","Heavy Swing",1,2,"atk","2d6",1,0,"","A big two-handed swing.","🔨"],
+["warrior","Guard Break",1,3,"atk","1d10",1,0,"","Smash through a shield.","🪓"],
+["warrior","Brace",1,1,"util","",0,0,"","Plant your feet: harder to stagger.","🧱"],
+["warrior","Skullsplitter",3,4,"atk","3d12",1,0,"","One crushing blow with extra stagger.","🔨","4d12",10],
+["warrior","Ground Slam",5,3,"atk","3d8",1,0,"","10 ft radius. STR save or prone.","🌋"],
+["warrior","Crushing Blow",6,4,"atk","4d10",1,0,"","Breaks armor: -2 AC for 2 rounds.","🪓","5d10",15],
+["warrior","War Cry",7,3,"util","",0,0,"","Allies within 30 ft add +1d4 damage for 2 rounds.","📣"],
+["warrior","Unbroken",9,0,"util","",0,0,"","Passive. Poise 50% higher, cannot be staggered above half HP.","🗿"],
+["warrior","Titan's Fall",10,5,"atk","8d10",4,0,"","Leap 20 ft and land on the target.","⛰️","11d10",20],
+["sorcerer","Elemental Bolt",1,1,"atk","2d8",6,0,"","A bolt of fire, ice or lightning.","🔥"],
+["sorcerer","Burning Ground",1,3,"atk","3d6",6,1,"","Scorch an area, no attack roll.","🌋"],
+["sorcerer","Frost Veil",1,3,"util","",0,0,"","Resist cold and fire for the fight.","🧊"],
+["sorcerer","Tempest Lances",3,4,"atk","3d8",8,0,"","Three elemental lances.","🌩️","4d10",10],
+["sorcerer","Elemental Ward",5,3,"util","",0,0,"","You and an ally resist one chosen element.","🔰"],
+["sorcerer","Elemental Surge",6,4,"atk","5d8",8,0,"","A surge of a chosen element.","🌪️","7d8",15],
+["sorcerer","Chain Lightning",7,4,"atk","4d8",8,0,"","Jumps to up to 4 enemies. DEX save for half.","⚡"],
+["sorcerer","Overcharge",9,0,"util","",0,0,"","Passive. Once per altar rest, cast a spell for free.","🔋"],
+["sorcerer","Cataclysm",10,5,"atk","10d8",10,1,"","Takes a round to charge, then hits all enemies within 40 ft.","🌋","13d8",20],
+["spearhand","Spear Thrust",1,1,"atk","2d6",2,0,"","A reaching thrust.","🔱"],
+["spearhand","Sweeping Lance",1,2,"atk","2d8",2,0,"","A wide spear sweep.","🔱"],
+["spearhand","Pull Stance",1,2,"util","",0,0,"","Ready to pull an enemy in.","🧲"],
+["spearhand","Spiral Lance",3,3,"atk","3d8",2,0,"","Three thrusts; the last pulls the target 10 ft to you.","🌀","4d8+4d6",10],
+["spearhand","Tether Dash",5,2,"atk","2d8",6,0,"","Dash 20 ft to an enemy with a free attack.","⛓️"],
+["spearhand","Gravity Pull",6,3,"atk","3d6",4,1,"","Pull a target to you, no attack roll.","🧲","7d6",15],
+["spearhand","Rift Lance",7,4,"atk","3d6",3,1,"","Pull all enemies within 15 ft to you. STR save for half.","🕳️"],
+["spearhand","Spell Parry",9,2,"util","",0,0,"","Cancel an incoming spell or projectile.","🪄"],
+["spearhand","Singularity Spear",10,5,"atk","8d8",8,0,"","Hurl a spear that makes a 20 ft gravity well.","⚫","11d8",20],
+["magickarcher","Enchanted Arrow",1,1,"atk","2d6",8,0,"","An arrow charged with magick.","🏹"],
+["magickarcher","Sigil Shot",1,2,"atk","2d8",8,0,"","An arrow that leaves a sigil.","✴️"],
+["magickarcher","Healing Sigil",1,3,"heal","2d6",0,0,"int","Heal 2d6 + INT.","💚"],
+["magickarcher","Sigil Volley",3,3,"atk","3d8",8,0,"","Three enchanted arrows.","✴️","4d8+4d6",10],
+["magickarcher","Rune Arrow",5,2,"atk","2d6",8,0,"","Mark an enemy: allies add +1d4 against it for 2 rounds.","🔷"],
+["magickarcher","Seeking Sigil",6,3,"atk","3d8",10,1,"","A homing arrow that cannot miss.","🧿","7d8",15],
+["magickarcher","Spirit Arrow",7,3,"atk","2d10",10,1,"","A spirit arrow that cannot miss.","🕊️"],
+["magickarcher","Mirror Sigil",9,3,"util","",0,0,"","Allies in the sigil reflect the first ranged attack against them.","🪞"],
+["magickarcher","Starfall Barrage",10,5,"atk","8d6",10,1,"","Eight arrows rain over a 30 ft area.","🌠","11d6",20],
+["trickster","Quick Jab",1,1,"atk","2d6",1,0,"","A fast jab.","🎭"],
+["trickster","Mirror Step",1,2,"util","",0,0,"","Step aside and leave an image behind.","🪞"],
+["trickster","Distract",1,1,"check","",0,0,"dex","Dex check to pull attention.","🎪"],
+["trickster","Mirage Dance",3,3,"atk","3d6",1,0,"","Three strikes and a decoy soaks your next hit.","🎭","8d6",10],
+["trickster","Decoy Double",5,2,"util","",0,0,"","Enemies must attack your double first.","👥"],
+["trickster","Fool's Gambit",6,3,"atk","3d6",1,1,"","A cheap trick, no attack roll.","🃏","7d6",15],
+["trickster","Phantom Veil",7,3,"util","",0,0,"","Invisible for 2 rounds.","🌫️"],
+["trickster","Hex Trap",9,3,"util","",0,0,"","The enemy that triggers the trap is confused for 2 rounds.","🪤"],
+["trickster","Grand Illusion",10,5,"util","",0,0,"","All enemies within 30 ft make a WIS save or attack each other for a round.","🎪","x",20]];
+function vocBoard(){const b={},keep=["fighter","archer","mage","thief"];
+ Object.entries(defBoard()).forEach(([k,e])=>{if(keep.includes(e.v)&&e.l===1)b[k]=e});
+ VROWS.forEach(([v,n,l,c,k,d,r,a,bb,t,ic,g,hc])=>{const key=v+"_"+slug(n);b[key]={n,c,l,v,k,d,r,a,b:bb,t,ic};if(g)b[key+"_g"]={n:n+" (Golden)",c:Math.ceil(c*3)/2,l,v,k,d:k==="atk"?g:"",r,a,b:bb,t:"Golden form of "+n+". Needs "+n+" equipped. "+t+" Costs "+hc+"% of your max HP (never below 1).",ic:"✨",hc,gb:key}});
+ return b}
+function applyBoard(b){board=b;[AD,HEAL,CHK,HC,ABN].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));
+ Object.entries(b).forEach(([bk,e])=>{if(!e||!e.n)return;ABN[e.n]=bk;if(+e.hc>0)HC[e.n]=+e.hc;if(e.k==="atk")AD[e.n]={r:+e.r||1,d:e.d||"1d6",t:e.a?1:0};else if(e.k==="heal")HEAL[e.n]={d:e.d||"1d6",b:e.b||""};else if(e.k==="check")CHK[e.n]={b:e.b||"dex"}})}
+const slotsOf=c=>Math.min(6,(c.level||1)+2);
+function eqIds(c){let L;if(c.eq&&typeof c.eq==="object")L=Object.keys(c.eq).filter(k=>board[k]);
+ else L=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1)).slice(0,slotsOf(c));
+ const S=new Set(L);return L.filter(k=>!board[k].gb||S.has(board[k].gb))}
+const gInfo=(c,e)=>e.hc?" + "+e.hc+"% HP":"";
+const atSet=c=>{const o={};Object.keys(c.at||{}).filter(k=>board[k]&&board[k].gb).slice(0,+c.atn||0).forEach(k=>{o[k]=1});return o},usedS=(c,S)=>{const a=atSet(c);return[...S].filter(k=>!(a[k]&&board[k]&&board[k].gb&&S.has(board[k].gb))).length};
 const eqAbilities=c=>eqIds(c).map(k=>board[k]).map(e=>[e.n,+e.c||0,e.t||"",""]);
 const boardEnsure=()=>{if(!boardDB){boardDB=true;api("board","PUT",board).catch(fail)}};
-const KINDS=[["atk","Attack"],["heal","Heal"],["util","Utility"],["check","d20 check"]],VOC=[["any","Any vocation"],["fighter","Fighter"],["archer","Archer"],["mage","Mage"],["thief","Thief"]],BON=[["","none"],["level","level"],["str","STR"],["dex","DEX"],["int","INT"],["wis","WIS"]];
+const KINDS=[["atk","Attack"],["heal","Heal"],["util","Utility"],["check","d20 check"]],VOC=[["any","Any vocation"],["fighter","Fighter"],["archer","Archer"],["mage","Mage"],["thief","Thief"],["warrior","Warrior"],["sorcerer","Sorcerer"],["spearhand","Mystic Spearhand"],["magickarcher","Magick Archer"],["trickster","Trickster"]],BON=[["","none"],["level","level"],["str","STR"],["dex","DEX"],["int","INT"],["wis","WIS"]];
 function boardHtml(){
  if(dm){
   const ids=Object.keys(board).sort((a,b)=>(board[a].v||"").localeCompare(board[b].v||"")||(board[a].l||1)-(board[b].l||1));
   const fl=(id,f,lb,val,w)=>`<label>${lb}<input data-bf="${id}" data-f="${f}" value="${esc(val??"")}" style="width:${w||70}px"></label>`;
   const sl=(id,f,lb,val,o)=>`<label>${lb}<select data-bf="${id}" data-f="${f}" style="min-height:36px;width:auto">${o.map(([v,t])=>`<option value="${v}" ${val===v?"selected":""}>${t}</option>`).join("")}</select></label>`;
-  return`<div class="card"><h2>Ability board</h2><p class="note">Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a bonfire or a guild (use the Guild map tool). Each level gives one more slot.</p><div class="row"><button class="pri" data-a="badd">Add ability</button><button data-a="bdef">Load default abilities</button></div></div>`+ids.map(id=>{const e=board[id];return`<div class="card sb"><div class="efld">${fl(id,"n","Name",e.n,120)}${sl(id,"v","Vocation",e.v||"any",VOC)}${fl(id,"l","Min level",e.l||1,56)}${fl(id,"c","Cost",e.c||0,56)}${sl(id,"k","Kind",e.k||"util",KINDS)}${fl(id,"d","Dice",e.d||"",70)}${fl(id,"r","Range",e.r||0,56)}<label>Auto-hit<input type="checkbox" data-bf="${id}" data-f="a" ${e.a?"checked":""} style="width:auto"></label>${sl(id,"b","Bonus",e.b||"",BON)}${fl(id,"t","Description",e.t||"",220)}${fl(id,"sd","Short summary (shown on the table)",e.sd||"",260)}</div><div class="row mini"><button data-a="bdel" data-id="${id}">Remove</button></div></div>`}).join("")}
+  return`<div class="card"><h2>Ability board</h2><p class="note">Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a bonfire or a guild (use the Guild map tool). Each level gives one more slot.</p><div class="row"><button class="pri" data-a="badd">Add ability</button><button data-a="bdef">Load default abilities</button><button data-a="bvoc">Load 9-class abilities</button><input id="abf" type="file" accept="image/*" hidden></div></div>`+ids.map(id=>{const e=board[id];return`<div class="card sb"><div class="efld">${fl(id,"n","Name",e.n,120)}${sl(id,"v","Vocation",e.v||"any",VOC)}${fl(id,"l","Min level",e.l||1,56)}${fl(id,"c","Cost",e.c||0,56)}${sl(id,"k","Kind",e.k||"util",KINDS)}${fl(id,"d","Dice",e.d||"",70)}${fl(id,"r","Range",e.r||0,56)}${fl(id,"hc","HP cost %",e.hc||0,56)}<label>Needs equipped<select data-bf="${id}" data-f="gb" style="min-height:36px;width:auto"><option value="">nothing</option>${ids.filter(k=>k!==id).map(k=>`<option value="${k}" ${e.gb===k?"selected":""}>${esc(board[k].n)}</option>`).join("")}</select></label>${fl(id,"ic","Icon (emoji)",e.ic,56)}<label>Auto-hit<input type="checkbox" data-bf="${id}" data-f="a" ${e.a?"checked":""} style="width:auto"></label>${sl(id,"b","Bonus",e.b||"",BON)}${fl(id,"t","Description",e.t||"",220)}${fl(id,"sd","Short summary (shown on the table)",e.sd||"",260)}</div><div class="row mini">${abIc(e.n)}<button data-a="abic" data-id="${id}">Custom icon image</button>${ABI[id]?`<button data-a="abicx" data-id="${id}">Clear image</button>`:""}<button data-a="bdel" data-id="${id}">Remove</button></div></div>`}).join("")}
  const c=chars[me];if(!c)return"";
  const here=nearAl(c)||nearBf(c)||nearGuild(c),eq=new Set(eqIds(c)),slots=slotsOf(c);
  const avail=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1));
  const row=k=>{const e=board[k],on=eq.has(k),info=e.k==="atk"?"Damage "+(e.d||"")+", range "+(e.r||1)+(e.a?", auto-hit":""):e.k==="heal"?"Heals "+(e.d||""):e.k==="check"?"d20 check":"";
-  return`<div class="ab"><div><b>${esc(e.n)}</b> <span class="sub">Lv ${e.l||1} · ${cst(c,+e.c||0)} St</span><small>${esc(e.t||"")}${info?" · "+esc(info):""}</small></div><button data-a="${on?"forget":"learn"}" data-id="${k}" ${here&&(on||eq.size<slots)?"":"disabled"}>${on?"Unequip":"Equip"}</button></div>`};
- return`<div class="solo"><div class="card"><h2>Ability board</h2><p class="note">Equipped ${eq.size} / ${slots}. ${here?"You are at an altar, bonfire or guild: you can change your abilities.":"You can only change abilities next to an altar, a bonfire or at a guild."} More slots and abilities unlock as you level up.</p></div><div class="card">${avail.map(row).join("")||`<p class="note">No abilities available yet.</p>`}</div></div>`}
+  return`<div class="ab"><div>${abIc(e.n)}<b>${esc(e.n)}</b> <span class="sub">Lv ${e.l||1} · ${cst(c,+e.c||0)} St${gInfo(c,e)}</span><small>${esc(e.t||"")}${info?" · "+esc(info):""}${e.gb&&board[e.gb]&&!eq.has(e.gb)&&!on?" · needs "+esc(board[e.gb].n)+" equipped":""}</small></div>${(()=>{const a=atSet(c);if(!e.gb||!on)return"";if(a[k])return`<span class="sub">Attuned</span>`;return here&&Object.keys(a).length<(+c.atn||0)?`<button data-a="attune" data-id="${k}">Attune</button>`:""})()}<button data-a="${on?"forget":"learn"}" data-id="${k}" ${here&&(on||((atSet(c)[k]||usedS(c,eq)<slots)&&(!e.gb||eq.has(e.gb))))?"":"disabled"}>${on?"Unequip":"Equip"}</button></div>`};
+ return`<div class="solo"><div class="card"><h2>Ability board</h2><p class="note">Equipped ${usedS(c,eq)} / ${slots}.${+c.atn?` Attuned ${Object.keys(atSet(c)).length} / ${+c.atn} (attuned Golden abilities use no slot).`:""} ${here?"You are at an altar, bonfire or guild: you can change your abilities.":"You can only change abilities next to an altar, a bonfire or at a guild."} More slots and abilities unlock as you level up.</p></div><div class="card">${avail.map(row).join("")||`<p class="note">No abilities available yet.</p>`}</div></div>`}
 const skillsEd=(i,e)=>{const sk=e.sk||{};return`<h3>Skills</h3>${Object.keys(sk).map(k=>{const q=sk[k];return`<div class="efld"><label>Name<input data-es="${i}" data-sk="${k}" data-f="n" value="${esc(q.n)}" style="width:100px"></label><label>Damage<input data-es="${i}" data-sk="${k}" data-f="d" value="${esc(q.d)}" style="width:70px"></label><label>Range<input type="number" data-es="${i}" data-sk="${k}" data-f="r" value="${q.r||1}" style="width:56px"></label><label>Type<select data-es="${i}" data-sk="${k}" data-f="t" style="min-height:36px;width:auto"><option value="s" ${q.t!=="a"?"selected":""}>Single</option><option value="a" ${q.t==="a"?"selected":""}>Area</option></select></label><label>Auto-hit<input type="checkbox" data-es="${i}" data-sk="${k}" data-f="a" ${q.a?"checked":""} style="width:auto"></label><button data-a="eskdel" data-id="${i}" data-k="${k}">x</button></div>`}).join("")}<div class="row mini"><button data-a="eskadd" data-id="${i}">+ Add skill</button></div>`};
 const guilds=()=>{const g=geo();return g?Object.values(g.m.gd||{}):[]};
 const nearGuild=c=>{if(!c||c.mx==null)return null;for(const k of guilds()){const[x,y]=k.split(",").map(Number);if(Math.max(Math.abs(x-c.mx),Math.abs(y-c.my))<=1)return k}return null};
@@ -588,7 +673,7 @@ let hideL=(()=>{try{return localStorage.getItem("hl")==="1"}catch(e){return fals
 const TLK=[["slash","Slash"],["heavy","Double slash (heavy)"],["bash","Shield bash"],["fire","Fireball"],["ice","Frost"],["bolt","Lightning"],["arrow","Arrow"],["poison","Poison"]];
 const tlOpts=()=>{const o=[["t:Test Hero","Test Hero (dummy)"],["t:Test Dummy","Test Dummy (dummy)"]];Object.keys(chars).forEach(i=>o.push(["c:"+i,chars[i].name+" (player)"]));Object.keys(enemies).forEach(i=>o.push(["e:"+i,enemies[i].name+" (enemy)"]));return o};
 const tlHtml=()=>{const op=v=>tlOpts().map(([k,t])=>`<option value="${k}" ${v===k?"selected":""}>${esc(t)}</option>`).join("");return`<div class="row mini"><label class="sub">Attacker <select id="tla" style="width:auto">${op(tlA)}</select></label><label class="sub">Target <select id="tlt" style="width:auto">${op(tlT)}</select></label><label class="sub">Attack <select id="tlk" style="width:auto">${TLK.map(([v,t])=>`<option value="${v}" ${tlK===v?"selected":""}>${t}</option>`).join("")}</select></label></div><div class="row mini">${[["hit","Hit"],["crit","Critical hit"],["miss","Miss"],["dodge","Dodge"],["parry","Parry"]].map(([v,t])=>`<button data-a="tlab" data-o="${v}">${t}</button>`).join("")}<button data-a="tlwave">Golden Wave</button></div><p class="note">Plays only on your screen: no dice, no damage.</p>${sndHtml()}`};
-let MK={},MKV=null,mkFor=null,BA={};
+let MK={},MKV=null,mkFor=null,BA={},ABI={},ABV="",abFor=null;
 const mkImg=(k,x,y,sz)=>`<image href="${MK[k]}" x="${x-sz/2}" y="${y-sz/2}" width="${sz}" height="${sz}" preserveAspectRatio="xMidYMid meet"/>`;
 
 function fxKind(l,h,r){l=String(l||"");for(const[x,k]of FXK)if(x.test(l))return k;if(r>1)return"arrow";return h?"heavy":"slash"}
@@ -742,6 +827,7 @@ async function load(){
   if(typeof mb==="number"&&mb>BUILD)$("#upd").hidden=false;else if(dm&&(mb==null||mb<BUILD))api("meta","PATCH",{build:BUILD}).catch(()=>{});
   if(P||F)return;
   {const nb=bd&&Object.keys(bd).length?bd:null,bs=JSON.stringify(nb||0);boardDB=!!nb;if(bs!==boardSig){boardSig=bs;applyBoard(nb||defBoard())}}
+  {const vs=Object.keys(board).filter(k=>board[k]&&board[k].iv).map(k=>k+":"+board[k].iv).join(",");if(vs!==ABV){ABV=vs;if(vs){const d=await api("abicons");ABI={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)ABI[k]=d[k].data})}else ABI={};last=""}}
   const need=[];for(const o of[c0||{},e0||{}])for(const[i,x]of Object.entries(o))if(x.iv&&(!IC[i]||IC[i].iv!==x.iv))need.push([i,x.iv]);
   await Promise.all(need.map(async([i,iv])=>{const d=await api("icons/"+i);if(d)IC[i]={iv,data:d.data}}));
   await Promise.all(Object.entries(e0||{}).filter(([i,x])=>x.ba&&(!BA[i]||BA[i].v!==x.ba)).map(async([i,x])=>{const d=await api("bossart/"+i);if(d)BA[i]={v:x.ba,data:d.data}}));
@@ -768,7 +854,7 @@ const ev=t=>api("rolls","POST",{ev:t,ts:Date.now()}).then(()=>{last="";load()}).
 function useAb(id,i,tn){
  const c=chars[id],a=ABS(c)[i],re=a[3]==="r";if(!c||c.exh||c.stn||c.hp<=0||(!re&&((c.used||0)>=2||(!dm&&!myTurn("c:"+id)))))return;
  const k=cst(c,a[1]),p={};let msg="Used "+a[0]+" (-"+k+" St)"+(tn?" on "+tn:"");
- if(c.st>=k)p.st=c.st-k;else{p.st=0;p.exh=true;p.mt="";p.mon=null;msg+=" - out of stamina: EXHAUSTED"}
+ if(c.st>=k){p.st=c.st-k;Object.assign(p,hcPatch(c,a[0]))}else{p.st=0;p.exh=true;p.mt="";p.mon=null;msg+=" - out of stamina: EXHAUSTED"}
  if(!re)p.used=(c.used||0)+1;if(a[0]==="Dodge Roll")p.ddg=true;if(a[0]==="Parry")p.pry=true;
  upd(id,p,msg);if(tn)ev(c.name+" uses "+a[0]+" on "+tn);
  if(HEAL[a[0]]){const h=HEAL[a[0]],bb=bonusOf(c,h.b);roll(parseD(h.d),res=>{const amt=(res.reduce((x,y)=>x+y.r,0)+bb)*SC,cc=chars[id];upd(id,{hp:clamp(cc.hp+amt,cc.maxHp)},"Healed "+amt);ev(c.name+" heals "+amt+" with "+a[0])},bb)}
@@ -842,6 +928,11 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="snup"){sndFor=b.dataset.k;const el=$("#sndf");if(el){el.value="";el.click()}}
  else if(a==="snpv"){const k=b.dataset.k;ac();prepSnd();if(!playBuf(k,0)){const PV={swing:()=>sWhoosh(0),slash:()=>sSlice(0),heavy:()=>{sSlice(0);sSlice(.17)},bash:()=>sBash(0),parry:()=>sClang(0,true),dodge:()=>sRoll(0,false),dodgeh:()=>sRoll(0,true),fire:()=>sElem(0,"fire"),ice:()=>sElem(0,"ice"),bolt:()=>sElem(0,"bolt"),arrow:()=>sThunk(0),poison:()=>sElem(0,"poison"),altar:sChime,boss:sBoss};if(PV[k])PV[k]()}}
  else if(a==="sndel"){const k=b.dataset.k,st=Date.now();delete SD[k];delete SB[k];SV=st;last="";render();api("sounds/"+k,"DELETE").then(()=>api("meta","PATCH",{snd:st})).catch(fail)}
+ else if(a==="demo"){const ks=Object.keys(C),mk=(n,cl)=>{const k=C[cl];return{name:n,cls:cl,level:1,ac:14,hp:k.hp,maxHp:k.hp,st:k.st,maxSt:k.st,rg:k.rg,fl:3,maxFl:3,x10:true,souls:0,spd:6,str:12,dex:12,con:12,int:10,wis:10,cha:10,conds:"",notes:"",used:0,ap:true,log:["Demo hero"]}},
+  en=(n,t,hp,sz,rk,bt,dm)=>({name:n,type:t,x10:true,hp:hp*SC,max:hp*SC,sz,spd:6,bon:0,pm:Math.round(hp*SC/5),po:Math.round(hp*SC/5),ac:13,ab:5,dm,er:1,ib:0,rk,bt});
+  const cs={dm1:mk("Demo Knight",ks[0]),dm2:mk("Demo Mage",ks[1]||ks[0])},es={de1:en("Demo Wolf","Beast",12,1,"n","","1d6"),de2:en("Demo Brute","Ogre",30,2,"l","","2d6"),de3:en("Aethelric","Demo boss",90,3,"m","The Golden Jailer","3d8")};
+  Object.assign(chars,cs);Object.assign(enemies,es);last="";render();
+  Promise.all([...Object.keys(cs).map(i=>api("chars/"+i,"PUT",cs[i])),...Object.keys(es).map(i=>api("enemies/"+i,"PUT",es[i]))]).catch(fail)}
  else if(a==="hideL"||a==="showL"){hideL=a==="hideL";try{localStorage.setItem("hl",hideL?"1":"0")}catch(x){}last="";render()}
  else if(a==="tltog"){tlShow=!tlShow;last="";render()}
  else if(a==="tlwave"){const g=geo();playWave({m:mapId(),x:g?g.cols/2:0,y:g?g.rows/2:0})}
@@ -883,9 +974,14 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="espawn"){const x=enemies[id];if(x&&x.mx!=null)updE(id,{hx:x.mx,hy:x.my})}
  else if(a==="badd"){const bid="x"+Math.random().toString(36).slice(2,7);boardEnsure();board[bid]={n:"New ability",c:2,l:1,v:"any",k:"atk",d:"2d6",r:1,a:0,b:"",t:""};applyBoard(board);api("board/"+bid,"PUT",board[bid]).catch(fail);render()}
  else if(a==="bdef"){if(confirm("Replace the whole board with the default abilities?")){applyBoard(defBoard());boardDB=true;api("board","PUT",board).catch(fail);render()}}
+ else if(a==="bvoc"){if(confirm("Replace the whole board with the 9-class abilities (levels 1 to 10, with Golden versions)? Characters keep their level, but their equipped abilities may change.")){applyBoard(vocBoard());boardDB=true;api("board","PUT",board).catch(fail);render()}}
+ else if(a==="abic"){abFor=id;$("#abf").value="";$("#abf").click()}
+ else if(a==="abicx"){delete ABI[id];if(board[id]){const e={...board[id]};delete e.iv;board[id]=e}api("abicons/"+id,"DELETE").then(()=>api("board/"+id+"/iv","DELETE")).catch(fail);last="";render()}
  else if(a==="bdel"&&confirm("Remove this ability from the board?")){boardEnsure();delete board[id];applyBoard(board);api("board/"+id,"DELETE").catch(fail);render()}
+ else if(a==="attune"){const cc=chars[me];if(!cc||!board[id]||!board[id].gb)return;if(!dm&&!(nearAl(cc)||nearBf(cc)||nearGuild(cc))){$("#err").textContent="You can only attune next to an altar, a bonfire or at a guild.";return}const a0=atSet(cc);if(Object.keys(a0).length>=(+cc.atn||0)||a0[id]||!eqIds(cc).includes(id))return;upd(me,{at:{...(cc.at||{}),[id]:1}},"Attuned to "+board[id].n)}
+ else if(a==="atrel"){if(!dm||!chars[id])return;const o={...(chars[id].at||{})};delete o[b.dataset.k];upd(id,{at:Object.keys(o).length?o:null},"Attunement released: "+(board[b.dataset.k]?board[b.dataset.k].n:""))}
  else if(a==="learn"||a==="forget"){const cc=chars[me];if(!cc)return;if(!dm&&!(nearAl(cc)||nearBf(cc)||nearGuild(cc))){$("#err").textContent="You can only change abilities next to an altar, a bonfire or at a guild.";return}
-  const cur=new Set(eqIds(cc));if(a==="learn"){if(cur.size>=slotsOf(cc))return;cur.add(id)}else cur.delete(id);
+  const cur=new Set(eqIds(cc));if(a==="learn"){const gb=board[id]&&board[id].gb;if(gb&&board[gb]&&!cur.has(gb)){$("#err").textContent="Equip "+board[gb].n+" first.";return}cur.add(id);if(usedS(cc,cur)>slotsOf(cc))return}else{cur.delete(id);[...cur].forEach(k=>{if(board[k]&&board[k].gb===id)cur.delete(k)})}
   const eq={_:true};cur.forEach(k=>{eq[k]=true});upd(me,{eq},(a==="learn"?"Equipped ":"Unequipped ")+(board[id]?board[id].n:"an ability"))}
  else if(a==="eskadd"){const k="s"+Math.random().toString(36).slice(2,6),q={n:"New skill",d:"2d6",r:1,t:"s",a:0};enemies[id].sk={...(enemies[id].sk||{}),[k]:q};api("enemies/"+id+"/sk/"+k,"PUT",q).catch(fail);render()}
  else if(a==="eskdel"){if(enemies[id]&&enemies[id].sk)delete enemies[id].sk[b.dataset.k];api("enemies/"+id+"/sk/"+b.dataset.k,"DELETE").catch(fail);render()}
@@ -920,7 +1016,7 @@ async function bkRestore(o){await bkExport(true);const d=o.data,base=dbBase(),cu
  for(const k of Object.keys(cur)){if(k!=="meta"&&!(k in d)){const r=await fetch(base+"/"+k+".json",{method:"DELETE"});if(!r.ok)throw new Error("HTTP "+r.status)}}
  for(const k of Object.keys(d)){if(k==="meta")continue;const r=await fetch(base+"/"+k+".json",{method:"PUT",body:JSON.stringify(d[k])});if(!r.ok)throw new Error("HTTP "+r.status)}}
 const bkHtml=()=>{let t=0;try{t=+localStorage.getItem("bk")||0}catch(e){}const days=t?Math.floor((Date.now()-t)/864e5):null;
- return`<div class="card sb"><h3>Backup</h3><div class="row mini"><button data-a="bkexp">Download backup</button><button data-a="bkimp">Restore backup</button><input id="bkf" type="file" accept=".json,application/json" hidden></div><p class="note">${days===null?"No backup made on this device yet. Download one now and after every session.":days===0?"Last backup from this device: today.":"Last backup from this device: "+days+" day"+(days>1?"s":"")+" ago."+(days>=7?" Time for a new one.":"")} Keeps characters, enemies, maps, art, sounds and themes in one file.</p></div>`};
+ return`<div class="card sb"><h3>Backup</h3><div class="row mini"><button data-a="bkexp">Download backup</button><button data-a="bkimp">Restore backup</button>${Object.keys(chars).length?"":`<button data-a="demo">Load demo content</button>`}<input id="bkf" type="file" accept=".json,application/json" hidden></div><p class="note">${days===null?"No backup made on this device yet. Download one now and after every session.":days===0?"Last backup from this device: today.":"Last backup from this device: "+days+" day"+(days>1?"s":"")+" ago."+(days>=7?" Time for a new one.":"")} Keeps characters, enemies, maps, art, sounds and themes in one file.</p></div>`};
 function enemyAuto(id){const e=enemies[id],g=geo();if(!dm||!e||!g||e.hp<=0||e.mx==null||e.hd)return;
  if(e.stun){ev(e.name+" is stunned and cannot act");return}
  const A_={e:true,id,o:e,key:"e:"+id},z=e.sz||1,rng=Math.max(1,e.er||1);
@@ -944,7 +1040,7 @@ function doAct(k,i){
   const inf=atkInfo(A_,k==="ctr"?"l":k,i);if(!inf)return;
   if(gap(A_,T)>inf.rng){$("#err").textContent="Out of range: "+inf.label+" reaches "+inf.rng+" square"+(inf.rng>1?"s":"")+".";return}
   $("#err").textContent="";let go=true;
-  if(k==="ctr")upd(A_.id,{ctr:false},"Counter-attack!");else go=!!act(inf.cost,inf.label+" on "+tn,{});
+  if(k==="ctr")upd(A_.id,{ctr:false},"Counter-attack!");else go=!!act(inf.cost,inf.label+" on "+tn,k==="ab"?hcPatch(c,inf.label):{});
   if(go)resolveAttack(A_,T,inf)}
  else if(k==="sk"&&A_.e){const sk=(c.sk||{})[i];if(!sk)return;const tb=c.ab??4,mk=(rng,auto)=>({label:sk.n,rng,dmg:sk.d||"1d8",tb,db:0,cost:0,po:0,auto,heavy:true});
   if(sk.t==="a"){ev(an+" uses "+sk.n+"!");A().forEach(id=>{const ch=chars[id];if(ch.hp<=0||ch.mx==null)return;const tt={e:false,id,o:ch,key:"c:"+id};if(gap(A_,tt)<=Math.max(1,+sk.r||2))resolveAttack(A_,tt,mk(99,true))})}
@@ -997,7 +1093,7 @@ $("#app").addEventListener("change",e=>{
  const t=e.target,f=t.dataset.f,id=t.dataset.id;
  if(t.dataset.ef){const i=t.dataset.id,ef=t.dataset.ef,TX={dm:20,bt:40,name:40,type:40,nt:400};if(dm&&enemies[i]){if(ef==="rk"||ef==="th")updE(i,{[ef]:t.value});else if(TX[ef])updE(i,{[ef]:t.value.slice(0,TX[ef])||(ef==="name"?enemies[i].name:"")});else if(ef==="max"){const v=Math.max(1,+t.value||1);updE(i,{max:v,hp:Math.min(enemies[i].hp,v)})}else if(ef==="sz")updE(i,{sz:Math.max(1,Math.min(8,+t.value||1))});else updE(i,{[ef]:+t.value||0})}return}
  if(t.dataset.bf){if(!dm)return;const bid=t.dataset.bf,f=t.dataset.f,e=board[bid];if(!e)return;boardEnsure();
-  let v=t.type==="checkbox"?(t.checked?1:0):t.value;if(["c","l","r"].includes(f))v=+v||0;
+  let v=t.type==="checkbox"?(t.checked?1:0):t.value;if(["c","l","r","hc"].includes(f))v=+v||0;
   if(f==="n"){v=String(v).trim().slice(0,30)||"Ability";if(Object.keys(board).some(k=>k!==bid&&board[k].n===v))v+=" 2"}
   board[bid]={...e,[f]:v};applyBoard(board);api("board/"+bid+"/"+f,"PUT",v).catch(fail);render();return}
  if(t.dataset.es){const eid=t.dataset.es,k=t.dataset.sk,f=t.dataset.f;if(!dm||!enemies[eid]||!(enemies[eid].sk||{})[k])return;
@@ -1028,6 +1124,7 @@ $("#app").addEventListener("change",e=>{
   const r=new FileReader();r.onload=()=>{const u=r.result,c=ac();if(!c){$("#err").textContent="Audio isn't available in this browser.";return}const b64=u.split(",")[1],bin=atob(b64),arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
    c.decodeAudioData(arr.buffer).then(buf=>{SD[k]=u;SB[k]=buf;const st=Date.now();return api("sounds/"+k,"PUT",{data:u}).then(()=>api("meta","PATCH",{snd:st})).then(()=>{SV=st;last="";render();playBuf(k,0)})}).catch(()=>{$("#err").textContent="That file couldn't be read as audio."})};r.readAsDataURL(f);return}
  if(t.id==="tla"){tlA=t.value;return}if(t.id==="tlt"){tlT=t.value;return}if(t.id==="tlk"){tlK=t.value;return}
+ if(t.id==="abf"){const f=t.files[0],k=abFor;t.value="";if(!f||!k||!dm||!board[k])return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=96;const g2=c.getContext("2d"),q=Math.min(96/im.width,96/im.height);g2.drawImage(im,(96-im.width*q)/2,(96-im.height*q)/2,im.width*q,im.height*q);const d=c.toDataURL("image/png"),st=Date.now();ABI[k]=d;board[k]={...board[k],iv:st};boardEnsure();api("abicons/"+k,"PUT",{data:d}).then(()=>api("board/"+k+"/iv","PUT",st)).catch(fail);last="";render()};im.src=r.result};r.readAsDataURL(f);return}
  if(t.id==="mkf"){const f=t.files[0],k=mkFor;t.value="";if(!f||!k||!dm)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=128;const g2=c.getContext("2d"),q=Math.min(128/im.width,128/im.height);g2.drawImage(im,(128-im.width*q)/2,(128-im.height*q)/2,im.width*q,im.height*q);const d=c.toDataURL("image/png"),st=Date.now();MK[k]=d;api("mkicons/"+k,"PUT",{data:d}).then(()=>api("meta","PATCH",{mki:st})).then(()=>{MKV=st;last="";render()}).catch(fail)};im.src=r.result};r.readAsDataURL(f);return}
  if(t.id==="sceneck"){sceneOn=t.checked;try{localStorage.setItem("sc",sceneOn?"1":"0")}catch(x){}return}
  if(!f||!chars[id]||(!dm&&id!==me))return;
