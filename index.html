@@ -39,6 +39,7 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 #err{color:var(--hp)}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-items:start}.grid .card{margin:0}
 .solo{max-width:640px;margin:0 auto}
+.tbl.hl{grid-template-columns:auto 4.6fr minmax(185px,.7fr)!important}
 .tbl{display:grid;grid-template-columns:minmax(170px,.55fr) 4.6fr minmax(185px,.7fr);gap:12px;align-items:start}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
 .pill{font-style:normal;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:1px 8px}.pill.bad{border-color:var(--hp);color:var(--hp)}
@@ -95,7 +96,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 @keyframes qte{to{transform:scaleX(0)}}
 #ask{position:fixed;z-index:59;background:var(--sf);border:3px solid var(--ac);border-radius:12px;padding:12px 16px;box-shadow:0 8px 30px #000a;text-align:center;max-width:92vw}#ask h2{font-size:22px}
 .dw{font:600 18px "Source Sans 3",sans-serif;color:var(--tx);background:var(--sf);border:2px solid var(--ac);border-radius:8px;padding:2px 12px;margin-bottom:4px}
-@media(max-width:860px){.tbl{grid-template-columns:1fr}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
+@media(max-width:860px){.tbl,.tbl.hl{grid-template-columns:1fr!important}.tbl .mid{order:-1}.cls{grid-template-columns:1fr}}
 .scn{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);animation:scin .25s both;pointer-events:none}.scn.out{animation:scout .4s both}
 @keyframes scin{from{opacity:0}}@keyframes scout{to{opacity:0}}
 .scn .stage{position:relative;width:min(92vw,640px);height:min(48vh,320px);background:linear-gradient(#1d1b33,#0b0b14 68%,#2b2015 68%);border:3px solid var(--ac);border-radius:12px;overflow:hidden}
@@ -146,12 +147,12 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 .btx b{display:block;font:700 clamp(34px,7vw,92px)/1.05 "Cormorant Garamond",Georgia,serif;color:#f3e7c9;text-shadow:0 4px 0 #000,0 0 30px #8a1c10;letter-spacing:.04em;opacity:0;animation:btx 1s .9s both}
 @keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}@keyframes bln{to{transform:scaleX(1)}}
 </style></head><body>
-<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 22</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
+<header><h1>Stamina Table <small style="font:12px 'Source Sans 3',sans-serif;color:var(--mu)">build 23</small></h1><span><span class="tag" id="role"></span><button id="tab" hidden></button><button id="tab2" hidden></button><button id="sw" hidden></button><button id="leave" hidden>Leave</button></span></header>
 <div id="upd" hidden>⬆ A newer version of the game is out. <button onclick="location.reload()">Reload now</button> (if it still says an old build, close the tab and reopen the link)</div><div id="err"></div><div id="app"></div><div id="qte" hidden></div><div id="ask" hidden></div><div id="ovw" hidden></div><input id="icf" type="file" accept="image/*" hidden>
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=22,SC=10;
+const BUILD=23,SC=10;
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield): when a melee attack would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex"},WR={fighter:1,archer:8,mage:6,thief:1};
@@ -583,7 +584,7 @@ function sfx(f){if(!mg())return;const k=f.k||"slash",o=f.o||"hit",ranged=k!=="sl
  else if(o==="parry"){if(!playBuf("parry",.62))sClang(.62,true)}
  else if(o==="dodge"){if(!playBuf(f.ha?"dodgeh":"dodge",.5))sRoll(.5,f.ha)}}
 const isHeavy=o=>o&&o.ha!=null?!!o.ha:!!(o&&o.cls==="fighter");
-let tlShow=false,tlA="t:Test Hero",tlT="t:Test Dummy",tlK="slash";
+let hideL=(()=>{try{return localStorage.getItem("hl")==="1"}catch(e){return false}})(),tlShow=false,tlA="t:Test Hero",tlT="t:Test Dummy",tlK="slash";
 const TLK=[["slash","Slash"],["heavy","Double slash (heavy)"],["bash","Shield bash"],["fire","Fireball"],["ice","Frost"],["bolt","Lightning"],["arrow","Arrow"],["poison","Poison"]];
 const tlOpts=()=>{const o=[["t:Test Hero","Test Hero (dummy)"],["t:Test Dummy","Test Dummy (dummy)"]];Object.keys(chars).forEach(i=>o.push(["c:"+i,chars[i].name+" (player)"]));Object.keys(enemies).forEach(i=>o.push(["e:"+i,enemies[i].name+" (enemy)"]));return o};
 const tlHtml=()=>{const op=v=>tlOpts().map(([k,t])=>`<option value="${k}" ${v===k?"selected":""}>${esc(t)}</option>`).join("");return`<div class="row mini"><label class="sub">Attacker <select id="tla" style="width:auto">${op(tlA)}</select></label><label class="sub">Target <select id="tlt" style="width:auto">${op(tlT)}</select></label><label class="sub">Attack <select id="tlk" style="width:auto">${TLK.map(([v,t])=>`<option value="${v}" ${tlK===v?"selected":""}>${t}</option>`).join("")}</select></label></div><div class="row mini">${[["hit","Hit"],["crit","Critical hit"],["miss","Miss"],["dodge","Dodge"],["parry","Parry"]].map(([v,t])=>`<button data-a="tlab" data-o="${v}">${t}</button>`).join("")}<button data-a="tlwave">Golden Wave</button></div><p class="note">Plays only on your screen: no dice, no damage.</p>${sndHtml()}`};
@@ -729,8 +730,8 @@ function render(){
  else if(view==="board")h=boardHtml();
  else if(view==="sheet")h=dm?pendingHtml()+(A().length?'<div class="grid">'+A().map(card).join("")+'</div>':'<p class="note">No approved characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
  else{
-  const left=dm?pendingHtml()+`<div class="card sb"><div class="row"><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+bkHtml()+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
-  h=`<div class="tbl"><div>${left}</div><div class="mid">${mapHtml()}</div><div>${initHtml()}${enemiesHtml()}${diceHtml()}</div></div>`}
+  const left=dm&&hideL?`<button data-a="showL">Show side panel</button>`:dm?pendingHtml()+`<div class="card sb"><div class="row"><button data-a="hideL">Hide panel</button><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+bkHtml()+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
+  h=`<div class="tbl${dm&&hideL?" hl":""}"><div>${left}</div><div class="mid">${mapHtml()}</div><div>${initHtml()}${enemiesHtml()}${diceHtml()}</div></div>`}
  $("#app").innerHTML=h;pending=false;updateAsk();updateOv();applyTv()}
 async function load(){
  try{
@@ -841,6 +842,7 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="snup"){sndFor=b.dataset.k;const el=$("#sndf");if(el){el.value="";el.click()}}
  else if(a==="snpv"){const k=b.dataset.k;ac();prepSnd();if(!playBuf(k,0)){const PV={swing:()=>sWhoosh(0),slash:()=>sSlice(0),heavy:()=>{sSlice(0);sSlice(.17)},bash:()=>sBash(0),parry:()=>sClang(0,true),dodge:()=>sRoll(0,false),dodgeh:()=>sRoll(0,true),fire:()=>sElem(0,"fire"),ice:()=>sElem(0,"ice"),bolt:()=>sElem(0,"bolt"),arrow:()=>sThunk(0),poison:()=>sElem(0,"poison"),altar:sChime,boss:sBoss};if(PV[k])PV[k]()}}
  else if(a==="sndel"){const k=b.dataset.k,st=Date.now();delete SD[k];delete SB[k];SV=st;last="";render();api("sounds/"+k,"DELETE").then(()=>api("meta","PATCH",{snd:st})).catch(fail)}
+ else if(a==="hideL"||a==="showL"){hideL=a==="hideL";try{localStorage.setItem("hl",hideL?"1":"0")}catch(x){}last="";render()}
  else if(a==="tltog"){tlShow=!tlShow;last="";render()}
  else if(a==="tlwave"){const g=geo();playWave({m:mapId(),x:g?g.cols/2:0,y:g?g.rows/2:0})}
  else if(a==="tlab"){const o=b.dataset.o,cr=o==="crit",ob=k=>k[0]==="c"?chars[k.slice(2)]:k[0]==="e"?enemies[k.slice(2)]:null,nm=k=>k.startsWith("t:")?k.slice(2):((ob(k)||{}).name||"?"),was=sceneOn;sceneOn=true;playScene({a:tlA,t:tlT,k:tlK,o:cr?"hit":o,d:cr?240:120,c:cr,an:nm(tlA),tn:nm(tlT),l:"Test",ha:isHeavy(ob(tlT))});sceneOn=was}
