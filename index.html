@@ -44,7 +44,7 @@ h3{font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0}
 .pill{font-style:normal;font-size:12px;border:1px solid var(--ac);color:var(--ac);border-radius:10px;padding:1px 8px}.pill.bad{border-color:var(--hp);color:var(--hp)}
 .sb{padding:10px}.sb h2{font-size:20px}
-.spl{background:#111;color:#111;border:1px solid #555;border-radius:3px;padding:0 3px;user-select:none;-webkit-user-select:none}.abi{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:4px}.abe{margin-right:4px}.av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
+.ref table{width:100%;border-collapse:collapse;margin:6px 0 18px}.ref th{text-align:left;font-size:12px;color:var(--mu);font-weight:600;padding:6px 8px;border-bottom:2px solid var(--ln)}.ref td{padding:8px;border-bottom:1px solid var(--ln);vertical-align:top;font-size:14px}.ref td:first-child,.ref td:nth-child(3){width:46px;text-align:center}.ref td:nth-child(2){white-space:nowrap}.ref h2{margin:14px 0 2px}.ref .row.mini{margin:6px 0}@media(max-width:600px){.ref td:nth-child(2){white-space:normal}}.spl{background:#111;color:#111;border:1px solid #555;border-radius:3px;padding:0 3px;user-select:none;-webkit-user-select:none}.abi{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-right:4px}.abe{margin-right:4px}.av{width:30px;height:30px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px;border:1px solid var(--ln)}
 #map{width:100%;height:auto;display:block;touch-action:none;user-select:none;border:1px solid var(--ln);border-radius:8px;margin:8px 0}
 .menu{border:1px solid var(--ac);border-radius:8px;padding:8px;margin:8px 0}
 .dov{position:fixed;inset:0;pointer-events:none;z-index:50;perspective:900px}
@@ -152,7 +152,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=33,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
+const BUILD=35,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield or melee weapon): when a weapon, claw, tail or projectile attack would hit you (not a spell effect, flame, frost or beam), roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
@@ -422,15 +422,22 @@ const RK={n:"Normal",l:"Large",m:"Mini-boss",u:"Unique"},rankOf=e=>e.rk||((e.sz|
 let lastWave=0;
 const cst=(c,b)=>b?Math.ceil(b*SC*(1+.15*Math.min(3,c.dth||0))):0;
 const hcPatch=(c,n)=>{const pct=HC[n];if(!pct)return{};const base=c.bmh||c.maxHp,loss=Math.min(c.hp-1,Math.round(base*pct/100));if(loss<=0)return{};const nh=c.hp-loss;return{hp:nh,...fatPatch(c,loss,nh)}};
-let SPS=null,abAll=false,spT=0;
+let SPS=null,abAll=false,spT=0,refCls=null;
 const SPD="altar,altars,bonfire,bonfires,revive,revives,revived,revival,curse,cursed,golden,attune,attuned,attunement,attunements,crystal,crystals";
+function goldHid(){return !dm&&spList().includes("golden")}
 function spList(){const t=SPS==null?SPD:SPS;return t==="-"?[]:t.split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)}
 function spoil(){if(dm)return;const ws=spList();if(!ws.length)return;const re=new RegExp("\\b("+ws.slice().sort((a,b)=>b.length-a.length).map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\\b","gi");
  const wk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const q=n.parentElement;if(!q||q.closest("script,style,textarea,input,select,option,svg,.spl,#upd"))return NodeFilter.FILTER_REJECT;re.lastIndex=0;return re.test(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT}}),L=[];while(wk.nextNode())L.push(wk.currentNode);
  L.forEach(n=>{const t=n.nodeValue,f=document.createDocumentFragment();let i=0;t.replace(re,(m,w,o)=>{if(o>i)f.appendChild(document.createTextNode(t.slice(i,o)));const sp=document.createElement("span");sp.className="spl";sp.textContent=m;f.appendChild(sp);i=o+m.length;return m});if(i<t.length)f.appendChild(document.createTextNode(t.slice(i)));n.parentNode.replaceChild(f,n)})}
 try{new MutationObserver(()=>{clearTimeout(spT);spT=setTimeout(spoil,30)}).observe(document.body,{childList:true,subtree:true,characterData:true})}catch(e){}
 function spSave(ws){ws=[...new Set(ws.map(x=>String(x).trim().toLowerCase()).filter(Boolean))];const v=ws.length?ws.join(","):"-";SPS=v;last="";render();api("meta","PATCH",{sp:v}).catch(fail)}
-const spHtml=()=>{const ws=spList();return`<div class="card sb"><h3>Hidden words (players see black bars)</h3><div class="row mini">${ws.map(w=>`<button data-a="spx" data-k="${esc(w)}">${esc(w)} · reveal</button>`).join("")||`<span class="sub">Nothing is hidden.</span>`}</div><label class="sub">Word list, separated by commas<input id="spl" value="${esc(ws.join(", "))}" style="width:100%"></label><div class="row mini"><button data-a="spsave">Save list</button><button data-a="spall">Reveal all</button><button data-a="spdef">Hide the default words</button></div><p class="note">Use "View as player" to check. Players cannot uncover a word themselves.</p></div>`};
+const refBar=()=>`<div class="row mini" style="margin-bottom:10px"><button class="${view==="board"?"pri":""}" data-a="vb">${dm?"Ability board":"Equip abilities"}</button><button class="${view==="ref"?"pri":""}" data-a="vr">Reference</button></div>`;
+function refHtml(){const c=me&&chars[me],lv=dm||abAll?99:((c&&c.level)||1);if(!refCls||!C[refCls])refCls=(c&&C[c.cls])?c.cls:"fighter";
+ const ks=Object.keys(board).filter(k=>{const e=board[k];return!e.gb&&(e.v===refCls||e.v==="any")&&(e.l||1)<=lv}).sort((a,b)=>(board[a].l||1)-(board[b].l||1)||(+board[a].c||0)-(+board[b].c||0)),gh=goldHid();
+ const rows=ks.map(k=>{const e=board[k],g=gh?null:Object.values(board).find(x=>x.gb===k);let ef=esc(e.t||"");if(e.k==="atk"&&e.d&&!(e.t||"").includes(e.d))ef=esc(e.d)+" damage. "+ef;if(e.ch&&!/charge/i.test(e.t||""))ef+=" Takes a round to charge.";if(e.hc&&!g)ef+=" Costs "+e.hc+"% max HP.";if(g)ef+=`<br><span class="sub"><b>Golden:</b> ${g.d?esc(g.d)+" damage, ":""}cost ${g.c}, ${g.hc||10}% max HP</span>`;
+  return`<tr><td>${e.l||1}</td><td>${abIc(e.n)}<b>${esc(e.n)}</b></td><td>${+e.c||0}</td><td>${ef}</td></tr>`}).join("");
+ return`<div class="card ref"><h2>${esc(C[refCls].n)}</h2><p class="note" style="margin:0 0 8px">${esc(C[refCls].d||"")}</p><div class="row mini">${Object.keys(C).map(k=>`<button class="${k===refCls?"pri":""}" data-a="refc" data-k="${k}">${esc(C[k].n)}</button>`).join("")}</div><p class="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.${lv<99?" Abilities you have not unlocked yet are hidden.":""}</p><table><thead><tr><th>Lvl</th><th>Ability</th><th>Cost</th><th>Effect</th></tr></thead><tbody>${rows||'<tr><td colspan="4" class="note">Nothing to show yet.</td></tr>'}</tbody></table></div>`}
+const spHtml=()=>{const ws=spList();return`<div class="card sb"><h3>Hidden words (players see black bars)</h3><div class="row mini">${ws.map(w=>`<button data-a="spx" data-k="${esc(w)}">${esc(w)} · reveal</button>`).join("")||`<span class="sub">Nothing is hidden.</span>`}</div><label class="sub">Word list, separated by commas<input id="spl" value="${esc(ws.join(", "))}" style="width:100%"></label><div class="row mini"><button data-a="spsave">Save list</button><button data-a="spall">Reveal all</button><button data-a="spdef">Hide the default words</button></div><p class="note">Use "View as player" to check. Players cannot uncover a word themselves. While "golden" is hidden, players also do not see the Golden versions of abilities.</p></div>`};
 const abIc=n=>{const k=ABN[n],e=k&&board[k];if(!e)return"";if(ABI[k])return`<img class="abi" src="${ABI[k]}" alt="">`;return e.ic?`<span class="abe">${esc(e.ic)}</span>`:""};
 const spend=(c,cost,label)=>{cost=cst(c,cost);const p={};let m=label+(cost?" (-"+cost+" St)":"");if(c.st>=cost)p.st=c.st-cost;else{p.st=0;p.exh=true;p.mt="";p.mon=null;m+=" - out of stamina: EXHAUSTED"}return[p,m]};
 const bonfires=()=>{const g=geo();return g?Object.values(g.m.bf||{}):[]};
@@ -584,7 +591,7 @@ function applyBoard(b){board=b;[AD,HEAL,CHK,HC,ABN,CH].forEach(o=>Object.keys(o)
 const slotsOf=c=>Math.min(6,(c.level||1)+2);
 function eqIds(c){let L;if(c.eq&&typeof c.eq==="object")L=Object.keys(c.eq).filter(k=>board[k]);
  else L=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(e.l||1)<=(c.level||1)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1)).slice(0,slotsOf(c));
- const S=new Set(L);return L.filter(k=>!board[k].gb||S.has(board[k].gb))}
+ const S=new Set(L),gh=goldHid();return L.filter(k=>(!board[k].gb||S.has(board[k].gb))&&!(gh&&board[k].gb))}
 const gInfo=(c,e)=>e.hc?" + "+e.hc+"% HP":"";
 const atSet=c=>{const o={};Object.keys(c.at||{}).filter(k=>board[k]&&board[k].gb).slice(0,+c.atn||0).forEach(k=>{o[k]=1});return o},usedS=(c,S)=>{const a=atSet(c);return[...S].filter(k=>!(a[k]&&board[k]&&board[k].gb&&S.has(board[k].gb))).length};
 const eqAbilities=c=>eqIds(c).map(k=>board[k]).map(e=>[e.n,+e.c||0,e.t||"",""]);
@@ -598,7 +605,7 @@ function boardHtml(){
   return`<div class="card"><h2>Ability board</h2><p class="note">Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a bonfire or a guild (use the Guild map tool). Each level gives one more slot.</p><div class="row"><button class="pri" data-a="badd">Add ability</button><button data-a="bdef">Load default abilities</button><button data-a="bvoc">Load 9-class abilities</button><button data-a="abvt">Players see: ${abAll?"all abilities":"unlocked only"}</button><input id="abf" type="file" accept="image/*" hidden></div></div>`+ids.map(id=>{const e=board[id];return`<div class="card sb"><div class="efld">${fl(id,"n","Name",e.n,120)}${sl(id,"v","Vocation",e.v||"any",VOC)}${fl(id,"l","Min level",e.l||1,56)}${fl(id,"c","Cost",e.c||0,56)}${sl(id,"k","Kind",e.k||"util",KINDS)}${fl(id,"d","Dice",e.d||"",70)}${fl(id,"r","Range",e.r||0,56)}${fl(id,"hc","HP cost %",e.hc||0,56)}<label>Needs equipped<select data-bf="${id}" data-f="gb" style="min-height:36px;width:auto"><option value="">nothing</option>${ids.filter(k=>k!==id).map(k=>`<option value="${k}" ${e.gb===k?"selected":""}>${esc(board[k].n)}</option>`).join("")}</select></label>${fl(id,"ic","Icon (emoji)",e.ic,56)}<label>Auto-hit<input type="checkbox" data-bf="${id}" data-f="a" ${e.a?"checked":""} style="width:auto"></label><label>Charge a round<input type="checkbox" data-bf="${id}" data-f="ch" ${e.ch?"checked":""} style="width:auto"></label>${sl(id,"b","Bonus",e.b||"",BON)}${fl(id,"t","Description",e.t||"",220)}${fl(id,"sd","Short summary (shown on the table)",e.sd||"",260)}</div><div class="row mini">${abIc(e.n)}<button data-a="abic" data-id="${id}">Custom icon image</button>${ABI[id]?`<button data-a="abicx" data-id="${id}">Clear image</button>`:""}<button data-a="bdel" data-id="${id}">Remove</button></div></div>`}).join("")}
  const c=chars[me];if(!c)return"";
  const here=nearAl(c)||nearBf(c)||nearGuild(c),eq=new Set(eqIds(c)),slots=slotsOf(c);
- const avail=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(abAll||(e.l||1)<=(c.level||1))}).sort((a,b)=>(board[a].l||1)-(board[b].l||1));
+ const avail=Object.keys(board).filter(k=>{const e=board[k];return(e.v==="any"||e.v===c.cls)&&(abAll||(e.l||1)<=(c.level||1))&&!(goldHid()&&e.gb)}).sort((a,b)=>(board[a].l||1)-(board[b].l||1));
  const row=k=>{const e=board[k],on=eq.has(k),info=e.k==="atk"?"Damage "+(e.d||"")+", range "+(e.r||1)+(e.a?", auto-hit":""):e.k==="heal"?"Heals "+(e.d||""):e.k==="check"?"d20 check":"";
   return`<div class="ab"><div>${abIc(e.n)}<b>${esc(e.n)}</b> <span class="sub">Lv ${e.l||1} · ${cst(c,+e.c||0)} St${gInfo(c,e)}</span><small>${esc(e.t||"")}${info?" · "+esc(info):""}${(e.l||1)>(c.level||1)?" · unlocks at level "+(e.l||1):""}${e.gb&&board[e.gb]&&!eq.has(e.gb)&&!on?" · needs "+esc(board[e.gb].n)+" equipped":""}</small></div>${(()=>{const a=atSet(c);if(!e.gb||!on)return"";if(a[k])return`<span class="sub">Attuned</span>`;return here&&Object.keys(a).length<(+c.atn||0)?`<button data-a="attune" data-id="${k}">Attune</button>`:""})()}<button data-a="${on?"forget":"learn"}" data-id="${k}" ${here&&(e.l||1)<=(c.level||1)&&(on||((atSet(c)[k]||usedS(c,eq)<slots)&&(!e.gb||eq.has(e.gb))))?"":"disabled"}>${on?"Unequip":"Equip"}</button></div>`};
  return`<div class="solo"><div class="card"><h2>Ability board</h2><p class="note">Equipped ${usedS(c,eq)} / ${slots}.${+c.atn?` Attuned ${Object.keys(atSet(c)).length} / ${+c.atn} (attuned Golden abilities use no slot).`:""} ${here?"You are at an altar, bonfire or guild: you can change your abilities.":"You can only change abilities next to an altar, a bonfire or at a guild."} More slots and abilities unlock as you level up.</p></div><div class="card">${avail.map(row).join("")||`<p class="note">No abilities available yet.</p>`}</div></div>`}
@@ -871,13 +878,14 @@ function applyTv(){const sv=$("#map");if(!sv||role!=="table")return;const g=geo(
 function render(){
  document.body.classList.toggle("tbl",role==="table");
  $("#role").textContent=role?(dm?"Game Master":"Player"):"";$("#leave").hidden=!role;$("#tab").hidden=!role||(!dm&&!(chars[me]&&ok(chars[me])));$("#sw").hidden=!canGM||!role;
- $("#tab").textContent=view==="sheet"?"Table":"Sheet";$("#tab2").textContent=view==="board"?"Back to table":"Abilities";$("#tab2").hidden=$("#tab").hidden;$("#sw").textContent=dm?"View as player":"Back to GM";
+ $("#tab").textContent=view==="sheet"?"Table":"Sheet";$("#tab2").textContent=view==="board"||view==="ref"?"Back to table":"Abilities";$("#tab2").hidden=$("#tab").hidden;$("#sw").textContent=dm?"View as player":"Back to GM";
  let h="";
  if(!role)h=joinScreen();
  else if(role==="table")h=tableViewHtml();
  else if(!dm&&!chars[me])h='<div class="solo">'+(myClaim?claimWait():create())+'</div>';
  else if(!dm&&!ok(chars[me]))h=waitHtml();
- else if(view==="board")h=boardHtml();
+ else if(view==="board")h=refBar()+boardHtml();
+ else if(view==="ref")h=refBar()+refHtml();
  else if(view==="sheet")h=dm?pendingHtml()+(A().length?'<div class="grid">'+A().map(card).join("")+'</div>':'<p class="note">No approved characters yet.</p>'):'<div class="solo">'+card(me)+'</div>';
  else{
   const left=dm&&hideL?`<button data-a="showL">Show side panel</button>`:dm?pendingHtml()+`<div class="card sb"><div class="row"><button data-a="hideL">Hide panel</button><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+bkHtml()+spHtml()+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
@@ -1045,6 +1053,9 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="abic"){abFor=id;$("#abf").value="";$("#abf").click()}
  else if(a==="abicx"){delete ABI[id];if(board[id]){const e={...board[id]};delete e.iv;board[id]=e}api("abicons/"+id,"DELETE").then(()=>api("board/"+id+"/iv","DELETE")).catch(fail);last="";render()}
  else if(a==="bdel"&&confirm("Remove this ability from the board?")){boardEnsure();delete board[id];applyBoard(board);api("board/"+id,"DELETE").catch(fail);render()}
+ else if(a==="vb"){view="board";last="";render()}
+ else if(a==="vr"){view="ref";last="";render()}
+ else if(a==="refc"){refCls=b.dataset.k;last="";render()}
  else if(a==="spx"){if(dm)spSave(spList().filter(w=>w!==b.dataset.k))}
  else if(a==="spsave"){if(dm)spSave(($("#spl")||{value:""}).value.split(","))}
  else if(a==="spall"){if(dm)spSave([])}
@@ -1215,7 +1226,7 @@ $("#ask").addEventListener("click",e=>{const b=e.target.closest("button[data-i]"
 addEventListener("pointerdown",e=>{if(role==="table"&&TV.mode==="real"&&e.target.closest("#tv"))pdrag=[e.clientX,e.clientY]});
 addEventListener("pointermove",e=>{if(pdrag){tvPan[0]+=e.clientX-pdrag[0];tvPan[1]+=e.clientY-pdrag[1];pdrag=[e.clientX,e.clientY];applyTv()}});
 addEventListener("pointerup",()=>{pdrag=null});
-$("#tab2").onclick=()=>{view=view==="board"?"table":"board";render()};
+$("#tab2").onclick=()=>{view=view==="board"||view==="ref"?"table":"board";render()};
 $("#tab").onclick=()=>{view=view==="sheet"?"table":"sheet";render()};
 $("#sw").onclick=()=>{dm=!dm;render()};
 $("#leave").onclick=()=>{try{localStorage.removeItem(SKEY)}catch(e){}[es,es2].forEach(x=>x&&x.close());es=es2=null;rollsSeeded=false;seenR.clear();$("#qte").hidden=true;$("#ask").hidden=true;clearInterval(timer);role="";canGM=false;dm=false;chars={};enemies={};maps={};IM={};IC={};PT={};last="";render()};
