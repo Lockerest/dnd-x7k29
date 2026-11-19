@@ -181,7 +181,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=43,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
+const BUILD=44,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield or melee weapon): when a weapon, claw, tail or projectile attack would hit you (not a spell effect, flame, frost or beam), roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
@@ -804,11 +804,12 @@ function playBuf(k,t){const c=mg(),b=SB[k];if(!c||!b)return false;const T=c.curr
  x.connect(v);v.connect(c.destination);if(REV){x.connect(w);w.connect(REV)}x.start(T);x.stop(T+d+.05);return true}
 const sndHtml=()=>`<h3>Custom sounds</h3><p class="note">Upload short royalty-free clips (about 450 KB max each). Slots without a clip use the built-in sound. Everyone hears your clips.</p><input id="sndf" type="file" accept="audio/*" hidden>${SLOTS.map(([k,t])=>`<div class="row mini"><span class="sub" style="min-width:210px">${t}: ${SD[k]?"<b>custom</b>":"built-in"}</span><button data-a="snpv" data-k="${k}">Play</button><button data-a="snup" data-k="${k}">Upload</button>${SD[k]?`<button data-a="sndel" data-k="${k}">Remove</button>`:""}</div>`).join("")}<label class="sub">Reverb (this device) <input type="range" id="rvamt" min="0" max="100" value="${Math.round(rvAmt*100)}" style="width:120px"></label>${thHtml()}`;
 const elemOf=l=>{l=String(l||"");for(const[x,k]of FXK)if(k!=="bash"&&k!=="arrow"&&x.test(l))return k;return null};
+const SS=1.4;
 function sfx(f){if(!mg())return;const k=f.k||"slash",o=f.o||"hit",k2=k==="arrow"?(f.k2===undefined?elemOf(f.l):f.k2):null,ranged=k!=="slash"&&k!=="heavy"&&k!=="bash";
- if(!ranged){if(!playBuf("swing",.3))sWhoosh(.3,k==="heavy")}else if(k==="arrow"){sTwang(.25);if(k2)sCast(.3,k2)}else sCast(.2,k);
- if(o==="hit"){if(k==="slash"){if(!playBuf("slash",.62))sSlice(.62)}else if(k==="heavy"){if(!playBuf("heavy",.6)){sSlice(.6);sSlice(.77)}}else if(k==="bash"){if(!playBuf("bash",.62))sBash(.62)}else if(k==="arrow"){if(!playBuf("arrow",.6))sThunk(.6);if(k2&&!playBuf(k2,.68))sElem(.68,k2)}else if(!playBuf(k,.6))sElem(.6,k);if(f.c)sTone(.62,70,.45,{g:.45,f2:32})}
- else if(o==="parry"){if(!playBuf("parry",.62))sClang(.62,true)}
- else if(o==="dodge"){if(!playBuf(f.ha?"dodgeh":"dodge",.5))sRoll(.5,f.ha)}}
+ if(!ranged){if(!playBuf("swing",.3*SS))sWhoosh(.3*SS,k==="heavy")}else if(k==="arrow"){sTwang(.25*SS);if(k2)sCast(.35*SS,k2)}else sCast(.2*SS,k);
+ if(o==="hit"){if(k==="slash"){if(!playBuf("slash",.62*SS))sSlice(.62*SS)}else if(k==="heavy"){if(!playBuf("heavy",.6*SS)){sSlice(.6*SS);sSlice(.77*SS)}}else if(k==="bash"){if(!playBuf("bash",.62*SS))sBash(.62*SS)}else if(k==="arrow"){if(!playBuf("arrow",.6*SS))sThunk(.6*SS);if(k2&&!playBuf(k2,.6*SS+.4))sElem(.6*SS+.4,k2)}else if(!playBuf(k,.6*SS))sElem(.6*SS,k);if(f.c)sTone(.62*SS,70,.45,{g:.45,f2:32})}
+ else if(o==="parry"){if(!playBuf("parry",.62*SS))sClang(.62*SS,true)}
+ else if(o==="dodge"){if(!playBuf(f.ha?"dodgeh":"dodge",.5*SS))sRoll(.5*SS,f.ha)}}
 const isHeavy=o=>o&&o.ha!=null?!!o.ha:!!(o&&o.cls==="fighter");
 let hideL=(()=>{try{return localStorage.getItem("hl")==="1"}catch(e){return false}})(),tlShow=false,tlAb="",tlA="t:Test Hero",tlT="t:Test Dummy",tlK="slash";
 const TLK=[["slash","Slash"],["heavy","Double slash (heavy)"],["bash","Shield bash"],["fire","Fireball"],["ice","Frost"],["bolt","Lightning"],["arrow","Arrow"],["poison","Poison"]];
@@ -830,7 +831,8 @@ function nextScene(){const f=sceneQ.shift();if(!f){sceneBusy=false;return}sceneB
  const el=document.createElement("div");el.className="scn"+(sc25On?" s25":"");
  el.innerHTML=`<div class="stage"><div class="cap">${esc(f.an||"")} ➜ ${esc(f.tn||"")}${f.l?" · "+esc(f.l):""}</div>${sc25On?`<div class="cam"><div class="sky"></div><div class="far"></div><div class="mid"></div><div class="flr"></div>`:""}${figH(f.t,f.tn,"R tgt "+tc)}${figH(f.a,f.an,"L atk"+(ranged?" cast":""))}${sc25On?`<div class="mist"></div>`:""}${(()=>{const ic=f.l?abIc(f.l):"";return ic?`<div class="abadge">${ic}<span class="nm">${esc(f.l)}</span></div>`:""})()}${fx}${(()=>{if(!sc25On||!f.l||o==="parry")return"";const gk=gKey(f.l);if(!gk)return"";return`<div class="fxg ${ranged?"fly":"pop"}" style="--gc:${gk.col}"><svg viewBox="0 0 48 48">${GLY[gk.g]}</svg></div>`})()}<div class="dmg ${o}${f.c?" crit":""}">${esc(tx)}</div>${sc25On?`</div><div class="vig"></div>${o==="hit"?`<div class="flash"></div>`:""}`:""}</div>`;
  document.body.appendChild(el);
- setTimeout(()=>el.classList.add("out"),1900);setTimeout(()=>{el.remove();nextScene()},2300)}
+ try{el.getAnimations({subtree:true}).forEach(an=>{if(!/^scout$/.test(an.animationName||""))an.playbackRate=1/SS})}catch(e){}
+ setTimeout(()=>el.classList.add("out"),2650);setTimeout(()=>{el.remove();nextScene()},3050)}
 function applyDmg(A_,T,dmg,inf){
  const o=T.o,nh=Math.max(0,(o.hp||0)-dmg),ts=Date.now();
  fxScene({a:(A_.e?"e:":"c:")+A_.id,t:(T.e?"e:":"c:")+T.id,k:fxKind(inf.label,inf.heavy,inf.rng),o:"hit",d:dmg,c:!!inf.crit,an:A_.o.name,tn:o.name,l:inf.label,ha:isHeavy(o)});
