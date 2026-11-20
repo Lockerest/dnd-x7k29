@@ -10,7 +10,7 @@ React + TypeScript app, one piece at a time, without breaking the live table.
 | `index.html` | The live single-file app (the one players use). Still the real game. |
 | `app/` | The new React + TypeScript app (Vite). Published at `/next/`. |
 | `app/src/data/` | Game data: classes, skill sets, themes, ability sounds, cinematic preset. |
-| `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio, ability board and reference, icons, map geometry, sheet actions. |
+| `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio, ability board and reference, icons, map geometry, the play table, sheet actions. |
 | `app/src/**/*.test.ts(x)` | Unit tests for the new app (100% coverage required). |
 | `app/src/ui/` | React screens (`Game.tsx` picks the screen; `screens/` holds each one). |
 | `app/src/db/`, `app/src/state/`, `app/src/audio/` | Database client and live stream, game store, saved session and preferences, refresh loop, lazy theme and sound loader. |
@@ -58,10 +58,15 @@ npm run build
    at altars and bonfires with the Golden Wave and world reset, reviving, shield, parry, armor,
    mounts, abilities with their costs and dice, attunements, stats, conditions, notes, log), the
    ability board (the GM's editor with the default and 9-class boards, drawn icons, what players
-   see; players equipping and attuning at an altar, bonfire or guild) and the reference table.
-   Still on the live page: the table and map, dice, sounds, uploading pictures (portraits, icons,
-   ability pictures), the hidden-words list, and the enemy extras (auto turn, boss intro, spawn
-   point, skill sounds and icons).
+   see; players equipping and attuning at an altar, bonfire or guild), the reference table, and the
+   play table part 1: the map (picture, grid, walls and doors, altars, bonfires and guilds, pins,
+   fog, tokens with pictures, tombstones and effects, movement squares), placing and moving heroes
+   and monsters (stamina in combat, carried monsters, fog revealed), jumping off a monster, the
+   GM's round, rest and combat buttons, everyone's status boxes, quick actions, helping allies up,
+   doors, the hidden-words list, choosing and showing maps, and the projector view.
+   Still on the live page: attacks and the action menu, initiative, dice, sounds, the GM's map
+   tools (uploading and drawing maps, walls, fog painting, pins), uploading pictures, and the enemy
+   extras (auto turn, boss intro, spawn point, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

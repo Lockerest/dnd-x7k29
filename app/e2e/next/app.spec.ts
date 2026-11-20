@@ -82,8 +82,10 @@ test('a GM opens a table, a player joins and creates a character, the GM lets th
 
   await expect(gm.getByRole('heading', { name: 'Join requests' })).toBeVisible({ timeout: 10_000 })
   await gm.getByRole('button', { name: 'Allow' }).click()
-  await expect(pl.getByRole('heading', { name: 'The table' })).toBeVisible({ timeout: 10_000 })
-  await expect(pl.getByText('Lyra: HP 110 / 110, stamina 100 / 100')).toBeVisible()
+  const status = pl.getByLabel('Status: Lyra')
+  await expect(status).toBeVisible({ timeout: 10_000 })
+  await expect(status.getByRole('meter').first()).toHaveAttribute('aria-valuenow', '110')
+  await expect(pl.getByText("The GM hasn't set a map yet.")).toBeVisible()
   // The player only wrote its own character; the GM's PIN never left the GM's browser.
   expect(playerRequests.filter((r) => !r.startsWith('GET ')).map((r) => r.replace(/p[a-z0-9]+$/, 'ID'))).toEqual(['PUT /tables/dragon42/chars/ID'])
   expect(await gm.evaluate(() => localStorage.getItem('st'))).toBe('{"pin":"real","role":"gm","me":"gm"}')
@@ -119,8 +121,8 @@ test('the GM edits a boss and plays its cinematic; the player sees it too', asyn
   await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
   await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
   await pl.goto(base + 'next/')
-  await expect(pl.getByRole('heading', { name: 'The table' })).toBeVisible()
-  await expect(pl.getByRole('heading', { name: 'Enemies' })).toHaveCount(0)
+  await expect(pl.getByLabel('Status: Lyra')).toBeVisible()
+  await expect(pl.getByRole('button', { name: /settings$/ })).toHaveCount(0) // the GM's enemy editor is not shown to players
 
   await gm.goto(base + 'next/')
   await gm.getByRole('button', { name: "Show or hide Aethelric's settings" }).click()
@@ -249,6 +251,62 @@ test('the ability board: the GM edits it in the new app, a player equips at an a
   await live.locator('#tab2').click()
   const liveRow = live.locator('.ab', { has: live.getByText('Mighty Strike', { exact: true }) })
   await expect(liveRow.getByRole('button', { name: 'Equip' })).toBeVisible()
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})
+
+test('the table: a player walks on the map in the new app, the GM moves a monster, the live page shows both', async ({ browser }) => {
+  const db = new FakeDb()
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 100, maxSt: 100, rg: 15, mx: 1, my: 1, mp: 'm', x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 30, max: 30, mx: 8, my: 6, mp: 'm', x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1, iv: 1, fog: 1 } },
+    mapimg: { m: { data: png } },
+    cur: 'm',
+    combat: true,
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db)
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+
+  // The player taps three squares to the right: in combat that costs 30 stamina.
+  await pl.goto(base + 'next/')
+  const map = pl.getByRole('img', { name: 'Map: Crypt' })
+  await expect(map).toBeVisible()
+  await expect(pl.getByText(/Combat: moving costs 1 stamina per square, 6 squares left this round/)).toBeVisible()
+  const tapAt = async (p: typeof pl, x: number, y: number) => {
+    const b = (await p.getByRole('img', { name: 'Map: Crypt' }).boundingBox())!
+    await p.mouse.click(b.x + ((x + 0.5) / 10) * b.width, b.y + ((y + 0.5) / 8) * b.height)
+  }
+  await tapAt(pl, 4, 1)
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/mx')).toBe(4)
+  expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ st: 70, mvd: 3 })
+  expect(String(db.get('tables/dragon42/maps/m/fg'))).toMatch(/1/) // the fog around her is revealed
+
+  // The GM picks the wolf and moves it next to her.
+  await gm.goto(base + 'next/')
+  await gm.getByRole('button', { name: '👹 Wolf' }).click()
+  await tapAt(gm, 5, 2)
+  await expect.poll(() => db.get('tables/dragon42/enemies/w/mx')).toBe(5)
+
+  // The live page shows both where they now stand.
+  const live = await plCtx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await live.goto(base)
+  await expect(live.locator('#map')).toBeVisible()
+  expect(await live.evaluate('[chars.p1.mx, chars.p1.my, enemies.w.mx, enemies.w.my]')).toEqual([4, 1, 5, 2])
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()

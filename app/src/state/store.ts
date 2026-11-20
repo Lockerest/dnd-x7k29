@@ -11,6 +11,7 @@ import { errorText } from '../util/errors'
 import { characterChange, enemyChange, type CharacterWithLog } from './updates'
 import { sheetActions, type SheetActions, type Timers } from './sheetActions'
 import { boardActions, type BoardActions } from './boardActions'
+import { tableActions, type TableActions } from './tableActions'
 
 export type Tables = {
   chars: Record<string, CharacterWithLog>
@@ -44,6 +45,13 @@ export type GameState = {
   error: string
   /** True for the Game Master. */
   dm: boolean
+  /** The map the GM has on screen (null: the live map). Players always see the live map. */
+  gmMap: string | null
+  setGmMap: (id: string | null) => void
+  /** A hero jumping off the monster they climb: the next map tap picks where they land. */
+  jump: { id: string; on: string } | null
+  startJump: (id: string) => void
+  cancelJump: () => void
   connect: (s: Session) => void
   disconnect: () => void
   /** Replaces the tables with a fresh read; returns false when nothing changed. */
@@ -85,7 +93,8 @@ export type GameState = {
   /** Shows a message to the user (not a connection problem). */
   notice: (text: string) => void
 } & SheetActions &
-  BoardActions
+  BoardActions &
+  TableActions
 
 const signature = (t: Tables) => JSON.stringify(t)
 
@@ -111,13 +120,21 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       status: 'idle',
       error: '',
       dm: false,
+      gmMap: null,
+      setGmMap: (gmMap) => set({ gmMap }),
+      jump: null,
+      startJump: (id) => {
+        const c = get().tables.chars[id]
+        if (c?.mon) set({ jump: { id, on: c.mon as string } })
+      },
+      cancelJump: () => set({ jump: null }),
       connect: (s) => {
         lastSig = ''
-        set({ session: s, dm: s.role === 'gm', status: 'connecting', error: '', tables: emptyTables() })
+        set({ session: s, dm: s.role === 'gm', gmMap: null, jump: null, status: 'connecting', error: '', tables: emptyTables() })
       },
       disconnect: () => {
         lastSig = ''
-        set({ session: null, dm: false, status: 'idle', error: '', tables: emptyTables() })
+        set({ session: null, dm: false, gmMap: null, jump: null, status: 'idle', error: '', tables: emptyTables() })
       },
       applySnapshot: (t) => {
         const sig = signature(t)
@@ -130,6 +147,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       notice: (text) => set({ error: text }),
       ...sheetActions(get, set, save, now, rand, later),
       ...boardActions(get, set, save),
+      ...tableActions(get, set, save),
 
       updateCharacter: async (id, p, msg) => {
         const { tables, dm, session } = get()

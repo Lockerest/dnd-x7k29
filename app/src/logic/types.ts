@@ -33,9 +33,10 @@ export type Character = {
   /** Stunned, and a charged ability waiting to go off. */
   stn?: boolean
   chg?: string | null
-  /** Grid position. */
+  /** Grid position, and the map it is on (missing: every map). */
   mx?: number | null
   my?: number | null
+  mp?: string | null
   /** Already on the x10 scale. */
   x10?: boolean
   /** GM approval: false = waiting, "no" = declined, true or missing = can play. */

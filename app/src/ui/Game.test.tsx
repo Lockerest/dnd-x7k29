@@ -78,7 +78,7 @@ describe('<Game /> joining', () => {
     click('Open as Game Master')
     expect(await screen.findByText('Game Master')).toBeInTheDocument()
     expect(fb.get('tables/dragon42/meta')).toEqual({ dm: await gmPinHash('secret') })
-    expect(screen.getByRole('heading', { name: 'The table' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
     // The new app's session is kept apart from the live page's.
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
@@ -108,10 +108,8 @@ describe('<Game /> joining', () => {
     setup({ tables: { dragon42: { meta: { dm: 'h' }, enemies: { w: { name: 'Wolf', hp: 50, max: 50, x10: true }, g: { name: 'Golem', hp: 9, max: 9, mx: 2, my: 2, x10: true } } } } }, { hash: '#table' })
     type(/Table PIN/, 'dragon42')
     click('Open table view (projector)')
-    expect(await screen.findByRole('heading', { name: 'Table display' })).toBeInTheDocument()
-    expect(await screen.findByText('Wolf: HP 50 / 50')).toBeInTheDocument()
-    expect(screen.getByText('Golem: HP 9 / 9, on the map')).toBeInTheDocument()
-    expect(screen.getByText('Player')).toBeInTheDocument()
+    expect(await screen.findByText('Waiting for the GM to show a map…')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Table settings' })).toBeInTheDocument()
   })
 })
 
@@ -130,7 +128,7 @@ describe('<Game /> characters', () => {
     expect(fb.get('tables/dragon42/chars/p1')).toMatchObject({ name: 'Lyra', cls: 'archer', ap: false })
     expect(screen.queryByRole('button', { name: 'Sheet' })).toBeNull()
     act(() => fb.set('tables/dragon42/chars/p1/ap', true))
-    expect(await screen.findByRole('heading', { name: 'The table' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
     // Tabs now work.
     click('Sheet')
     expect(screen.getByRole('heading', { name: 'Lyra' })).toBeInTheDocument()
@@ -138,7 +136,7 @@ describe('<Game /> characters', () => {
     click('Abilities')
     expect(screen.getByRole('heading', { name: 'Ability board' })).toBeInTheDocument()
     click('Back to table')
-    expect(screen.getByRole('heading', { name: 'The table' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
   })
 
   it('a declined character sees it', async () => {
@@ -163,7 +161,7 @@ describe('<Game /> characters', () => {
     expect(screen.getByText(/take over Bram/)).toBeInTheDocument()
     expect(fb.get('tables/dragon42/claims/p1')).toEqual({ who: 'Sam', target: 'c1', st: 'pending', ts: 1000 })
     act(() => fb.set('tables/dragon42/claims/p1/st', 'ok'))
-    expect(await screen.findByRole('heading', { name: 'The table' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
     await vi.waitFor(() => expect(fb.get('tables/dragon42/claims/p1')).toBeNull())
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'player', me: 'c1' })
   })
@@ -243,7 +241,7 @@ describe('<Game /> Game Master', () => {
     click(await screen.findByRole('button', { name: 'View as player' }).then((b) => b.textContent!))
     expect(screen.getByRole('heading', { name: 'Create your character' })).toBeInTheDocument()
     click('Back to GM')
-    expect(screen.getByRole('heading', { name: 'The table' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
   })
 })
 
@@ -358,6 +356,48 @@ describe('<Game /> ability board', () => {
   })
 })
 
+describe('<Game /> table and map', () => {
+  it('shows the map picture, token icons and custom markers; a jump from the sheet opens the map', async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    setup(
+      {
+        tables: {
+          dragon42: {
+            meta: { dm: 'h', mki: 2 },
+            cur: 'm',
+            maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, iv: 3, al: ['1,1'] }, n: { name: 'Bare', w: 500, h: 400, cols: 10 } },
+            mapimg: { m: { data: 'data:image/png;base64,TQ' } },
+            mkicons: { al: { data: 'data:image/png;base64,QUw' } },
+            icons: { a: { data: 'data:image/png;base64,QQ' }, w: { data: 'data:image/png;base64,Vw' } },
+            chars: { a: { name: 'Lyra', cls: 'archer', hp: 50, maxHp: 50, st: 50, maxSt: 100, mx: 2, my: 2, iv: 1, mt: 'climb', mon: 'w', x10: true } },
+            enemies: { w: { name: 'Wolf', hp: 9, max: 9, mx: 2, my: 2, iv: 1, x10: true }, z: { name: 'Zed', hp: 9, max: 9, x10: true } },
+          },
+        },
+      },
+      { storage },
+    )
+    const map = await screen.findByRole('img', { name: 'Map: Crypt' })
+    await vi.waitFor(() => expect(map.innerHTML).toContain('data:image/png;base64,TQ'))
+    await vi.waitFor(() => expect(map.innerHTML).toContain('data:image/png;base64,Vw'))
+    await vi.waitFor(() => expect(map.innerHTML).toContain('data:image/png;base64,QUw'))
+    click('Sheet')
+    click('Jump off')
+    expect(await screen.findByText(/Tap a free square within 3 squares of the monster to jump there\./)).toBeInTheDocument()
+  })
+
+  it('the GM looking at a map without a picture version still asks for it', async () => {
+    const h = await gmPinHash('secret')
+    const { fb } = setup({ tables: { dragon42: { meta: { dm: h }, maps: { n: { name: 'Bare', w: 500, h: 400, cols: 10 } }, mapimg: { n: { data: 'data:image/png;base64,Tg' } } } } })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    const map = await screen.findByRole('img', { name: 'Map: Bare' })
+    expect(map.innerHTML).toContain('data:image/png;base64,Tg')
+    expect((fb.fetch as unknown as { mock: { calls: [string][] } }).mock.calls.some(([u]) => u.includes('/mapimg/n'))).toBe(true)
+  })
+})
+
 describe('<Game /> coming back', () => {
   it('rejoins the saved table, or forgets it when the table is gone', async () => {
     const storage = memory()
@@ -392,10 +432,7 @@ describe('<Game /> coming back', () => {
     const storage = memory()
     storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'table' }))
     setup({ tables: { dragon42: { meta: { dm: 'h' }, chars: { x: {} }, enemies: { e: { pl: 'Phase 2' } } } } }, { storage })
-    expect(await screen.findByRole('heading', { name: 'Table display' })).toBeInTheDocument()
-    // Missing names and numbers show as the id and "?".
-    expect(await screen.findByText('x: HP ? / ?, stamina ? / ?')).toBeInTheDocument()
-    expect(screen.getByText('e: HP ? / ?, Phase 2')).toBeInTheDocument()
+    expect(await screen.findByText('Waiting for the GM to show a map…')).toBeInTheDocument()
   })
 
   it('shows problems that happen while playing', async () => {

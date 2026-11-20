@@ -4,7 +4,7 @@ import type { Db } from '../db/client'
 import { attuneChange, boardFieldValue, equipChange, NEW_ABILITY, type EquipResult } from '../logic/abilityBoard'
 import { boardOrDefault, goldenHidden, type Board } from '../logic/board'
 import { altarsOf, bonfiresOf, guildsOf, nearSpot } from '../logic/geometry'
-import { currentMap } from './sheetActions'
+import { currentMap, type MapView } from './sheetActions'
 import type { GameState, Tables } from './store'
 
 export type BoardActions = {
@@ -28,8 +28,8 @@ type Set_ = (p: Partial<GameState>) => void
 type Save = (f: (d: Db) => Promise<unknown>) => Promise<void>
 
 /** Standing next to an altar, a bonfire or a guild on the current map. */
-export function atRestSpot(t: Tables, c: { mx?: number | null; my?: number | null }): boolean {
-  const m = currentMap(t)
+export function atRestSpot(t: Tables, c: { mx?: number | null; my?: number | null }, v: MapView = {}): boolean {
+  const m = currentMap(t, v)
   return !!(nearSpot(c, altarsOf(m)) || nearSpot(c, bonfiresOf(m)) || nearSpot(c, guildsOf(m)))
 }
 
@@ -55,7 +55,7 @@ export function boardActions(get: Get, set: Set_, save: Save): BoardActions {
   const mine = () => {
     const { tables, session, dm } = get()
     const c = session ? tables.chars[session.me] : undefined
-    return c ? { c, board: boardOrDefault(tables.board as Board | null), here: atRestSpot(tables, c), dm, hide: goldenHidden(dm, tables.sp) } : null
+    return c ? { c, board: boardOrDefault(tables.board as Board | null), here: atRestSpot(tables, c, get()), dm, hide: goldenHidden(dm, tables.sp) } : null
   }
 
   return {

@@ -199,3 +199,10 @@ export function respawnPatches(enemies: Record<string, Enemy>): [string, Record<
   }
   return out
 }
+
+/** Hitting an exhausted hero: three light hits or one heavy hit knock them prone. */
+export function lightHit(c: Sheet, k: 'l' | 'h'): [Record<string, unknown>, string] {
+  const lh = (c.lh || 0) + (k === 'l' ? 1 : 0)
+  const pr = k === 'h' || lh >= 3
+  return [{ lh: pr ? 0 : lh, pr: pr || !!c.pr }, pr ? 'Knocked prone!' : `Light hit ${lh}/3`]
+}

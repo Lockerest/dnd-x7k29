@@ -162,7 +162,7 @@ describe('<SheetScreen /> for a player', () => {
     expect(last(f)![2]).toMatchObject({ mt: 'down' })
     expect(screen.getByRole('button', { name: 'Foe is up' })).toBeInTheDocument()
     click('Jump off')
-    expect(store.getState().error).toMatch(/Jump off from the map on the live table/)
+    expect(store.getState().jump).toEqual({ id: 'a', on: 'w' })
     click('Put down Imp')
     expect(f.writes).toContainEqual(['PATCH', 'enemies/i', { hd: null }])
     await waitFor(() => expect(last(f)).toEqual(['POST', 'rolls', { ev: 'Lyra puts down Imp', ts: 7 }]))
@@ -285,4 +285,11 @@ describe('<CharacterCard /> of someone else', () => {
     expect(within(s).getByLabelText('Notes')).toBeDisabled()
     expect(within(s).queryByRole('button')).toBeNull()
   })
+})
+
+it('players never see join or takeover requests', async () => {
+  const { RequestPanels } = await import('./RequestPanels')
+  const t = { ...emptyTables(), chars: { c: hero({ ap: false }) }, claims: { x: { who: 'X', target: 'c', st: 'pending' } } }
+  const { container } = render(<RequestPanels tables={t} dm={false} onApprove={() => {}} onClaim={() => {}} />)
+  expect(container).toBeEmptyDOMElement()
 })

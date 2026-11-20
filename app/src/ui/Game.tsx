@@ -12,11 +12,14 @@ import { headerFor, screenFor, type View } from '../logic/screens'
 import type { ClassId } from '../logic/types'
 import { clearSession, loadPrefs, loadSession, savePrefs, saveSession, type Session } from '../state/session'
 import { createGameStore } from '../state/store'
-import { startSync } from '../state/sync'
+import { startSync, type AssetVersions } from '../state/sync'
 import { errorText } from '../util/errors'
 import { ClaimForm, ClaimWait, CreateCharacter, WaitApproval } from './screens/Characters'
 import { JoinScreen } from './screens/JoinScreen'
-import { TableSummary } from './screens/TableSummary'
+import { TableScreen } from './screens/Table'
+import { TableDisplay } from './screens/TableDisplay'
+import { useMarkers, usePictures } from './usePictures'
+import { liveMapId, shownMapId, type Maps } from '../logic/table'
 import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
 import { BoardScreen } from './screens/Board'
@@ -45,6 +48,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const store = useMemo(() => createGameStore(() => db, clock), [db, clock])
   const status = useStore(store, (s) => s.status)
   const session = useStore(store, (s) => s.session)
+  const role = session?.role ?? ''
   const tables = useStore(store, (s) => s.tables)
   const dm = useStore(store, (s) => s.dm)
   const storeError = useStore(store, (s) => s.error)
@@ -60,6 +64,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     savePrefs(storage, { openEnemies: next })
   }
   const [themeKeys, setThemeKeys] = useState<string[]>([])
+  const [markerVersion, setMarkerVersion] = useState<AssetVersions['mapIcons']>(null)
   const [cin, setCin] = useState<{ c: CinematicEvent; portrait: string | null } | null>(null)
   const seen = useRef<{ keys: Set<string>; seeded: boolean }>({ keys: new Set(), seeded: false })
 
@@ -87,7 +92,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     store.getState().connect(conn.session)
     seen.current = { keys: new Set(), seeded: false }
     conn.db.keys('themes').then(setThemeKeys, () => setThemeKeys([]))
-    return startSync(store, conn.db, { every })
+    return startSync(store, conn.db, { every, onVersions: (v) => setMarkerVersion(v.mapIcons) })
   }, [conn, store, every])
 
   useEffect(() => {
@@ -121,6 +126,21 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
       () => (imageStamps.current = ''), // try again on the next refresh (any change to the board)
     )
   }, [db, view, boardStamps, tables.board])
+
+  // Map pictures, token icons and custom markers for the table and the projector.
+  const gmMap = useStore(store, (s) => s.gmMap)
+  const jump = useStore(store, (s) => s.jump)
+  const mapId = role === 'table' ? liveMapId(tables.maps as Maps, tables.cur) : shownMapId(tables.maps as Maps, tables.cur, dm, gmMap)
+  const onTable = view === 'table'
+  const wantedMap = useMemo(() => (onTable && mapId ? { [mapId]: String((tables.maps[mapId] as { iv?: unknown }).iv ?? '') } : {}), [onTable, mapId, tables.maps])
+  const mapImages = usePictures(db, wantedMap, mapImagePath, tables)
+  const wantedIcons = useMemo(() => {
+    const o: Record<string, unknown> = {}
+    if (onTable) for (const sheets of [tables.chars, tables.enemies]) for (const [i, x] of Object.entries(sheets as Record<string, { iv?: unknown }>)) if (x.iv) o[i] = x.iv
+    return o
+  }, [onTable, tables.chars, tables.enemies])
+  const icons = usePictures(db, wantedIcons, iconPath, tables)
+  const markers = useMarkers(db, onTable ? markerVersion : null, tables)
 
   // Shows a cinematic, with the boss picture when the script asks for it.
   const show = useCallback(
@@ -200,7 +220,6 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     setClaimMode(false)
   }
 
-  const role = session?.role ?? ''
   const me = session?.me ?? ''
   const mine = tables.chars[me]
   const header = headerFor({ role, dm, canGM: role === 'gm', view, mine })
@@ -257,23 +276,35 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         me={me}
         actions={store.getState()}
         portraits={portraits}
+        gmMap={gmMap}
         confirm={confirm ?? ((q) => window.confirm(q))}
+        onJump={() => setView('table')}
         onApprove={approve}
         onClaim={decideClaim}
       />
     )
+  else if (screen === 'table-display')
+    body = <TableDisplay tables={tables} mapImages={mapImages} icons={icons} markers={markers} now={now} storage={storage} onLeave={leave} />
   else
     body = (
-      <TableSummary
-        screen={screen}
+      <TableScreen
         tables={tables}
         dm={dm}
+        me={me}
         pin={session!.pin}
+        gmMap={gmMap}
+        jump={jump}
+        actions={store.getState()}
+        mapImages={mapImages}
+        icons={icons}
+        abilityImages={boardStamps ? abilityImages : {}}
+        markers={markers}
+        now={now}
+        storage={storage}
         legacyUrl={LEGACY_URL}
         onApprove={approve}
         onClaim={decideClaim}
-      >
-        {dm && screen === 'table' && (
+        enemiesPanel={
           <EnemiesPanel
             tables={tables}
             actions={store.getState()}
@@ -284,12 +315,12 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
             confirm={confirm}
             rand={rand}
           />
-        )}
-      </TableSummary>
+        }
+      />
     )
 
   return (
-    <>
+    <div className={screen === 'table-display' ? 'tblv' : undefined}>
       <header className="top">
         <h1>Curse of the Golden Wave</h1>
         <span className="row mini">
@@ -307,6 +338,9 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
       )}
       {body}
       {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} />}
-    </>
+    </div>
   )
 }
+
+const mapImagePath = (id: string) => `mapimg/${id}`
+const iconPath = (id: string) => `icons/${id}`

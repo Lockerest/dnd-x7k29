@@ -30,11 +30,11 @@ import { abilityCost, startTurn } from '../../logic/stamina'
 import { currentMap } from '../../state/sheetActions'
 import type { GameState, Tables } from '../../state/store'
 import { Field, Meter } from '../parts'
-import { RequestPanels } from './TableSummary'
+import { RequestPanels } from './RequestPanels'
 
 export type SheetActionsProps = Pick<
   GameState,
-  'updateCharacter' | 'patchCharacter' | 'removeCharacter' | 'rest' | 'reviveAt' | 'putDown' | 'castAbility' | 'log' | 'notice'
+  'updateCharacter' | 'patchCharacter' | 'removeCharacter' | 'rest' | 'reviveAt' | 'putDown' | 'castAbility' | 'log' | 'notice' | 'startJump'
 >
 
 type CardProps = {
@@ -42,10 +42,14 @@ type CardProps = {
   tables: Tables
   dm: boolean
   me: string
+  /** The map the GM has on screen (its altars and bonfires count). */
+  gmMap?: string | null
   actions: SheetActionsProps
   /** Portrait pictures by character id (when loaded). */
   portraits: Record<string, string>
   confirm: (q: string) => boolean
+  /** A jump off a monster started: show the map to pick the landing square. */
+  onJump?: () => void
 }
 
 function Splash({ c, portrait }: { c: Sheet; portrait?: string }) {
@@ -82,12 +86,12 @@ function Splash({ c, portrait }: { c: Sheet; portrait?: string }) {
 }
 
 /** One character sheet. */
-export function CharacterCard({ id, tables, dm, me, actions, portraits, confirm }: CardProps) {
+export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portraits, confirm, onJump }: CardProps) {
   const c = tables.chars[id] as Sheet
   const own = dm || id === me
   const board = boardOrDefault(tables.board as Board | null)
   const ix = boardIndex(board)
-  const m = currentMap(tables)
+  const m = currentMap(tables, { dm, gmMap })
   const altars = altarsOf(m)
   const altar = nearSpot(c, altars)
   const bonfire = nearSpot(c, bonfiresOf(m))
@@ -102,7 +106,10 @@ export function CharacterCard({ id, tables, dm, me, actions, portraits, confirm 
     if (dm || !tables.enemies[c.mon as string]) {
       upd(dismount(dm))
       if (dm) void actions.log(`${c.name} is dropped from the monster. The GM decides where they land.`)
-    } else actions.notice('Jump off from the map on the live table for now: it asks where you land.')
+    } else {
+      actions.startJump(id)
+      onJump?.()
+    }
   }
 
   return (

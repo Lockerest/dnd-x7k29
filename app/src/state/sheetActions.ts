@@ -9,14 +9,19 @@ import { approvedIds } from '../logic/characters'
 import { parseDice } from '../logic/text'
 import { bonusOf, clamp, proficiency } from '../logic/stats'
 import type { GameState, Tables } from './store'
+import { shownMapId, type Maps } from '../logic/table'
 
 /** Runs f after ms milliseconds. */
 export type Timers = (f: () => unknown, ms: number) => void
 
 /** The map the sheet looks at: the live one, or the first. */
-export const currentMapId = (t: Tables): string | null => (t.cur && t.maps[t.cur] ? t.cur : (Object.keys(t.maps)[0] ?? null))
-export const currentMap = (t: Tables): MapData | null => {
-  const id = currentMapId(t)
+/** Who is looking: the GM may have another map on screen. */
+export type MapView = { dm?: boolean; gmMap?: string | null }
+
+/** The map on screen: the live one, the first, or the GM's pick. */
+export const currentMapId = (t: Tables, v: MapView = {}): string | null => shownMapId(t.maps as Maps, t.cur, !!v.dm, v.gmMap)
+export const currentMap = (t: Tables, v: MapView = {}): MapData | null => {
+  const id = currentMapId(t, v)
   return id ? (t.maps[id] as MapData) : null
 }
 
@@ -51,7 +56,7 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
     if (now() - lastWave < 8000) return
     lastWave = now()
     const t = get().tables
-    const w = { m: currentMapId(t), ...waveCenter(currentMap(t), key) }
+    const w = { m: currentMapId(t, get()), ...waveCenter(currentMap(t, get()), key) }
     later(respawn, 1500)
     await save((d) => d.post('rolls', { wave: w, ts: now(), by: get().session?.me ?? '' }))
     await get().log('The Golden Wave sweeps across the land...')
@@ -65,8 +70,8 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
 
   const reveal = async (x: number, y: number) => {
     const t = get().tables
-    const id = currentMapId(t)
-    const m = currentMap(t)
+    const id = currentMapId(t, get())
+    const m = currentMap(t, get())
     const fg = m && revealAround(m, x, y)
     if (!id || fg == null) return
     set({ tables: { ...t, maps: { ...t.maps, [id]: { ...m, fg } } } })
@@ -103,7 +108,7 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
       const { tables, dm } = get()
       const c = tables.chars[id] as Sheet | undefined
       if (!c || (c.hp as number) <= 0) return
-      const m = currentMap(tables)
+      const m = currentMap(tables, get())
       const altar = nearSpot(c, altarsOf(m))
       if (kind === 'bf') {
         if (!dm && !nearSpot(c, bonfiresOf(m))) return get().notice('You can only use a bonfire when standing next to one.')
