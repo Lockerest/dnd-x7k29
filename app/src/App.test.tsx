@@ -2,7 +2,7 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import App from './App'
+import App, { RETRY_MS } from './App'
 import { APP_VERSION, LEGACY_URL } from './config'
 
 afterEach(() => {
@@ -53,13 +53,13 @@ describe('<App /> preview page', () => {
       throw new TypeError('Failed to fetch')
     })
     render(<App />)
-    expect(await screen.findByText('Database check failed: Failed to fetch')).toHaveClass('error')
+    expect(await screen.findByText('Database not reachable right now (Failed to fetch). Trying again...')).toHaveClass('error')
   })
 
   it('reports non-Error rejections as text', async () => {
     stubFetch(() => Promise.reject('offline'))
     render(<App />)
-    expect(await screen.findByText('Database check failed: offline')).toBeInTheDocument()
+    expect(await screen.findByText('Database not reachable right now (offline). Trying again...')).toBeInTheDocument()
   })
 
   it('ignores a late answer after it has been closed', async () => {
@@ -81,6 +81,49 @@ describe('<App /> preview page', () => {
     unmount()
     fail(new TypeError('late'))
     await new Promise((r) => setTimeout(r, 0))
-    expect(screen.queryByText(/Database check failed/)).toBeNull()
+    expect(screen.queryByText(/not reachable/)).toBeNull()
+  })
+
+  it('checks again after a failure: every 10 seconds, when back online, or when the page is shown again', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    let ok = false
+    const f = stubFetch(async () => {
+      if (!ok) throw new TypeError('Failed to fetch')
+      return new Response('{}')
+    })
+    const { unmount } = render(<App />)
+    expect(await screen.findByText(/not reachable right now/)).toBeInTheDocument()
+    await vi.advanceTimersByTimeAsync(RETRY_MS)
+    expect(f).toHaveBeenCalledTimes(2)
+    window.dispatchEvent(new Event('online'))
+    await vi.waitFor(() => expect(f).toHaveBeenCalledTimes(3))
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(f).toHaveBeenCalledTimes(3)
+    ok = true
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true })
+    document.dispatchEvent(new Event('visibilitychange'))
+    expect(await screen.findByText('Database reachable.')).toBeInTheDocument()
+    // Reachable now: no more checks.
+    await vi.advanceTimersByTimeAsync(RETRY_MS * 3)
+    expect(f).toHaveBeenCalledTimes(4)
+    unmount()
+    window.dispatchEvent(new Event('online'))
+    expect(f).toHaveBeenCalledTimes(4)
+    vi.useRealTimers()
+  })
+
+  it('only the newest check counts when two overlap', async () => {
+    const answers: ((ok: boolean) => void)[] = []
+    stubFetch(() => new Promise<Response>((res, rej) => answers.push((ok) => (ok ? res(new Response('{}')) : rej(new TypeError('old'))))))
+    render(<App />)
+    window.dispatchEvent(new Event('online'))
+    await vi.waitFor(() => expect(answers).toHaveLength(2))
+    answers[1]!(true)
+    expect(await screen.findByText('Database reachable.')).toBeInTheDocument()
+    answers[0]!(false)
+    answers[0]!(true)
+    await new Promise((r) => setTimeout(r, 0))
+    expect(screen.getByTestId('db-status')).toHaveTextContent('Database reachable.')
   })
 })
