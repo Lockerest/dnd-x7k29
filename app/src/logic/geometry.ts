@@ -87,6 +87,7 @@ export function revealAround(m: MapData, x: number, y: number): string | null {
 
 export const altarsOf = (m: MapData | null | undefined) => (m ? vals(m.al) : [])
 export const bonfiresOf = (m: MapData | null | undefined) => (m ? vals(m.bf) : [])
+export const guildsOf = (m: MapData | null | undefined) => (m ? vals(m.gd as Record<string, string> | undefined) : [])
 
 /** The first of these squares next to (or under) the character, or null. */
 export function nearSpot(c: { mx?: number | null; my?: number | null } | null | undefined, spots: string[]): string | null {

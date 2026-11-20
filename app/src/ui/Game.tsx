@@ -19,6 +19,7 @@ import { JoinScreen } from './screens/JoinScreen'
 import { TableSummary } from './screens/TableSummary'
 import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
+import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
 
 type Storage_ = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -101,6 +102,25 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
       )
     }
   }, [db, view, tables.chars])
+
+  // Uploaded ability pictures: downloaded again whenever the GM changes one (iv stamps).
+  const [abilityImages, setAbilityImages] = useState<Record<string, string>>({})
+  const imageStamps = useRef('')
+  const boardStamps = useMemo(() => {
+    const b = (tables.board || {}) as Record<string, { iv?: unknown }>
+    return Object.keys(b)
+      .filter((k) => b[k]?.iv)
+      .map((k) => `${k}:${b[k]!.iv}`)
+      .join(',')
+  }, [tables.board])
+  useEffect(() => {
+    if (!db || (view !== 'board' && view !== 'ref') || !boardStamps || boardStamps === imageStamps.current) return
+    imageStamps.current = boardStamps
+    db.get<Record<string, { data?: string }>>('abicons').then(
+      (d) => setAbilityImages(Object.fromEntries(Object.entries(d || {}).flatMap(([k, v]) => (v?.data ? [[k, v.data]] : [])))),
+      () => (imageStamps.current = ''), // try again on the next refresh (any change to the board)
+    )
+  }, [db, view, boardStamps, tables.board])
 
   // Shows a cinematic, with the boss picture when the script asks for it.
   const show = useCallback(
@@ -215,6 +235,20 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   else if (screen === 'claim-wait')
     body = <ClaimWait declined={myClaim?.st === 'no'} target={(myClaim?.target && tables.chars[myClaim.target]?.name) || 'that character'} onDismiss={() => void store.getState().setMyClaim(null)} />
   else if (screen === 'wait-approval') body = <WaitApproval name={mine?.name ?? ''} declined={mine?.ap === 'no'} />
+  else if (screen === 'board' || screen === 'ref')
+    body = (
+      <BoardScreen
+        view={screen}
+        onView={setView}
+        tables={tables}
+        dm={dm}
+        me={me}
+        actions={store.getState()}
+        images={boardStamps ? abilityImages : {}}
+        confirm={confirm ?? ((q) => window.confirm(q))}
+        rand={rand}
+      />
+    )
   else if (screen === 'sheet')
     body = (
       <SheetScreen

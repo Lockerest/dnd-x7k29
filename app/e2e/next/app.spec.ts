@@ -195,3 +195,61 @@ test('a player uses their sheet in the new app; the GM on the live page sees the
   await gmCtx.close()
   await plCtx.close()
 })
+
+test('the ability board: the GM edits it in the new app, a player equips at an altar, the live page agrees', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x', abv: 0 },
+    chars: { p1: { name: 'Bram', cls: 'fighter', level: 2, hp: 140, maxHp: 140, st: 100, maxSt: 100, rg: 20, mx: 1, my: 1, x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 500, cols: 10, v2: 1, al: { a: '0,0' } } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext()
+  const plCtx = await browser.newContext()
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db)
+  gm.on('dialog', (d) => void d.accept())
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+
+  // The GM loads the 9-class board and renames an ability.
+  await gm.goto(base + 'next/')
+  await gm.getByRole('button', { name: 'Abilities' }).click()
+  await gm.getByRole('button', { name: 'Load 9-class abilities' }).click()
+  await expect.poll(() => Object.keys((db.get('tables/dragon42/board') as object) || {}).length).toBeGreaterThan(100)
+  await gm.getByRole('button', { name: /^Fighter \(/ }).click()
+  const strike = gm.getByLabel('Ability: Power Strike')
+  await expect(strike.locator('svg.abi')).toBeVisible()
+  await strike.getByLabel('Name').fill('Mighty Strike')
+  await strike.getByLabel('Name').blur()
+  await expect.poll(() => db.get('tables/dragon42/board/fighter_power_strike/n')).toBe('Mighty Strike')
+
+  // The player, standing by the altar, equips and checks the reference.
+  await pl.goto(base + 'next/')
+  await pl.getByRole('button', { name: 'Abilities' }).click()
+  await expect(pl.getByText(/You are at an altar, bonfire or guild/)).toBeVisible()
+  const row = pl.locator('.ab', { has: pl.getByText('Mighty Strike', { exact: true }) })
+  await row.getByRole('button', { name: 'Unequip' }).click()
+  await expect(row.getByRole('button', { name: 'Equip' })).toBeVisible()
+  await expect.poll(() => Object.keys((db.get('tables/dragon42/chars/p1/eq') as object) || {})).not.toContain('fighter_power_strike')
+  await pl.getByRole('button', { name: 'Reference' }).click()
+  await expect(pl.getByRole('heading', { name: 'Fighter' })).toBeVisible()
+  await expect(pl.getByRole('cell', { name: 'Mighty Strike' })).toBeVisible()
+
+  // The live page shows the same board and the same choice.
+  const live = await gmCtx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await live.goto(base)
+  await live.locator('#tab2').click()
+  const liveRow = live.locator('.ab', { has: live.getByText('Mighty Strike', { exact: true }) })
+  await expect(liveRow.getByRole('button', { name: 'Equip' })).toBeVisible()
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

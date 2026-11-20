@@ -6,32 +6,9 @@ import { attunedSet, boardIndex, defaultBoard, equippedIds, goldenHidden, parryM
 import { altarsOf, bonfiresOf, nearSpot, revealAround, type MapData } from '../../src/logic/geometry.ts'
 import { characterPills, respawnPatches, type Sheet } from '../../src/logic/sheet.ts'
 import { createGameStore, emptyTables, type Tables } from '../../src/state/store.ts'
-import type { Db } from '../../src/db/client.ts'
 import type { Enemy } from '../../src/logic/types.ts'
 import { CASES, clean, rng } from './random.ts'
-
-type W = [method: string, path: string, body: unknown]
-
-/** Replaces the page's database calls: writes are recorded, reads give the page's own state. */
-const CAPTURE = `window.__w=[];api=async(p,m,b)=>{if(m&&m!=="GET"){__w.push([m,p,b===undefined?null:JSON.parse(JSON.stringify(b))]);return m==="POST"?{name:"-k"+__w.length}:null}
- return({chars,enemies,maps,cur,board,"meta/sp":SPS})[p]??null};`
-
-/** A recording database for the new store. */
-function recDb(w: W[]): Db {
-  return {
-    pin: 't',
-    url: () => '',
-    get: async () => null,
-    keys: async () => [],
-    put: async (p, v) => void w.push(['PUT', p, clean(v)]),
-    patch: async (p, v) => void w.push(['PATCH', p, clean(v)]),
-    post: async (p, v) => (w.push(['POST', p, clean(v)]), `-k${w.length}`),
-    del: async (p) => void w.push(['DELETE', p, null]),
-  }
-}
-
-/** Timestamps differ between the two runs; everything else must match. */
-const noTs = (w: W[]) => w.map(([m, p, b]) => [m, p, b && typeof b === 'object' && 'ts' in b ? { ...b, ts: 0 } : b])
+import { CAPTURE, noTs, recDb, type W } from './store.ts'
 
 const CLASSES_ = ['fighter', 'archer', 'mage', 'thief', 'warrior', 'sorcerer', 'spearhand', 'magickarcher', 'trickster']
 
@@ -337,7 +314,7 @@ test('using abilities: stamina, actions, turns, Golden HP costs and reactions', 
       chars: { a: hero(r, { eq, hp: r.int(1, 140), exh: r.maybe(true, 0.1), stn: undefined }) },
       ini: r.maybe({ ph: 'go', t: 0, l: [{ k: r.pick(['c:a', 'e:w']) }, { k: 'c:a' }] }, 0.3) ?? null,
     }
-    const setup = SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard()')
+    const setup = SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard();boardDB=true')
     await legacy.run(setup)
     const btns = page.locator(`[data-a="use"][data-id="a"]`)
     const n = await btns.count()
@@ -369,7 +346,7 @@ test('typed boxes, attunement release and removing a character', async ({ legacy
   for (let k = 0; k < 30; k++) {
     const at = Object.fromEntries([r.pick(goldens), r.pick(goldens)].map((x) => [x, 1]))
     const c: Case = { dm: true, me: 'gm', chars: { a: hero(r, { at, atn: 2 }) } }
-    await legacy.run(SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard()'))
+    await legacy.run(SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard();boardDB=true'))
     const kind = k % 4
     let mine: W[]
     if (kind === 0) {
@@ -431,7 +408,7 @@ test('healing and check abilities roll their dice and apply the result', async (
     const e = board[key]!
     const cls = e.v === 'any' ? 'fighter' : e.v
     const c: Case = { dm, me: dm ? 'gm' : 'a', chars: { a: hero(r, { cls, level: 10, eq: { [key]: 1 }, hp: r.int(1, 100), exh: undefined, stn: undefined, chg: undefined, used: 0 }) } }
-    await legacy.run(SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard()') + ';Math.random=()=>0.37')
+    await legacy.run(SETUP(c).replace('applyBoard(defBoard())', 'applyBoard(vocBoard());board=vocBoard();boardDB=true') + ';Math.random=()=>0.37')
     const abs = sheetAbilities(c.chars.a!, board, goldenHidden(dm, null))
     const idx = abs.findIndex(([n]) => ix.heal[n] || ix.check[n])
     if (idx < 0) continue

@@ -6,6 +6,8 @@ export default defineConfig({
   // Relative asset paths, so the build works under /<repo>/next/ on GitHub Pages
   // without hard-coding the repository name.
   base: './',
+  // The icon parity test reads the live page (../index.html) as text.
+  server: { fs: { allow: ['..'] } },
   test: {
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     environment: 'node',

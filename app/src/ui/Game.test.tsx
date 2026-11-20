@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { gmPinHash } from '../logic/join'
 import { Game } from './Game'
@@ -302,6 +302,58 @@ describe('<Game /> character sheets', () => {
     click(await screen.findByRole('button', { name: 'Sheet' }).then((b) => b.textContent!))
     fireEvent.click(await screen.findByRole('button', { name: 'Remove character' }))
     expect(ask).toHaveBeenCalledWith('Remove Lyra?')
+    ask.mockRestore()
+  })
+})
+
+describe('<Game /> ability board', () => {
+  it('shows uploaded ability pictures, reloading them when the GM changes one (retried after a failure)', async () => {
+    const h = await gmPinHash('secret')
+    const { fb } = setup({
+      tables: {
+        dragon42: {
+          meta: { dm: h },
+          board: { a: { n: 'Cleave', v: 'fighter', iv: 1 }, b: { n: 'Rally', v: 'fighter' } },
+          abicons: { a: { data: 'data:image/png;base64,QQ' }, b: {} },
+        },
+      },
+    })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    click(await screen.findByRole('button', { name: 'Abilities' }).then((b) => b.textContent!))
+    await vi.waitFor(() => expect(screen.getByLabelText('Ability: Cleave').querySelector('img')).toHaveAttribute('src', 'data:image/png;base64,QQ'))
+    expect(screen.getByLabelText('Ability: Rally').querySelector('img')).toBeNull()
+    const mock = fb.fetch as unknown as Mock<(u: string, i?: RequestInit) => Promise<Response>>
+    const real = mock.getMockImplementation()!
+    let fails = 1
+    mock.mockImplementation(async (u, i) => {
+      if (u.includes('/abicons') && fails-- > 0) throw new TypeError('Failed to fetch')
+      return real(u, i)
+    })
+    act(() => {
+      fb.set('tables/dragon42/abicons/a', { data: 'data:image/png;base64,Qg' })
+      fb.set('tables/dragon42/board/a/iv', 2)
+    })
+    await vi.waitFor(() => expect(fails).toBe(0))
+    act(() => fb.set('tables/dragon42/board/b/c', 3)) // any change: the next refresh tries again
+    await vi.waitFor(() => expect(screen.getByLabelText('Ability: Cleave').querySelector('img')).toHaveAttribute('src', 'data:image/png;base64,Qg'))
+    // The pictures were deleted: none shown.
+    act(() => {
+      fb.set('tables/dragon42/abicons', null)
+      fb.set('tables/dragon42/board/a/iv', 3)
+    })
+    await vi.waitFor(() => expect(screen.getByLabelText('Ability: Cleave').querySelector('img')).toBeNull())
+    act(() => fb.set('tables/dragon42/abicons/a', { data: 'data:image/png;base64,Qg' }))
+    act(() => fb.set('tables/dragon42/board/a/iv', 4))
+    await vi.waitFor(() => expect(screen.getByLabelText('Ability: Cleave').querySelector('img')).not.toBeNull())
+    // No pictures left: nothing to download.
+    act(() => fb.set('tables/dragon42/board/a/iv', null))
+    await vi.waitFor(() => expect(screen.getByLabelText('Ability: Cleave').querySelector('img')).toBeNull())
+    // The Remove button asks with the browser box by default.
+    const ask = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    fireEvent.click(within(screen.getByLabelText('Ability: Rally')).getByRole('button', { name: 'Remove' }))
+    expect(ask).toHaveBeenCalledWith('Remove this ability from the board?')
     ask.mockRestore()
   })
 })

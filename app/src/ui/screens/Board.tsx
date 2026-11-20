@@ -1,0 +1,300 @@
+// The ability board (the GM's editor, or a player equipping abilities) and the
+// reference table. Same layout and rules as the live page.
+import { useState } from 'react'
+import { BONUSES, GLYPHS, KINDS, VOCATIONS } from '../../data/abilityIcons'
+import { CLASSES } from '../../data/classes'
+import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
+import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, type Board } from '../../logic/board'
+import { randomKey } from '../../logic/enemies'
+import { abilityCost } from '../../logic/stamina'
+import type { Sheet } from '../../logic/sheet'
+import { atRestSpot } from '../../state/boardActions'
+import type { GameState, Tables } from '../../state/store'
+import { Field } from '../parts'
+
+/** An ability's icon: the GM's uploaded picture, else the drawn icon, else its emoji. */
+export function AbilityIcon({ board, name, images, drawn }: { board: Board; name: string; images: Record<string, string>; drawn: boolean }) {
+  const k = keyByName(board)[name]
+  const e = k ? board[k] : undefined
+  if (!k || !e) return null
+  if (images[k]) return <img className="abi" src={images[k]} alt="" />
+  if (drawn) {
+    const { glyph, color, golden } = glyphOf(board, k)
+    const id = `g${k.replace(/[^a-z0-9]/gi, '').slice(0, 18)}`
+    const gold = '#f2c14e'
+    return (
+      <svg className="abi" viewBox="0 0 64 64" role="img" aria-label={name}>
+        <defs>
+          <radialGradient id={id} cx="50%" cy="35%" r="80%">
+            <stop offset="0" stopColor={color} stopOpacity=".5" />
+            <stop offset="1" stopColor="#0d0b10" />
+          </radialGradient>
+        </defs>
+        <rect x="2" y="2" width="60" height="60" rx="12" fill={`url(#${id})`} stroke={golden ? gold : color} strokeWidth={golden ? 3 : 1.6} />
+        {golden && <rect x="6" y="6" width="52" height="52" rx="9" fill="none" stroke={gold} strokeOpacity=".45" strokeDasharray="3 4" />}
+        <g
+          transform="translate(10 10) scale(.89)"
+          fill={golden ? gold : color}
+          fillOpacity=".22"
+          stroke={golden ? '#ffe9a8' : '#f3ead6'}
+          strokeWidth="2.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          dangerouslySetInnerHTML={{ __html: GLYPHS[glyph]! }}
+        />
+      </svg>
+    )
+  }
+  return e.ic ? <span className="abe">{e.ic}</span> : null
+}
+
+export type BoardScreenProps = {
+  view: 'board' | 'ref'
+  onView: (v: 'board' | 'ref') => void
+  tables: Tables
+  dm: boolean
+  me: string
+  actions: Pick<GameState, 'setAbilityField' | 'addAbility' | 'removeAbility' | 'replaceBoard' | 'setBoardSetting' | 'equip' | 'attune'>
+  /** Uploaded ability pictures by board key (when loaded). */
+  images: Record<string, string>
+  confirm: (q: string) => boolean
+  rand?: () => number
+}
+
+/** The two tabs above both screens. */
+function Tabs({ view, onView, dm }: Pick<BoardScreenProps, 'view' | 'onView' | 'dm'>) {
+  return (
+    <div className="row mini tabs">
+      <button className={view === 'board' ? 'pri' : ''} onClick={() => onView('board')}>
+        {dm ? 'Ability board' : 'Equip abilities'}
+      </button>
+      <button className={view === 'ref' ? 'pri' : ''} onClick={() => onView('ref')}>
+        Reference
+      </button>
+    </div>
+  )
+}
+
+export function BoardScreen(p: BoardScreenProps) {
+  return (
+    <div className={p.dm && p.view === 'board' ? 'sheets' : 'solo'}>
+      <Tabs view={p.view} onView={p.onView} dm={p.dm} />
+      {p.view === 'ref' ? <Reference {...p} /> : p.dm ? <Editor {...p} /> : <Equip {...p} />}
+    </div>
+  )
+}
+
+function Editor({ tables, actions, images, confirm, rand = Math.random }: BoardScreenProps) {
+  const board = boardOrDefault(tables.board as Board | null)
+  const [filter, setFilter] = useState('')
+  const ids = editorOrder(board)
+  const shown = filter ? ids.filter((k) => (board[k]!.v || 'any') === filter) : ids
+  const field = (id: string, f: string) => (v: string) => void actions.setAbilityField(id, f, v)
+  const pick = (id: string, f: string, label: string, value: string, options: [string, string][]) => (
+    <label>
+      {label}
+      <select value={value} onChange={(e) => field(id, f)(e.target.value)}>
+        {options.map(([v, t]) => (
+          <option key={v} value={v}>
+            {t}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+  const check = (id: string, f: string, label: string, on: unknown) => (
+    <label>
+      {label}
+      <input type="checkbox" checked={!!on} onChange={(e) => void actions.setAbilityField(id, f, e.target.checked)} />
+    </label>
+  )
+  return (
+    <>
+      <div className="card">
+        <h2>Ability board</h2>
+        <p className="note">
+          Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a bonfire or a
+          guild (use the Guild map tool). Each level gives one more slot.
+        </p>
+        <div className="row">
+          <button className="pri" onClick={() => void actions.addAbility(randomKey('x', 5, rand))}>
+            Add ability
+          </button>
+          <button onClick={() => confirm('Replace the whole board with the default abilities?') && void actions.replaceBoard(defaultBoard())}>Load default abilities</button>
+          <button
+            onClick={() =>
+              confirm(
+                'Replace the whole board with the 9-class abilities (levels 1 to 10, with Golden versions)? Characters keep their level, but their equipped abilities may change.',
+              ) && void actions.replaceBoard(vocationBoard())
+            }
+          >
+            Load 9-class abilities
+          </button>
+          <button onClick={() => void actions.setBoardSetting('drawnIcons', !tables.drawnIcons)}>Icons: {tables.drawnIcons ? 'drawn' : 'emoji'}</button>
+          <button onClick={() => void actions.setBoardSetting('showAll', !tables.showAll)}>Players see: {tables.showAll ? 'all abilities' : 'unlocked only'}</button>
+        </div>
+        <div className="row mini">
+          <span className="sub">Show:</span>
+          <button className={filter ? '' : 'pri'} onClick={() => setFilter('')}>
+            All ({ids.length})
+          </button>
+          {VOCATIONS.map(([v, t]) => (
+            <button key={v} className={filter === v ? 'pri' : ''} onClick={() => setFilter(v)}>
+              {t} ({ids.filter((k) => (board[k]!.v || 'any') === v).length})
+            </button>
+          ))}
+        </div>
+      </div>
+      {shown.map((id) => {
+        const e = board[id]!
+        return (
+          <div className="card sb" key={id} aria-label={`Ability: ${e.n}`}>
+            <div className="efld">
+              <Field label="Name" value={e.n} width={120} onSave={field(id, 'n')} />
+              {pick(id, 'v', 'Vocation', e.v || 'any', VOCATIONS)}
+              <Field label="Min level" value={e.l || 1} width={56} onSave={field(id, 'l')} />
+              <Field label="Cost" value={e.c || 0} width={56} onSave={field(id, 'c')} />
+              {pick(id, 'k', 'Kind', e.k || 'util', KINDS)}
+              <Field label="Dice" value={e.d || ''} width={70} onSave={field(id, 'd')} />
+              <Field label="Range" value={e.r || 0} width={56} onSave={field(id, 'r')} />
+              <Field label="HP cost %" value={e.hc || 0} width={56} onSave={field(id, 'hc')} />
+              {pick(id, 'gb', 'Needs equipped', e.gb || '', [['', 'nothing'], ...ids.filter((k) => k !== id).map((k): [string, string] => [k, board[k]!.n])])}
+              <Field label="Icon (emoji)" value={e.ic} width={56} onSave={field(id, 'ic')} />
+              {check(id, 'a', 'Auto-hit', e.a)}
+              {check(id, 'ch', 'Charge a round', e.ch)}
+              {pick(id, 'b', 'Bonus', e.b || '', BONUSES)}
+              <Field label="Description" value={e.t || ''} width={220} onSave={field(id, 't')} />
+              <Field label="Short summary (shown on the table)" value={e.sd || ''} width={260} onSave={field(id, 'sd')} />
+            </div>
+            <div className="row mini">
+              <AbilityIcon board={board} name={e.n} images={images} drawn={tables.drawnIcons} />
+              <button onClick={() => confirm('Remove this ability from the board?') && void actions.removeAbility(id)}>Remove</button>
+            </div>
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+function Equip({ tables, dm, me, actions, images }: BoardScreenProps) {
+  const c = tables.chars[me] as Sheet | undefined
+  if (!c) return null
+  const board = boardOrDefault(tables.board as Board | null)
+  const hide = goldenHidden(dm, tables.sp)
+  const here = atRestSpot(tables, c)
+  const eq = new Set(equippedIds(c, board, hide))
+  const slots = slotsOf(c)
+  const atn = Number(c.atn) || 0
+  const avail = availableAbilities(c, board, tables.showAll, hide)
+  return (
+    <>
+      <div className="card">
+        <h2>Ability board</h2>
+        <p className="note">
+          Equipped {usedSlots(c, eq, board)} / {slots}.{atn ? ` Attuned ${attunedSet(c, board).length} / ${atn} (attuned Golden abilities use no slot).` : ''}{' '}
+          {here ? 'You are at an altar, bonfire or guild: you can change your abilities.' : 'You can only change abilities next to an altar, a bonfire or at a guild.'} More slots and abilities unlock as you level
+          up.
+        </p>
+      </div>
+      <div className="card">
+        {avail.length ? (
+          avail.map((k) => {
+            const e = board[k]!
+            const r = equipRow(c, board, k, eq, here)
+            return (
+              <div className="ab" key={k}>
+                <div className="abx">
+                  <AbilityIcon board={board} name={e.n} images={images} drawn={tables.drawnIcons} />
+                  <div className="abt">
+                    <b>{e.n}</b>{' '}
+                    <span className="sub">
+                      Lv {e.l || 1} · {abilityCost(c, Number(e.c) || 0)} St{e.hc ? ` + ${e.hc}% HP` : ''}
+                    </span>
+                    <small>{r.text}</small>
+                  </div>
+                </div>
+                {r.attune === 'attuned' && <span className="sub">Attuned</span>}
+                {r.attune === 'button' && <button onClick={() => void actions.attune(k)}>Attune</button>}
+                <button disabled={!r.canToggle} onClick={() => void actions.equip(k, !r.on)}>
+                  {r.on ? 'Unequip' : 'Equip'}
+                </button>
+              </div>
+            )
+          })
+        ) : (
+          <p className="note">No abilities available yet.</p>
+        )}
+      </div>
+    </>
+  )
+}
+
+function Reference({ tables, dm, me, images }: BoardScreenProps) {
+  const c = tables.chars[me]
+  const board = boardOrDefault(tables.board as Board | null)
+  const [picked, setPicked] = useState<string | null>(null)
+  const cls = picked ?? (c && CLASSES[c.cls as keyof typeof CLASSES] ? (c.cls as string) : 'fighter')
+  const info = CLASSES[cls as keyof typeof CLASSES]
+  const lv = dm || tables.showAll ? 99 : c?.level || 1
+  const rows = referenceRows(board, cls, lv, goldenHidden(dm, tables.sp))
+  return (
+    <div className="card ref">
+      <h2>{info.name}</h2>
+      <p className="note">{info.description}</p>
+      <div className="row mini">
+        {Object.entries(CLASSES).map(([k, v]) => (
+          <button key={k} className={k === cls ? 'pri' : ''} onClick={() => setPicked(k)}>
+            {v.name}
+          </button>
+        ))}
+      </div>
+      <p className="note">
+        You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Lvl</th>
+            <th>Ability</th>
+            <th>Cost</th>
+            <th>Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length ? (
+            rows.map((r) => (
+              <tr key={r.key}>
+                <td>{r.level}</td>
+                <td>
+                  <div className="abx">
+                    <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} />
+                    <b>{r.name}</b>
+                  </div>
+                </td>
+                <td>{r.cost}</td>
+                <td>
+                  {r.effect}
+                  {r.golden && (
+                    <>
+                      <br />
+                      <span className="sub">
+                        <b>Golden:</b> {r.golden.dice ? `${r.golden.dice} damage, ` : ''}cost {r.golden.cost}, {r.golden.hc}% max HP
+                      </span>
+                    </>
+                  )}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="note">
+                Nothing to show yet.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
+}

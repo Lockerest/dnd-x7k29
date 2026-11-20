@@ -1,4 +1,4 @@
-// Stand-in for the screens not moved yet (table, sheets, abilities): the GM's
+// Stand-in for the screens not moved yet (the table and the table display): the GM's
 // request panels, which are moved, and a live summary of the table, with a link
 // to the live page for everything else.
 import { CLASSES } from '../../data/classes'
@@ -6,7 +6,7 @@ import { pendingIds } from '../../logic/characters'
 import type { Screen } from '../../logic/screens'
 import type { Tables } from '../../state/store'
 
-const NAMES: Partial<Record<Screen, string>> = { table: 'The table', sheet: 'Character sheets', board: 'Ability board', ref: 'Reference', 'table-display': 'Table display' }
+const NAMES: Partial<Record<Screen, string>> = { table: 'The table', 'table-display': 'Table display' }
 
 export function TableSummary({
   screen,
