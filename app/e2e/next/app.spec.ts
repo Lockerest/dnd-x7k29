@@ -339,7 +339,7 @@ test('initiative: the GM starts it in the new app, the player rolls, combat begi
   await pl.goto(base + 'next/')
   const order = pl.getByLabel('Turn order')
   await order.getByRole('button', { name: 'Roll' }).click()
-  await expect.poll(() => (db.get('tables/dragon42/init/l/0') as { v: number | null }).v ?? 0).toBeGreaterThan(2) // d20 + 2 (DEX 14)
+  await expect.poll(() => (db.get('tables/dragon42/init/l/0') as { v: number | null }).v ?? 0, { timeout: 15_000 }).toBeGreaterThan(2) // d20 + 2 (DEX 14), once the dice land
   const rolled = Object.values(db.get('tables/dragon42/rolls') as object).find((r: { ds?: unknown }) => r.ds) as { n: string; m: number }
   expect(rolled).toMatchObject({ n: 'Lyra', m: 2 }) // the dice are shared with the table
 
@@ -414,15 +414,16 @@ test('attacks: the GM attacks the player in the new app, the player dodges; the 
   await expect(pl.getByText('⚠ Wolf is attacking you!')).toBeVisible()
   await pl.getByRole('button', { name: 'Dodge · 30 St' }).click()
   const said = () => Object.values((db.get('tables/dragon42/rolls') as object) ?? {}).flatMap((r: { ev?: string }) => (r.ev ? [r.ev] : []))
-  await expect.poll(said, { timeout: 10_000 }).toContain("Lyra dodges Wolf's attack (save 22 vs 17)")
+  await expect.poll(said, { timeout: 15_000 }).toContain("Lyra dodges Wolf's attack (save 22 vs 17)")
   expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ hp: 110, st: 70 })
   await expect.poll(() => db.get('tables/dragon42/qte')).toBeNull()
 
   // Lyra strikes back with a light attack: a natural 20.
   await tapAt(pl, 5, 4)
   await pl.getByLabel('Actions').getByRole('button', { name: 'Light attack' }).click()
-  await expect.poll(said).toContain('Lyra rolls 20 +4 = 24 vs AC 5 (Light attack on Wolf): CRITICAL HIT')
-  await expect.poll(() => (db.get('tables/dragon42/enemies/w/hp') as number) < 300).toBe(true)
+  // (Each roll waits for its dice on screen.)
+  await expect.poll(said, { timeout: 15_000 }).toContain('Lyra rolls 20 +4 = 24 vs AC 5 (Light attack on Wolf): CRITICAL HIT')
+  await expect.poll(() => (db.get('tables/dragon42/enemies/w/hp') as number) < 300, { timeout: 15_000 }).toBe(true)
 
   // The live page shows the same hit points and stamina.
   const live = await plCtx.newPage()
@@ -435,4 +436,63 @@ test('attacks: the GM attacks the player in the new app, the player dodges; the 
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()
+})
+
+test('dice: a player rolls from the Dice card; the other player sees the dice fly; everyone, the live page too, sees the log', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: {
+      p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 100, maxSt: 100, dex: 16, x10: true },
+      p2: { name: 'Bram', cls: 'fighter', hp: 140, maxHp: 140, st: 100, maxSt: 100, x10: true },
+    },
+    maps: {},
+  })
+  const errors: string[] = []
+  const ctxA = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const ctxB = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const a = await ctxA.newPage()
+  const b = await ctxB.newPage()
+  for (const p of [a, b]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(a, db)
+  await useFakeFirebase(b, db)
+  await a.addInitScript(() => {
+    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    localStorage.setItem('sk', 'gold')
+    Math.random = () => 0.6
+  })
+  await b.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p2"}'))
+  await b.goto(base + 'next/')
+  await expect(b.getByText('No rolls yet.')).toBeVisible()
+
+  // Lyra rolls two d20s with +1 and her DEX (+3), in gold.
+  await a.goto(base + 'next/')
+  const card = a.getByLabel('Dice', { exact: true })
+  await expect(card.getByLabel('Dice style')).toHaveValue('gold')
+  await card.getByLabel('How many').fill('2')
+  await card.getByLabel('Bonus').fill('1')
+  await card.getByLabel('Stat').selectOption('dex')
+  await card.getByRole('button', { name: 'd20', exact: true }).click()
+  // The dice tumble on her screen, then the result shows.
+  await expect(a.locator('.dov.sk-gold')).toBeVisible()
+  await expect(a.locator('.dres')).toHaveText('d2013d201313 + 13 + 4 = 30', { timeout: 6000 })
+  await expect(a.locator('.dov')).toHaveCount(0, { timeout: 5000 })
+  const saved = Object.values(db.get('tables/dragon42/rolls') as object)[0]
+  expect(saved).toMatchObject({ n: 'Lyra', ds: [{ d: 20, r: 13 }, { d: 20, r: 13 }], m: 4, sk: 'gold', by: 'p1' })
+  await expect(a.getByLabel('Dice log')).toContainText('Lyra rolled 2d20: 13, 13 +4 = 30')
+
+  // Bram sees her roll fly on his screen too.
+  await expect(b.locator('.dres .dw')).toHaveText('Lyra rolls', { timeout: 8000 })
+  await expect(b.getByLabel('Dice log')).toContainText('Lyra rolled 2d20: 13, 13 +4 = 30')
+
+  // The live page lists it too.
+  const live = await ctxB.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p2"}'))
+  await live.goto(base)
+  await expect(live.locator('.rl')).toContainText('Lyra rolled 2d20: 13, 13 +4 = 30')
+  expect(errors).toEqual([])
+  await ctxA.close()
+  await ctxB.close()
 })

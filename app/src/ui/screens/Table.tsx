@@ -74,11 +74,12 @@ export type TableProps = {
   now: () => number
   /** The GM's Enemies panel (already built), shown on the right. */
   enemiesPanel?: React.ReactNode
+  /** The Dice card (already built), under it. */
+  dicePanel?: React.ReactNode
   onApprove: (id: string, ok: boolean) => void
   onClaim: (id: string, ok: boolean) => void
   /** Remembers whether the GM hid the side panel. */
   storage?: Pick<Storage, 'getItem' | 'setItem'>
-  legacyUrl: string
 }
 
 const approved = (c: { ap?: unknown }) => c.ap !== false && c.ap !== 'no'
@@ -147,12 +148,7 @@ export function TableScreen(p: TableProps) {
       <div>
         <InitiativePanel tables={tables} dm={dm} me={me} gmMap={p.gmMap} actions={actions} />
         {dm ? p.enemiesPanel : <PlayerEnemies {...p} />}
-        <div className="card">
-          <h2>Dice</h2>
-          <p className="note">
-            The dice log and the 3D dice are still being moved. Rolls made here are shared, and show on the <a href={p.legacyUrl}>live table</a>.
-          </p>
-        </div>
+        {p.dicePanel}
       </div>
     </div>
   )

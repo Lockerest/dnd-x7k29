@@ -39,14 +39,13 @@ export type SheetActions = {
   /** Uses ability name (cost in table units); heals and checks roll their dice. */
   castAbility: (id: string, name: string, cost: number, reaction: boolean) => Promise<void>
   /** Rolls dice; players' rolls are shared, the GM's stay secret. Returns each result. */
-  roll: (dice: number[], bonus: number) => Promise<number[]>
 }
 
 type Get = () => GameState
 type Set_ = (p: Partial<GameState>) => void
 type Save = (f: (d: Db) => Promise<unknown>) => Promise<void>
 
-export function sheetActions(get: Get, set: Set_, save: Save, now: () => number, rand: () => number, later: Timers): SheetActions {
+export function sheetActions(get: Get, set: Set_, save: Save, now: () => number, later: Timers): SheetActions {
   let lastWave = -Infinity
 
   const setChars = (chars: Tables['chars']) => set({ tables: { ...get().tables, chars } })
@@ -76,16 +75,6 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
     if (!id || fg == null) return
     set({ tables: { ...t, maps: { ...t.maps, [id]: { ...m, fg } } } })
     await save((d) => d.patch(`maps/${id}`, { fg }))
-  }
-
-  const roll: SheetActions['roll'] = async (dice, bonus) => {
-    const res = dice.map((d) => ({ d, r: 1 + Math.floor(rand() * d) }))
-    const { dm, session, tables } = get()
-    if (!dm) {
-      const me = session?.me ?? ''
-      await save((d) => d.post('rolls', { n: tables.chars[me]?.name ?? '?', ds: res, m: bonus, ts: now(), sk: 'classic', by: me }))
-    }
-    return res.map((x) => x.r)
   }
 
   return {
@@ -156,18 +145,17 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
       const check = ix.check[name]
       if (heal) {
         const bb = bonusOf(c, heal.b)
-        const rs = await roll(parseDice(heal.d), bb)
+        const rs = await get().roll(parseDice(heal.d), bb)
         const amt = healAmount(rs, bb)
         const cc = get().tables.chars[id]!
         await get().updateCharacter(id, { hp: clamp((cc.hp as number) + amt, cc.maxHp as number) }, `Healed ${amt}`)
         await get().log(`${c.name} heals ${amt} with ${name}`)
       } else if (check) {
         const bb = bonusOf(c, check.b) + proficiency(c)
-        const [r] = await roll([20], bb)
+        const [r] = await get().roll([20], bb)
         await get().log(`${c.name} tries ${name}: ${r! + bb}`)
       }
     },
 
-    roll,
   }
 }

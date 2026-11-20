@@ -2,11 +2,13 @@
 // screen. Screens that are not moved yet show a summary with a link to the live page.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from 'zustand'
-import { LEGACY_URL, STORAGE_PREFIX } from '../config'
+import { STORAGE_PREFIX } from '../config'
 import { createDb, type Db } from '../db/client'
 import { THEMES } from '../data/audio'
 import { approvedIds, claimRequest, newCharacter } from '../logic/characters'
-import { cinematicSeconds, freshCinematics, parseCinematic, type CinematicEvent } from '../logic/cinematic'
+import { cinematicSeconds, othersCinematic, parseCinematic, type CinematicEvent } from '../logic/cinematic'
+import { freshRolls, replayable, type RollEntry } from '../logic/dice'
+import { defaultDicePlayer, type DicePlayer } from './dice/player'
 import { newPlayerId, planJoin, type JoinKind } from '../logic/join'
 import { headerFor, screenFor, type View } from '../logic/screens'
 import type { ClassId } from '../logic/types'
@@ -25,6 +27,7 @@ import { SheetScreen } from './screens/Sheet'
 import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
+import { DicePanel } from './screens/Dice'
 
 type Storage_ = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
@@ -42,9 +45,11 @@ export type GameProps = {
   /** How often a player checks for an attack aimed at them (ms). */
   qteEvery?: number
   rand?: () => number
+  /** Shows rolls on screen (the 3D dice by default); null shows nothing. */
+  dicePlayer?: DicePlayer | null
 }
 
-export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500 }: GameProps) {
+export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500, dicePlayer }: GameProps) {
   const [conn, setConn] = useState<{ db: Db; session: Session } | null>(null)
   const db = conn?.db ?? null
   // The clock is fixed at the first render (a new function on every render must not
@@ -57,6 +62,22 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const tables = useStore(store, (s) => s.tables)
   const dm = useStore(store, (s) => s.dm)
   const storeError = useStore(store, (s) => s.error)
+  const dice = useStore(store, (s) => s.dice)
+  const secretRolls = useStore(store, (s) => s.secretRolls)
+
+  // Rolls are shown on screen; the dice style is remembered (shared with the live page).
+  const [player] = useState(() => (dicePlayer === undefined ? defaultDicePlayer(window) : dicePlayer))
+  useEffect(() => {
+    store.getState().setDiceView(player)
+    store.getState().setDice({ skin: storage.getItem('sk') || 'classic' })
+  }, [store, player, storage])
+  const diceActions = {
+    rollDie: (n: number) => store.getState().rollDie(n),
+    setDice: (p: Parameters<ReturnType<typeof store.getState>['setDice']>[0]) => {
+      store.getState().setDice(p)
+      if (p.skin) storage.setItem('sk', p.skin)
+    },
+  }
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [view, setView] = useState<View>('table')
@@ -175,13 +196,16 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     [db],
   )
 
-  // Cinematics started on another device play here too.
+  // Rolls and cinematics from other devices play here too.
   useEffect(() => {
     if (!session || status !== 'live') return // the first real read seeds what was already there
-    const fresh = freshCinematics(tables.rolls as Parameters<typeof freshCinematics>[0], seen.current.keys, seen.current.seeded, session.me, now())
+    const fresh = freshRolls(tables.rolls as Record<string, RollEntry | null>, seen.current.keys, seen.current.seeded)
     seen.current.seeded = true
-    if (fresh.length) void show(fresh[fresh.length - 1]!)
-  }, [tables.rolls, session, status, now, show])
+    const t = now()
+    const cins = fresh.filter((e) => othersCinematic(e as { cin?: CinematicEvent }, session.me, t))
+    if (cins.length) void show(cins[cins.length - 1]!.cin as CinematicEvent)
+    for (const e of fresh) if (player && replayable(e, session.me, t)) void player.play({ ds: e.ds!.map((x) => x.d), res: e.ds!, m: e.m || 0, sk: e.sk || 'classic', who: e.n ?? null, remote: true })
+  }, [tables.rolls, session, status, now, show, player])
 
   const playCinematic = async (id: string) => {
     const c = await store.getState().shareCinematic(id)
@@ -317,7 +341,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         markers={markers}
         now={now}
         storage={storage}
-        legacyUrl={LEGACY_URL}
+        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} secretRolls={secretRolls} actions={diceActions} />}
         onApprove={approve}
         onClaim={decideClaim}
         enemiesPanel={

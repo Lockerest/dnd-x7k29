@@ -1,5 +1,6 @@
 // The cinematic script: one beat per line, with effects in brackets at the start,
 // e.g. "[stagger][glow] His chest begins to glow" or "[wait=3] ...".
+import { freshRolls, type RollEntry } from './dice'
 
 export const CINEMATIC_TAGS = ['portrait', 'stagger', 'glow', 'flash', 'shake', 'slam', 'crack', 'collapse', 'black', 'big', 'wait'] as const
 export type CinematicTag = (typeof CINEMATIC_TAGS)[number]
@@ -55,11 +56,10 @@ export function unknownTags(script: string): string[] {
 /** A cinematic as it is shared: script, boss name and token key ("e:<id>") for the portrait. */
 export type CinematicEvent = { t: string; n: string; k: string }
 
-/**
- * Cinematics another device started that this device should play: new log
- * entries only (the first read just remembers what is there), not its own,
- * at most the last 5, and only if started in the last 20 seconds.
- */
+/** A cinematic someone else started in the last 20 seconds (it plays here too). */
+export const othersCinematic = (e: { cin?: CinematicEvent; by?: string; ts?: number }, me: string, now: number): e is { cin: CinematicEvent } => !!e.cin && e.by !== me && now - (e.ts ?? 0) < 20000
+
+/** New cinematics since the last look (see freshRolls), oldest first. */
 export function freshCinematics(
   rolls: Record<string, { cin?: CinematicEvent; by?: string; ts?: number } | null | undefined>,
   seen: Set<string>,
@@ -67,16 +67,7 @@ export function freshCinematics(
   me: string,
   now: number,
 ): CinematicEvent[] {
-  const keys = Object.keys(rolls)
-  if (!seeded) {
-    keys.forEach((k) => seen.add(k))
-    return []
-  }
-  const fresh = keys.filter((k) => !seen.has(k))
-  fresh.forEach((k) => seen.add(k))
-  return fresh
-    .slice(-5)
-    .map((k) => rolls[k])
-    .filter((e): e is { cin: CinematicEvent; by?: string; ts?: number } => !!e?.cin && e.by !== me && now - (e.ts ?? 0) < 20000)
-    .map((e) => e.cin)
+  return freshRolls(rolls as Record<string, RollEntry | null>, seen, seeded)
+    .filter((e) => othersCinematic(e as { cin?: CinematicEvent }, me, now))
+    .map((e) => e.cin as CinematicEvent)
 }

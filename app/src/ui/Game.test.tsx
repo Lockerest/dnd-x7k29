@@ -3,6 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { gmPinHash } from '../logic/join'
+import type { DicePlayer, DiceJob } from './dice/player'
 import { Game } from './Game'
 
 afterEach(cleanup)
@@ -46,11 +47,11 @@ const memory = () => {
 const type = (label: RegExp, v: string) => fireEvent.change(screen.getByLabelText(label), { target: { value: v } })
 const click = (name: string | RegExp) => fireEvent.click(screen.getByRole('button', { name }))
 
-function setup(tree: Record<string, unknown> = {}, opts: { storage?: ReturnType<typeof memory>; hash?: string } = {}) {
+function setup(tree: Record<string, unknown> = {}, opts: { storage?: ReturnType<typeof memory>; hash?: string; player?: DicePlayer } = {}) {
   const fb = fakeFirebase(tree)
   const storage = opts.storage ?? memory()
   let n = 0
-  render(<Game fetchImpl={fb.fetch} storage={storage} hash={opts.hash ?? ''} every={20} qteEvery={20} newId={() => `p${++n}`} now={() => 1000} />)
+  render(<Game fetchImpl={fb.fetch} storage={storage} hash={opts.hash ?? ''} every={20} qteEvery={20} dicePlayer={opts.player ?? null} newId={() => `p${++n}`} now={() => 1000} />)
   return { fb, storage }
 }
 
@@ -79,7 +80,7 @@ describe('<Game /> joining', () => {
     expect(await screen.findByText('Game Master')).toBeInTheDocument()
     expect(fb.get('tables/dragon42/meta')).toEqual({ dm: await gmPinHash('secret') })
     expect(screen.getByRole('heading', { name: 'Dice' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
+    expect(screen.getByText('No rolls yet.')).toBeInTheDocument()
     // The new app's session is kept apart from the live page's.
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
     expect(storage.m.has('st')).toBe(false)
@@ -423,6 +424,46 @@ describe('<Game /> combat', () => {
     expect(screen.queryByText('⚠ Wolf is attacking you!')).not.toBeInTheDocument()
     click('Roll initiative')
     await vi.waitFor(() => expect(fb.writes.map((w) => w[1])).toContain('/tables/dragon42/init/l/0'))
+  })
+})
+
+describe('<Game /> dice', () => {
+  it("rolls from the Dice card are shown and shared; other players' new rolls play here; the dice style is remembered", async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('sk', 'gold')
+    const jobs: DiceJob[] = []
+    const player: DicePlayer = { play: async (j) => void jobs.push(j), init: () => {}, physics: () => false }
+    const old = { n: 'Bo', ds: [{ d: 6, r: 3 }], ts: 1000, by: 'b', sk: 'red' }
+    const { fb } = setup(
+      { tables: { dragon42: { meta: { dm: 'h' }, chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } }, rolls: { r1: old } } } },
+      { storage, player },
+    )
+    expect(await screen.findByText('Bo rolled d6:')).toBeInTheDocument()
+    expect(screen.getByLabelText('Dice style')).toHaveValue('gold')
+    click('d20')
+    await vi.waitFor(() => expect(jobs).toHaveLength(1))
+    expect(jobs[0]).toMatchObject({ ds: [20], sk: 'gold', who: null, remote: false })
+    expect(fb.writes.filter((w) => w[1] === '/tables/dragon42/rolls')[0]![2]).toMatchObject({ n: 'Lyra', sk: 'gold', by: 'a' })
+    // A new roll by someone else plays here (the one already there did not); my own and secret ones do not.
+    fb.set('tables/dragon42/rolls/r2', { n: 'Bo', ds: [{ d: 8, r: 7 }], m: 1, ts: 1000, by: 'b' })
+    fb.set('tables/dragon42/rolls/r3', { n: 'GM', ds: [{ d: 8, r: 7 }], ts: 1000, by: 'gm', s: 1 })
+    await vi.waitFor(() => expect(jobs).toHaveLength(2))
+    expect(jobs[1]).toEqual({ ds: [8], res: [{ d: 8, r: 7 }], m: 1, sk: 'classic', who: 'Bo', remote: true })
+    fb.set('tables/dragon42/rolls/r4', { ds: [{ d: 4, r: 2 }], ts: 1000, by: 'b', sk: 'lava' })
+    await vi.waitFor(() => expect(jobs).toHaveLength(3))
+    expect(jobs[2]).toMatchObject({ who: null, m: 0, sk: 'lava' })
+    fireEvent.change(screen.getByLabelText('Dice style'), { target: { value: 'ice' } })
+    expect(storage.m.get('sk')).toBe('ice')
+    fireEvent.change(screen.getByLabelText('Bonus'), { target: { value: '2' } })
+    expect(storage.m.get('sk')).toBe('ice')
+  })
+
+  it('the dice style is Ivory when none was chosen', async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    setup({ tables: { dragon42: { meta: { dm: 'h' }, chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } } } } }, { storage })
+    expect(await screen.findByLabelText('Dice style')).toHaveValue('classic')
   })
 })
 

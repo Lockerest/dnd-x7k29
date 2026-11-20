@@ -69,8 +69,10 @@ npm run build
    heavy and ability attacks, charged abilities, counter-attacks, monster skills, area and special
    attacks, push, mount, pick up and throw, the defender's 3-second dodge/parry prompt with readied
    reactions, damage, poise and stagger, phase gates and phase swaps, the "Roll for initiative!"
-   call to players).
-   Still on the live page: the dice log and 3D dice, sounds, the hit and miss animations, the GM's map
+   call to players); and part 2d: dice (the Dice card with how many, bonus, stat, dice style and the
+   GM's Secret box, the shared log, the 3D dice with the CSS dice fallback, other players' rolls
+   shown on every screen, attacks and abilities waiting for their dice like on the live page).
+   Still on the live page: sounds and battle music, the attack scenes (hit and miss animations), the GM's map
    tools (uploading and drawing maps, walls, fog painting, pins), uploading pictures, and the enemy
    extras (auto turn, boss intro when combat begins, spawn point, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.

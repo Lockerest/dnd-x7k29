@@ -382,3 +382,36 @@ textarea {
   background: var(--bg);
   color: var(--tx);
 }
+
+/* Dice: the roll overlay, CSS dice, results and skins (same as the live page). */
+.dov{position:fixed;inset:0;pointer-events:none;z-index:50;perspective:900px}
+.d3{position:absolute;left:0;top:0;width:84px;height:84px;transform-style:preserve-3d}
+.d3 i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:var(--sf);border:2px solid var(--ac);border-radius:10px;font:700 34px "Cormorant Garamond",Georgia,serif;font-style:normal;color:var(--tx)}
+.d3 .f1{transform:translateZ(42px)}
+.d3 .f2{transform:rotateY(180deg) translateZ(42px)}
+.d3 .f3{transform:rotateY(90deg) translateZ(42px)}
+.d3 .f4{transform:rotateY(-90deg) translateZ(42px)}
+.d3 .f5{transform:rotateX(90deg) translateZ(42px)}
+.d3 .f6{transform:rotateX(-90deg) translateZ(42px)}
+.dres{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:10px;animation:pop .3s ease-out}
+.dl{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;max-width:90vw}
+.dc{min-width:84px;height:84px;padding:0 10px;background:var(--sf);border:3px solid var(--ac);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:700 44px "Cormorant Garamond",Georgia,serif;box-shadow:0 8px 28px #0008}
+.dc small{font:600 12px "Source Sans 3",sans-serif;color:var(--mu)}
+.dt{background:var(--sf);border:2px solid var(--ac);border-radius:10px;padding:6px 16px;font:700 28px "Cormorant Garamond",Georgia,serif;box-shadow:0 8px 28px #0008}
+@keyframes pop{0%{scale:.5}70%{scale:1.15}100%{scale:1}}
+.dov .dc{border-color:var(--tile,var(--ac))}
+.d3.land{transition:transform .35s ease-out}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--ln);vertical-align:-1px;margin-right:4px;background:var(--sf)}
+.dov[class*=sk-] .dc small{color:inherit;opacity:.75}
+.sk-red .d3 i,.sk-red .dc,.sw.sk-red{background:linear-gradient(135deg,#c62828,#7a0f0f);color:#fff;border-color:#ff8a80}
+.sk-black .d3 i,.sk-black .dc,.sw.sk-black{background:linear-gradient(135deg,#2a2a2e,#050507);color:#f2f2f2;border-color:#6b6b73}
+.sk-pink .d3 i,.sk-pink .dc,.sw.sk-pink{background:linear-gradient(135deg,#ff8fc3,#d6458b);color:#fff;border-color:#ffd0e6}
+.sk-glass .d3 i,.sk-glass .dc,.sw.sk-glass{background:rgba(170,215,255,.28);color:#fff;border-color:rgba(255,255,255,.7);text-shadow:0 1px 3px #0009}
+.sk-lava .d3 i,.sk-lava .dc,.sw.sk-lava{background:radial-gradient(circle at 30% 25%,#ffe27a,#ff7a00 38%,#6d0d00 100%);color:#fff;border-color:#ff9a3d;text-shadow:0 1px 3px #000}
+.sk-veins .d3 i,.sk-veins .dc,.sw.sk-veins{background:linear-gradient(115deg,transparent 38%,rgba(170,20,30,.65) 39.5%,transparent 41.5%),linear-gradient(62deg,transparent 56%,rgba(150,10,25,.55) 57%,transparent 59%),linear-gradient(170deg,transparent 70%,rgba(160,15,28,.5) 71%,transparent 73%),#efe8dc;color:#5b0a13;border-color:#b9423f}
+.sk-galaxy .d3 i,.sk-galaxy .dc,.sw.sk-galaxy{background:radial-gradient(circle at 20% 25%,#fff 0 1px,transparent 2px),radial-gradient(circle at 75% 70%,#fff 0 1px,transparent 2px),radial-gradient(circle at 30% 20%,#7b4bd6,#1b1245 58%,#05030f);color:#fff;border-color:#8e6bd6}
+.sk-gold .d3 i,.sk-gold .dc,.sw.sk-gold{background:linear-gradient(135deg,#fff1a8,#d4a017 45%,#8a5d00);color:#3a2600;border-color:#fff2b8}
+.dicebox{position:fixed;inset:0;pointer-events:none}
+.dicebox canvas{pointer-events:none}
+.dw{font:600 18px "Source Sans 3",sans-serif;color:var(--tx);background:var(--sf);border:2px solid var(--ac);border-radius:8px;padding:2px 12px;margin-bottom:4px}
+.dlog{margin:8px 0 0;padding:0;list-style:none;color:var(--mu);font-size:14px}

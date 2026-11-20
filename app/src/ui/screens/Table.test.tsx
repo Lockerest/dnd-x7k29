@@ -50,7 +50,7 @@ function Harness({ store, storage, images }: { store: GameStore; storage: Return
       enemiesPanel={<div>GM enemies</div>}
       onApprove={() => {}}
       onClaim={() => {}}
-      legacyUrl="../"
+      dicePanel={<p>Dice card</p>}
     />
   )
 }
@@ -89,7 +89,7 @@ describe('a player at the table', () => {
     expect(en.querySelector('img.av')).toHaveAttribute('src', 'data:w')
     expect(en).not.toHaveTextContent('Far')
     expect(screen.getByText(/Out of combat: move up to 6 squares for free/)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
+    expect(screen.getByText('Dice card')).toBeInTheDocument()
   })
 
   it('walks by tapping the map; tapping an enemy opens the action menu, tapping the ground closes it', async () => {
