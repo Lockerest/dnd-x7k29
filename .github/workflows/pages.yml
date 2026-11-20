@@ -1,0 +1,76 @@
+# Builds and publishes the site to GitHub Pages on every push to main.
+#   - The live single-file app (index.html at the repo root) stays at the site root,
+#     so your players' link does not change.
+#   - The new React app is published under /next/.
+# Nothing is published if a check fails, so a broken upload never reaches the table.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check and unit tests
+        run: |
+          npm run typecheck
+          npm run test:coverage
+
+      - name: Rule and smoke tests on the live page
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+
+      - name: Build the new app
+        run: npm run build
+
+      - name: Assemble the site
+        working-directory: .
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='app' --exclude='_site' --exclude='README.md' --exclude='.gitignore' ./ _site/
+          cp -r app/dist _site/next
+          touch _site/.nojekyll
+          ls -la _site _site/next
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
