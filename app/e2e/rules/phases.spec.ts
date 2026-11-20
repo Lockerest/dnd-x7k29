@@ -10,7 +10,8 @@ test.describe('applyDmg(): damage to enemies', () => {
   test('plain damage lowers HP, saves it and plays the hit scene', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Wolf', hp: 1000, max: 1000 } })
     await legacy.run(hit('a', 300))
-    expect(await legacy.run('enemies.a.hp')).toBe(700)
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('enemies.a.hp')).toBe(700)
     expect(writesTo(legacy.writes, 'PATCH', 'enemies/a')).toContainEqual(expect.objectContaining({ hp: 700, hv: 300 }))
     await expect.poll(() => writesTo(legacy.writes, 'POST', 'rolls')).toContainEqual(
       expect.objectContaining({ fx: expect.objectContaining({ o: 'hit', d: 300, a: 'c:c1', t: 'e:a' }) }),
@@ -20,25 +21,29 @@ test.describe('applyDmg(): damage to enemies', () => {
   test('HP never goes below 0 without a next phase, even with swap-at-0 set', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Wolf', hp: 100, max: 1000, sw: 1 } })
     await legacy.run(hit('a', 500))
-    expect(await legacy.run('enemies.a.hp')).toBe(0)
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('enemies.a.hp')).toBe(0)
   })
 
   test('an event gate stops the hit exactly at the gate % and flags it', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Kernunos', hp: 600, max: 1000, pg: 50 } })
     await legacy.run(hit('a', 2000))
-    expect(await legacy.run('[enemies.a.hp,enemies.a.gr]')).toEqual([500, 500])
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('[enemies.a.hp,enemies.a.gr]')).toEqual([500, 500])
   })
 
   test('a gate only triggers when the hit crosses it', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Kernunos', hp: 400, max: 1000, pg: 50 } })
     await legacy.run(hit('a', 100))
-    expect(await legacy.run('[enemies.a.hp,enemies.a.gr]')).toEqual([300, undefined])
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('[enemies.a.hp,enemies.a.gr]')).toEqual([300, undefined])
   })
 
   test('the gate rounds up (10% of 333 is 34)', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Kernunos', hp: 333, max: 333, pg: 10 } })
     await legacy.run(hit('a', 9999))
-    expect(await legacy.run('enemies.a.hp')).toBe(34)
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('enemies.a.hp')).toBe(34)
   })
 
   test('a swap gate hands over to the next sheet at the same HP after the hit scene', async ({ legacy }) => {
@@ -47,7 +52,8 @@ test.describe('applyDmg(): damage to enemies', () => {
         b: { name: 'Aethelric (phase 2)', hp: 2000, max: 2000, pm: 40 },
       })
     await legacy.run(hit('a', 600))
-    expect(await legacy.run('enemies.a.hp')).toBe(750)
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('enemies.a.hp')).toBe(750)
     await expect.poll(() => legacy.run('enemies.b.mx'), { timeout: 5000 }).toBe(4)
     expect(await legacy.run('[enemies.b.hp,enemies.b.my,enemies.b.mp,enemies.b.po,enemies.a.mx==null,sel]')).toEqual([750, 5, 'm', 40, true, 'e:b'])
   })
@@ -58,7 +64,8 @@ test.describe('applyDmg(): damage to enemies', () => {
         b: { name: 'King on foot', hp: 1, max: 700 },
       })
     await legacy.run(hit('a', 5000))
-    expect(await legacy.run('enemies.a.hp')).toBe(1)
+    // The page refreshes from the database in the background; wait for the saved value.
+    await expect.poll(() => legacy.run('enemies.a.hp')).toBe(1)
     await expect.poll(() => legacy.run('enemies.b.hp'), { timeout: 5000 }).toBe(700)
   })
 })
@@ -67,7 +74,7 @@ test.describe('applyDmg(): damage to characters', () => {
   test('lowers HP and adds fatigue', async ({ legacy }) => {
     await legacy.table(HERO, { a: { name: 'Wolf', hp: 10, max: 10, mx: 0, my: 0 } })
     await legacy.run('applyDmg({e:true,id:"a",o:enemies.a},{e:false,id:"c1",o:chars.c1},30,{label:"Bite",heavy:false,rng:1})')
-    expect(await legacy.run('[chars.c1.hp,chars.c1.ft,chars.c1.maxHp]')).toEqual([70, 3, 97])
+    await expect.poll(() => legacy.run('[chars.c1.hp,chars.c1.ft,chars.c1.maxHp]')).toEqual([70, 3, 97])
   })
 })
 
@@ -102,6 +109,8 @@ test.describe('"+ Add next phase sheet"', () => {
       })
     await legacy.run('TH.firstdefier={data:""};' + open('a'))
     await page.locator('[data-a="phadd"][data-id="a"]').click()
+    // Wait until the new sheet and the link to it are saved.
+    await expect.poll(() => legacy.writes.filter((w) => /^enemies\/e[a-z0-9]{6}$/.test(w.path) || /^enemies\/[ab]$/.test(w.path)).length).toBeGreaterThanOrEqual(2)
     const r = await legacy.run<{ nx: string; pg: number; d: Record<string, unknown> }>('({nx:enemies.a.nx,pg:enemies.a.pg,d:enemies[enemies.a.nx]})')
     expect(r.pg).toBe(50)
     expect(r.d).toMatchObject({ name: 'Aethelric (phase 2)', hp: 1000, max: 1000, po: 20, th: 'firstdefier', sk: { s1: { n: "Warden's Cut" } } })
@@ -117,6 +126,8 @@ test.describe('"+ Add next phase sheet"', () => {
       })
     await legacy.run('TH.rotarena={data:""};' + open('a'))
     await page.locator('[data-a="phadd"][data-id="a"]').click()
+    // Wait until the new sheet and the link to it are saved.
+    await expect.poll(() => legacy.writes.filter((w) => /^enemies\/e[a-z0-9]{6}$/.test(w.path) || /^enemies\/[ab]$/.test(w.path)).length).toBeGreaterThanOrEqual(2)
     const r = await legacy.run<{ a: string; b: Record<string, unknown>; n: Record<string, unknown> }>(
       '({a:enemies.a.nx,b:enemies.b,n:enemies[enemies.b.nx]})',
     )
@@ -129,6 +140,8 @@ test.describe('"+ Add next phase sheet"', () => {
     await legacy.table(HERO, { a: { name: 'Odi\'ram', hp: 10, max: 10 } })
     await legacy.run('delete TH.emberrage;' + open('a'))
     await page.locator('[data-a="phadd"][data-id="a"]').click()
+    // Wait until the new sheet and the link to it are saved.
+    await expect.poll(() => legacy.writes.filter((w) => /^enemies\/e[a-z0-9]{6}$/.test(w.path) || /^enemies\/[ab]$/.test(w.path)).length).toBeGreaterThanOrEqual(2)
     expect(await legacy.run('enemies[enemies.a.nx].th')).toBeUndefined()
   })
 })

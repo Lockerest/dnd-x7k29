@@ -85,7 +85,7 @@ test.describe('playCin(): the cinematic script', () => {
     await legacy.table({}, { a: { name: 'Aethelric', hp: 10, max: 10 } })
     await legacy.run('eOpen.add("a");last="";render()')
     await page.locator('[data-a="cinpre"][data-id="a"]').click()
-    expect(await legacy.run('enemies.a.gt===CINP')).toBe(true)
+    await expect.poll(() => legacy.run('enemies.a.gt===CINP')).toBe(true)
     await legacy.run('last="";render()')
     await page.locator('[data-a="cinplay"][data-id="a"]').click()
     await expect.poll(() => writesTo(legacy.writes, 'POST', 'rolls')).toContainEqual(expect.objectContaining({ cin: expect.objectContaining({ n: 'Aethelric', k: 'e:a' }) }))
