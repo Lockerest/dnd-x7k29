@@ -6,7 +6,7 @@ export type W = [method: string, path: string, body: unknown]
 
 /** Replaces the page's database calls: writes are recorded, reads give the page's own state. */
 export const CAPTURE = `window.__w=[];api=async(p,m,b)=>{if(m&&m!=="GET"){__w.push([m,p,b===undefined?null:JSON.parse(JSON.stringify(b))]);return m==="POST"?{name:"-k"+__w.length}:null}
- return({chars,enemies,maps,cur,board:boardDB?board:null,"meta/sp":SPS,"meta/abv":abAll?1:0,"meta/aic":aicOn?1:0})[p]??null};`
+ return({chars,enemies,maps,cur,board:boardDB?board:null,"meta/sp":SPS,init:ini,combat,"meta/abv":abAll?1:0,"meta/aic":aicOn?1:0})[p]??null};`
 
 /** A recording database for the new store. */
 export function recDb(w: W[]): Db {

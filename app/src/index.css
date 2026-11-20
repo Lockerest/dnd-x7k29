@@ -332,6 +332,9 @@ button.warn{border-color:var(--hp)}
 #tvp{position:fixed;right:10px;top:54px;z-index:70;background:var(--sf);border:2px solid var(--ac);border-radius:10px;padding:10px;max-width:310px}
 @media(max-width:860px){.tbl,.tbl.hl{grid-template-columns:1fr}.tbl .mid{order:-1}}
 
+/* Turn order */
+.rl{margin:6px 0 10px;padding-left:18px}.rl li.now{color:var(--ac);font-weight:600}
+
 /* Cinematic (same look as the live page) */
 .cin{position:fixed;inset:0;z-index:80;background:#000;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;animation:cinIn 1.6s both}
 .cin.out{animation:cinOut 1.6s both}

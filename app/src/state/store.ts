@@ -11,6 +11,7 @@ import { errorText } from '../util/errors'
 import { characterChange, enemyChange, type CharacterWithLog } from './updates'
 import { sheetActions, type SheetActions, type Timers } from './sheetActions'
 import { boardActions, type BoardActions } from './boardActions'
+import { initiativeActions, type InitiativeActions } from './initiativeActions'
 import { tableActions, type TableActions } from './tableActions'
 
 export type Tables = {
@@ -22,7 +23,7 @@ export type Tables = {
   rolls: Record<string, Record<string, unknown>>
   combat: boolean
   /** Initiative: order list l, turn t, round r, phase ph. */
-  ini: { l: { k: string }[]; t?: number; r?: number; ph?: string } | null
+  ini: { l: { k: string; v?: number | null }[]; t?: number; r?: number; ph?: string } | null
   board: Record<string, unknown> | null
   claims: Record<string, unknown> | null
   /** Spoiler words hidden from players (meta/sp): null = the default list, "-" = none. */
@@ -94,6 +95,7 @@ export type GameState = {
   notice: (text: string) => void
 } & SheetActions &
   BoardActions &
+  InitiativeActions &
   TableActions
 
 const signature = (t: Tables) => JSON.stringify(t)
@@ -147,6 +149,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       notice: (text) => set({ error: text }),
       ...sheetActions(get, set, save, now, rand, later),
       ...boardActions(get, set, save),
+      ...initiativeActions(get, set, save, rand),
       ...tableActions(get, set, save),
 
       updateCharacter: async (id, p, msg) => {

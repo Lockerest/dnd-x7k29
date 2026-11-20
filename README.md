@@ -63,10 +63,12 @@ npm run build
    fog, tokens with pictures, tombstones and effects, movement squares), placing and moving heroes
    and monsters (stamina in combat, carried monsters, fog revealed), jumping off a monster, the
    GM's round, rest and combat buttons, everyone's status boxes, quick actions, helping allies up,
-   doors, the hidden-words list, choosing and showing maps, and the projector view.
-   Still on the live page: attacks and the action menu, initiative, dice, sounds, the GM's map
+   doors, the hidden-words list, choosing and showing maps, and the projector view; and the play
+   table part 2a: initiative and turn order (start, roll, begin, next turn with new rounds, a
+   player's End turn, end combat).
+   Still on the live page: attacks and the action menu, dice, sounds, the GM's map
    tools (uploading and drawing maps, walls, fog painting, pins), uploading pictures, and the enemy
-   extras (auto turn, boss intro, spawn point, skill sounds and icons).
+   extras (auto turn, boss intro when combat begins, spawn point, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

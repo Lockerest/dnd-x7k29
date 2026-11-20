@@ -312,4 +312,15 @@ describe('more table cases', () => {
     click('Jump off')
     await vi.waitFor(() => expect(f.writes).toEqual([['PATCH', 'chars/a', { mt: '', mon: null, log: ['Unmounted'] }]]))
   })
+
+  it('End turn shows on your own turn (not the round\'s last) and passes it', async () => {
+    const go = { ph: 'go', t: 0, r: 1, l: [{ k: 'c:a', v: 9 }, { k: 'e:w', v: 1 }] }
+    const { f } = setup({ chars: { a: hero() }, enemies: { w: { name: 'Wolf', hp: 5, mx: 5, my: 5 } }, ini: go, combat: true })
+    expect(screen.getByRole('heading', { name: 'Turn order · Round 1' })).toBeInTheDocument()
+    click('End turn', screen.getByLabelText('Status: Lyra'))
+    await vi.waitFor(() => expect(f.writes.map((w) => w[1])).toEqual(['init', 'rolls']))
+    cleanup()
+    setup({ chars: { a: hero() }, enemies: { w: { name: 'Wolf', hp: 5 } }, ini: { ...go, t: 1, l: [{ k: 'e:w', v: 9 }, { k: 'c:a', v: 1 }] } })
+    expect(screen.queryByRole('button', { name: 'End turn' })).toBeNull()
+  })
 })

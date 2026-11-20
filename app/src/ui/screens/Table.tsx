@@ -17,6 +17,8 @@ import { MapView } from '../map/MapView'
 import { Meter } from '../parts'
 import { AbilityIcon } from './Board'
 import { RequestPanels } from './RequestPanels'
+import { InitiativePanel } from './Initiative'
+import { canEndTurn, type Initiative } from '../../logic/initiative'
 
 export type TableActions = Pick<
   GameState,
@@ -39,6 +41,12 @@ export type TableActions = Pick<
   | 'setGmMap'
   | 'startJump'
   | 'cancelJump'
+  | 'startInitiative'
+  | 'rollInitiative'
+  | 'rollMonsters'
+  | 'beginCombat'
+  | 'passTurn'
+  | 'endCombat'
 >
 
 export type TableProps = {
@@ -129,11 +137,12 @@ export function TableScreen(p: TableProps) {
         <MapPanel {...p} sel={sel} onSelect={setSel} />
       </div>
       <div>
+        <InitiativePanel tables={tables} dm={dm} me={me} gmMap={p.gmMap} actions={actions} />
         {dm ? p.enemiesPanel : <PlayerEnemies {...p} />}
         <div className="card">
-          <h2>Initiative and dice</h2>
+          <h2>Attacks and dice</h2>
           <p className="note">
-            Turn order, attacks and dice are still being moved. Use the <a href={p.legacyUrl}>live table</a> for them meanwhile.
+            Attacking from the map and the dice are still being moved. Use the <a href={p.legacyUrl}>live table</a> for them meanwhile.
           </p>
         </div>
       </div>
@@ -202,6 +211,11 @@ function StatusBox({ id, tables, dm, me, gmMap, actions, icons }: TableProps & {
             <button disabled={(c.fl as number) < 1} onClick={() => upd(drinkFlask(c))}>
               Flask {c.fl}/{c.maxFl}
             </button>
+            {canEndTurn(tables.ini as Initiative | null, id, dm) && (
+              <button className="pri" onClick={() => void actions.passTurn()}>
+                End turn
+              </button>
+            )}
             {dm &&
               [-50, -10, 10, 50].map((n) => (
                 <button key={n} onClick={() => upd(hpChange(c, n))}>

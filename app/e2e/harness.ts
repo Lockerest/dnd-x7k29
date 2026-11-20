@@ -22,6 +22,8 @@ export type Legacy = {
 
 type Tree = { [k: string]: unknown }
 const isTree = (v: unknown): v is Tree => typeof v === 'object' && v !== null && !Array.isArray(v)
+/** Lists count as containers too: like Firebase, "l/0" is item 0 of a list. */
+const isNode = (v: unknown): v is Tree => typeof v === 'object' && v !== null
 
 /** A tiny in-memory Realtime Database: GET reads, PUT sets, PATCH merges, POST appends, DELETE removes. */
 export class FakeDb {
@@ -30,7 +32,7 @@ export class FakeDb {
   private parts = (path: string) => path.split('/').filter(Boolean)
   get(path: string): unknown {
     let n: unknown = this.root
-    for (const p of this.parts(path)) n = isTree(n) ? n[p] : undefined
+    for (const p of this.parts(path)) n = isNode(n) ? n[p] : undefined
     return n === undefined ? null : n
   }
   set(path: string, v: unknown) {
@@ -40,7 +42,7 @@ export class FakeDb {
       return
     }
     let n = this.root
-    for (const p of ps.slice(0, -1)) n = (isTree(n[p]) ? n[p] : (n[p] = {})) as Tree
+    for (const p of ps.slice(0, -1)) n = (isNode(n[p]) ? n[p] : (n[p] = {})) as Tree
     const last = ps[ps.length - 1]!
     if (v === null) delete n[last]
     else n[last] = structuredClone(v) // a copy, so recorded request bodies never change afterwards

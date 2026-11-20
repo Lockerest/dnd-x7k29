@@ -78,7 +78,7 @@ describe('<Game /> joining', () => {
     click('Open as Game Master')
     expect(await screen.findByText('Game Master')).toBeInTheDocument()
     expect(fb.get('tables/dragon42/meta')).toEqual({ dm: await gmPinHash('secret') })
-    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
     // The new app's session is kept apart from the live page's.
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
@@ -128,7 +128,7 @@ describe('<Game /> characters', () => {
     expect(fb.get('tables/dragon42/chars/p1')).toMatchObject({ name: 'Lyra', cls: 'archer', ap: false })
     expect(screen.queryByRole('button', { name: 'Sheet' })).toBeNull()
     act(() => fb.set('tables/dragon42/chars/p1/ap', true))
-    expect(await screen.findByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
     // Tabs now work.
     click('Sheet')
     expect(screen.getByRole('heading', { name: 'Lyra' })).toBeInTheDocument()
@@ -136,7 +136,7 @@ describe('<Game /> characters', () => {
     click('Abilities')
     expect(screen.getByRole('heading', { name: 'Ability board' })).toBeInTheDocument()
     click('Back to table')
-    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
   })
 
   it('a declined character sees it', async () => {
@@ -161,7 +161,7 @@ describe('<Game /> characters', () => {
     expect(screen.getByText(/take over Bram/)).toBeInTheDocument()
     expect(fb.get('tables/dragon42/claims/p1')).toEqual({ who: 'Sam', target: 'c1', st: 'pending', ts: 1000 })
     act(() => fb.set('tables/dragon42/claims/p1/st', 'ok'))
-    expect(await screen.findByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
     await vi.waitFor(() => expect(fb.get('tables/dragon42/claims/p1')).toBeNull())
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'player', me: 'c1' })
   })
@@ -241,7 +241,7 @@ describe('<Game /> Game Master', () => {
     click(await screen.findByRole('button', { name: 'View as player' }).then((b) => b.textContent!))
     expect(screen.getByRole('heading', { name: 'Create your character' })).toBeInTheDocument()
     click('Back to GM')
-    expect(screen.getByRole('heading', { name: 'Initiative and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
   })
 })
 

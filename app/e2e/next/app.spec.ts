@@ -311,3 +311,59 @@ test('the table: a player walks on the map in the new app, the GM moves a monste
   await gmCtx.close()
   await plCtx.close()
 })
+
+test('initiative: the GM starts it in the new app, the player rolls, combat begins, turns pass; the live page agrees', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 40, maxSt: 100, rg: 15, dex: 14, mx: 1, my: 1, x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 30, max: 30, mx: 5, my: 5, ib: 1, x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1 } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db)
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+
+  await gm.goto(base + 'next/')
+  await gm.getByRole('button', { name: 'Start initiative' }).click()
+  await expect.poll(() => (db.get('tables/dragon42/init') as { ph?: string } | null)?.ph).toBe('roll')
+
+  await pl.goto(base + 'next/')
+  const order = pl.getByLabel('Turn order')
+  await order.getByRole('button', { name: 'Roll' }).click()
+  await expect.poll(() => (db.get('tables/dragon42/init/l/0') as { v: number | null }).v ?? 0).toBeGreaterThan(2) // d20 + 2 (DEX 14)
+  const rolled = Object.values(db.get('tables/dragon42/rolls') as object).find((r: { ds?: unknown }) => r.ds) as { n: string; m: number }
+  expect(rolled).toMatchObject({ n: 'Lyra', m: 2 }) // the dice are shared with the table
+
+  await gm.getByRole('button', { name: 'Roll enemies' }).click()
+  await expect(gm.getByRole('button', { name: 'Begin combat' })).toBeEnabled()
+  await gm.getByRole('button', { name: 'Begin combat' }).click()
+  await expect.poll(() => db.get('tables/dragon42/combat')).toBe(true)
+  await expect(gm.getByRole('heading', { name: 'Turn order · Round 1' })).toBeVisible()
+
+  // Whoever goes first, the GM passes turns until a new round: Lyra regains stamina.
+  await gm.getByRole('button', { name: 'Next turn' }).click()
+  await gm.getByRole('button', { name: 'Next turn' }).click()
+  await expect.poll(() => (db.get('tables/dragon42/init') as { r: number }).r).toBe(2)
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/st')).toBe(55)
+  await expect(pl.getByRole('heading', { name: 'Turn order · Round 2' })).toBeVisible()
+
+  // The live page shows the same order.
+  const live = await plCtx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await live.goto(base)
+  await expect(live.getByRole('heading', { name: 'Turn order · Round 2' })).toBeVisible()
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})
