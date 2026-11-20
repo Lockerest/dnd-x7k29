@@ -15,6 +15,8 @@ export type DicePanelProps = {
   dm: boolean
   me: string
   dice: DiceSettings
+  /** My roll is still on screen: the dice buttons wait. */
+  busy?: boolean
   secretRolls: RollEntry[]
   actions: Pick<GameState, 'setDice' | 'rollDie'>
 }
@@ -38,7 +40,7 @@ function LogLine({ r }: { r: RollEntry }) {
   )
 }
 
-export function DicePanel({ tables, dm, me, dice, secretRolls, actions }: DicePanelProps) {
+export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions }: DicePanelProps) {
   const c = tables.chars[me] as Sheet | undefined
   const gates = Object.values(tables.enemies).filter((e) => e?.gr)
   const log = diceLog(tables.rolls as Record<string, RollEntry | null>, secretRolls, dm)
@@ -53,7 +55,7 @@ export function DicePanel({ tables, dm, me, dice, secretRolls, actions }: DicePa
         <h2>Dice</h2>
         <div className="row mini">
           {DIE_SIZES.map((n) => (
-            <button key={n} onClick={() => void actions.rollDie(n)}>
+            <button key={n} disabled={busy} onClick={() => void actions.rollDie(n)}>
               d{n}
             </button>
           ))}

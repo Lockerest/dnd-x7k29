@@ -71,6 +71,24 @@ describe('rolling', () => {
 })
 
 describe('the Dice card buttons', () => {
+  it('one roll at a time: buttons pressed while my dice are on screen do nothing', async () => {
+    const { s, f } = setup()
+    let finish: (() => void) | null = null
+    s.getState().setDiceView({ play: () => new Promise<void>((r) => (finish = r)), physics: () => false })
+    const first = s.getState().rollDie(6)
+    expect(s.getState().diceBusy).toBe(true)
+    await vi.waitFor(() => expect(finish).not.toBeNull())
+    await s.getState().rollDie(6)
+    expect(f.writes).toHaveLength(1)
+    finish!()
+    await first
+    expect(s.getState().diceBusy).toBe(false)
+    // A roll that fails still frees the buttons.
+    s.getState().setDiceView({ play: () => Promise.reject(new Error('x')), physics: () => false })
+    await expect(s.getState().rollDie(6)).rejects.toThrow('x')
+    expect(s.getState().diceBusy).toBe(false)
+  })
+
   it('rolls "How many" dice with the bonus and the chosen stat', async () => {
     const { s, f } = setup()
     s.getState().setDice({ count: 3, bonus: 1, stat: 'dex' })

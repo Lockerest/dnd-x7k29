@@ -44,7 +44,16 @@ export type DicePlayer = {
   physics: () => boolean
 }
 
-type Inst = { ready: boolean; busy: boolean; bad: boolean; el: HTMLElement; box?: DiceBox }
+type Inst = { ready: boolean; busy: boolean; bad: boolean; el: HTMLElement; box?: DiceBox; rolling?: Promise<unknown> }
+
+/**
+ * At most this many rolls on screen or waiting. Rolls past that (someone hammering
+ * the dice buttons) skip the show: their result is still saved and in the log.
+ */
+export const MAX_SHOWN = 4
+/** Rolls with more physical dice than this (a d100 is two) tumble as CSS dice instead of 3D ones. */
+export const MAX_3D_DICE = 12
+const physicalDice = (ds: number[]) => ds.length + ds.filter((d) => d === 100).length
 type Queued = { job: DiceJob; done: () => void }
 
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
@@ -54,6 +63,7 @@ export function createDicePlayer(env: DiceEnv): DicePlayer {
   const pool: Inst[] = []
   let libBad = false
   const queue: Queued[] = []
+  let active = 0
   const lib = () => (libBad ? null : env.lib())
   const libReady = () => !!lib() && pool.some((x) => x.ready && !x.bad) && !env.reducedMotion()
 
@@ -101,6 +111,10 @@ export function createDicePlayer(env: DiceEnv): DicePlayer {
         start(queue.shift()!, null)
         continue
       }
+      if (physicalDice(queue[0]!.job.ds) > MAX_3D_DICE) {
+        start(queue.shift()!, null)
+        continue
+      }
       const inst = pool.find((x) => x.ready && !x.busy && !x.bad)
       if (inst) {
         start(queue.shift()!, inst)
@@ -113,10 +127,25 @@ export function createDicePlayer(env: DiceEnv): DicePlayer {
 
   const start = (q: Queued, inst: Inst | null) => {
     if (inst) inst.busy = true
+    active++
     show(q.job, inst, () => {
-      if (inst) inst.busy = false
+      active--
       q.done()
+      // A box still busy with a roll that ran late is used again only once it has finished.
+      if (inst?.rolling) {
+        // (Given up on after 20 more seconds, so a box that never answers is not lost for good.)
+        void Promise.race([inst.rolling, new Promise((r) => env.setTimeout(() => r(null), 20000))]).then(free, free)
+      } else if (inst) inst.busy = false
       pump()
+      function free() {
+        try {
+          inst!.box!.clearDice()
+        } catch {
+          // The box may already be gone.
+        }
+        inst!.busy = false
+        pump()
+      }
     })
   }
 
@@ -216,7 +245,10 @@ export function createDicePlayer(env: DiceEnv): DicePlayer {
         await box.updateConfig(skinConfig(sk))
         const note = libNotation(ds, res, remote)
         if (note) {
-          const out = await Promise.race([box.roll(note), new Promise<never>((_, j) => env.setTimeout(() => j(new Error('slow')), 10000))])
+          const rolling = box.roll(note)
+          inst.rolling = rolling
+          const out = await Promise.race([rolling, new Promise<never>((_, j) => env.setTimeout(() => j(new Error('slow')), 10000))])
+          inst.rolling = undefined
           if (!remote) {
             const d4 = (out.sets || []).filter((x) => x.type === 'd4').flatMap((x) => x.rolls.map((y) => y.value))
             let k = 0
@@ -234,6 +266,14 @@ export function createDicePlayer(env: DiceEnv): DicePlayer {
   return {
     play: (job) =>
       new Promise<void>((done) => {
+        if (active + queue.length >= MAX_SHOWN) {
+          try {
+            job.onLand?.()
+          } catch {
+            // Saving the roll must not stop the next one.
+          }
+          return done()
+        }
         queue.push({ job, done })
         pump()
       }),

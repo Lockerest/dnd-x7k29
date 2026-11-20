@@ -17,6 +17,8 @@ export type DiceActions = {
   /** The GM's secret rolls (last 12), only on this device. */
   secretRolls: RollEntry[]
   diceView: DiceView | null
+  /** My own Dice card roll is still on screen (the dice buttons wait for it). */
+  diceBusy: boolean
   setDice: (p: Partial<DiceSettings>) => void
   setDiceView: (v: DiceView | null) => void
   /** Rolls, shows and shares dice with a bonus; resolves with the results once shown. */
@@ -60,13 +62,21 @@ export function diceActions(get: Get, set: Set, save: Save, now: () => number, r
     dice: defaultDice(),
     secretRolls: [],
     diceView: null,
+    diceBusy: false,
     setDice: (p) => set({ dice: { ...get().dice, ...p } }),
     setDiceView: (diceView) => set({ diceView }),
     roll,
     rollDie: async (n) => {
-      const { dice, dm, session, tables } = get()
+      const { dice, dm, session, tables, diceBusy } = get()
+      // One roll at a time: hammering the buttons would bury every screen in dice.
+      if (diceBusy) return
       const m = manualBonus(dice.bonus, dice.stat, tables.chars[session?.me ?? ''], dm, mod)
-      await roll(Array(Math.max(1, Math.min(10, dice.count))).fill(n), m)
+      set({ diceBusy: true })
+      try {
+        await roll(Array(Math.max(1, Math.min(10, dice.count))).fill(n), m)
+      } finally {
+        set({ diceBusy: false })
+      }
     },
   }
 }

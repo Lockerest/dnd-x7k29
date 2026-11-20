@@ -74,7 +74,7 @@ test('a Dice card button: how many, bonus, stat, style, and the GM\'s Secret box
     const sheet = clean({ name: 'Lyra', str: r.maybe(r.int(3, 20)), dex: r.maybe(r.int(3, 20)), wis: 14, hp: 10, maxHp: 10, st: 50, maxSt: 100, x10: true })
     await legacy.run(
       `${CAPTURE}Math.random=()=>${RAND};pin="t";role=${dm ? '"gm"' : '"player"'};canGM=${dm};dm=${dm};me=${dm ? '"gm"' : '"a"'};chars={a:${JSON.stringify(sheet)}};enemies={};maps={};cur=null;
-       rolls={};secret=[];secOn=${secretOn};dcount=${count};bonus=${bonus};dstat=${JSON.stringify(stat)};skin=${JSON.stringify(skin)};view="table";last="";render()`,
+       rolls={};secret=[];myDie=0;secOn=${secretOn};dcount=${count};bonus=${bonus};dstat=${JSON.stringify(stat)};skin=${JSON.stringify(skin)};view="table";last="";render()`,
     )
     await page.locator(`[data-a="die"][data-n="${n}"]`).click()
     const theirs = (await legacy.run<W[]>('__w')).filter(([, p]) => p === 'rolls')

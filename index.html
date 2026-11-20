@@ -191,7 +191,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=64,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
+const BUILD=65,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield or melee weapon): when a weapon, claw, tail or projectile attack would hit you (not a spell effect, flame, frost or beam), roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
@@ -332,7 +332,7 @@ function newInst(){const L=window["dice-box-threejs"];if(!L||libBad||dicePool.le
 const freeInst=()=>dicePool.find(x=>x.ready&&!x.busy&&!x.bad);
 function pumpPlays(){while(playQ.length){
   const lib=!!window["dice-box-threejs"]&&!libBad&&dicePool.some(x=>x.ready&&!x.bad)&&!matchMedia("(prefers-reduced-motion:reduce)").matches;
-  if(!lib){startJob(playQ.shift(),null);continue}
+  if(!lib||playQ[0].ds.length+playQ[0].ds.filter(d=>d===100).length>12){startJob(playQ.shift(),null);continue}
   const inst=freeInst();
   if(inst){startJob(playQ.shift(),inst);continue}
   if(!dicePool.some(x=>!x.ready&&!x.bad)&&dicePool.length<4)newInst();
@@ -374,8 +374,10 @@ function doPlay(job,inst,finish){
    await new Promise(r=>setTimeout(r,1000))}
   else await new Promise(r=>setTimeout(r,1500));
   landed()}catch(e){cssRoll(ov,ds,res,landed)}})()}
-function startJob(job,inst){if(inst)inst.busy=true;doPlay(job,inst,()=>{if(inst)inst.busy=false;try{if(job.onEnd)job.onEnd()}finally{pumpPlays()}})}
-function play(ds,res,m,sk,who,remote,onLand,onEnd){playQ.push({ds,res,m,sk,who,remote,onLand,onEnd});pumpPlays()}
+let playN=0,myDie=0;
+function startJob(job,inst){if(inst)inst.busy=true;playN++;doPlay(job,inst,()=>{playN--;if(inst)inst.busy=false;try{if(job.onEnd)job.onEnd()}finally{pumpPlays()}})}
+/* At most 4 rolls on screen or waiting: past that (dice spam) a roll skips the show, its result still saved and logged. */
+function play(ds,res,m,sk,who,remote,onLand,onEnd){if(playN+playQ.length>=4){try{if(onLand)onLand()}catch(e){}if(onEnd)onEnd();return}playQ.push({ds,res,m,sk,who,remote,onLand,onEnd});pumpPlays()}
 function roll(ds,cb,mb){
  const c=chars[me],m=mb!==undefined?mb:(+bonus||0)+(!dm&&dstat&&c?mod(c[dstat]):0),res=ds.map(d=>({d,r:1+Math.floor(Math.random()*d)})),waitD4=ds.includes(4)&&dicePool.some(x=>x.ready);
  const post=()=>{const e={n:dm?"GM":(c?c.name:"?"),ds:res.map(x=>({d:x.d,r:x.r})),m,ts:Date.now(),sk:skin,by:me};
@@ -1204,7 +1206,7 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="allow")upd(id,{ap:true},"Approved by the GM");
  else if(a==="deny")upd(id,{ap:"no"},"Declined by the GM");
  else if(a==="icon"){iconFor=id;$("#icf").value="";$("#icf").click()}
- else if(a==="die"){roll(Array(Math.max(1,Math.min(10,dcount))).fill(n))}
+ else if(a==="die"){if(myDie)return;myDie=1;roll(Array(Math.max(1,Math.min(10,dcount))).fill(n),()=>{myDie=0;if(dm&&secOn)render()})}
  else if(a==="tvg"){tvP=!tvP;render()}
  else if(a==="tvx"){tvP=false;render()}
  else if(a==="tvc"){tvPan=[0,0];applyTv()}

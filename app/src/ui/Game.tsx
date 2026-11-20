@@ -64,6 +64,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const storeError = useStore(store, (s) => s.error)
   const dice = useStore(store, (s) => s.dice)
   const secretRolls = useStore(store, (s) => s.secretRolls)
+  const diceBusy = useStore(store, (s) => s.diceBusy)
 
   // Rolls are shown on screen; the dice style is remembered (shared with the live page).
   const [player] = useState(() => (dicePlayer === undefined ? defaultDicePlayer(window) : dicePlayer))
@@ -341,7 +342,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         markers={markers}
         now={now}
         storage={storage}
-        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} secretRolls={secretRolls} actions={diceActions} />}
+        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} busy={diceBusy} secretRolls={secretRolls} actions={diceActions} />}
         onApprove={approve}
         onClaim={decideClaim}
         enemiesPanel={

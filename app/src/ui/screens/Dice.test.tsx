@@ -35,6 +35,12 @@ describe('the Dice card', () => {
     expect(within(screen.getByLabelText('Dice log')).getByText('No rolls yet.')).toBeInTheDocument()
   })
 
+  it('the dice buttons wait while my roll is on screen', () => {
+    const actions = { setDice: vi.fn(), rollDie: vi.fn() }
+    render(<DicePanel tables={tables()} dm={false} me="a" dice={defaultDice()} busy secretRolls={[]} actions={actions} />)
+    expect(screen.getByRole('button', { name: 'd20' })).toBeDisabled()
+  })
+
   it('no stat box without a sheet', () => {
     show({ me: 'zz' })
     expect(screen.queryByLabelText('Stat')).not.toBeInTheDocument()

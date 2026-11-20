@@ -186,7 +186,7 @@ describe('3D dice', () => {
     expect(overlays()[0]!.querySelector('.d3')).toBeNull()
     await vi.advanceTimersByTimeAsync(1)
     expect(overlays()[0]!.querySelectorAll('.d3')).toHaveLength(1)
-    await vi.advanceTimersByTimeAsync(5000)
+    await vi.advanceTimersByTimeAsync(5000 + 20000) // the late box frees up
     boxes[0]!.roll.mockResolvedValueOnce({})
     const res = [{ d: 4, r: 2 }]
     void p.play(job({ ds: [4], res }))
@@ -225,8 +225,12 @@ describe('3D dice', () => {
     await flush()
     expect(boxes).toHaveLength(4) // never more than four
     expect(boxes.every((b) => b.roll.mock.calls.length === 1)).toBe(true)
-    // When the 10 s limit passes they fall back to CSS dice and free up for the rest.
+    // When the 10 s limit passes they fall back to CSS dice; the boxes free up 20 s later.
     await vi.advanceTimersByTimeAsync(10000 + 2500 + 2000 + 10)
+    void p.play(job())
+    await flush()
+    expect(boxes[0]!.roll).toHaveBeenCalledTimes(1)
+    await vi.advanceTimersByTimeAsync(20000)
     expect(boxes[0]!.roll).toHaveBeenCalledTimes(2)
   })
 
@@ -320,5 +324,89 @@ describe('loading the library', () => {
     expect(done).toBe(true)
     vi.unstubAllGlobals()
     delete (window as unknown as Record<string, unknown>)['dice-box-threejs']
+  })
+})
+
+describe('dice spam', () => {
+  it('at most four rolls on screen or waiting; the rest skip the show but are still saved', async () => {
+    const p = createDicePlayer(env())
+    const onLand = vi.fn()
+    const done: number[] = []
+    for (let i = 0; i < 6; i++) void p.play(job({ onLand })).then(() => done.push(i))
+    await flush()
+    expect(overlays()).toHaveLength(4)
+    expect(done).toEqual([4, 5]) // skipped at once
+    expect(onLand).toHaveBeenCalledTimes(2)
+    await vi.advanceTimersByTimeAsync(5000)
+    expect(overlays()).toHaveLength(0)
+    void p.play(job())
+    expect(overlays()).toHaveLength(1) // room again
+    // A failed save on a skipped roll changes nothing.
+    for (let i = 0; i < 3; i++) void p.play(job())
+    let skipped = false
+    void p
+      .play(
+        job({
+          onLand: () => {
+            throw new Error('offline')
+          },
+        }),
+      )
+      .then(() => (skipped = true))
+    await flush()
+    expect(skipped).toBe(true)
+    // Without a save it is simply skipped.
+    await expect(p.play(job())).resolves.toBeUndefined()
+  })
+
+  it('big rolls (over 12 dice, a d100 counting as two) use CSS dice even with 3D boxes ready', async () => {
+    const { lib, boxes } = fakeLib()
+    const p = createDicePlayer(env({ lib }))
+    p.init()
+    boxes[0]!.init()
+    await flush()
+    const many = Array(7).fill(100)
+    void p.play(job({ ds: many, res: many.map((d) => ({ d, r: 50 })) }))
+    await flush()
+    expect(boxes[0]!.roll).not.toHaveBeenCalled()
+    expect(overlays()[0]!.querySelectorAll('.d3')).toHaveLength(7)
+    const twelve = Array(12).fill(6)
+    void p.play(job({ ds: twelve, res: twelve.map((d) => ({ d, r: 3 })) }))
+    await flush()
+    expect(boxes[0]!.roll).toHaveBeenCalledTimes(1)
+  })
+
+  it('a box whose roll ran late is used again only once that roll finishes (or 20 s later)', async () => {
+    let finishLate = () => {}
+    const { lib, boxes } = fakeLib({ roll: () => new Promise((r) => (finishLate = () => r({ sets: [] }))) })
+    const p = createDicePlayer(env({ lib }))
+    p.init()
+    boxes[0]!.init()
+    await flush()
+    void p.play(job())
+    await vi.advanceTimersByTimeAsync(10000 + 2500 + 2000 + 10) // timed out, shown as CSS dice, gone
+    expect(overlays()).toHaveLength(0)
+    boxes[0]!.clearDice.mockClear()
+    void p.play(job())
+    await flush()
+    expect(boxes[0]!.roll).toHaveBeenCalledTimes(1) // still busy: the next roll waits (a second box starts)
+    finishLate()
+    await flush()
+    expect(boxes[0]!.clearDice).toHaveBeenCalled()
+    // Another late roll that never finishes is given up on after 20 s.
+    const hang = fakeLib({ roll: () => new Promise(() => {}), clearThrows: true })
+    const q = createDicePlayer(env({ lib: hang.lib }))
+    q.init()
+    hang.boxes[0]!.init()
+    hang.boxes[1]!.init()
+    await flush()
+    void q.play(job())
+    void q.play(job())
+    await vi.advanceTimersByTimeAsync(14510)
+    void q.play(job())
+    await flush()
+    expect(hang.boxes.every((b) => b.roll.mock.calls.length <= 1)).toBe(true)
+    await vi.advanceTimersByTimeAsync(20000)
+    expect(hang.boxes[0]!.roll.mock.calls.length + hang.boxes[1]!.roll.mock.calls.length).toBe(3)
   })
 })
