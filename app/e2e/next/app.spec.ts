@@ -291,7 +291,7 @@ test('the table: a player walks on the map in the new app, the GM moves a monste
   await tapAt(pl, 4, 1)
   await expect.poll(() => db.get('tables/dragon42/chars/p1/mx')).toBe(4)
   expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ st: 70, mvd: 3 })
-  expect(String(db.get('tables/dragon42/maps/m/fg'))).toMatch(/1/) // the fog around her is revealed
+  await expect.poll(() => String(db.get('tables/dragon42/maps/m/fg'))).toMatch(/1/) // the fog around her is revealed (saved just after the move)
 
   // The GM picks the wolf and moves it next to her.
   await gm.goto(base + 'next/')
