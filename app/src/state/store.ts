@@ -12,6 +12,7 @@ import { characterChange, enemyChange, type CharacterWithLog } from './updates'
 import { sheetActions, type SheetActions, type Timers } from './sheetActions'
 import { boardActions, type BoardActions } from './boardActions'
 import { initiativeActions, type InitiativeActions } from './initiativeActions'
+import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
 
 export type Tables = {
@@ -96,6 +97,7 @@ export type GameState = {
 } & SheetActions &
   BoardActions &
   InitiativeActions &
+  AttackActions &
   TableActions
 
 const signature = (t: Tables) => JSON.stringify(t)
@@ -150,6 +152,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       ...sheetActions(get, set, save, now, rand, later),
       ...boardActions(get, set, save),
       ...initiativeActions(get, set, save, rand),
+      ...attackActions(get, set, save, db, now, rand, later),
       ...tableActions(get, set, save),
 
       updateCharacter: async (id, p, msg) => {

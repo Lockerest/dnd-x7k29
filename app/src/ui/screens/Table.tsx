@@ -18,6 +18,7 @@ import { Meter } from '../parts'
 import { AbilityIcon } from './Board'
 import { RequestPanels } from './RequestPanels'
 import { InitiativePanel } from './Initiative'
+import { ActionMenu } from './Combat'
 import { canEndTurn, type Initiative } from '../../logic/initiative'
 
 export type TableActions = Pick<
@@ -47,6 +48,9 @@ export type TableActions = Pick<
   | 'beginCombat'
   | 'passTurn'
   | 'endCombat'
+  | 'openMenu'
+  | 'closeMenu'
+  | 'act'
 >
 
 export type TableProps = {
@@ -57,6 +61,10 @@ export type TableProps = {
   gmMap: string | null
   /** A jump off a monster waiting for the landing square. */
   jump: { id: string; on: string } | null
+  /** The open action menu (attacker and target). */
+  menu?: { a: string; t: string } | null
+  /** Asks for a special attack's name. */
+  ask?: (q: string) => string | null
   actions: TableActions
   /** Pictures: map images by map id, token icons by sheet id, ability pictures, custom altar/bonfire/guild markers. */
   mapImages: Record<string, string>
@@ -140,9 +148,9 @@ export function TableScreen(p: TableProps) {
         <InitiativePanel tables={tables} dm={dm} me={me} gmMap={p.gmMap} actions={actions} />
         {dm ? p.enemiesPanel : <PlayerEnemies {...p} />}
         <div className="card">
-          <h2>Attacks and dice</h2>
+          <h2>Dice</h2>
           <p className="note">
-            Attacking from the map and the dice are still being moved. Use the <a href={p.legacyUrl}>live table</a> for them meanwhile.
+            The dice log and the 3D dice are still being moved. Rolls made here are shared, and show on the <a href={p.legacyUrl}>live table</a>.
           </p>
         </div>
       </div>
@@ -527,14 +535,13 @@ function MapPanel(p: TableProps & { sel: string | null; onSelect: (k: string | n
         icons={p.icons}
         markers={p.markers}
         now={p.now()}
-        onTap={(x, y) =>
-          void actions.tapMap(x, y, selected).then((r) => {
-            // Acting on another token (attacks and the action menu) comes with combat; the GM can switch to it.
-            if (r && dm) p.onSelect(r.target)
-            else if (r) actions.notice('Attacking from the map is still on the live table for now.')
-          })
-        }
+        onTap={(x, y) => {
+          // Any tap closes the menu; tapping another token opens it on that token.
+          actions.closeMenu()
+          void actions.tapMap(x, y, selected).then((r) => r && actions.openMenu(selected!, r.target))
+        }}
       />
+      <ActionMenu tables={tables} dm={dm} menu={p.menu ?? null} actions={actions} ask={p.ask} />
       <p className="note">
         {info}
         {dm && id !== live ? " You're editing a map players can't see yet." : ''}

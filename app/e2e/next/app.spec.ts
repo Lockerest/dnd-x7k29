@@ -367,3 +367,72 @@ test('initiative: the GM starts it in the new app, the player rolls, combat begi
   await gmCtx.close()
   await plCtx.close()
 })
+
+test('attacks: the GM attacks the player in the new app, the player dodges; the player strikes back; the live page agrees', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'fighter', hp: 110, maxHp: 110, st: 100, maxSt: 100, str: 14, dex: 14, ac: 5, mx: 4, my: 4, mp: 'm', x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 300, max: 300, ac: 5, ab: 4, dm: '1d6', mx: 5, my: 4, mp: 'm', x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1, iv: 1 } },
+    mapimg: { m: { data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=' } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db)
+  // Fixed dice: the wolf rolls 13 (a hit), the player's saves and attacks roll 20.
+  await gm.addInitScript(() => {
+    localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}')
+    Math.random = () => 0.6
+  })
+  await pl.addInitScript(() => {
+    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    Math.random = () => 0.99
+  })
+  const tapAt = async (p: Page, x: number, y: number) => {
+    const b = (await p.getByRole('img', { name: 'Map: Crypt' }).boundingBox())!
+    await p.mouse.click(b.x + ((x + 0.5) / 10) * b.width, b.y + ((y + 0.5) / 8) * b.height)
+  }
+  await pl.goto(base + 'next/')
+  await expect(pl.getByRole('img', { name: 'Map: Crypt' })).toBeVisible()
+
+  // The GM picks the wolf, taps Lyra and attacks.
+  await gm.goto(base + 'next/')
+  await gm.getByRole('button', { name: '👹 Wolf' }).click()
+  await tapAt(gm, 4, 4)
+  const menu = gm.getByLabel('Actions')
+  await expect(menu.getByText('Wolf → Lyra')).toBeVisible()
+  await menu.getByRole('button', { name: 'Light attack' }).click()
+
+  // Lyra gets 3 seconds to react and dodges.
+  await expect(pl.getByText('⚠ Wolf is attacking you!')).toBeVisible()
+  await pl.getByRole('button', { name: 'Dodge · 30 St' }).click()
+  const said = () => Object.values((db.get('tables/dragon42/rolls') as object) ?? {}).flatMap((r: { ev?: string }) => (r.ev ? [r.ev] : []))
+  await expect.poll(said, { timeout: 10_000 }).toContain("Lyra dodges Wolf's attack (save 22 vs 17)")
+  expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ hp: 110, st: 70 })
+  await expect.poll(() => db.get('tables/dragon42/qte')).toBeNull()
+
+  // Lyra strikes back with a light attack: a natural 20.
+  await tapAt(pl, 5, 4)
+  await pl.getByLabel('Actions').getByRole('button', { name: 'Light attack' }).click()
+  await expect.poll(said).toContain('Lyra rolls 20 +4 = 24 vs AC 5 (Light attack on Wolf): CRITICAL HIT')
+  await expect.poll(() => (db.get('tables/dragon42/enemies/w/hp') as number) < 300).toBe(true)
+
+  // The live page shows the same hit points and stamina.
+  const live = await plCtx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await live.goto(base)
+  await expect(live.locator('#map')).toBeVisible()
+  expect(await live.evaluate('[chars.p1.st, enemies.w.hp]')).toEqual([db.get('tables/dragon42/chars/p1/st'), db.get('tables/dragon42/enemies/w/hp')])
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

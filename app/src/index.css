@@ -332,6 +332,14 @@ button.warn{border-color:var(--hp)}
 #tvp{position:fixed;right:10px;top:54px;z-index:70;background:var(--sf);border:2px solid var(--ac);border-radius:10px;padding:10px;max-width:310px}
 @media(max-width:860px){.tbl,.tbl.hl{grid-template-columns:1fr}.tbl .mid{order:-1}}
 
+/* Action menu, the defender's prompt, and the initiative call (same look as the live page) */
+.menu{border:1px solid var(--ac);border-radius:8px;padding:8px;margin:8px 0}
+.qte,.ask{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:60;background:var(--sf);border:3px solid var(--hp);border-radius:12px;padding:12px 16px;box-shadow:0 8px 30px #000a;max-width:92vw;text-align:center}
+.ask{z-index:59;border-color:var(--ac)}
+.qte h2,.ask h2{margin:0}
+.qbar{height:8px;background:var(--hp);border-radius:4px;transform-origin:left;animation:qte 3s linear forwards;margin-top:6px}
+@keyframes qte{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+
 /* Turn order */
 .rl{margin:6px 0 10px;padding-left:18px}.rl li.now{color:var(--ac);font-weight:600}
 

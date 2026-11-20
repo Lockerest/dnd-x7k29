@@ -50,7 +50,7 @@ function setup(tree: Record<string, unknown> = {}, opts: { storage?: ReturnType<
   const fb = fakeFirebase(tree)
   const storage = opts.storage ?? memory()
   let n = 0
-  render(<Game fetchImpl={fb.fetch} storage={storage} hash={opts.hash ?? ''} every={20} newId={() => `p${++n}`} now={() => 1000} />)
+  render(<Game fetchImpl={fb.fetch} storage={storage} hash={opts.hash ?? ''} every={20} qteEvery={20} newId={() => `p${++n}`} now={() => 1000} />)
   return { fb, storage }
 }
 
@@ -78,7 +78,7 @@ describe('<Game /> joining', () => {
     click('Open as Game Master')
     expect(await screen.findByText('Game Master')).toBeInTheDocument()
     expect(fb.get('tables/dragon42/meta')).toEqual({ dm: await gmPinHash('secret') })
-    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dice' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
     // The new app's session is kept apart from the live page's.
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
@@ -128,7 +128,7 @@ describe('<Game /> characters', () => {
     expect(fb.get('tables/dragon42/chars/p1')).toMatchObject({ name: 'Lyra', cls: 'archer', ap: false })
     expect(screen.queryByRole('button', { name: 'Sheet' })).toBeNull()
     act(() => fb.set('tables/dragon42/chars/p1/ap', true))
-    expect(await screen.findByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dice' })).toBeInTheDocument()
     // Tabs now work.
     click('Sheet')
     expect(screen.getByRole('heading', { name: 'Lyra' })).toBeInTheDocument()
@@ -136,7 +136,7 @@ describe('<Game /> characters', () => {
     click('Abilities')
     expect(screen.getByRole('heading', { name: 'Ability board' })).toBeInTheDocument()
     click('Back to table')
-    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dice' })).toBeInTheDocument()
   })
 
   it('a declined character sees it', async () => {
@@ -161,7 +161,7 @@ describe('<Game /> characters', () => {
     expect(screen.getByText(/take over Bram/)).toBeInTheDocument()
     expect(fb.get('tables/dragon42/claims/p1')).toEqual({ who: 'Sam', target: 'c1', st: 'pending', ts: 1000 })
     act(() => fb.set('tables/dragon42/claims/p1/st', 'ok'))
-    expect(await screen.findByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Dice' })).toBeInTheDocument()
     await vi.waitFor(() => expect(fb.get('tables/dragon42/claims/p1')).toBeNull())
     expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'player', me: 'c1' })
   })
@@ -241,7 +241,7 @@ describe('<Game /> Game Master', () => {
     click(await screen.findByRole('button', { name: 'View as player' }).then((b) => b.textContent!))
     expect(screen.getByRole('heading', { name: 'Create your character' })).toBeInTheDocument()
     click('Back to GM')
-    expect(screen.getByRole('heading', { name: 'Attacks and dice' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dice' })).toBeInTheDocument()
   })
 })
 
@@ -395,6 +395,34 @@ describe('<Game /> table and map', () => {
     const map = await screen.findByRole('img', { name: 'Map: Bare' })
     expect(map.innerHTML).toContain('data:image/png;base64,Tg')
     expect((fb.fetch as unknown as { mock: { calls: [string][] } }).mock.calls.some(([u]) => u.includes('/mapimg/n'))).toBe(true)
+  })
+})
+
+describe('<Game /> combat', () => {
+  it("a player sees the GM's call to roll initiative and the 3-second prompt aimed at them", async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    const { fb } = setup(
+      {
+        tables: {
+          dragon42: {
+            meta: { dm: 'h' },
+            cur: 'm',
+            maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10 } },
+            chars: { a: { name: 'Lyra', cls: 'fighter', hp: 50, maxHp: 50, st: 50, maxSt: 100, dex: 12, mx: 2, my: 2, x10: true } },
+            init: { ph: 'roll', l: [{ k: 'c:a', n: 'Lyra' }], i: 0, r: 1 },
+            qte: { id: 5, tid: 'a', total: 15, melee: true, par: true, from: 'Wolf' },
+          },
+        },
+      },
+      { storage },
+    )
+    expect(await screen.findByText('⚠ Wolf is attacking you!')).toBeInTheDocument()
+    click('Dodge · 30 St')
+    await vi.waitFor(() => expect(fb.get('tables/dragon42/qte/sv')).toMatchObject({ t: expect.any(Number) }))
+    expect(screen.queryByText('⚠ Wolf is attacking you!')).not.toBeInTheDocument()
+    click('Roll initiative')
+    await vi.waitFor(() => expect(fb.writes.map((w) => w[1])).toContain('/tables/dragon42/init/l/0'))
   })
 })
 

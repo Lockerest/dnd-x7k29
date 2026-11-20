@@ -65,8 +65,12 @@ npm run build
    GM's round, rest and combat buttons, everyone's status boxes, quick actions, helping allies up,
    doors, the hidden-words list, choosing and showing maps, and the projector view; and the play
    table part 2a: initiative and turn order (start, roll, begin, next turn with new rounds, a
-   player's End turn, end combat).
-   Still on the live page: attacks and the action menu, dice, sounds, the GM's map
+   player's End turn, end combat); and part 2b: attacks (the action menu on a tapped target, light,
+   heavy and ability attacks, charged abilities, counter-attacks, monster skills, area and special
+   attacks, push, mount, pick up and throw, the defender's 3-second dodge/parry prompt with readied
+   reactions, damage, poise and stagger, phase gates and phase swaps, the "Roll for initiative!"
+   call to players).
+   Still on the live page: the dice log and 3D dice, sounds, the hit and miss animations, the GM's map
    tools (uploading and drawing maps, walls, fog painting, pins), uploading pictures, and the enemy
    extras (auto turn, boss intro when combat begins, spawn point, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.

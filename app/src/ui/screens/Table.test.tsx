@@ -28,6 +28,7 @@ function Harness({ store, storage, images }: { store: GameStore; storage: Return
   const dm = useStore(store, (s) => s.dm)
   const gmMap = useStore(store, (s) => s.gmMap)
   const jump = useStore(store, (s) => s.jump)
+  const menu = useStore(store, (s) => s.menu)
   const me = useStore(store, (s) => s.session?.me ?? '')
   return (
     <TableScreen
@@ -37,6 +38,8 @@ function Harness({ store, storage, images }: { store: GameStore; storage: Return
       pin="dragon42"
       gmMap={gmMap}
       jump={jump}
+      menu={menu}
+      ask={() => 'Tail Swipe'}
       actions={store.getState()}
       mapImages={images ? { m: 'data:m', n: 'data:n' } : {}}
       icons={{ a: 'data:a', w: 'data:w' }}
@@ -89,12 +92,15 @@ describe('a player at the table', () => {
     expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', '../')
   })
 
-  it('walks by tapping the map, and attacking points to the live table for now', async () => {
+  it('walks by tapping the map; tapping an enemy opens the action menu, tapping the ground closes it', async () => {
     const { f, store } = setup({ chars: { a: hero() }, enemies: { w: { name: 'Wolf', hp: 5, mx: 6, my: 6 } } })
     tap(3, 3)
     await vi.waitFor(() => expect(f.writes[0]![2]).toMatchObject({ mx: 3, my: 3 }))
     tap(6, 6)
-    await vi.waitFor(() => expect(store.getState().error).toMatch(/Attacking from the map is still on the live table/))
+    expect(await screen.findByLabelText('Actions')).toHaveTextContent('Lyra → Wolf')
+    expect(store.getState().menu).toEqual({ a: 'c:a', t: 'e:w' })
+    tap(0, 0)
+    await vi.waitFor(() => expect(screen.queryByLabelText('Actions')).toBeNull())
     tap(20, 20) // outside the map
   })
 
@@ -223,15 +229,15 @@ describe('the GM at the table', () => {
     expect(screen.getByText('No maps yet. Upload one on the live table to begin.')).toBeInTheDocument()
   })
 
-  it('picks units with the chips, moves them on the map, and switches to a tapped token', async () => {
+  it('picks units with the chips, moves them on the map, and opens the menu on a tapped token', async () => {
     const { f } = gm({ chars: { a: hero() }, enemies: { w: { name: 'Wolf', hp: 5, mx: 6, my: 6, spd: 2, bon: 1 } as never } })
     expect(screen.getByText(/Pick a unit, then tap the map/)).toBeInTheDocument()
     click('👹 Wolf')
     expect(screen.getByText(/Red squares: this enemy can move up to 3 squares \(speed 2 \+ bonus 1\)/)).toBeInTheDocument()
     tap(7, 5)
     await vi.waitFor(() => expect(f.writes[0]).toEqual(['PATCH', 'enemies/w', expect.objectContaining({ mx: 7, my: 5 })]))
-    tap(2, 2) // Lyra: she becomes the selected unit
-    await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Lyra' })).toHaveClass('pri'))
+    tap(2, 2) // Lyra: the wolf's action menu on her
+    expect(await screen.findByLabelText('Actions')).toHaveTextContent('Wolf → Lyra')
   })
 
   it('chooses which map to look at and shows it to players', async () => {

@@ -191,7 +191,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=63,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
+const BUILD=64,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield or melee weapon): when a weapon, claw, tail or projectile attack would hit you (not a spell effect, flame, frost or beam), roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
@@ -1186,7 +1186,7 @@ $("#app").addEventListener("click",async e=>{
  else if(a==="help"){const m=chars[me];if(!m||!c||m.exh||(m.used||0)>=2)return;const l=(c.log||[]).slice(-9);l.push("Helped up by "+m.name);chars[id]={...c,exh:false,exn:0,pr:false,log:l};api("chars/"+id,"PATCH",{exh:false,exn:0,pr:false,log:l}).catch(fail);upd(me,{used:(m.used||0)+1},"Helped "+c.name+" up")}
  else if(a==="pw"){const c=chars[id];if(!dm||!c)return;const o=["","n","d","x"],nx=o[(o.indexOf(c.pw||"")+1)%4];upd(id,{pw:nx},"Parry set to "+({"":"class default",n:"normal",d:"disadvantage",x:"never"})[nx])}
  else if(a==="shield")upd(id,{shield:!c.shield},c.shield?"Put away the shield":"Equipped a shield");
- else if(a==="mact")doAct(b.dataset.k,+b.dataset.i);
+ else if(a==="mact")doAct(b.dataset.k,b.dataset.k==="sk"?b.dataset.i:+b.dataset.i);
  else if(a==="mcancel"){menu=null;render()}
  else if(a==="putdown"){const x=enemies[id],cr=x&&ent(x.hd);updE(id,{hd:null});if(cr)ev(cr.o.name+" puts down "+x.name)}
  else if(a==="estun"){const x=enemies[id];updE(id,{stun:!x.stun})}

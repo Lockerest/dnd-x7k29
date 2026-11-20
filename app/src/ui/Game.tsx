@@ -22,6 +22,7 @@ import { useMarkers, usePictures } from './usePictures'
 import { liveMapId, shownMapId, type Maps } from '../logic/table'
 import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
+import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
 
@@ -36,10 +37,14 @@ export type GameProps = {
   now?: () => number
   /** Asked before removing an enemy. */
   confirm?: (question: string) => boolean
+  /** Asks for a special attack's name. */
+  ask?: (question: string) => string | null
+  /** How often a player checks for an attack aimed at them (ms). */
+  qteEvery?: number
   rand?: () => number
 }
 
-export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand }: GameProps) {
+export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500 }: GameProps) {
   const [conn, setConn] = useState<{ db: Db; session: Session } | null>(null)
   const db = conn?.db ?? null
   // The clock is fixed at the first render (a new function on every render must not
@@ -130,6 +135,8 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   // Map pictures, token icons and custom markers for the table and the projector.
   const gmMap = useStore(store, (s) => s.gmMap)
   const jump = useStore(store, (s) => s.jump)
+  const menu = useStore(store, (s) => s.menu)
+  const qte = useStore(store, (s) => s.qte)
   const mapId = role === 'table' ? liveMapId(tables.maps as Maps, tables.cur) : shownMapId(tables.maps as Maps, tables.cur, dm, gmMap)
   const onTable = view === 'table'
   const wantedMap = useMemo(() => (onTable && mapId ? { [mapId]: String((tables.maps[mapId] as { iv?: unknown }).iv ?? '') } : {}), [onTable, mapId, tables.maps])
@@ -141,6 +148,13 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   }, [onTable, tables.chars, tables.enemies])
   const icons = usePictures(db, wantedIcons, iconPath, tables)
   const markers = useMarkers(db, onTable ? markerVersion : null, tables)
+
+  // Players watch for an attack aimed at them (the 3-second dodge/parry prompt).
+  useEffect(() => {
+    if (!conn || conn.session.role !== 'player') return
+    const h = setInterval(() => void store.getState().checkQte(), qteEvery)
+    return () => clearInterval(h)
+  }, [conn, store, qteEvery])
 
   // Shows a cinematic, with the boss picture when the script asks for it.
   const show = useCallback(
@@ -294,6 +308,8 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         pin={session!.pin}
         gmMap={gmMap}
         jump={jump}
+        menu={menu}
+        ask={ask}
         actions={store.getState()}
         mapImages={mapImages}
         icons={icons}
@@ -337,6 +353,12 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         </p>
       )}
       {body}
+      {screen === 'table' && (
+        <>
+          <QtePrompt qte={qte} me={me} tables={tables} onAnswer={(k) => void store.getState().answerQte(k)} />
+          <InitiativeCall tables={tables} dm={dm} me={me} onRoll={(i) => void store.getState().rollInitiative(i)} />
+        </>
+      )}
       {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} />}
     </div>
   )
