@@ -9,7 +9,10 @@ React + TypeScript app, one piece at a time, without breaking the live table.
 |---|---|
 | `index.html` | The live single-file app (the one players use). Still the real game. |
 | `app/` | The new React + TypeScript app (Vite). Published at `/next/`. |
+| `app/src/data/` | Game data: classes, skill sets, themes, ability sounds, cinematic preset. |
+| `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio. |
 | `app/src/**/*.test.ts(x)` | Unit tests for the new app (100% coverage required). |
+| `app/e2e/parity/` | Parity tests: the new rules must give the same answers as the live page. |
 | `app/e2e/rules/` | Unit tests for the live page's game rules (stamina, HP, dice, combat, phases, skills, audio, cinematic). |
 | `app/e2e/legacy.spec.ts` | Smoke tests for whole flows on the live page. |
 | `app/e2e/harness.ts` | Opens the live page with a fake in-memory Firebase for those tests. |
@@ -42,10 +45,11 @@ npm run build
 
 1. Safety net: smoke tests on the live page. **Done.**
 2. Scaffold and deploy: React app at `/next/`. **Done.**
-3. Move pure logic (dice, damage, phases, cinematic script, skill sets, sounds) into tested modules.
+3. Move pure logic (dice, damage, phases, cinematic script, skill sets, sounds) into tested modules. **Done.**
 4. Data layer and state: Firebase module, store, lazy loading of themes and sounds.
 5. Screens, one at a time.
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 
-New bosses and skill sets will live in `app/src/data/` once phase 3 starts.
+New bosses and skill sets go in `app/src/data/` (and, until the cutover, in `index.html` too:
+the parity tests fail if the two disagree).
