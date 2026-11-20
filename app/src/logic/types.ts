@@ -38,6 +38,8 @@ export type Character = {
   my?: number | null
   /** Already on the x10 scale. */
   x10?: boolean
+  /** GM approval: false = waiting, "no" = declined, true or missing = can play. */
+  ap?: boolean | string
 } & Partial<Record<Stat, number>>
 
 /** One skill on an enemy sheet. d "0", "-" or "none" is a utility skill. */

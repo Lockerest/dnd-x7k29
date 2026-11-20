@@ -8,14 +8,15 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "vite build && playwright test",
     "lint": "oxlint",
     "preview": "vite preview",
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "zustand": "^5.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

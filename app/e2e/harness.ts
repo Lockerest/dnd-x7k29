@@ -36,14 +36,14 @@ export class FakeDb {
   set(path: string, v: unknown) {
     const ps = this.parts(path)
     if (!ps.length) {
-      this.root = isTree(v) ? v : {}
+      this.root = isTree(v) ? structuredClone(v) : {}
       return
     }
     let n = this.root
     for (const p of ps.slice(0, -1)) n = (isTree(n[p]) ? n[p] : (n[p] = {})) as Tree
     const last = ps[ps.length - 1]!
     if (v === null) delete n[last]
-    else n[last] = v
+    else n[last] = structuredClone(v) // a copy, so recorded request bodies never change afterwards
   }
   apply(method: string, path: string, body: unknown): unknown {
     if (method === 'PUT') this.set(path, body)
@@ -58,7 +58,12 @@ export class FakeDb {
   }
 }
 
-export async function openLegacy(page: Page): Promise<Legacy & { db: FakeDb }> {
+export type LegacyOptions = {
+  /** Extra delay in ms for GETs whose path matches, to simulate big downloads. */
+  slow?: { match: RegExp; ms: number }
+}
+
+export async function openLegacy(page: Page, opts: LegacyOptions = {}): Promise<Legacy & { db: FakeDb }> {
   const writes: Write[] = []
   const errors: string[] = []
   const db = new FakeDb()
@@ -70,7 +75,13 @@ export async function openLegacy(page: Page): Promise<Legacy & { db: FakeDb }> {
     if (!u.hostname.includes('firebaseio')) return route.abort()
     const path = u.pathname.replace(/^\/tables\/[^/]+\//, '').replace(/^\//, '').replace(/\.json$/, '')
     const method = req.method()
-    if (method === 'GET') return route.fulfill({ json: db.get(path) })
+    if (method === 'GET') {
+      const v = db.get(path)
+      // ?shallow=true lists the keys only, like Firebase.
+      const json = u.searchParams.get('shallow') === 'true' && isTree(v) ? Object.fromEntries(Object.keys(v).map((k) => [k, true])) : v
+      if (opts.slow?.match.test(path)) return new Promise<void>((done) => setTimeout(() => done(route.fulfill({ json }).catch(() => {})), opts.slow!.ms))
+      return route.fulfill({ json })
+    }
     const body = JSON.parse(req.postData() || 'null') as unknown
     writes.push({ method, path, body })
     return route.fulfill({ json: db.apply(method, path, body) ?? null })

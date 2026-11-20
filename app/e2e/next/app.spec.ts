@@ -1,0 +1,101 @@
+// The built new app in a real browser, served the way GitHub Pages serves it
+// (the live page at /<repo>/, the new app at /<repo>/next/). Run after `vite build`.
+import { expect, test, type Page } from '@playwright/test'
+import { createReadStream, existsSync } from 'node:fs'
+import { createServer, type Server } from 'node:http'
+import { extname, join, resolve } from 'node:path'
+import { FakeDb } from '../harness.ts'
+
+const DIST = resolve(import.meta.dirname, '../../dist')
+const LEGACY = resolve(import.meta.dirname, '../../../index.html')
+const TYPES: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' }
+
+let server: Server
+let base = ''
+
+test.beforeAll(async () => {
+  if (!existsSync(join(DIST, 'index.html'))) throw new Error('Build the app first (npm run build).')
+  server = createServer((req, res) => {
+    const p = decodeURIComponent((req.url ?? '/').split('?')[0]!)
+    let file = p === '/repo/' ? LEGACY : p.startsWith('/repo/next/') ? join(DIST, p.slice('/repo/next/'.length) || 'index.html') : ''
+    if (file && !extname(file)) file = join(file, 'index.html')
+    if (!file || !existsSync(file)) return void res.writeHead(404).end()
+    res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' })
+    createReadStream(file).pipe(res)
+  })
+  await new Promise<void>((r) => server.listen(0, r))
+  const addr = server.address()
+  base = `http://localhost:${typeof addr === 'object' && addr ? addr.port : 0}/repo/`
+})
+test.afterAll(() => new Promise<void>((r) => server.close(() => r())))
+
+/** Serves a FakeDb as Firebase for one browser page and records every request. */
+async function useFakeFirebase(page: Page, db: FakeDb, requests: string[] = []) {
+  await page.route('**/*', (route) => {
+    const req = route.request()
+    const u = new URL(req.url())
+    if (u.hostname === 'localhost') return route.continue()
+    if (!u.hostname.includes('firebaseio')) return route.abort()
+    const path = u.pathname.replace(/\.json$/, '')
+    requests.push(`${req.method()} ${path}`)
+    if (req.method() !== 'GET') {
+      const body = JSON.parse(req.postData() || 'null') as unknown
+      if (req.method() === 'PUT') db.set(path, body)
+      else if (req.method() === 'DELETE') db.set(path, null)
+      else if (req.method() === 'PATCH') for (const [k, v] of Object.entries(body as object)) db.set(`${path}/${k}`, v)
+      return route.fulfill({ json: body })
+    }
+    const v = db.get(path)
+    const shallow = u.searchParams.get('shallow') === 'true' && v && typeof v === 'object'
+    return route.fulfill({ json: shallow ? Object.fromEntries(Object.keys(v as object).map((k) => [k, true])) : v })
+  })
+}
+
+test('a GM opens a table, a player joins and creates a character, the GM lets them in', async ({ browser }) => {
+  const db = new FakeDb()
+  const errors: string[] = []
+  const gmCtx = await browser.newContext()
+  const plCtx = await browser.newContext()
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  const playerRequests: string[] = []
+  await useFakeFirebase(pl, db, playerRequests)
+  // The live page's own saved session must survive the new app.
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"real","role":"gm","me":"gm"}'))
+
+  await gm.goto(base + 'next/')
+  await gm.getByLabel(/Table PIN/).fill('dragon42')
+  await gm.getByLabel(/Game Master PIN/).fill('secret')
+  await gm.getByRole('button', { name: 'Open as Game Master' }).click()
+  await expect(gm.getByText('Game Master', { exact: true })).toBeVisible()
+  expect(db.get('tables/dragon42/meta')).toMatchObject({ dm: expect.stringMatching(/^[0-9a-f]{64}$/) })
+
+  await pl.goto(base + 'next/')
+  await pl.getByLabel(/Table PIN/).fill('dragon42')
+  await pl.getByRole('button', { name: 'Join as player' }).click()
+  await pl.getByLabel(/^Name/).fill('Lyra')
+  await pl.getByRole('button', { name: /^Archer/ }).click()
+  await expect(pl.getByRole('heading', { name: 'Waiting to be allowed to play' })).toBeVisible()
+
+  await expect(gm.getByRole('heading', { name: 'Join requests' })).toBeVisible({ timeout: 10_000 })
+  await gm.getByRole('button', { name: 'Allow' }).click()
+  await expect(pl.getByRole('heading', { name: 'The table' })).toBeVisible({ timeout: 10_000 })
+  await expect(pl.getByText('Lyra: HP 110 / 110, stamina 100 / 100')).toBeVisible()
+  // The player only wrote its own character; the GM's PIN never left the GM's browser.
+  expect(playerRequests.filter((r) => !r.startsWith('GET ')).map((r) => r.replace(/p[a-z0-9]+$/, 'ID'))).toEqual(['PUT /tables/dragon42/chars/ID'])
+  expect(await gm.evaluate(() => localStorage.getItem('st'))).toBe('{"pin":"real","role":"gm","me":"gm"}')
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})
+
+test('the footer links back to the live table', async ({ page }) => {
+  await useFakeFirebase(page, new FakeDb())
+  await page.goto(base + 'next/')
+  await expect(page.getByTestId('db-status')).toHaveText('Database reachable.')
+  await page.getByRole('link', { name: 'live table' }).click()
+  await expect(page).toHaveTitle('Curse of the Golden Wave')
+  expect(page.url()).toBe(base)
+})

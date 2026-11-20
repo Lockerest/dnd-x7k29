@@ -12,7 +12,7 @@ test.describe('applyDmg(): damage to enemies', () => {
     await legacy.run(hit('a', 300))
     // The page refreshes from the database in the background; wait for the saved value.
     await expect.poll(() => legacy.run('enemies.a.hp')).toBe(700)
-    expect(writesTo(legacy.writes, 'PATCH', 'enemies/a')).toContainEqual(expect.objectContaining({ hp: 700, hv: 300 }))
+    await expect.poll(() => writesTo(legacy.writes, 'PATCH', 'enemies/a')).toContainEqual(expect.objectContaining({ hp: 700, hv: 300 }))
     await expect.poll(() => writesTo(legacy.writes, 'POST', 'rolls')).toContainEqual(
       expect.objectContaining({ fx: expect.objectContaining({ o: 'hit', d: 300, a: 'c:c1', t: 'e:a' }) }),
     )

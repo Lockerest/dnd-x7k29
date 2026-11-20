@@ -191,7 +191,7 @@ body.tbl{padding:0;max-width:none;background:#000}.tbl header,.tbl #err,.tbl #up
 <script src="https://cdn.jsdelivr.net/npm/@3d-dice/dice-box-threejs@0.0.12/dist/dice-box-threejs.umd.js"></script>
 <script>
 const DB_URL="https://stamina-based-project-trial-default-rtdb.firebaseio.com";
-const BUILD=62,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
+const BUILD=63,SC=10;try{document.getElementById("bld").textContent="build "+BUILD}catch(e){}
 const COM=[["Dodge Roll",3,"Reaction: when an attack would hit you, roll a DEX save (d20 + DEX) against its roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"]];
 const PARRY=["Parry",2,"Reaction (needs a shield or melee weapon): when a weapon, claw, tail or projectile attack would hit you (not a spell effect, flame, frost or beam), roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs stamina either way. Doesn't use an action.","r"];
 const CS={fighter:"str",archer:"dex",mage:"int",thief:"dex",warrior:"str",sorcerer:"int",spearhand:"str",magickarcher:"dex",trickster:"dex"},WR={fighter:1,archer:8,mage:6,thief:1,warrior:1,sorcerer:6,spearhand:2,magickarcher:8,trickster:1};
@@ -1037,22 +1037,31 @@ function render(){
   const left=dm&&hideL?`<button data-a="showL">Show side panel</button>`:dm?pendingHtml()+`<div class="card sb"><div class="row"><button data-a="hideL">Hide panel</button><button class="pri" data-a="regenAll">Next round: all</button><button data-a="restAll">Altar: all</button><button data-a="bfAll">Bonfire: all</button><button data-a="combat" class="${combat?"pri":""}">Combat: ${combat?"on":"off"}</button></div></div>`+bkHtml()+spHtml()+(A().map(sbox).join("")||`<p class="note">No characters yet. Table PIN: <b>${esc(pin)}</b></p>`):sbox(me)+quick(me)+abSum(me)+allies();
   h=`<div class="tbl${dm&&hideL?" hl":""}"><div>${left}</div><div class="mid">${mapHtml()}</div><div>${initHtml()}${enemiesHtml()}${diceHtml()}</div></div>`}
  $("#app").innerHTML=h;pending=false;updateAsk();updateOv();applyTv()}
+const BGL={};
+function bgLoad(k,f){if(BGL[k])return;BGL[k]=1;Promise.resolve().then(f).then(ch=>{if(ch===false)return;last="";if(P||F)return;const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&$("#app").contains(a))pending=true;else render()}).catch(()=>{}).finally(()=>{BGL[k]=0})}
 async function load(){
  try{
   const[c0,e0,mp0,cu0,rl,cl,cb,ii,mb,bd,mki,msd,thv,spv,abv,aicv,skiv]=await Promise.all([api("chars"),api("enemies"),api("maps"),api("cur"),api("rolls","GET",undefined,"?orderBy=%22%24key%22&limitToLast=20"),dm?api("claims"):api("claims/"+me),api("combat"),api("init"),api("meta/build"),api("board"),api("meta/mki"),api("meta/snd"),api("meta/thv"),api("meta/sp"),api("meta/abv"),api("meta/aic"),api("meta/skiv")]);
   {const ns=spv==null?null:String(spv);if(ns!==SPS){SPS=ns;last=""}if((abv===1)!==abAll){abAll=abv===1;last=""}const ao=aicv!==0;if(ao!==aicOn){aicOn=ao;last=""}}
-  if((skiv||null)!==SKV){const d=await api("skicons");BSI={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)BSI[k]=d[k].data});SKV=skiv||null;last=""}
-  if((thv||null)!==THV){const d=await api("themes");TH={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)TH[k]={n:d[k].n||k,data:d[k].data}});THV=thv||null;THB={};if(dm&&TH.etheric&&!TH.aethelric){const t0=TH.etheric,st=Date.now();TH.aethelric={n:"Aethelric",data:t0.data};delete TH.etheric;THV=st;api("themes/aethelric","PUT",{n:"Aethelric",data:t0.data}).then(()=>api("themes/etheric","DELETE")).then(()=>api("meta","PATCH",{thv:st})).catch(fail)}if(AC)prepSnd();last=""}
-  if((msd||null)!==SV){const d=await api("sounds");SD={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)SD[k]=d[k].data});SV=msd||null;SB={};if(AC)prepSnd();last=""}
-  if((mki||null)!==MKV){const d=await api("mkicons");MK={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)MK[k]=d[k].data});MKV=mki||null;last=""}
+  if((skiv||null)!==SKV)bgLoad("ski",async()=>{const d=await api("skicons");BSI={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)BSI[k]=d[k].data});SKV=skiv||null});
+  if((thv||null)!==THV)bgLoad("th",async()=>{const v=thv||null,ks=Object.keys((await api("themes","GET",undefined,"?shallow=true"))||{});
+   if(dm&&ks.includes("etheric")&&!ks.includes("aethelric")){const t0=await api("themes/etheric");if(t0&&t0.data){const st=Date.now();await api("themes/aethelric","PUT",{n:"Aethelric",data:t0.data});await api("themes/etheric","DELETE");await api("meta","PATCH",{thv:st});return false}}
+   Object.keys(TH).forEach(k=>{if(!ks.includes(k)){delete TH[k];delete THB[k]}});
+   const pri=k=>Object.values(enemies).some(e=>e&&e.mx!=null&&(e.th===k||tslug(e.name).includes(k)))?0:1;
+   for(const k of ks.slice().sort((a,b)=>pri(a)-pri(b))){const d=await api("themes/"+k);if(d&&d.data){TH[k]={n:d.n||k,data:d.data};delete THB[k];if(AC)prepSnd()}}
+   THV=v});
+  if((msd||null)!==SV)bgLoad("snd",async()=>{const d=await api("sounds");SD={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)SD[k]=d[k].data});SV=msd||null;SB={};if(AC)prepSnd()});
+  if((mki||null)!==MKV)bgLoad("mk",async()=>{const d=await api("mkicons");MK={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)MK[k]=d[k].data});MKV=mki||null});
   if(typeof mb==="number"&&mb>BUILD)$("#upd").hidden=false;else if(dm&&(mb==null||mb<BUILD))api("meta","PATCH",{build:BUILD}).catch(()=>{});
   if(P||F)return;
   {const nb=bd&&Object.keys(bd).length?bd:null,bs=JSON.stringify(nb||0);boardDB=!!nb;if(bs!==boardSig){boardSig=bs;applyBoard(nb||defBoard())}}
-  {const vs=Object.keys(board).filter(k=>board[k]&&board[k].iv).map(k=>k+":"+board[k].iv).join(",");if(vs!==ABV){ABV=vs;if(vs){const d=await api("abicons");ABI={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)ABI[k]=d[k].data})}else ABI={};last=""}}
-  const need=[];for(const o of[c0||{},e0||{}])for(const[i,x]of Object.entries(o))if(x.iv&&(!IC[i]||IC[i].iv!==x.iv))need.push([i,x.iv]);
-  await Promise.all(need.map(async([i,iv])=>{const d=await api("icons/"+i);if(d)IC[i]={iv,data:d.data}}));
-  await Promise.all(Object.entries(e0||{}).filter(([i,x])=>x.ba&&(!BA[i]||BA[i].v!==x.ba)).map(async([i,x])=>{const d=await api("bossart/"+i);if(d)BA[i]={v:x.ba,data:d.data}}));
-  await Promise.all(Object.entries({...(c0||{}),...(e0||{})}).filter(([i,x])=>x.pv&&(!PT[i]||PT[i].pv!==x.pv)).map(async([i,x])=>{const d=await api("portraits/"+i);if(d)PT[i]={pv:x.pv,data:d.data}}));
+  {const vs=Object.keys(board).filter(k=>board[k]&&board[k].iv).map(k=>k+":"+board[k].iv).join(",");if(vs!==ABV){if(vs)bgLoad("abi",async()=>{const d=await api("abicons");ABI={};Object.keys(d||{}).forEach(k=>{if(d[k]&&d[k].data)ABI[k]=d[k].data});ABV=vs});else{ABI={};ABV=vs;last=""}}}
+  bgLoad("img",async()=>{const need=[];for(const o of[c0||{},e0||{}])for(const[i,x]of Object.entries(o))if(x.iv&&(!IC[i]||IC[i].iv!==x.iv))need.push([i,x.iv]);
+   const ba=Object.entries(e0||{}).filter(([i,x])=>x.ba&&(!BA[i]||BA[i].v!==x.ba)),pt=Object.entries({...(c0||{}),...(e0||{})}).filter(([i,x])=>x.pv&&(!PT[i]||PT[i].pv!==x.pv));
+   if(!need.length&&!ba.length&&!pt.length)return false;
+   await Promise.all([...need.map(async([i,iv])=>{const d=await api("icons/"+i);if(d)IC[i]={iv,data:d.data}}),
+    ...ba.map(async([i,x])=>{const d=await api("bossart/"+i);if(d)BA[i]={v:x.ba,data:d.data}}),
+    ...pt.map(async([i,x])=>{const d=await api("portraits/"+i);if(d)PT[i]={pv:x.pv,data:d.data}})])});
   const mps=mp0||{},ids=Object.keys(mps),live=cu0&&mps[cu0]?cu0:ids[0],id=dm&&gmMap&&mps[gmMap]?gmMap:live;
   if(id&&(!IM[id]||IM[id].iv!==mps[id].iv)){const d=await api("mapimg/"+id);if(d)IM[id]={data:d.data,iv:mps[id].iv}}
   {const par=parentOf(id,mps);if(par&&mps[par.map]&&(!IM[par.map]||IM[par.map].iv!==mps[par.map].iv)){const d2=await api("mapimg/"+par.map);if(d2)IM[par.map]={data:d2.data,iv:mps[par.map].iv}}}

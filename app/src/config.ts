@@ -3,7 +3,11 @@
 export const DB_URL = 'https://stamina-based-project-trial-default-rtdb.firebaseio.com'
 
 // Shown in the corner so you can tell which version you have loaded.
-export const APP_VERSION = '0.1.0'
+export const APP_VERSION = '0.2.0'
 
 // Where the live, single-file app is published (one folder up from /next/).
 export const LEGACY_URL = '../'
+
+// Until the cutover the new app keeps its saved session under its own name, so
+// joining a table at /next/ never changes what the live page remembers.
+export const STORAGE_PREFIX = 'next.'
