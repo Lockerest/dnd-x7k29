@@ -52,8 +52,11 @@ npm run build
 4. Data layer and state: Firebase module, store, lazy loading of themes and sounds. **Done.**
 5. Screens, one at a time. **In progress.** Done: app shell and header, joining (player, table display,
    Game Master with PIN), creating a character, waiting for approval, taking over a character from
-   another device, and the GM's join and device requests. Still on the live page: the table and map,
-   character sheets, ability board and reference, enemy editor, dice, cinematics, sounds settings.
+   another device, the GM's join and device requests, the GM's Enemies panel and enemy editor
+   (stats, phase gates and next-phase sheets, themes, skills and skill sets, cinematic script) and the
+   cinematic itself, shared with every device. Still on the live page: the table and map, character
+   sheets, ability board and reference, dice, sounds, and the enemy extras (auto turn, boss intro,
+   spawn point, pictures, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

@@ -43,6 +43,7 @@ async function useFakeFirebase(page: Page, db: FakeDb, requests: string[] = []) 
       if (req.method() === 'PUT') db.set(path, body)
       else if (req.method() === 'DELETE') db.set(path, null)
       else if (req.method() === 'PATCH') for (const [k, v] of Object.entries(body as object)) db.set(`${path}/${k}`, v)
+      else if (req.method() === 'POST') return route.fulfill({ json: db.apply('POST', path, body) })
       return route.fulfill({ json: body })
     }
     const v = db.get(path)
@@ -98,4 +99,43 @@ test('the footer links back to the live table', async ({ page }) => {
   await page.getByRole('link', { name: 'live table' }).click()
   await expect(page).toHaveTitle('Curse of the Golden Wave')
   expect(page.url()).toBe(base)
+})
+
+test('the GM edits a boss and plays its cinematic; the player sees it too', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 100, maxSt: 100, x10: true } },
+    enemies: { a: { name: 'Aethelric', type: 'Undead', hp: 100, max: 100, sz: 4, mx: 2, my: 2, x10: true } },
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext()
+  const plCtx = await browser.newContext()
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db)
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await pl.goto(base + 'next/')
+  await expect(pl.getByRole('heading', { name: 'The table' })).toBeVisible()
+  await expect(pl.getByRole('heading', { name: 'Enemies' })).toHaveCount(0)
+
+  await gm.goto(base + 'next/')
+  await gm.getByRole('button', { name: "Show or hide Aethelric's settings" }).click()
+  await gm.getByLabel('Phase label').fill('First encounter')
+  await gm.getByLabel('Phase label').blur()
+  await expect.poll(() => db.get('tables/dragon42/enemies/a/pl')).toBe('First encounter')
+  await gm.getByLabel('Load a skill set').selectOption('Aethelric: first encounter (3)')
+  await expect(gm.getByLabel("Skill Warden's Cut", { exact: true })).toBeVisible()
+  await gm.getByRole('button', { name: 'Load the Aethelric 75% scene' }).click()
+  await gm.getByRole('button', { name: 'Play cinematic' }).click()
+  await expect(gm.getByRole('dialog', { name: 'Cinematic: Aethelric' })).toBeVisible()
+  await expect(pl.getByRole('dialog', { name: 'Cinematic: Aethelric' })).toBeVisible({ timeout: 10_000 })
+  await expect(pl.getByRole('dialog').getByText('"ENOUGH GAMES!"')).toBeVisible({ timeout: 30_000 })
+  expect(Object.values(db.get('tables/dragon42/enemies/a/sk') as object).map((q: { n: string }) => q.n)).toEqual(["Warden's Cut", 'Rime Guard', 'Chain Pull'])
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
 })

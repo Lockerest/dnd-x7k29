@@ -3,7 +3,9 @@
 // exactly like the live page.
 import { createStore } from 'zustand/vanilla'
 import type { Db } from '../db/client'
-import type { Character, Enemy } from '../logic/types'
+import { buildNextPhase, nextPhasePatch } from '../logic/phases'
+import type { CinematicEvent } from '../logic/cinematic'
+import type { Character, Enemy, EnemySkill } from '../logic/types'
 import type { Session } from './session'
 import { errorText } from '../util/errors'
 import { characterChange, enemyChange, type CharacterWithLog } from './updates'
@@ -53,6 +55,25 @@ export type GameState = {
   setMyClaim: (claim: Record<string, unknown> | null) => Promise<void>
   /** GM: allow or refuse a takeover request. */
   decideClaim: (id: string, st: 'ok' | 'no') => Promise<void>
+
+  // Game Master: enemies.
+  addEnemy: (id: string, sheet: Enemy) => Promise<void>
+  /** Removes an enemy, its pictures, and any "next phase" links to it. */
+  removeEnemy: (id: string) => Promise<void>
+  setSkills: (id: string, sk: Record<string, EnemySkill>) => Promise<void>
+  putSkill: (id: string, key: string, skill: EnemySkill) => Promise<void>
+  setSkillField: (id: string, key: string, field: string, value: string | number) => Promise<void>
+  deleteSkill: (id: string, key: string) => Promise<void>
+  /** "+ Add next phase sheet". themeAvailable says which theme keys exist. */
+  addNextPhase: (id: string, newId: string, themeAvailable: (key: string) => boolean) => Promise<void>
+  /** Hands over to the next phase sheet (HP null = full). */
+  switchPhase: (id: string, hp: number | null) => Promise<void>
+  /** Shares a cinematic with every device; returns it, or null without a script. */
+  shareCinematic: (id: string) => Promise<CinematicEvent | null>
+  /** Takes an enemy off the board and out of the turn order (after a vanishing cinematic). */
+  vanish: (id: string) => Promise<void>
+  /** Internal: replaces an enemy's skills locally (no save). */
+  setSkillsLocal: (id: string, sk: Record<string, EnemySkill>) => void
 }
 
 const signature = (t: Tables) => JSON.stringify(t)
@@ -104,6 +125,9 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
 
       updateEnemy: async (id, p) => {
         const { tables } = get()
+        // A change that arrives after the enemy was removed must not bring back an empty
+        // "ghost" sheet (the live page would recreate one).
+        if (!tables.enemies[id]) return
         const liveMap = () => (tables.cur && tables.maps[tables.cur] ? tables.cur : Object.keys(tables.maps)[0])
         const { patch, next, riders } = enemyChange(tables.enemies[id], p, tables.chars, id, liveMap)
         const chars = { ...tables.chars }
@@ -138,6 +162,95 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
         const c = (tables.claims || {})[id] as Record<string, unknown> | undefined
         if (c) set({ tables: { ...tables, claims: { ...tables.claims, [id]: { ...c, st } } } })
         await save((d) => d.patch(`claims/${id}`, { st }))
+      },
+
+      addEnemy: async (id, sheet) => {
+        const { tables } = get()
+        set({ tables: { ...tables, enemies: { ...tables.enemies, [id]: sheet } } })
+        await save((d) => d.put(`enemies/${id}`, sheet))
+      },
+      removeEnemy: async (id) => {
+        const links = Object.keys(get().tables.enemies).filter((k) => k !== id && get().tables.enemies[k]?.nx === id)
+        await Promise.all(links.map((k) => get().updateEnemy(k, { nx: '' })))
+        const { tables } = get()
+        const enemies = { ...tables.enemies }
+        delete enemies[id]
+        set({ tables: { ...tables, enemies } })
+        await Promise.all(['enemies', 'icons', 'portraits', 'bossart'].map((p) => save((d) => d.del(`${p}/${id}`))))
+      },
+      setSkills: async (id, sk) => {
+        const { tables } = get()
+        const e = tables.enemies[id]
+        if (!e) return
+        set({ tables: { ...tables, enemies: { ...tables.enemies, [id]: { ...e, sk } } } })
+        await save((d) => d.put(`enemies/${id}/sk`, sk))
+      },
+      putSkill: async (id, key, skill) => {
+        const e = get().tables.enemies[id]
+        if (!e) return
+        get().setSkillsLocal(id, { ...(e.sk || {}), [key]: skill })
+        await save((d) => d.put(`enemies/${id}/sk/${key}`, skill))
+      },
+      setSkillField: async (id, key, field, value) => {
+        const e = get().tables.enemies[id]
+        const q = e?.sk?.[key]
+        if (!e || !q) return
+        get().setSkillsLocal(id, { ...e.sk, [key]: { ...q, [field]: value } })
+        await save((d) => d.put(`enemies/${id}/sk/${key}/${field}`, value))
+      },
+      deleteSkill: async (id, key) => {
+        const e = get().tables.enemies[id]
+        if (e?.sk) {
+          const sk = { ...e.sk }
+          delete sk[key]
+          get().setSkillsLocal(id, sk)
+        }
+        await save((d) => d.del(`enemies/${id}/sk/${key}`))
+      },
+      setSkillsLocal: (id, sk) => {
+        const { tables } = get()
+        set({ tables: { ...tables, enemies: { ...tables.enemies, [id]: { ...tables.enemies[id], sk } } } })
+      },
+      addNextPhase: async (id, newId, themeAvailable) => {
+        const r = buildNextPhase(get().tables.enemies, id, themeAvailable)
+        if (!r) return
+        const last = get().tables.enemies[r.lastId]!
+        await get().addEnemy(newId, r.sheet)
+        await get().updateEnemy(r.lastId, { nx: newId, ...r.lastPatch })
+        await get().log(`${last.name} now has a next phase sheet: ${r.sheet.name}${r.themeSet ? ' (theme set)' : ''}. Set the gate % on each sheet.`)
+      },
+      switchPhase: async (id, hp) => {
+        const { tables } = get()
+        const x = tables.enemies[id]
+        const nid = x?.nx
+        const n = nid ? tables.enemies[nid] : undefined
+        if (!x || !nid || !n) return
+        await get().updateEnemy(nid, nextPhasePatch(x, n, hp))
+        await get().updateEnemy(id, { mx: null, my: null })
+        const ini = get().tables.ini
+        if (ini?.l?.some((u) => u.k === `e:${id}`)) {
+          const next = { ...ini, l: ini.l.map((u) => (u.k === `e:${id}` ? { ...u, k: `e:${nid}` } : u)) }
+          set({ tables: { ...get().tables, ini: next } })
+          await save((d) => d.put('init', next))
+        }
+        await get().log(`${x.name} changes... ${n.name} rises!`)
+      },
+      shareCinematic: async (id) => {
+        const e = get().tables.enemies[id]
+        if (!e?.gt) return null
+        const c: CinematicEvent = { t: e.gt, n: e.name ?? '', k: `e:${id}` }
+        await save((d) => d.post('rolls', { cin: c, ts: now(), by: get().session?.me ?? '' }))
+        return c
+      },
+      vanish: async (id) => {
+        await get().updateEnemy(id, { mx: null, my: null })
+        const ini = get().tables.ini
+        if (ini?.l?.some((u) => u.k === `e:${id}`)) {
+          const l = ini.l.filter((u) => u.k !== `e:${id}`)
+          const next = { ...ini, l, t: Math.max(0, Math.min(ini.t || 0, l.length - 1)) }
+          set({ tables: { ...get().tables, ini: next } })
+          await save((d) => d.put('init', next))
+        }
       },
     }
   })

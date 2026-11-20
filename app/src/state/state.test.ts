@@ -356,3 +356,112 @@ describe('sync', () => {
     stop()
   })
 })
+
+describe('store: Game Master enemy actions', () => {
+  it('changes to a removed enemy are dropped (no ghost sheets)', async () => {
+    const f = fakeDb()
+    const s = createGameStore(() => f.db)
+    s.getState().connect({ pin: 'p', role: 'gm', me: 'gm' })
+    await s.getState().updateEnemy('gone', { mx: null, my: null })
+    expect(s.getState().tables.enemies).toEqual({})
+    expect(f.writes).toEqual([])
+  })
+  const tables = (t: Partial<Tables>): Tables => ({ ...emptyTables(), ...t })
+  const gm = (t: Partial<Tables>) => {
+    const f = fakeDb()
+    const s = createGameStore(() => f.db, () => 77)
+    s.getState().connect({ pin: 'p', role: 'gm', me: 'gm' })
+    s.getState().applySnapshot(tables(t))
+    return { f, s }
+  }
+  it('adds and removes an enemy (with its pictures and links to it)', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'A', nx: 'b' }, c: { name: 'C', nx: 'b' } } })
+    await s.getState().addEnemy('b', { name: 'B' })
+    expect(s.getState().tables.enemies.b).toEqual({ name: 'B' })
+    await s.getState().removeEnemy('b')
+    expect(s.getState().tables.enemies.b).toBeUndefined()
+    expect(s.getState().tables.enemies.a!.nx).toBe('')
+    expect(f.writes).toEqual([
+      ['PUT', 'enemies/b', { name: 'B' }],
+      ['PATCH', 'enemies/a', { nx: '' }],
+      ['PATCH', 'enemies/c', { nx: '' }],
+      ['DELETE', 'enemies/b', null],
+      ['DELETE', 'icons/b', null],
+      ['DELETE', 'portraits/b', null],
+      ['DELETE', 'bossart/b', null],
+    ])
+  })
+  it('skills: set, add, edit, delete', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'A' } } })
+    await s.getState().putSkill('a', 's1', { n: 'New skill', d: '2d6', r: 1, t: 's', a: 0 })
+    await s.getState().setSkillField('a', 's1', 'n', 'Bite')
+    await s.getState().setSkillField('a', 'nope', 'n', 'x') // missing skill: ignored
+    await s.getState().setSkills('a', { s1: { n: 'Bite', d: '2d6', r: 1, t: 's' }, s2: { n: 'Claw', d: '1d8', r: 1, t: 's' } })
+    await s.getState().deleteSkill('a', 's2')
+    expect(s.getState().tables.enemies.a!.sk).toEqual({ s1: { n: 'Bite', d: '2d6', r: 1, t: 's' } })
+    expect(f.writes).toEqual([
+      ['PUT', 'enemies/a/sk/s1', { n: 'New skill', d: '2d6', r: 1, t: 's', a: 0 }],
+      ['PUT', 'enemies/a/sk/s1/n', 'Bite'],
+      ['PUT', 'enemies/a/sk', { s1: { n: 'Bite', d: '2d6', r: 1, t: 's' }, s2: { n: 'Claw', d: '1d8', r: 1, t: 's' } }],
+      ['DELETE', 'enemies/a/sk/s2', null],
+    ])
+  })
+  it('skill changes on missing enemies or skills are ignored or only deleted remotely', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'A' } } })
+    await s.getState().putSkill('zz', 's1', { n: 'x', d: '1', r: 1, t: 's' })
+    await s.getState().setSkills('zz', {})
+    await s.getState().deleteSkill('a', 's9')
+    expect(f.writes).toEqual([['DELETE', 'enemies/a/sk/s9', null]])
+  })
+  it('adds a next phase sheet and logs it', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'Aethelric', hp: 10, max: 100, mx: 1, my: 1 } } })
+    await s.getState().addNextPhase('a', 'b', (k) => k === 'firstdefier')
+    expect(s.getState().tables.enemies.b).toMatchObject({ name: 'Aethelric (phase 2)', hp: 100, th: 'firstdefier' })
+    expect(f.writes).toEqual([
+      ['PUT', 'enemies/b', { name: 'Aethelric (phase 2)', hp: 100, max: 100, po: 0, th: 'firstdefier' }],
+      ['PATCH', 'enemies/a', { nx: 'b', pg: 50 }],
+      ['POST', 'rolls', { ev: 'Aethelric now has a next phase sheet: Aethelric (phase 2) (theme set). Set the gate % on each sheet.', ts: 77 }],
+    ])
+    await s.getState().addNextPhase('zz', 'c', () => true)
+    expect(f.writes).toHaveLength(3)
+  })
+  it('the log message without a theme', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'Wolf', max: 5 } } })
+    await s.getState().addNextPhase('a', 'b', () => false)
+    expect(f.writes.at(-1)![2]).toMatchObject({ ev: 'Wolf now has a next phase sheet: Wolf (phase 2). Set the gate % on each sheet.' })
+  })
+  it('switches to the next phase, moving the turn order', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'A', nx: 'b', mx: 3, my: 4, mp: 'm', hx: 0 }, b: { name: 'B', max: 50, pm: 5 } }, ini: { l: [{ k: 'e:a' }, { k: 'c:x' }], t: 0 } })
+    await s.getState().switchPhase('a', null)
+    expect(s.getState().tables.enemies.b).toMatchObject({ mx: 3, my: 4, hp: 50, po: 5 })
+    expect(s.getState().tables.ini!.l).toEqual([{ k: 'e:b' }, { k: 'c:x' }])
+    expect(f.writes.map((w) => w[1])).toEqual(['enemies/b', 'enemies/a', 'init', 'rolls'])
+    expect(f.writes.at(-1)![2]).toMatchObject({ ev: 'A changes... B rises!' })
+  })
+  it('switching without a next sheet, or a boss not in the turn order', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'A', nx: 'gone' }, c: { name: 'C', nx: 'd' }, d: { name: 'D', max: 1 } } })
+    await s.getState().switchPhase('a', 5)
+    await s.getState().switchPhase('zz', 5)
+    expect(f.writes).toEqual([])
+    await s.getState().switchPhase('c', 5)
+    expect(f.writes.map((w) => w[1])).toEqual(['enemies/d', 'enemies/c', 'rolls'])
+  })
+  it('shares a cinematic, and vanishing takes the boss off the board and the turn order', async () => {
+    const { f, s } = gm({ enemies: { a: { name: 'Aethelric', gt: '[big] ENOUGH', mx: 1, my: 1, hx: 1 }, b: { name: 'Quiet' } }, ini: { l: [{ k: 'c:x' }, { k: 'e:a' }], t: 1 } })
+    expect(await s.getState().shareCinematic('b')).toBeNull()
+    expect(await s.getState().shareCinematic('a')).toEqual({ t: '[big] ENOUGH', n: 'Aethelric', k: 'e:a' })
+    expect(f.writes).toEqual([['POST', 'rolls', { cin: { t: '[big] ENOUGH', n: 'Aethelric', k: 'e:a' }, ts: 77, by: 'gm' }]])
+    await s.getState().vanish('a')
+    expect(s.getState().tables.enemies.a!.mx).toBeNull()
+    expect(s.getState().tables.ini).toEqual({ l: [{ k: 'c:x' }], t: 0 })
+    await s.getState().vanish('b') // not in the turn order
+    expect(f.writes.map((w) => w[1])).toEqual(['rolls', 'enemies/a', 'init', 'enemies/b'])
+  })
+  it('a nameless boss cinematic and a cinematic without a session', async () => {
+    const f = fakeDb()
+    const s = createGameStore(() => f.db, () => 1)
+    s.getState().applySnapshot(tables({ enemies: { a: { gt: 'x' } } }))
+    expect(await s.getState().shareCinematic('a')).toEqual({ t: 'x', n: '', k: 'e:a' })
+    expect(f.writes[0]![2]).toMatchObject({ by: '' })
+  })
+})

@@ -1,20 +1,24 @@
 // The game container: joining, staying in step with the table, and picking the
 // screen. Screens that are not moved yet show a summary with a link to the live page.
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from 'zustand'
 import { LEGACY_URL, STORAGE_PREFIX } from '../config'
 import { createDb, type Db } from '../db/client'
+import { THEMES } from '../data/audio'
 import { approvedIds, claimRequest, newCharacter } from '../logic/characters'
+import { cinematicSeconds, freshCinematics, parseCinematic, type CinematicEvent } from '../logic/cinematic'
 import { newPlayerId, planJoin, type JoinKind } from '../logic/join'
 import { headerFor, screenFor, type View } from '../logic/screens'
 import type { ClassId } from '../logic/types'
-import { clearSession, loadSession, saveSession, type Session } from '../state/session'
+import { clearSession, loadPrefs, loadSession, savePrefs, saveSession, type Session } from '../state/session'
 import { createGameStore } from '../state/store'
 import { startSync } from '../state/sync'
 import { errorText } from '../util/errors'
 import { ClaimForm, ClaimWait, CreateCharacter, WaitApproval } from './screens/Characters'
 import { JoinScreen } from './screens/JoinScreen'
 import { TableSummary } from './screens/TableSummary'
+import { EnemiesPanel } from './screens/EnemiesPanel'
+import { CinematicOverlay } from './CinematicOverlay'
 
 type Storage_ = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
@@ -25,12 +29,19 @@ export type GameProps = {
   every?: number
   newId?: () => string
   now?: () => number
+  /** Asked before removing an enemy. */
+  confirm?: (question: string) => boolean
+  rand?: () => number
 }
 
-export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now }: GameProps) {
+export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand }: GameProps) {
   const [conn, setConn] = useState<{ db: Db; session: Session } | null>(null)
   const db = conn?.db ?? null
-  const store = useMemo(() => createGameStore(() => db, now), [db, now])
+  // The clock is fixed at the first render (a new function on every render must not
+  // replace the store and lose the game state); the store changes only with the table.
+  const [clock] = useState(() => now)
+  const store = useMemo(() => createGameStore(() => db, clock), [db, clock])
+  const status = useStore(store, (s) => s.status)
   const session = useStore(store, (s) => s.session)
   const tables = useStore(store, (s) => s.tables)
   const dm = useStore(store, (s) => s.dm)
@@ -39,6 +50,16 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const [busy, setBusy] = useState(false)
   const [view, setView] = useState<View>('table')
   const [claimMode, setClaimMode] = useState(false)
+
+  const [open, setOpen] = useState<string[]>(() => loadPrefs(storage).openEnemies)
+  const toggleOpen = (id: string) => {
+    const next = open.includes(id) ? open.filter((x) => x !== id) : [...open, id]
+    setOpen(next)
+    savePrefs(storage, { openEnemies: next })
+  }
+  const [themeKeys, setThemeKeys] = useState<string[]>([])
+  const [cin, setCin] = useState<{ c: CinematicEvent; portrait: string | null } | null>(null)
+  const seen = useRef<{ keys: Set<string>; seeded: boolean }>({ keys: new Set(), seeded: false })
 
   const remember = useCallback((s: Session) => saveSession(storage, hash, s, STORAGE_PREFIX), [storage, hash])
 
@@ -58,8 +79,45 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   useEffect(() => {
     if (!conn) return
     store.getState().connect(conn.session)
+    seen.current = { keys: new Set(), seeded: false }
+    conn.db.keys('themes').then(setThemeKeys, () => setThemeKeys([]))
     return startSync(store, conn.db, { every })
   }, [conn, store, every])
+
+  // Shows a cinematic, with the boss picture when the script asks for it.
+  const show = useCallback(
+    async (c: CinematicEvent) => {
+      const id = c.k.slice(2)
+      let portrait: string | null = null
+      if (db && parseCinematic(c.t).some((b) => b.tags.portrait)) {
+        for (const p of [`bossart/${id}`, `icons/${id}`]) {
+          const d = await db.get<{ data?: string }>(p).catch(() => null)
+          if (d?.data) {
+            portrait = d.data
+            break
+          }
+        }
+      }
+      setCin({ c, portrait })
+    },
+    [db],
+  )
+
+  // Cinematics started on another device play here too.
+  useEffect(() => {
+    if (!session || status !== 'live') return // the first real read seeds what was already there
+    const fresh = freshCinematics(tables.rolls as Parameters<typeof freshCinematics>[0], seen.current.keys, seen.current.seeded, session.me, now())
+    seen.current.seeded = true
+    if (fresh.length) void show(fresh[fresh.length - 1]!)
+  }, [tables.rolls, session, status, now, show])
+
+  const playCinematic = async (id: string) => {
+    const c = await store.getState().shareCinematic(id)
+    /* v8 ignore next -- the button only shows when there is a script; this guards a race with its removal */
+    if (!c) return
+    void show(c)
+    if (tables.enemies[id]?.gv) setTimeout(() => void store.getState().vanish(id), cinematicSeconds(parseCinematic(c.t)) * 1000)
+  }
 
   // A takeover the GM allowed: this device becomes that character.
   const myClaim = session && !dm && session.role === 'player' ? (tables.claims as { st?: string; target?: string } | null) : null
@@ -146,7 +204,20 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         legacyUrl={LEGACY_URL}
         onApprove={(id, ok) => void store.getState().updateCharacter(id, { ap: ok ? true : 'no' }, ok ? 'Approved by the GM' : 'Declined by the GM')}
         onClaim={(id, ok) => void store.getState().decideClaim(id, ok ? 'ok' : 'no')}
-      />
+      >
+        {dm && screen === 'table' && (
+          <EnemiesPanel
+            tables={tables}
+            actions={store.getState()}
+            open={open}
+            onToggle={toggleOpen}
+            themes={themeKeys.map((key) => ({ key, name: THEMES.find((t) => t.key === key)?.name ?? key }))}
+            onPlayCinematic={(id) => void playCinematic(id)}
+            confirm={confirm}
+            rand={rand}
+          />
+        )}
+      </TableSummary>
     )
 
   return (
@@ -167,6 +238,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         </p>
       )}
       {body}
+      {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} />}
     </>
   )
 }

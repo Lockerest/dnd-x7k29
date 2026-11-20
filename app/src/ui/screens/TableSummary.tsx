@@ -16,6 +16,7 @@ export function TableSummary({
   legacyUrl,
   onApprove,
   onClaim,
+  children,
 }: {
   screen: Screen
   tables: Tables
@@ -24,6 +25,8 @@ export function TableSummary({
   legacyUrl: string
   onApprove: (id: string, ok: boolean) => void
   onClaim: (id: string, ok: boolean) => void
+  /** Moved panels shown on this screen (the GM's Enemies panel). */
+  children?: React.ReactNode
 }) {
   const pending = dm ? pendingIds(tables.chars) : []
   const claims = dm ? Object.entries((tables.claims || {}) as Record<string, { who?: string; target?: string; st?: string }>).filter(([, c]) => c?.st === 'pending') : []
@@ -73,6 +76,7 @@ export function TableSummary({
           })}
         </div>
       )}
+      {children}
       <div className="card">
         <h2>{NAMES[screen]}</h2>
         <p className="muted">

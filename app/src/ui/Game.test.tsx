@@ -296,3 +296,98 @@ describe('<Game /> coming back', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Connection problem: Failed to fetch')
   })
 })
+
+describe('<Game /> enemies and cinematics', () => {
+  const boss = async (extra: Record<string, unknown> = {}, opts: { confirm?: (q: string) => boolean } = {}) => {
+    const h = await gmPinHash('secret')
+    const fb = fakeFirebase({
+      tables: {
+        dragon42: {
+          meta: { dm: h },
+          themes: { firstdefier: { n: 'x' } },
+          bossart: { a: { data: 'data:image/png;base64,QUFB' } },
+          enemies: { a: { name: 'Aethelric', hp: 100, max: 100, mx: 1, my: 1, gt: '[portrait] Hello', x10: true } },
+          init: { l: [{ k: 'e:a' }], t: 0 },
+          ...extra,
+        },
+      },
+    })
+    const storage = memory()
+    render(<Game fetchImpl={fb.fetch} storage={storage} hash="" every={20} now={() => Date.now()} confirm={opts.confirm ?? (() => true)} rand={() => 0.5} />)
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    await screen.findByRole('heading', { name: 'Enemies' })
+    return { fb, storage }
+  }
+
+  it('the GM sees the Enemies panel, opens an editor (remembered) and edits', async () => {
+    const { fb, storage } = await boss()
+    click("Show or hide Aethelric's settings")
+    expect(JSON.parse(storage.m.get('eop')!)).toEqual(['a'])
+    expect(screen.getByRole('option', { name: 'Aethelric, phase 2 (The First Defier)' })).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Theme'), { target: { value: 'firstdefier' } })
+    await vi.waitFor(() => expect(fb.get('tables/dragon42/enemies/a/th')).toBe('firstdefier'))
+    click("Show or hide Aethelric's settings")
+    expect(JSON.parse(storage.m.get('eop')!)).toEqual([])
+    // Players never get the panel.
+    click('View as player')
+    expect(screen.queryByRole('heading', { name: 'Enemies' })).toBeNull()
+  })
+
+  it('a theme key without a known name shows the key', async () => {
+    await boss({ themes: { custom: { n: 'x' } } })
+    click("Show or hide Aethelric's settings")
+    expect(screen.getByRole('option', { name: 'custom' })).toBeInTheDocument()
+  })
+
+  it('Play cinematic shows it with the boss art and shares it; vanishing takes him off the board', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    try {
+      const { fb } = await boss()
+      fb.set('tables/dragon42/enemies/a/gv', 1)
+      click("Show or hide Aethelric's settings")
+      await vi.waitFor(() => expect(screen.getByLabelText(/vanishes from the board/)).toBeChecked())
+      click('Play cinematic')
+      const dlg = await screen.findByRole('dialog', { name: 'Cinematic: Aethelric' })
+      expect(dlg.querySelector('img')).toHaveAttribute('src', 'data:image/png;base64,QUFB')
+      expect(fb.writes.some(([m, p, b]) => m === 'POST' && p.endsWith('/rolls') && (b as { cin?: unknown }).cin)).toBe(true)
+      await act(async () => void (await vi.advanceTimersByTimeAsync(8000)))
+      await vi.waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+      await vi.waitFor(() => expect(fb.get('tables/dragon42/enemies/a/mx')).toBeNull())
+      expect(fb.get('tables/dragon42/init/l')).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('a cinematic started on another device plays here; old ones and its own do not', async () => {
+    const { fb } = await boss({ rolls: { old: { cin: { t: 'Old', n: 'X', k: 'e:a' }, ts: Date.now(), by: 'p9' } }, bossart: {}, icons: { a: { data: 'data:image/png;base64,SUNP' } } })
+    await new Promise((r) => setTimeout(r, 60))
+    expect(screen.queryByRole('dialog')).toBeNull() // already there when we joined
+    act(() => fb.set('tables/dragon42/rolls/new1', { cin: { t: '[portrait] Now', n: 'Aethelric', k: 'e:a' }, ts: Date.now(), by: 'p9' }))
+    const dlg = await screen.findByRole('dialog', { name: 'Cinematic: Aethelric' })
+    await vi.waitFor(() => expect(dlg.querySelector('img')).toHaveAttribute('src', 'data:image/png;base64,SUNP'))
+    act(() => fb.set('tables/dragon42/rolls/new2', { cin: { t: 'No picture here', n: 'Plain', k: 'e:a' }, ts: Date.now(), by: 'p9' }))
+    expect(await screen.findByRole('dialog', { name: 'Cinematic: Plain' })).toBeInTheDocument()
+  })
+
+  it('a portrait scene without any art plays without a picture, and a failed theme list is empty', async () => {
+    const h = await gmPinHash('secret')
+    const fb = fakeFirebase({ tables: { dragon42: { meta: { dm: h }, enemies: { a: { name: 'A', gt: '[portrait] Hi', x10: true } } } } })
+    const real = fb.fetch
+    const f = (async (u: string, i?: RequestInit) => {
+      if (String(u).includes('/themes.json') || String(u).includes('/bossart/')) throw new Error('down')
+      return real(u, i)
+    }) as typeof fetch
+    render(<Game fetchImpl={f} storage={memory()} hash="" every={20} confirm={() => true} />)
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    click(await screen.findByRole('button', { name: "Show or hide A's settings" }).then((b) => b.getAttribute('aria-label')!))
+    expect(screen.getByLabelText('Theme').querySelectorAll('option')).toHaveLength(1)
+    click('Play cinematic')
+    const dlg = await screen.findByRole('dialog')
+    expect(dlg.querySelector('img')).toBeNull()
+  })
+})

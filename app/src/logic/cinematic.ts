@@ -51,3 +51,32 @@ export function unknownTags(script: string): string[] {
   const used = [...script.matchAll(/\[([a-z]+)(?:=[\d.]+)?\]/gi)].map((m) => m[1]!.toLowerCase())
   return [...new Set(used.filter((t) => !(CINEMATIC_TAGS as readonly string[]).includes(t)))]
 }
+
+/** A cinematic as it is shared: script, boss name and token key ("e:<id>") for the portrait. */
+export type CinematicEvent = { t: string; n: string; k: string }
+
+/**
+ * Cinematics another device started that this device should play: new log
+ * entries only (the first read just remembers what is there), not its own,
+ * at most the last 5, and only if started in the last 20 seconds.
+ */
+export function freshCinematics(
+  rolls: Record<string, { cin?: CinematicEvent; by?: string; ts?: number } | null | undefined>,
+  seen: Set<string>,
+  seeded: boolean,
+  me: string,
+  now: number,
+): CinematicEvent[] {
+  const keys = Object.keys(rolls)
+  if (!seeded) {
+    keys.forEach((k) => seen.add(k))
+    return []
+  }
+  const fresh = keys.filter((k) => !seen.has(k))
+  fresh.forEach((k) => seen.add(k))
+  return fresh
+    .slice(-5)
+    .map((k) => rolls[k])
+    .filter((e): e is { cin: CinematicEvent; by?: string; ts?: number } => !!e?.cin && e.by !== me && now - (e.ts ?? 0) < 20000)
+    .map((e) => e.cin)
+}
