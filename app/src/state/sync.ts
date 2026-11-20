@@ -45,7 +45,7 @@ export async function refresh(store: GameStore, db: Db, migrated: Set<string>): 
   const { session, dm } = store.getState()
   if (!session) return null
   const r = await Promise.all(refreshPaths(dm, session.me).map((p) => db.get<unknown>(p.path, p.query)))
-  const [chars, enemies, maps, cur, rolls, claims, combat, ini, build, board, mki, snd, thv, , , , skiv] = r as [
+  const [chars, enemies, maps, cur, rolls, claims, combat, ini, build, board, mki, snd, thv, sp, , , skiv] = r as [
     Tables['chars'] | null,
     Tables['enemies'] | null,
     Tables['maps'] | null,
@@ -68,6 +68,7 @@ export async function refresh(store: GameStore, db: Db, migrated: Set<string>): 
     ini: ini || null,
     board: board && Object.keys(board).length ? board : null,
     claims: claims || null,
+    sp: sp == null ? null : String(sp),
   }
   if (dm) {
     const writes: Promise<unknown>[] = []

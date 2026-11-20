@@ -139,3 +139,59 @@ test('the GM edits a boss and plays its cinematic; the player sees it too', asyn
   await gmCtx.close()
   await plCtx.close()
 })
+
+test('a player uses their sheet in the new app; the GM on the live page sees the same sheet', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', level: 1, ac: 13, hp: 80, maxHp: 110, st: 100, maxSt: 100, rg: 15, fl: 3, maxFl: 3, pv: 1, mx: 2, my: 2, x10: true } },
+    portraits: { p1: { data: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=' } },
+    maps: { m: { name: 'Crypt', w: 500, h: 500, cols: 10, v2: 1, al: { a: '1,1' } } },
+    cur: 'm',
+    enemies: { w: { name: 'Wolf', hp: 0, max: 30, mx: 6, my: 6, x10: true } },
+  })
+  const errors: string[] = []
+  const plCtx = await browser.newContext()
+  const gmCtx = await browser.newContext()
+  const pl = await plCtx.newPage()
+  const gm = await gmCtx.newPage()
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(pl, db)
+  await useFakeFirebase(gm, db)
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+
+  await pl.goto(base + 'next/')
+  await pl.getByRole('button', { name: 'Sheet' }).click()
+  const sheet = pl.getByLabel('Sheet: Lyra')
+  await expect(sheet.getByRole('heading', { name: 'Lyra' })).toBeVisible()
+  await expect(sheet.locator('.art')).toHaveCSS('background-image', /data:image\/png/)
+  await expect(sheet.getByText('Archer · AC 13')).toBeVisible()
+
+  await sheet.getByRole('button', { name: 'Flask (3/3)' }).click()
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/hp')).toBe(110)
+  await sheet.getByRole('button', { name: '30 St' }).click() // Dodge Roll
+  await expect(sheet.getByText('Dodging')).toBeVisible()
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/st')).toBe(70)
+  await sheet.getByLabel('Notes').fill('Owes Bram 5 gold')
+  await sheet.getByLabel('Notes').blur()
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/notes')).toBe('Owes Bram 5 gold')
+
+  // Resting at the altar next to her refills her and sends the Golden Wave; the wolf comes back.
+  await sheet.getByRole('button', { name: 'Altar rest', exact: true }).click()
+  await expect.poll(() => db.get('tables/dragon42/chars/p1/st')).toBe(100)
+  await expect.poll(() => db.get('tables/dragon42/enemies/w/hp'), { timeout: 10_000 }).toBe(30)
+  const events = () => Object.values((db.get('tables/dragon42/rolls') as object) || {}).map((r: { ev?: string; wave?: object }) => r.ev ?? (r.wave ? 'wave' : '?'))
+  await expect.poll(events).toEqual(['wave', 'The Golden Wave sweeps across the land...', 'The monsters return to their posts (unique foes stay dead)'])
+
+  // The GM, still on the live page, sees the same sheet.
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await gm.goto(base)
+  await gm.locator('#tab').click()
+  const card = gm.locator('.card', { has: gm.getByRole('heading', { name: 'Lyra' }) })
+  await expect(card.locator('textarea[data-f="notes"]')).toHaveValue('Owes Bram 5 gold')
+  await expect(card.getByText('Rested at the altar')).toBeVisible()
+  await expect(card.getByText('Drank a flask (+44 HP)')).toBeVisible()
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

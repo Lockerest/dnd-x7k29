@@ -9,6 +9,7 @@ import type { Character, Enemy, EnemySkill } from '../logic/types'
 import type { Session } from './session'
 import { errorText } from '../util/errors'
 import { characterChange, enemyChange, type CharacterWithLog } from './updates'
+import { sheetActions, type SheetActions, type Timers } from './sheetActions'
 
 export type Tables = {
   chars: Record<string, CharacterWithLog>
@@ -22,9 +23,11 @@ export type Tables = {
   ini: { l: { k: string }[]; t?: number; r?: number; ph?: string } | null
   board: Record<string, unknown> | null
   claims: Record<string, unknown> | null
+  /** Spoiler words hidden from players (meta/sp): null = the default list, "-" = none. */
+  sp: string | null
 }
 
-export const emptyTables = (): Tables => ({ chars: {}, enemies: {}, maps: {}, cur: null, rolls: {}, combat: false, ini: null, board: null, claims: null })
+export const emptyTables = (): Tables => ({ chars: {}, enemies: {}, maps: {}, cur: null, rolls: {}, combat: false, ini: null, board: null, claims: null, sp: null })
 
 export type Status = 'idle' | 'connecting' | 'live' | 'error'
 
@@ -74,12 +77,17 @@ export type GameState = {
   vanish: (id: string) => Promise<void>
   /** Internal: replaces an enemy's skills locally (no save). */
   setSkillsLocal: (id: string, sk: Record<string, EnemySkill>) => void
-}
+  /** Shows a message to the user (not a connection problem). */
+  notice: (text: string) => void
+} & SheetActions
 
 const signature = (t: Tables) => JSON.stringify(t)
 
-/** db gives the database to save to; without one (the default) nothing is ever written. */
-export function createGameStore(db: () => Db | null = () => null, now: () => number = Date.now) {
+/**
+ * db gives the database to save to; without one (the default) nothing is ever written.
+ * rand rolls the dice; later runs delayed steps (the world reset after the Golden Wave).
+ */
+export function createGameStore(db: () => Db | null = () => null, now: () => number = Date.now, rand: () => number = Math.random, later: Timers = (f, ms) => void setTimeout(() => void f(), ms)) {
   let lastSig = ''
   return createStore<GameState>()((set, get) => {
     const save = async (f: (d: Db) => Promise<unknown>) => {
@@ -113,6 +121,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
         return changed
       },
       setError: (e) => set({ error: `Connection problem: ${errorText(e)}` }),
+      notice: (text) => set({ error: text }),
+      ...sheetActions(get, set, save, now, rand, later),
 
       updateCharacter: async (id, p, msg) => {
         const { tables, dm, session } = get()

@@ -18,6 +18,7 @@ import { ClaimForm, ClaimWait, CreateCharacter, WaitApproval } from './screens/C
 import { JoinScreen } from './screens/JoinScreen'
 import { TableSummary } from './screens/TableSummary'
 import { EnemiesPanel } from './screens/EnemiesPanel'
+import { SheetScreen } from './screens/Sheet'
 import { CinematicOverlay } from './CinematicOverlay'
 
 type Storage_ = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
@@ -61,6 +62,10 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const [cin, setCin] = useState<{ c: CinematicEvent; portrait: string | null } | null>(null)
   const seen = useRef<{ keys: Set<string>; seeded: boolean }>({ keys: new Set(), seeded: false })
 
+  // Character portraits, downloaded once per version (pv) when a sheet shows them.
+  const [portraits, setPortraits] = useState<Record<string, string>>({})
+  const portraitVersions = useRef<Record<string, unknown>>({})
+
   const remember = useCallback((s: Session) => saveSession(storage, hash, s, STORAGE_PREFIX), [storage, hash])
 
   // Come back to the saved table, if it still exists.
@@ -83,6 +88,19 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     conn.db.keys('themes').then(setThemeKeys, () => setThemeKeys([]))
     return startSync(store, conn.db, { every })
   }, [conn, store, every])
+
+  useEffect(() => {
+    if (!db || view !== 'sheet') return
+    for (const [id, c] of Object.entries(tables.chars)) {
+      const pv = (c as { pv?: unknown }).pv
+      if (!pv || portraitVersions.current[id] === pv) continue
+      portraitVersions.current[id] = pv
+      db.get<{ data?: string }>(`portraits/${id}`).then(
+        (d) => d?.data && setPortraits((p) => ({ ...p, [id]: d.data! })),
+        () => delete portraitVersions.current[id], // try again on the next refresh
+      )
+    }
+  }, [db, view, tables.chars])
 
   // Shows a cinematic, with the boss picture when the script asks for it.
   const show = useCallback(
@@ -168,6 +186,9 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const header = headerFor({ role, dm, canGM: role === 'gm', view, mine })
   const screen = screenFor({ role, dm, me, chars: tables.chars, view, claimPending: !!myClaim && !!myClaim.st, claimMode })
 
+  const approve = (id: string, ok: boolean) => void store.getState().updateCharacter(id, { ap: ok ? true : 'no' }, ok ? 'Approved by the GM' : 'Declined by the GM')
+  const decideClaim = (id: string, ok: boolean) => void store.getState().decideClaim(id, ok ? 'ok' : 'no')
+
   let body: React.ReactNode
   if (screen === 'join') body = <JoinScreen onJoin={(k, p, g) => void join(k, p, g)} busy={busy} />
   else if (screen === 'create')
@@ -194,6 +215,19 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   else if (screen === 'claim-wait')
     body = <ClaimWait declined={myClaim?.st === 'no'} target={(myClaim?.target && tables.chars[myClaim.target]?.name) || 'that character'} onDismiss={() => void store.getState().setMyClaim(null)} />
   else if (screen === 'wait-approval') body = <WaitApproval name={mine?.name ?? ''} declined={mine?.ap === 'no'} />
+  else if (screen === 'sheet')
+    body = (
+      <SheetScreen
+        tables={tables}
+        dm={dm}
+        me={me}
+        actions={store.getState()}
+        portraits={portraits}
+        confirm={confirm ?? ((q) => window.confirm(q))}
+        onApprove={approve}
+        onClaim={decideClaim}
+      />
+    )
   else
     body = (
       <TableSummary
@@ -202,8 +236,8 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         dm={dm}
         pin={session!.pin}
         legacyUrl={LEGACY_URL}
-        onApprove={(id, ok) => void store.getState().updateCharacter(id, { ap: ok ? true : 'no' }, ok ? 'Approved by the GM' : 'Declined by the GM')}
-        onClaim={(id, ok) => void store.getState().decideClaim(id, ok ? 'ok' : 'no')}
+        onApprove={approve}
+        onClaim={decideClaim}
       >
         {dm && screen === 'table' && (
           <EnemiesPanel

@@ -279,8 +279,15 @@ describe('sync', () => {
     s.getState().connect({ pin: 't', role: 'player', me: 'a' })
     const r = await refresh(s, f.db, new Set())
     expect(r).toEqual({ changed: true, versions: { build: 63, themes: 7, sounds: 2, skillIcons: 3, mapIcons: 4 } })
-    expect(s.getState().tables).toMatchObject({ cur: 'm1', combat: true, board: null, ini: { l: [{ k: 'c:a' }] } })
+    expect(s.getState().tables).toMatchObject({ cur: 'm1', combat: true, board: null, sp: null, ini: { l: [{ k: 'c:a' }] } })
     expect(f.writes).toEqual([]) // players never migrate
+  })
+  it('reads the spoiler words as text', async () => {
+    const f = fakeDb({ meta: { sp: 'golden,altar' } })
+    const s = createGameStore(() => f.db)
+    s.getState().connect({ pin: 't', role: 'player', me: 'a' })
+    await refresh(s, f.db, new Set())
+    expect(s.getState().tables.sp).toBe('golden,altar')
   })
   it('the GM migrates old sheets once, and only once', async () => {
     const f = fakeDb(tree())

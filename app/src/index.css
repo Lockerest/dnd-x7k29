@@ -275,6 +275,29 @@ select {
   gap: 6px;
 }
 
+/* Character sheets (same look as the live page) */
+button.warn{border-color:var(--hp)}
+.ab>button,.ab>.sub{white-space:nowrap;flex:none}
+.sheets{max-width:1100px;margin:0 auto}
+.sheets>.card{margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px;align-items:start}.grid .card{margin:0}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin:8px 0 12px}
+.stats label,.stats span{display:flex;flex-direction:column;font-size:13px;color:var(--mu)}
+.stats b{font-size:18px;color:var(--tx);font-weight:600}
+.blk{display:grid;gap:2px;font:600 13px "Source Sans 3",sans-serif;color:var(--mu);margin:12px 0 2px}
+.blk input,.blk textarea{font-weight:400;color:var(--tx)}
+.log{margin:8px 0 0;padding:0;list-style:none;color:var(--mu);font-size:14px}
+.splash{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:3/4;max-height:470px;width:100%;margin:0 auto 6px;border:3px solid var(--fr);box-shadow:0 0 0 1px #000a,0 10px 26px -10px var(--fr);background:linear-gradient(160deg,#2b3140,#14171d)}
+.splash .art{position:absolute;inset:0;background-size:cover;background-position:center 20%;display:flex;align-items:center;justify-content:center}
+.splash .ph{font-size:110px;opacity:.35}
+.splash .shade{position:absolute;inset:0;background:linear-gradient(to top,#000e 0%,#0009 26%,transparent 58%),linear-gradient(to bottom,#0008,transparent 20%)}
+.splash .lvb{position:absolute;left:10px;top:10px;min-width:48px;text-align:center;background:var(--fr);color:#fff;border-radius:8px;font:700 26px/1 "Cormorant Garamond",Georgia,serif;padding:5px 9px;box-shadow:0 2px 8px #0008}
+.splash .lvb small{display:block;font:600 10px "Source Sans 3",sans-serif;letter-spacing:.12em}
+.splash .vc{position:absolute;right:10px;top:10px;font-size:24px;background:#000b;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:2px solid var(--fr)}
+.splash .meta{position:absolute;left:0;right:0;bottom:0;padding:12px 14px;color:#fff;text-shadow:0 1px 4px #000}
+.splash .meta h2{font-size:36px;line-height:1;color:#fff}.splash .sub2{font-size:14px;opacity:.92;margin-top:2px}
+.splash .vit{display:flex;gap:16px;margin-top:6px;font-weight:600}
+
 /* Cinematic (same look as the live page) */
 .cin{position:fixed;inset:0;z-index:80;background:#000;display:flex;align-items:center;justify-content:center;padding:24px;pointer-events:none;animation:cinIn 1.6s both}
 .cin.out{animation:cinOut 1.6s both}

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { gmPinHash } from '../logic/join'
 import { Game } from './Game'
 
@@ -133,7 +133,7 @@ describe('<Game /> characters', () => {
     expect(await screen.findByRole('heading', { name: 'The table' })).toBeInTheDocument()
     // Tabs now work.
     click('Sheet')
-    expect(screen.getByRole('heading', { name: 'Character sheets' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Lyra' })).toBeInTheDocument()
     click('Table')
     click('Abilities')
     expect(screen.getByRole('heading', { name: 'Ability board' })).toBeInTheDocument()
@@ -244,6 +244,65 @@ describe('<Game /> Game Master', () => {
     expect(screen.getByRole('heading', { name: 'Create your character' })).toBeInTheDocument()
     click('Back to GM')
     expect(screen.getByRole('heading', { name: 'The table' })).toBeInTheDocument()
+  })
+})
+
+describe('<Game /> character sheets', () => {
+  it('the GM sees every sheet, with portraits downloaded once per version (retried after a failure)', async () => {
+    const h = await gmPinHash('secret')
+    const { fb } = setup({
+      tables: {
+        dragon42: {
+          meta: { dm: h },
+          chars: {
+            a: { name: 'Lyra', cls: 'archer', hp: 50, maxHp: 100, st: 10, maxSt: 100, pv: 1, x10: true },
+            b: { name: 'Bram', cls: 'fighter', hp: 50, maxHp: 100, st: 10, maxSt: 100, pv: 2, x10: true },
+            c: { name: 'Cid', cls: 'mage', hp: 50, maxHp: 100, st: 10, maxSt: 100, x10: true },
+          },
+          portraits: { a: { data: 'data:image/png;base64,QQ' }, b: {} },
+        },
+      },
+    })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    click(await screen.findByRole('button', { name: 'Sheet' }).then((b) => b.textContent!))
+    const lyra = await screen.findByLabelText('Sheet: Lyra')
+    await vi.waitFor(() => expect(lyra.querySelector('.art')).toHaveStyle({ backgroundImage: 'url(data:image/png;base64,QQ)' }))
+    expect(screen.getByLabelText('Sheet: Bram').querySelector('.ph')).toBeInTheDocument()
+    expect(screen.getByLabelText('Sheet: Cid')).toBeInTheDocument()
+    const reads = () => (fb.fetch as unknown as { mock: { calls: [string][] } }).mock.calls.filter(([u]) => u.includes('/portraits/')).length
+    const before = reads()
+    // A failed download is tried again on a later refresh; a good one is not.
+    const mock = fb.fetch as unknown as Mock<(u: string, i?: RequestInit) => Promise<Response>>
+    const real = mock.getMockImplementation()!
+    let fails = 1
+    mock.mockImplementation(async (u, i) => {
+      if (u.includes('/portraits/b') && fails-- > 0) throw new TypeError('Failed to fetch')
+      return real(u, i)
+    })
+    act(() => {
+      fb.set('tables/dragon42/portraits/b', { data: 'data:image/png;base64,Qg' })
+      fb.set('tables/dragon42/chars/b/pv', 3)
+    })
+    await vi.waitFor(() => expect(fails).toBe(0))
+    act(() => fb.set('tables/dragon42/chars/c/hp', 40)) // any change: the next refresh tries again
+    await vi.waitFor(() => expect(screen.getByLabelText('Sheet: Bram').querySelector('.art')).toHaveStyle({ backgroundImage: 'url(data:image/png;base64,Qg)' }))
+    expect(reads()).toBeGreaterThan(before)
+    expect((fb.fetch as unknown as { mock: { calls: [string][] } }).mock.calls.filter(([u]) => u.includes('/portraits/a')).length).toBe(1)
+  })
+
+  it('removing a character asks with the browser box by default', async () => {
+    const h = await gmPinHash('secret')
+    const ask = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    setup({ tables: { dragon42: { meta: { dm: h }, chars: { a: { name: 'Lyra', cls: 'archer', hp: 5, maxHp: 10, st: 1, maxSt: 10, x10: true } } } } })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    click(await screen.findByRole('button', { name: 'Sheet' }).then((b) => b.textContent!))
+    fireEvent.click(await screen.findByRole('button', { name: 'Remove character' }))
+    expect(ask).toHaveBeenCalledWith('Remove Lyra?')
+    ask.mockRestore()
   })
 })
 

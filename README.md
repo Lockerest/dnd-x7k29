@@ -10,7 +10,7 @@ React + TypeScript app, one piece at a time, without breaking the live table.
 | `index.html` | The live single-file app (the one players use). Still the real game. |
 | `app/` | The new React + TypeScript app (Vite). Published at `/next/`. |
 | `app/src/data/` | Game data: classes, skill sets, themes, ability sounds, cinematic preset. |
-| `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio. |
+| `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio, ability board, map geometry, sheet actions. |
 | `app/src/**/*.test.ts(x)` | Unit tests for the new app (100% coverage required). |
 | `app/src/ui/` | React screens (`Game.tsx` picks the screen; `screens/` holds each one). |
 | `app/src/db/`, `app/src/state/`, `app/src/audio/` | Database client and live stream, game store, saved session and preferences, refresh loop, lazy theme and sound loader. |
@@ -54,9 +54,12 @@ npm run build
    Game Master with PIN), creating a character, waiting for approval, taking over a character from
    another device, the GM's join and device requests, the GM's Enemies panel and enemy editor
    (stats, phase gates and next-phase sheets, themes, skills and skill sets, cinematic script) and the
-   cinematic itself, shared with every device. Still on the live page: the table and map, character
-   sheets, ability board and reference, dice, sounds, and the enemy extras (auto turn, boss intro,
-   spawn point, pictures, skill sounds and icons).
+   cinematic itself, shared with every device, and the character sheets (HP, flasks, stamina, rests
+   at altars and bonfires with the Golden Wave and world reset, reviving, shield, parry, armor,
+   mounts, abilities with their costs and dice, attunements, stats, conditions, notes, log).
+   Still on the live page: the table and map, ability board and reference, dice, sounds, uploading
+   pictures (portraits and icons), and the enemy extras (auto turn, boss intro, spawn point, skill
+   sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

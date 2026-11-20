@@ -8,6 +8,7 @@ import { enemyListOrder } from '../../logic/phases'
 import { addSkillSet } from '../../logic/skills'
 import type { Enemy } from '../../logic/types'
 import type { GameState, Tables } from '../../state/store'
+import { Field, Meter } from '../parts'
 
 type Actions = Pick<
   GameState,
@@ -25,27 +26,6 @@ export type EnemiesPanelProps = {
   /** Asked before removing an enemy (the live page uses the browser's confirm box). */
   confirm?: (question: string) => boolean
   rand?: () => number
-}
-
-const Meter = ({ v, max, kind }: { v: number; max: number; kind: 'hp' | 'st' }) => (
-  <div className="meter" role="meter" aria-valuenow={v} aria-valuemin={0} aria-valuemax={max}>
-    <i className={kind} style={{ width: `${max ? Math.max(0, Math.min(100, (v / max) * 100)) : 0}%` }} />
-    <b>
-      {v} / {max}
-    </b>
-  </div>
-)
-
-/** A text or number box that saves when you leave it (like the page's "change" event). */
-function Field({ label, value, type = 'text', onSave, width, placeholder, area }: { label: string; value: string | number | undefined; type?: string; onSave: (v: string) => void; width?: number; placeholder?: string; area?: number }) {
-  const shown = value == null ? '' : String(value) // a missing value is an empty box, never "undefined"
-  const common = { defaultValue: shown, placeholder, onBlur: (e: { target: { value: string } }) => e.target.value !== shown && onSave(e.target.value) }
-  return (
-    <label className={area ? 'sub' : undefined}>
-      {label}
-      {area ? <textarea rows={area} style={{ width: '100%' }} {...common} /> : <input type={type} style={width ? { width } : undefined} {...common} />}
-    </label>
-  )
 }
 
 const EMPTY_FORM: NewEnemyForm = { name: '', type: '', size: '1', hp: '', speed: '', poise: '', ac: '', attack: '', damage: '' }
