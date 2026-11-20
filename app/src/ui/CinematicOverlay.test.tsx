@@ -92,3 +92,13 @@ describe('<CinematicOverlay />', () => {
     expect(q('.ct')).toHaveTextContent('Hit')
   })
 })
+
+describe('<CinematicOverlay /> sounds', () => {
+  it('each effect beat plays its sound', () => {
+    const sound = { thunk: vi.fn(), glow: vi.fn(), slam: vi.fn(), crack: vi.fn(), collapse: vi.fn() }
+    render(<CinematicOverlay cin={{ t: '[stagger] A\n[glow] B\n[shake] C\n[slam] D\n[crack] E\n[collapse] F\n[flash] G', n: 'X', k: 'e:x' }} onDone={() => {}} sound={sound} />)
+    act(() => void vi.advanceTimersByTime(30000))
+    expect(sound.thunk).toHaveBeenCalledTimes(2)
+    for (const f of [sound.glow, sound.slam, sound.crack, sound.collapse]) expect(f).toHaveBeenCalledTimes(1)
+  })
+})

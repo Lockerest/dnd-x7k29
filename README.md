@@ -72,7 +72,11 @@ npm run build
    call to players); and part 2d: dice (the Dice card with how many, bonus, stat, dice style and the
    GM's Secret box, the shared log, the 3D dice with the CSS dice fallback, other players' rolls
    shown on every screen, attacks and abilities waiting for their dice like on the live page).
-   Still on the live page: sounds and battle music, the attack scenes (hit and miss animations), the GM's map
+   Part 2e: sound and scenes (the synthesised attack sounds, the GM's uploaded clips and ability
+   sounds when they exist, the attack scenes with the 2.5D camera, the Golden Wave, cinematic beat
+   sounds, and the Attack scenes, 2.5D camera, Sound and Volume settings, shared with the live page).
+   Still on the live page: battle music and boss themes (they start with the boss intro), the GM's
+   test lab and sound uploads, the GM's map
    tools (uploading and drawing maps, walls, fog painting, pins), uploading pictures, and the enemy
    extras (auto turn, boss intro when combat begins, spawn point, skill sounds and icons).
 6. Cutover: the new app becomes the root, the old file is kept as a backup.

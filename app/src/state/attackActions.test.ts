@@ -80,6 +80,15 @@ describe('a hero attacks a monster', () => {
     expect(fxs(f)).toEqual(['hit'])
   })
 
+  it('the attack scene plays on this screen as well as being shared', async () => {
+    const { s } = setup({ chars: { a: hero() }, enemies: { w: wolf({ ac: 30 }) } }, { rand: 0.5 })
+    const scenes: Record<string, unknown>[] = []
+    s.getState().setEffects({ scene: (x) => void scenes.push(x), wave: () => {} })
+    s.getState().openMenu('c:a', 'e:w')
+    await s.getState().act('l')
+    expect(scenes).toEqual([expect.objectContaining({ a: 'c:a', t: 'e:w', o: 'miss' })])
+  })
+
   it('a stagger is announced; poise only drops while not staggered', async () => {
     const { s, f } = setup({ chars: { a: hero() }, enemies: { w: wolf({ pm: 10, hp: 300, max: 300 }) } }, { rand: 0.6 })
     s.getState().openMenu('c:a', 'e:w')

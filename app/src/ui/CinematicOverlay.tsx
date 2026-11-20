@@ -1,5 +1,5 @@
 // Full-screen cinematic, played beat by beat from the script (same timing and
-// effects as the live page; the effect sounds come later with the sound system).
+// effects and beat sounds as the live page).
 import { useEffect, useRef } from 'react'
 import { cinematicSeconds, parseCinematic, type CinematicEvent } from '../logic/cinematic'
 
@@ -32,11 +32,16 @@ function rocksHtml(rand: () => number) {
 }
 
 /** Plays one cinematic. portrait is the boss picture for [portrait] beats (if any). */
-export function CinematicOverlay({ cin, portrait, onDone, rand = Math.random }: { cin: CinematicEvent; portrait?: string | null; onDone: () => void; rand?: () => number }) {
+/** The beat sounds (the sound engine's cinematic set). */
+export type CinematicSounds = { thunk: () => void; glow: () => void; slam: () => void; crack: () => void; collapse: () => void }
+
+export function CinematicOverlay({ cin, portrait, onDone, rand = Math.random, sound }: { cin: CinematicEvent; portrait?: string | null; onDone: () => void; rand?: () => number; sound?: CinematicSounds }) {
   const root = useRef<HTMLDivElement>(null)
   const done = useRef(onDone)
+  const snd = useRef(sound)
   useEffect(() => {
     done.current = onDone
+    snd.current = sound
   })
 
   useEffect(() => {
@@ -66,19 +71,31 @@ export function CinematicOverlay({ cin, portrait, onDone, rand = Math.random }: 
         if (g.stagger) {
           ci?.classList.add('bk')
           restart(st, 'sh', ['sh', 'sl'])
+          snd.current?.thunk()
         }
-        if (g.glow) cg.classList.add('on')
+        if (g.glow) {
+          cg.classList.add('on')
+          snd.current?.glow()
+        }
         if (g.flash) restart(cf, 'on')
-        if (g.shake) restart(st, 'sh', ['sh', 'sl'])
+        if (g.shake) {
+          restart(st, 'sh', ['sh', 'sl'])
+          snd.current?.thunk()
+        }
         if (g.slam) {
           restart(cf, 'on')
           restart(st, 'sh', ['sh', 'sl'])
+          snd.current?.slam()
         }
-        if (g.crack) cc.innerHTML = cracksSvg(rand)
+        if (g.crack) {
+          cc.innerHTML = cracksSvg(rand)
+          snd.current?.crack()
+        }
         if (g.collapse) {
           st.insertAdjacentHTML('beforeend', rocksHtml(rand))
           restart(st, 'sl', ['sh', 'sl'])
           cd.classList.add('on')
+          snd.current?.collapse()
         }
         if (g.black) {
           st.style.transition = 'opacity 1.8s'

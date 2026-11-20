@@ -496,3 +496,78 @@ test('dice: a player rolls from the Dice card; the other player sees the dice fl
   await ctxA.close()
   await ctxB.close()
 })
+
+test('scenes and sound: an attack plays its scene with sound on both screens; an altar rest sends the Golden Wave to the other screen', async ({ browser }) => {
+  const db = new FakeDb()
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'fighter', hp: 110, maxHp: 110, st: 100, maxSt: 100, str: 14, ac: 5, mx: 4, my: 4, mp: 'm', x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 300, max: 300, ac: 30, mx: 5, my: 4, mp: 'm', x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1, iv: 1, al: { a: '3,4' } } },
+    mapimg: { m: { data: png } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) {
+    p.on('pageerror', (e) => errors.push(e.message))
+    await useFakeFirebase(p, db)
+    // Count the sounds the page synthesises (tones and noise).
+    await p.addInitScript(() => {
+      const C = window.AudioContext
+      const w = window as unknown as { __tones: number }
+      w.__tones = 0
+      window.AudioContext = class extends C {
+        createOscillator() {
+          w.__tones++
+          return super.createOscillator()
+        }
+        createBufferSource() {
+          w.__tones++
+          return super.createBufferSource()
+        }
+      }
+    })
+  }
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => {
+    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    Math.random = () => 0.5
+  })
+  await gm.goto(base + 'next/')
+  await pl.goto(base + 'next/')
+  // Sound starts after a first tap on each screen.
+  await gm.getByRole('heading', { name: 'Dice' }).click()
+  await pl.getByRole('heading', { name: 'Dice' }).click()
+  await expect(pl.getByLabel('Attack scenes')).toBeChecked()
+
+  // Lyra swings at the wolf (AC 30): a miss, shown as a scene on both screens.
+  const b = (await pl.getByRole('img', { name: 'Map: Crypt' }).boundingBox())!
+  await pl.mouse.click(b.x + (5.5 / 10) * b.width, b.y + (4.5 / 8) * b.height)
+  await pl.getByLabel('Actions').getByRole('button', { name: 'Light attack' }).click()
+  await expect(pl.getByRole('img', { name: 'Lyra attacks Wolf' })).toBeVisible({ timeout: 10_000 })
+  await expect(pl.locator('.scn .dmg')).toHaveText('MISS')
+  await expect(gm.getByRole('img', { name: 'Lyra attacks Wolf' })).toBeVisible({ timeout: 10_000 })
+  await expect.poll(() => pl.evaluate(() => (window as unknown as { __tones: number }).__tones)).toBeGreaterThan(0)
+  await expect.poll(() => gm.evaluate(() => (window as unknown as { __tones: number }).__tones)).toBeGreaterThan(0)
+  await expect(pl.locator('.scn')).toHaveCount(0, { timeout: 6000 })
+
+  // She rests at the altar beside her: the Golden Wave sweeps across the GM's screen too.
+  await pl.getByRole('button', { name: 'Sheet' }).click()
+  await pl.getByRole('button', { name: 'Altar rest', exact: true }).click()
+  await expect(pl.locator('canvas.gwave')).toHaveCount(1)
+  await expect(gm.locator('canvas.gwave')).toHaveCount(1, { timeout: 8000 })
+  await expect(gm.locator('canvas.gwave')).toHaveCount(0, { timeout: 8000 })
+
+  // Turning scenes off (remembered on this device) stops them here.
+  await pl.getByRole('button', { name: 'Table', exact: true }).click()
+  await pl.getByLabel('Attack scenes').uncheck()
+  expect(await pl.evaluate(() => localStorage.getItem('sc'))).toBe('0')
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

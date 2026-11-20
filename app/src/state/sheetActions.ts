@@ -56,6 +56,7 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
     lastWave = now()
     const t = get().tables
     const w = { m: currentMapId(t, get()), ...waveCenter(currentMap(t, get()), key) }
+    get().effects?.wave(w)
     later(respawn, 1500)
     await save((d) => d.post('rolls', { wave: w, ts: now(), by: get().session?.me ?? '' }))
     await get().log('The Golden Wave sweeps across the land...')

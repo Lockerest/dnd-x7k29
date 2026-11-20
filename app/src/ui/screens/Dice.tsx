@@ -6,6 +6,7 @@ import type { Sheet } from '../../logic/sheet'
 import { mod } from '../../logic/stats'
 import type { DiceSettings } from '../../state/diceActions'
 import type { GameState, Tables } from '../../state/store'
+import type { FxSettings } from '../sound/settings'
 
 const STATS = ['str', 'dex', 'con', 'int', 'wis', 'cha']
 const signed = (n: number) => (n >= 0 ? `+${n}` : `${n}`)
@@ -19,6 +20,9 @@ export type DicePanelProps = {
   busy?: boolean
   secretRolls: RollEntry[]
   actions: Pick<GameState, 'setDice' | 'rollDie'>
+  /** This device's scene and sound settings (not shown when missing). */
+  fx?: FxSettings
+  onFx?: (p: Partial<FxSettings>) => void
 }
 
 function LogLine({ r }: { r: RollEntry }) {
@@ -40,7 +44,7 @@ function LogLine({ r }: { r: RollEntry }) {
   )
 }
 
-export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions }: DicePanelProps) {
+export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions, fx, onFx = () => {} }: DicePanelProps) {
   const c = tables.chars[me] as Sheet | undefined
   const gates = Object.values(tables.enemies).filter((e) => e?.gr)
   const log = diceLog(tables.rolls as Record<string, RollEntry | null>, secretRolls, dm)
@@ -86,6 +90,20 @@ export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, act
               </option>
             ))}
           </select>
+          {fx && (
+            <>
+              <label className="sub">
+                <input type="checkbox" checked={fx.scenes} style={{ width: 'auto' }} onChange={(e) => onFx({ scenes: e.target.checked })} /> Attack scenes
+              </label>
+              <label className="sub">
+                <input type="checkbox" checked={fx.s25} style={{ width: 'auto' }} onChange={(e) => onFx({ s25: e.target.checked })} /> 2.5D camera
+              </label>
+              <label className="sub">
+                <input type="checkbox" checked={fx.sound} style={{ width: 'auto' }} onChange={(e) => onFx({ sound: e.target.checked })} /> Sound
+              </label>
+              <input type="range" min={0} max={100} value={Math.round(fx.volume * 100)} style={{ width: 90 }} aria-label="Volume" onChange={(e) => onFx({ volume: +e.target.value / 100 })} />
+            </>
+          )}
           {dm && (
             <label className="sub">
               <input type="checkbox" checked={dice.secret} style={{ width: 'auto' }} onChange={(e) => actions.setDice({ secret: e.target.checked })} /> Secret

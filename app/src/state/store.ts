@@ -65,6 +65,9 @@ export type GameState = {
   /** Adds a line to the shared event log. */
   log: (text: string) => Promise<void>
   /** GM only: look at the table as a player and back (the role itself stays GM). */
+  /** The screen's attack scenes and Golden Wave (null: nothing shown, as in tests). */
+  effects: Effects | null
+  setEffects: (e: Effects | null) => void
   setDm: (dm: boolean) => void
   /** This device now plays another character (after a takeover was allowed). */
   setMe: (me: string) => void
@@ -101,6 +104,9 @@ export type GameState = {
   AttackActions &
   TableActions &
   DiceActions
+
+/** What the screen shows for an attack scene ("fx") or a Golden Wave. */
+export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void }
 
 const signature = (t: Tables) => JSON.stringify(t)
 
@@ -185,6 +191,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
 
       log: (text) => save((d) => d.post('rolls', { ev: text, ts: now() })),
 
+      effects: null,
+      setEffects: (effects) => set({ effects }),
       setDm: (dm) => set({ dm }),
       setMe: (me) => {
         const { session } = get()

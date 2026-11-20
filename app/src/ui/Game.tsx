@@ -28,6 +28,9 @@ import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
 import { DicePanel } from './screens/Dice'
+import { boardOrDefault, type Board } from '../logic/board'
+import { useEffectsPlayer } from './sound/useEffects'
+import type { SoundEngine } from './sound/engine'
 
 type Storage_ = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>
 
@@ -47,9 +50,11 @@ export type GameProps = {
   rand?: () => number
   /** Shows rolls on screen (the 3D dice by default); null shows nothing. */
   dicePlayer?: DicePlayer | null
+  /** The sound engine (this window's by default). */
+  soundEngine?: SoundEngine
 }
 
-export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500, dicePlayer }: GameProps) {
+export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500, dicePlayer, soundEngine }: GameProps) {
   const [conn, setConn] = useState<{ db: Db; session: Session } | null>(null)
   const db = conn?.db ?? null
   // The clock is fixed at the first render (a new function on every render must not
@@ -92,6 +97,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   }
   const [themeKeys, setThemeKeys] = useState<string[]>([])
   const [markerVersion, setMarkerVersion] = useState<AssetVersions['mapIcons']>(null)
+  const [soundVersion, setSoundVersion] = useState<AssetVersions['sounds']>(null)
   const [cin, setCin] = useState<{ c: CinematicEvent; portrait: string | null } | null>(null)
   const seen = useRef<{ keys: Set<string>; seeded: boolean }>({ keys: new Set(), seeded: false })
 
@@ -119,7 +125,11 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     store.getState().connect(conn.session)
     seen.current = { keys: new Set(), seeded: false }
     conn.db.keys('themes').then(setThemeKeys, () => setThemeKeys([]))
-    return startSync(store, conn.db, { every, onVersions: (v) => setMarkerVersion(v.mapIcons) })
+    return startSync(store, conn.db, { every, onVersions: (v) => {
+        setMarkerVersion(v.mapIcons)
+        setSoundVersion(v.sounds)
+      },
+    })
   }, [conn, store, every])
 
   useEffect(() => {
@@ -197,7 +207,24 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     [db],
   )
 
-  // Rolls and cinematics from other devices play here too.
+  // Attack scenes, the Golden Wave and sound.
+  const fxp = useEffectsPlayer({
+    store,
+    db,
+    storage,
+    soundVersion,
+    board: boardOrDefault(tables.board as Board | null),
+    abilityImages,
+    drawnIcons: tables.drawnIcons,
+    picture: (k) => portraits[k.slice(2)] ?? icons[k.slice(2)] ?? null,
+    shownMap: mapId,
+    cols: Number((tables.maps[mapId ?? ''] as { cols?: number } | undefined)?.cols) || 24,
+    engine: soundEngine,
+  })
+
+  const remoteFx = fxp.remote
+
+  // Rolls, scenes, waves and cinematics from other devices play here too.
   useEffect(() => {
     if (!session || status !== 'live') return // the first real read seeds what was already there
     const fresh = freshRolls(tables.rolls as Record<string, RollEntry | null>, seen.current.keys, seen.current.seeded)
@@ -205,8 +232,9 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     const t = now()
     const cins = fresh.filter((e) => othersCinematic(e as { cin?: CinematicEvent }, session.me, t))
     if (cins.length) void show(cins[cins.length - 1]!.cin as CinematicEvent)
+    for (const e of fresh) remoteFx(e, session.me, t)
     for (const e of fresh) if (player && replayable(e, session.me, t)) void player.play({ ds: e.ds!.map((x) => x.d), res: e.ds!, m: e.m || 0, sk: e.sk || 'classic', who: e.n ?? null, remote: true })
-  }, [tables.rolls, session, status, now, show, player])
+  }, [tables.rolls, session, status, now, show, player, remoteFx])
 
   const playCinematic = async (id: string) => {
     const c = await store.getState().shareCinematic(id)
@@ -342,7 +370,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         markers={markers}
         now={now}
         storage={storage}
-        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} busy={diceBusy} secretRolls={secretRolls} actions={diceActions} />}
+        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} busy={diceBusy} secretRolls={secretRolls} actions={diceActions} fx={fxp.fx} onFx={fxp.setFx} />}
         onApprove={approve}
         onClaim={decideClaim}
         enemiesPanel={
@@ -384,7 +412,8 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
           <InitiativeCall tables={tables} dm={dm} me={me} onRoll={(i) => void store.getState().rollInitiative(i)} />
         </>
       )}
-      {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} />}
+      {fxp.scene}
+      {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} sound={fxp.cinematicSounds} />}
     </div>
   )
 }

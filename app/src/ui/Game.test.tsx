@@ -467,6 +467,35 @@ describe('<Game /> dice', () => {
   })
 })
 
+describe('<Game /> attack scenes', () => {
+  it("another player's attack scene plays here, with the token pictures", async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    const { fb } = setup(
+      {
+        tables: {
+          dragon42: {
+            meta: { dm: 'h' },
+            cur: 'm',
+            maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, iv: 1 } },
+            mapimg: { m: { data: 'data:image/png;base64,TQ' } },
+            icons: { a: { data: 'data:image/png;base64,QQ' } },
+            chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, mx: 1, my: 1, iv: 1, x10: true } },
+            enemies: { w: { name: 'Wolf', hp: 9, max: 9, mx: 2, my: 1, x10: true } },
+          },
+        },
+      },
+      { storage },
+    )
+    const map = await screen.findByRole('img', { name: 'Map: Crypt' })
+    await vi.waitFor(() => expect(map.innerHTML).toContain('data:image/png;base64,QQ'))
+    fb.set('tables/dragon42/rolls/f1', { fx: { a: 'e:w', t: 'c:a', an: 'Wolf', tn: 'Lyra', o: 'hit', d: 20 }, ts: 1000, by: 'gm' })
+    const scene = await screen.findByRole('img', { name: 'Wolf attacks Lyra' })
+    expect(scene.querySelector('.R img')).toHaveAttribute('src', 'data:image/png;base64,QQ')
+    expect(scene.querySelector('.L .em')).toHaveTextContent('W')
+  })
+})
+
 describe('<Game /> coming back', () => {
   it('rejoins the saved table, or forgets it when the table is gone', async () => {
     const storage = memory()

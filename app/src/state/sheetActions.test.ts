@@ -119,8 +119,11 @@ describe('resting', () => {
 
   it('the GM resting someone away from any altar: the wave starts mid-map, and nothing to reset says nothing', async () => {
     const { s, f, runLater } = setup({ chars: { a: hero() }, maps: { m: MAP } })
+    const waves: unknown[] = []
+    s.getState().setEffects({ scene: () => {}, wave: (w) => void waves.push(w) })
     await s.getState().rest('a', 'al')
     expect(f.writes[1]).toEqual(['POST', 'rolls', { wave: { m: 'm', x: 5, y: 5 }, ts: 100_000, by: 'gm' }])
+    expect(waves).toEqual([{ m: 'm', x: 5, y: 5 }]) // shown here too
     await runLater()
     expect(f.writes).toHaveLength(3)
   })

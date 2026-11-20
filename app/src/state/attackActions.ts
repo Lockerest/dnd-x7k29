@@ -65,7 +65,11 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
   const sleep = (ms: number) => new Promise<void>((r) => later(() => r(), ms))
   const d20 = () => 1 + Math.floor(rand() * 20)
   const ent = (k: string) => unitOf(get().tables.chars as Record<string, Sheet>, get().tables.enemies, k) as U | null
-  const fx = (f: ReturnType<typeof fxEvent>) => save((d) => d.post('rolls', { fx: f, ts: now(), by: get().session?.me ?? '' }))
+  // Plays the attack scene here, and shares it so every other screen plays it too.
+  const fx = (f: ReturnType<typeof fxEvent>) => {
+    get().effects?.scene(f)
+    return save((d) => d.post('rolls', { fx: f, ts: now(), by: get().session?.me ?? '' }))
+  }
   const say = (line: string) => get().log(line)
   const upd = (u: U, p: Record<string, unknown>, msg?: string) => (u.e ? get().updateEnemy(u.id, p) : get().updateCharacter(u.id, p, msg))
   let qteSeen: number | null = null
