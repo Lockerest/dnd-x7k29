@@ -42,13 +42,13 @@ jobs:
           npm run typecheck
           npm run test:coverage
 
-      - name: Rule and smoke tests on the live page
-        run: |
-          npx playwright install --with-deps chromium
-          npm run test:e2e
-
       - name: Build the new app
         run: npm run build
+
+      - name: Browser tests (live page rules, parity, built app)
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
 
       - name: Assemble the site
         working-directory: .
