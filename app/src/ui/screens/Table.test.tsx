@@ -23,7 +23,10 @@ const memory = () => {
   return { m, getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v) }
 }
 
-function Harness({ store, storage, images }: { store: GameStore; storage: ReturnType<typeof memory>; images: boolean }) {
+/** The answers the prompt boxes give (the special attack name by default). */
+const answers: (string | null)[] = []
+function Harness({ store, storage, images, defaults }: { store: GameStore; storage: ReturnType<typeof memory>; images: boolean; defaults?: boolean }) {
+  const tool = useStore(store, (s) => s.tool)
   const tables = useStore(store, (s) => s.tables)
   const dm = useStore(store, (s) => s.dm)
   const gmMap = useStore(store, (s) => s.gmMap)
@@ -39,7 +42,9 @@ function Harness({ store, storage, images }: { store: GameStore; storage: Return
       gmMap={gmMap}
       jump={jump}
       menu={menu}
-      ask={() => 'Tail Swipe'}
+      ask={defaults ? undefined : () => (answers.length ? answers.shift()! : 'Tail Swipe')}
+      confirm={defaults ? undefined : () => true}
+      tool={tool}
       actions={store.getState()}
       mapImages={images ? { m: 'data:m', n: 'data:n' } : {}}
       icons={{ a: 'data:a', w: 'data:w' }}
@@ -55,13 +60,13 @@ function Harness({ store, storage, images }: { store: GameStore; storage: Return
   )
 }
 
-function setup(t: Partial<Tables>, o: { role?: 'gm' | 'player'; me?: string; images?: boolean; storage?: ReturnType<typeof memory> } = {}) {
+function setup(t: Partial<Tables>, o: { role?: 'gm' | 'player'; me?: string; images?: boolean; storage?: ReturnType<typeof memory>; defaults?: boolean } = {}) {
   const f = fakeDb()
   const store = createGameStore(() => f.db, () => 5, () => 0.5, () => {})
   store.getState().connect({ pin: 'p', role: o.role ?? 'player', me: o.me ?? 'a' })
   store.getState().applySnapshot({ ...emptyTables(), maps: { m: MAP }, cur: 'm', ...t })
   const storage = o.storage ?? memory()
-  render(<Harness store={store} storage={storage} images={o.images ?? true} />)
+  render(<Harness store={store} storage={storage} images={o.images ?? true} defaults={o.defaults} />)
   return { f, store, storage }
 }
 const hero = (o: Partial<Sheet> = {}): Sheet => ({ name: 'Lyra', cls: 'archer', hp: 30, maxHp: 30, st: 50, maxSt: 100, rg: 10, fl: 2, maxFl: 3, mx: 2, my: 2, ...o })
@@ -173,7 +178,7 @@ describe('a player at the table', () => {
 })
 
 describe('the GM at the table', () => {
-  const gm = (t: Partial<Tables>, o: { storage?: ReturnType<typeof memory>; images?: boolean } = {}) => setup(t, { role: 'gm', me: 'gm', ...o })
+  const gm = (t: Partial<Tables>, o: { storage?: ReturnType<typeof memory>; images?: boolean; defaults?: boolean } = {}) => setup(t, { role: 'gm', me: 'gm', ...o })
 
   it('controls, hidden words, everyone’s status, and the enemies panel', async () => {
     const { f } = gm({ chars: { a: hero(), b: hero({ name: 'Bo', exh: true, lh: 1, mt: 'climb', mon: 'w' }), c: hero({ name: 'New', ap: false }) }, enemies: { w: { name: 'Wolf', hp: 5 } } })
@@ -201,7 +206,8 @@ describe('the GM at the table', () => {
     const box = screen.getByLabelText('Word list, separated by commas')
     fireEvent.change(box, { target: { value: 'Ghost, crystal' } })
     click('Save list')
-    click('Reveal all')
+    // (The map tools have a "Reveal all" too: this is the hidden words' one, the first.)
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reveal all' })[0]!)
     await vi.waitFor(() => expect(screen.getByText('Nothing is hidden.')).toBeInTheDocument())
     click('Save list')
     click('Hide the default words')
@@ -226,7 +232,7 @@ describe('the GM at the table', () => {
   it('a table with no heroes shows its PIN; no maps yet', () => {
     gm({ maps: {} })
     expect(screen.getByText(/No characters yet\. Table PIN:/)).toHaveTextContent('dragon42')
-    expect(screen.getByText('No maps yet. Upload one on the live table to begin.')).toBeInTheDocument()
+    expect(screen.getByText('No maps yet. Upload one to begin.')).toBeInTheDocument()
   })
 
   it('picks units with the chips, moves them on the map, and opens the menu on a tapped token', async () => {
@@ -238,6 +244,80 @@ describe('the GM at the table', () => {
     await vi.waitFor(() => expect(f.writes[0]).toEqual(['PATCH', 'enemies/w', expect.objectContaining({ mx: 7, my: 5 })]))
     tap(2, 2) // Lyra: the wolf's action menu on her
     expect(await screen.findByLabelText('Actions')).toHaveTextContent('Wolf → Lyra')
+  })
+
+  it('draws walls by dragging (shown as it goes, saved when released)', async () => {
+    const { f, store } = gm({})
+    act(() => store.getState().setTool('wall'))
+    expect(screen.getByText(/Tap or drag to draw walls\./)).toBeInTheDocument()
+    const map = screen.getByRole('img', { name: 'Map: Crypt' })
+    const at = (x: number, y: number) => ({ clientX: x * 50 + 25, clientY: y * 50 + 25 })
+    fireEvent.pointerDown(map, at(1, 1))
+    fireEvent.pointerMove(map, at(2, 1))
+    fireEvent.pointerMove(map, at(2, 1))
+    fireEvent.pointerMove(map, { clientX: 999, clientY: 999 }) // off the map
+    fireEvent.pointerMove(map, at(3, 1))
+    expect(f.writes).toEqual([])
+    expect(map.innerHTML).toContain('x="150"') // the wall at (3, 1) shows before saving
+    fireEvent.pointerUp(map)
+    await vi.waitFor(() => expect(f.writes).toEqual([['PUT', 'maps/m', expect.objectContaining({ walls: ['1,1', '2,1', '3,1'] })]]))
+    fireEvent.pointerUp(map) // already released
+    fireEvent.pointerMove(map, at(4, 1)) // not pressed
+    expect(f.writes).toHaveLength(1)
+  })
+
+  it('reveals and hides fog by dragging; a cancelled drag still saves what was painted', async () => {
+    const { f, store } = gm({ maps: { m: { ...MAP, fog: true } } })
+    act(() => store.getState().setTool('rev'))
+    expect(screen.getByText(/Tap or drag to reveal areas\./)).toBeInTheDocument()
+    const map = screen.getByRole('img', { name: 'Map: Crypt' })
+    fireEvent.pointerDown(map, { clientX: 25, clientY: 25 })
+    fireEvent.pointerCancel(map)
+    await vi.waitFor(() => expect(f.writes).toHaveLength(1))
+    expect((f.writes[0]![2] as { fg: string }).fg.slice(0, 2)).toBe('10')
+    act(() => store.getState().setTool('hid'))
+    fireEvent.pointerDown(map, { clientX: 25, clientY: 25 })
+    fireEvent.pointerUp(map)
+    await vi.waitFor(() => expect(f.writes).toHaveLength(2))
+    expect((f.writes[1]![2] as { fg: string }).fg.slice(0, 2)).toBe('00')
+  })
+
+  it('tool taps: an altar here; the Pins tool asks where a new pin leads', async () => {
+    const { f, store } = gm({ maps: { m: MAP, n: { ...MAP, name: 'Cave' } } })
+    act(() => store.getState().setTool('al'))
+    tap(4, 4)
+    await vi.waitFor(() => expect(f.writes).toEqual([['PUT', 'maps/m', expect.objectContaining({ al: ['1,1', '4,4'] })]]))
+    act(() => store.getState().setTool('pin'))
+    expect(screen.getByText(/Tap empty ground to add a pin/)).toBeInTheDocument()
+    answers.push('1', 'Down')
+    tap(5, 5)
+    await vi.waitFor(() => expect(f.writes).toHaveLength(2))
+    expect((f.writes[1]![2] as { pn: object }).pn).toEqual({ p5: { x: 5.5, y: 5.5, to: 'n', l: 'Down' } })
+    // Dragging with a tap tool paints nothing.
+    const map = screen.getByRole('img', { name: 'Map: Crypt' })
+    fireEvent.pointerMove(map, { clientX: 125, clientY: 125 })
+    fireEvent.pointerUp(map)
+    act(() => store.getState().setTool('dr'))
+    tap(9, 9) // no door near: nothing
+    expect(screen.getByText(/Tap a door to open or close it\./)).toBeInTheDocument()
+    expect(f.writes).toHaveLength(2)
+  })
+
+  it("the browser's own boxes and picture reader by default; a player never uses the GM's tools", async () => {
+    const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null)
+    const { store } = gm({ maps: { m: MAP, n: { ...MAP, name: 'Cave' } } }, { defaults: true })
+    act(() => store.getState().setTool('pin'))
+    tap(5, 5)
+    await vi.waitFor(() => expect(prompt).toHaveBeenCalled())
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false)
+    click('Delete')
+    expect(confirm).toHaveBeenCalledWith('Delete this map?')
+    cleanup()
+    const pl = setup({ chars: { a: hero() } })
+    act(() => pl.store.getState().setTool('wall'))
+    expect(screen.queryByText(/draw walls/)).toBeNull()
+    tap(5, 5)
+    await vi.waitFor(() => expect(pl.f.writes[0]![1]).toBe('chars/a')) // she walks instead
   })
 
   it('chooses which map to look at and shows it to players', async () => {

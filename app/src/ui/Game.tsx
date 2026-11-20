@@ -28,6 +28,8 @@ import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
 import { DicePanel } from './screens/Dice'
+import { Overview } from './screens/MapTools'
+import { parentOf, type MapEntry } from '../logic/mapTools'
 import { boardOrDefault, type Board } from '../logic/board'
 import { useEffectsPlayer } from './sound/useEffects'
 import type { SoundEngine } from './sound/engine'
@@ -54,7 +56,20 @@ export type GameProps = {
   soundEngine?: SoundEngine
 }
 
-export function Game({ fetchImpl, storage = window.localStorage, hash = window.location.hash, every = 3000, newId = newPlayerId, now = Date.now, confirm, rand, ask, qteEvery = 500, dicePlayer, soundEngine }: GameProps) {
+export function Game({
+  fetchImpl,
+  storage = window.localStorage,
+  hash = window.location.hash,
+  every = 3000,
+  newId = newPlayerId,
+  now = Date.now,
+  confirm,
+  rand,
+  ask,
+  qteEvery = 500,
+  dicePlayer,
+  soundEngine,
+}: GameProps) {
   const [conn, setConn] = useState<{ db: Db; session: Session } | null>(null)
   const db = conn?.db ?? null
   // The clock is fixed at the first render (a new function on every render must not
@@ -98,8 +113,14 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const [themeKeys, setThemeKeys] = useState<string[]>([])
   const [markerVersion, setMarkerVersion] = useState<AssetVersions['mapIcons']>(null)
   const [soundVersion, setSoundVersion] = useState<AssetVersions['sounds']>(null)
-  const [cin, setCin] = useState<{ c: CinematicEvent; portrait: string | null } | null>(null)
-  const seen = useRef<{ keys: Set<string>; seeded: boolean }>({ keys: new Set(), seeded: false })
+  const [cin, setCin] = useState<{
+    c: CinematicEvent
+    portrait: string | null
+  } | null>(null)
+  const seen = useRef<{ keys: Set<string>; seeded: boolean }>({
+    keys: new Set(),
+    seeded: false,
+  })
 
   // Character portraits, downloaded once per version (pv) when a sheet shows them.
   const [portraits, setPortraits] = useState<Record<string, string>>({})
@@ -125,7 +146,9 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     store.getState().connect(conn.session)
     seen.current = { keys: new Set(), seeded: false }
     conn.db.keys('themes').then(setThemeKeys, () => setThemeKeys([]))
-    return startSync(store, conn.db, { every, onVersions: (v) => {
+    return startSync(store, conn.db, {
+      every,
+      onVersions: (v) => {
         setMarkerVersion(v.mapIcons)
         setSoundVersion(v.sounds)
       },
@@ -167,11 +190,21 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   // Map pictures, token icons and custom markers for the table and the projector.
   const gmMap = useStore(store, (s) => s.gmMap)
   const jump = useStore(store, (s) => s.jump)
+  const tool = useStore(store, (s) => s.tool)
   const menu = useStore(store, (s) => s.menu)
   const qte = useStore(store, (s) => s.qte)
   const mapId = role === 'table' ? liveMapId(tables.maps as Maps, tables.cur) : shownMapId(tables.maps as Maps, tables.cur, dm, gmMap)
   const onTable = view === 'table'
-  const wantedMap = useMemo(() => (onTable && mapId ? { [mapId]: String((tables.maps[mapId] as { iv?: unknown }).iv ?? '') } : {}), [onTable, mapId, tables.maps])
+  // The map on screen, and the map its pin is on (for the "you are here" overview).
+  const wantedMap = useMemo(() => {
+    const o: Record<string, string> = {}
+    if (!onTable || !mapId) return o
+    const maps = tables.maps as Record<string, MapEntry>
+    o[mapId] = String(maps[mapId]!.iv ?? '')
+    const par = maps[mapId]!.ov !== false && parentOf(maps, mapId)
+    if (par) o[par.map] = String(maps[par.map]!.iv ?? '')
+    return o
+  }, [onTable, mapId, tables.maps])
   const mapImages = usePictures(db, wantedMap, mapImagePath, tables)
   const wantedIcons = useMemo(() => {
     const o: Record<string, unknown> = {}
@@ -233,7 +266,16 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
     const cins = fresh.filter((e) => othersCinematic(e as { cin?: CinematicEvent }, session.me, t))
     if (cins.length) void show(cins[cins.length - 1]!.cin as CinematicEvent)
     for (const e of fresh) remoteFx(e, session.me, t)
-    for (const e of fresh) if (player && replayable(e, session.me, t)) void player.play({ ds: e.ds!.map((x) => x.d), res: e.ds!, m: e.m || 0, sk: e.sk || 'classic', who: e.n ?? null, remote: true })
+    for (const e of fresh)
+      if (player && replayable(e, session.me, t))
+        void player.play({
+          ds: e.ds!.map((x) => x.d),
+          res: e.ds!,
+          m: e.m || 0,
+          sk: e.sk || 'classic',
+          who: e.n ?? null,
+          remote: true,
+        })
   }, [tables.rolls, session, status, now, show, player, remoteFx])
 
   const playCinematic = async (id: string) => {
@@ -290,24 +332,29 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
   const me = session?.me ?? ''
   const mine = tables.chars[me]
   const header = headerFor({ role, dm, canGM: role === 'gm', view, mine })
-  const screen = screenFor({ role, dm, me, chars: tables.chars, view, claimPending: !!myClaim && !!myClaim.st, claimMode })
+  const screen = screenFor({
+    role,
+    dm,
+    me,
+    chars: tables.chars,
+    view,
+    claimPending: !!myClaim && !!myClaim.st,
+    claimMode,
+  })
 
   const approve = (id: string, ok: boolean) => void store.getState().updateCharacter(id, { ap: ok ? true : 'no' }, ok ? 'Approved by the GM' : 'Declined by the GM')
   const decideClaim = (id: string, ok: boolean) => void store.getState().decideClaim(id, ok ? 'ok' : 'no')
 
   let body: React.ReactNode
   if (screen === 'join') body = <JoinScreen onJoin={(k, p, g) => void join(k, p, g)} busy={busy} />
-  else if (screen === 'create')
-    body = (
-      <CreateCharacter
-        onCreate={(cls: ClassId, name) => void store.getState().putCharacter(me, newCharacter(cls, name, me))}
-        onClaimMode={() => setClaimMode(true)}
-      />
-    )
+  else if (screen === 'create') body = <CreateCharacter onCreate={(cls: ClassId, name) => void store.getState().putCharacter(me, newCharacter(cls, name, me))} onClaimMode={() => setClaimMode(true)} />
   else if (screen === 'claim-form')
     body = (
       <ClaimForm
-        characters={approvedIds(tables.chars).map((id) => ({ id, name: tables.chars[id]!.name ?? id }))}
+        characters={approvedIds(tables.chars).map((id) => ({
+          id,
+          name: tables.chars[id]!.name ?? id,
+        }))}
         onBack={() => setClaimMode(false)}
         onSend={(who, target) => {
           const c = claimRequest(who, target, now())
@@ -350,8 +397,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         onClaim={decideClaim}
       />
     )
-  else if (screen === 'table-display')
-    body = <TableDisplay tables={tables} mapImages={mapImages} icons={icons} markers={markers} now={now} storage={storage} onLeave={leave} />
+  else if (screen === 'table-display') body = <TableDisplay tables={tables} mapImages={mapImages} icons={icons} markers={markers} now={now} storage={storage} onLeave={leave} />
   else
     body = (
       <TableScreen
@@ -363,6 +409,8 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
         jump={jump}
         menu={menu}
         ask={ask}
+        confirm={confirm}
+        tool={tool}
         actions={store.getState()}
         mapImages={mapImages}
         icons={icons}
@@ -379,7 +427,10 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
             actions={store.getState()}
             open={open}
             onToggle={toggleOpen}
-            themes={themeKeys.map((key) => ({ key, name: THEMES.find((t) => t.key === key)?.name ?? key }))}
+            themes={themeKeys.map((key) => ({
+              key,
+              name: THEMES.find((t) => t.key === key)?.name ?? key,
+            }))}
             onPlayCinematic={(id) => void playCinematic(id)}
             confirm={confirm}
             rand={rand}
@@ -412,6 +463,7 @@ export function Game({ fetchImpl, storage = window.localStorage, hash = window.l
           <InitiativeCall tables={tables} dm={dm} me={me} onRoll={(i) => void store.getState().rollInitiative(i)} />
         </>
       )}
+      {onTable && (screen === 'table' || role === 'table') && <Overview maps={tables.maps as Record<string, MapEntry>} id={mapId} images={mapImages} />}
       {fxp.scene}
       {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} sound={fxp.cinematicSounds} />}
     </div>

@@ -387,6 +387,28 @@ describe('<Game /> table and map', () => {
     expect(await screen.findByText(/Tap a free square within 3 squares of the monster to jump there\./)).toBeInTheDocument()
   })
 
+  it('"you are here": the overview shows the map whose pin leads here', async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    setup(
+      {
+        tables: {
+          dragon42: {
+            meta: { dm: 'h' },
+            cur: 'n',
+            maps: { w: { name: 'World', w: 500, h: 400, cols: 10, pn: { p: { x: 5, y: 2, to: 'n', l: 'Crypt gate' } } }, n: { name: 'Crypt', w: 500, h: 400, cols: 10, iv: 2 } },
+            mapimg: { w: { data: 'data:image/png;base64,V1' }, n: { data: 'data:image/png;base64,TQ' } },
+            chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } },
+          },
+        },
+      },
+      { storage },
+    )
+    const ov = await screen.findByLabelText('Overview')
+    expect(ov).toHaveTextContent('You are here: Crypt gate')
+    expect(ov.querySelector('img')).toHaveAttribute('src', 'data:image/png;base64,V1')
+  })
+
   it('the GM looking at a map without a picture version still asks for it', async () => {
     const h = await gmPinHash('secret')
     const { fb } = setup({ tables: { dragon42: { meta: { dm: h }, maps: { n: { name: 'Bare', w: 500, h: 400, cols: 10 } }, mapimg: { n: { data: 'data:image/png;base64,Tg' } } } } })

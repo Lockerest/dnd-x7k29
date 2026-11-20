@@ -13,6 +13,7 @@ import { sheetActions, type SheetActions, type Timers } from './sheetActions'
 import { boardActions, type BoardActions } from './boardActions'
 import { initiativeActions, type InitiativeActions } from './initiativeActions'
 import { diceActions, type DiceActions } from './diceActions'
+import { mapActions, type MapActions } from './mapActions'
 import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
 
@@ -103,7 +104,8 @@ export type GameState = {
   InitiativeActions &
   AttackActions &
   TableActions &
-  DiceActions
+  DiceActions &
+  MapActions
 
 /** What the screen shows for an attack scene ("fx") or a Golden Wave. */
 export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void }
@@ -163,6 +165,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       ...attackActions(get, set, save, db, now, rand, later),
       ...tableActions(get, set, save),
       ...diceActions(get, set, save, now, rand),
+      ...mapActions(get, set, save, now, rand),
 
       updateCharacter: async (id, p, msg) => {
         const { tables, dm, session } = get()

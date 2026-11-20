@@ -571,3 +571,101 @@ test('scenes and sound: an attack plays its scene with sound on both screens; an
   await gmCtx.close()
   await plCtx.close()
 })
+
+test("the GM's map tools: upload a map, draw walls, place an altar, add a pin and move the party; the player and the live page agree", async ({ browser }) => {
+  const db = new FakeDb()
+  const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 100, maxSt: 100, mx: 1, my: 1, mp: 'm', x10: true } },
+    maps: { m: { name: 'World', w: 500, h: 400, cols: 10, v2: 1, iv: 1 } },
+    mapimg: { m: { data: png } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) {
+    p.on('pageerror', (e) => errors.push(e.message))
+    await useFakeFirebase(p, db)
+  }
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.goto(base + 'next/')
+  await expect(gm.getByRole('img', { name: 'Map: World' })).toBeVisible()
+
+  // A new map from a picture file (a 400 x 300 PNG drawn in the page).
+  const pngBytes = await gm.evaluate(() => {
+    const c = document.createElement('canvas')
+    c.width = 400
+    c.height = 300
+    const g = c.getContext('2d')!
+    g.fillStyle = '#446'
+    g.fillRect(0, 0, 400, 300)
+    return c.toDataURL('image/png').split(',')[1]!
+  })
+  await gm.getByLabel('Map picture').setInputFiles({ name: 'Crypt.png', mimeType: 'image/png', buffer: Buffer.from(pngBytes, 'base64') })
+  await expect(gm.getByRole('img', { name: 'Map: Crypt' })).toBeVisible()
+  const crypt = Object.keys(db.get('tables/dragon42/maps') as object).find((k) => k !== 'm')!
+  expect(db.get(`tables/dragon42/maps/${crypt}`)).toMatchObject({ name: 'Crypt', cols: 24, grid: true, w: 400, h: 300 })
+  expect(String((db.get(`tables/dragon42/mapimg/${crypt}`) as { data: string }).data)).toMatch(/^data:image\/jpeg;base64,/)
+
+  // Ten squares across, then draw a wall by dragging across three squares.
+  const cols = gm.getByLabel('Squares across')
+  await cols.fill('10')
+  await cols.press('Enter')
+  await expect.poll(() => (db.get(`tables/dragon42/maps/${crypt}`) as { cols: number }).cols).toBe(10)
+  const at = async (x: number, y: number) => {
+    await gm.getByRole('img', { name: 'Map: Crypt' }).scrollIntoViewIfNeeded()
+    const b = (await gm.getByRole('img', { name: 'Map: Crypt' }).boundingBox())!
+    return [b.x + ((x + 0.5) / 10) * b.width, b.y + ((y + 0.5) / 7) * b.height] as const
+  }
+  await gm.getByRole('button', { name: 'Draw walls' }).click()
+  await gm.mouse.move(...(await at(2, 3)))
+  await gm.mouse.down()
+  await gm.mouse.move(...(await at(3, 3)), { steps: 4 })
+  await gm.mouse.move(...(await at(4, 3)), { steps: 4 })
+  await gm.mouse.up()
+  await expect.poll(() => (db.get(`tables/dragon42/maps/${crypt}`) as { walls?: string[] }).walls).toEqual(['2,3', '3,3', '4,3'])
+
+  // An altar, and the arrival point.
+  await gm.getByRole('button', { name: 'Altar', exact: true }).click()
+  await gm.mouse.click(...(await at(6, 1)))
+  await expect.poll(() => (db.get(`tables/dragon42/maps/${crypt}`) as { al?: string[] }).al).toEqual(['6,1'])
+  await gm.getByRole('button', { name: 'Entry' }).click()
+  await gm.mouse.click(...(await at(5, 5)))
+  await expect.poll(() => (db.get(`tables/dragon42/maps/${crypt}`) as { en?: number[] }).en).toEqual([5.5, 5.5])
+
+  // On the World map, a pin to the Crypt; then the party travels through it.
+  await gm.getByLabel('Map', { exact: true }).selectOption('m')
+  await gm.getByRole('button', { name: 'Pins' }).click()
+  const answers = ['1', 'Crypt gate', '1']
+  gm.on('dialog', (d) => void d.accept(answers.shift()))
+  await gm.getByRole('img', { name: 'Map: World' }).scrollIntoViewIfNeeded()
+  const w = (await gm.getByRole('img', { name: 'Map: World' }).boundingBox())!
+  await gm.mouse.click(w.x + (7.5 / 10) * w.width, w.y + (2.5 / 8) * w.height)
+  await expect.poll(() => Object.values((db.get('tables/dragon42/maps/m') as { pn?: object }).pn ?? {})).toEqual([{ x: 7.5, y: 2.5, to: crypt, l: 'Crypt gate' }])
+  await gm.mouse.click(w.x + (7.5 / 10) * w.width, w.y + (2.5 / 8) * w.height)
+  await expect.poll(() => db.get('tables/dragon42/cur')).toBe(crypt)
+  expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ mp: crypt, mx: 5, my: 5 })
+
+  // The player now sees the Crypt, with the overview of where it is on the World map.
+  await pl.goto(base + 'next/')
+  await expect(pl.getByRole('img', { name: 'Map: Crypt' })).toBeVisible()
+  await expect(pl.getByLabel('Overview')).toContainText('You are here: Crypt gate')
+
+  // The live page shows the same map, walls and altar.
+  const live = await plCtx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, db)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await live.goto(base)
+  await expect(live.locator('#map')).toBeVisible()
+  expect(await live.evaluate(`[mapId(), [...geo().W].sort(), altars(), chars.p1.mx, chars.p1.my]`)).toEqual([crypt, ['2,3', '3,3', '4,3'], ['6,1'], 5, 5])
+  await expect(live.locator('#ovw')).toContainText('You are here: Crypt gate')
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

@@ -20,6 +20,10 @@ import { RequestPanels } from './RequestPanels'
 import { InitiativePanel } from './Initiative'
 import { ActionMenu } from './Combat'
 import { canEndTurn, type Initiative } from '../../logic/initiative'
+import { paintFog, paintWalls, type MapEntry, type Tool } from '../../logic/mapTools'
+import { browserImages, type ImageKit } from '../images'
+import { MapTools } from './MapTools'
+import { pinPrompts, toolNote } from './mapPrompts'
 
 export type TableActions = Pick<
   GameState,
@@ -51,6 +55,19 @@ export type TableActions = Pick<
   | 'openMenu'
   | 'closeMenu'
   | 'act'
+  | 'setTool'
+  | 'toolTap'
+  | 'paint'
+  | 'setMap'
+  | 'setCols'
+  | 'addMap'
+  | 'renameMap'
+  | 'deleteMap'
+  | 'setMarkerIcon'
+  | 'travel'
+  | 'addPin'
+  | 'renamePin'
+  | 'deletePin'
 >
 
 export type TableProps = {
@@ -64,7 +81,13 @@ export type TableProps = {
   /** The open action menu (attacker and target). */
   menu?: { a: string; t: string } | null
   /** Asks for a special attack's name. */
-  ask?: (q: string) => string | null
+  ask?: (q: string, def?: string) => string | null
+  /** Asked before deleting or clearing (the browser's box by default). */
+  confirm?: (q: string) => boolean
+  /** The GM's current map tool. */
+  tool: Tool
+  /** Reads and resizes uploaded pictures. */
+  images?: ImageKit
   actions: TableActions
   /** Pictures: map images by map id, token icons by sheet id, ability pictures, custom altar/bonfire/guild markers. */
   mapImages: Record<string, string>
@@ -260,7 +283,9 @@ function StatusBox({ id, tables, dm, me, gmMap, actions, icons }: TableProps & {
               )}
               {bonfire && <button onClick={() => void actions.rest(id, 'bf')}>Rest at bonfire (clears fatigue)</button>}
               {c.dth && !cl && (
-                <span className="sub">{altar ? 'This is the altar you were revived at. Find a different altar to cleanse the curse.' : 'Find a different altar than the one you were revived at to cleanse the curse.'}</span>
+                <span className="sub">
+                  {altar ? 'This is the altar you were revived at. Find a different altar to cleanse the curse.' : 'Find a different altar than the one you were revived at to cleanse the curse.'}
+                </span>
               )}
             </div>
           )}
@@ -285,7 +310,6 @@ function StatusBox({ id, tables, dm, me, gmMap, actions, icons }: TableProps & {
   )
 }
 
-
 const shownMap = (t: Tables, dm: boolean, gmMap: string | null) => {
   const id = shownMapId(t.maps as Maps, t.cur, dm, gmMap)
   return id ? (t.maps as Maps)[id]! : null
@@ -303,7 +327,12 @@ function QuickActions({ id, tables, dm, actions, abilityImages }: TableProps & {
       <div className="row mini">
         {sheetAbilities(c, board, goldenHidden(dm, tables.sp)).map(([name, cost, , r], i) =>
           ix.attack[name] || r === 'r' ? null : (
-            <button key={`${i}${name}`} className={(c.st as number) < abilityCost(c, cost) ? 'warn' : ''} disabled={abilityLocked(c, false, dm, myTurn)} onClick={() => void actions.castAbility(id, name, cost, false)}>
+            <button
+              key={`${i}${name}`}
+              className={(c.st as number) < abilityCost(c, cost) ? 'warn' : ''}
+              disabled={abilityLocked(c, false, dm, myTurn)}
+              onClick={() => void actions.castAbility(id, name, cost, false)}
+            >
               <AbilityIcon board={board} name={name} images={abilityImages} drawn={tables.drawnIcons} />
               {name} · {abilityCost(c, cost)}
             </button>
@@ -331,7 +360,8 @@ function AbilitySummary({ id, tables, dm, abilityImages }: TableProps & { id: st
               <AbilityIcon board={board} name={e.n} images={abilityImages} drawn={tables.drawnIcons} />
               <b>{e.n}</b>{' '}
               <span className="sub">
-                {abilityCost(c, Number(e.c) || 0)} St{e.hc ? ` + ${e.hc}% HP` : ''}
+                {abilityCost(c, Number(e.c) || 0)} St
+                {e.hc ? ` + ${e.hc}% HP` : ''}
                 {info ? ` · ${info}` : ''}
               </span>
               <small>{e.sd || shortText(e.t)}</small>
@@ -450,25 +480,27 @@ function MapPanel(p: TableProps & { sel: string | null; onSelect: (k: string | n
   const ids = Object.keys(maps)
   const id = shownMapId(maps, tables.cur, dm, gmMap)
   const live = liveMapId(maps, tables.cur)
-  const g = grid(maps, id)
+  const tool: Tool = dm ? p.tool : 'move'
+  const ask = p.ask ?? ((q: string, def?: string) => window.prompt(q, def))
+  const m = id ? (maps[id] as MapEntry) : undefined
+  // A wall or fog drag shows on the map as it goes, and saves when released.
+  const [draft, setDraft] = useState<[number, number][] | null>(null)
+  const painting = tool === 'wall' || tool === 'rev' || tool === 'hid'
+  const shown =
+    draft && m
+      ? {
+          ...maps,
+          [id!]: tool === 'wall' ? { ...m, walls: paintWalls(m, draft) } : { ...m, fog: true, fg: paintFog(m, draft, tool === 'rev') },
+        }
+      : maps
+  const g = grid(shown as Maps, id)
   const image = id ? p.mapImages[id] : undefined
-  const picker = dm && ids.length > 0 && (
-    <div className="row">
-      <select aria-label="Map" value={id!} onChange={(e) => actions.setGmMap(e.target.value)} style={{ width: 'auto', flex: 1 }}>
-        {ids.map((i) => (
-          <option key={i} value={i}>
-            {String(maps[i]!.name ?? i)}
-            {i === live ? ' (live)' : ''}
-          </option>
-        ))}
-      </select>
-      <button onClick={() => void actions.showMap(id!)}>Show to players</button>
-    </div>
-  )
+  const picker = dm && <MapTools tables={tables} id={id} tool={tool} actions={actions} images={p.images ?? browserImages()} ask={ask} confirm={p.confirm ?? ((q) => window.confirm(q))} />
   if (!ids.length)
     return (
       <div className="card">
-        <p className="note">{dm ? 'No maps yet. Upload one on the live table to begin.' : "The GM hasn't set a map yet."}</p>
+        <p className="note">{dm ? 'No maps yet. Upload one to begin.' : "The GM hasn't set a map yet."}</p>
+        {picker}
       </div>
     )
   if (!g || !image)
@@ -534,12 +566,21 @@ function MapPanel(p: TableProps & { sel: string | null; onSelect: (k: string | n
         onTap={(x, y) => {
           // Any tap closes the menu; tapping another token opens it on that token.
           actions.closeMenu()
+          if (painting) return setDraft([[x, y]])
+          if (tool !== 'move') return void actions.toolTap(x, y).then((r) => r && pinPrompts(maps as Record<string, MapEntry>, id!, r, ask, actions))
           void actions.tapMap(x, y, selected).then((r) => r && actions.openMenu(selected!, r.target))
+        }}
+        onDrag={(x, y) => draft && setDraft((d) => (d!.some(([a, b]) => a === x && b === y) ? d : [...d!, [x, y]]))}
+        onRelease={() => {
+          if (!draft) return
+          void actions.paint(draft)
+          setDraft(null)
         }}
       />
       <ActionMenu tables={tables} dm={dm} menu={p.menu ?? null} actions={actions} ask={p.ask} />
       <p className="note">
         {info}
+        {dm ? toolNote(tool, m!) : ''}
         {dm && id !== live ? " You're editing a map players can't see yet." : ''}
         {p.jump ? ' Tap a free square within 3 squares of the monster to jump there.' : ''}
       </p>
