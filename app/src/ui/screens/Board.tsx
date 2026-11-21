@@ -11,6 +11,7 @@ import type { Sheet } from '../../logic/sheet'
 import { atRestSpot } from '../../state/boardActions'
 import type { GameState, Tables } from '../../state/store'
 import { Field } from '../parts'
+import { IconImport } from '../IconImport'
 import { PictureButton } from '../PictureButton'
 import { squareIcon } from '../images'
 
@@ -56,7 +57,7 @@ export type BoardScreenProps = {
   tables: Tables
   dm: boolean
   me: string
-  actions: Pick<GameState, 'setAbilityField' | 'addAbility' | 'removeAbility' | 'replaceBoard' | 'setBoardSetting' | 'equip' | 'attune' | 'setAbilityIcon' | 'notice'>
+  actions: Pick<GameState, 'setAbilityField' | 'addAbility' | 'removeAbility' | 'replaceBoard' | 'setBoardSetting' | 'equip' | 'attune' | 'setAbilityIcon' | 'setSkillIcon' | 'notice'>
   /** Uploaded ability pictures by board key (when loaded). */
   images: Record<string, string>
   confirm: (q: string) => boolean
@@ -115,8 +116,8 @@ function Editor({ tables, actions, images, confirm, rand = Math.random }: BoardS
       <div className="card">
         <h2>Ability board</h2>
         <p className="note">
-          Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a bonfire or a
-          guild (use the Guild map tool). Each level gives one more slot.
+          Players pick from these when they level up. Cost is in tens: 2 means 20 stamina. Abilities above a player's level stay hidden from them. Players can change abilities only next to a altar, a
+          bonfire or a guild (use the Guild map tool). Each level gives one more slot.
         </p>
         <div className="row">
           <button className="pri" onClick={() => void actions.addAbility(randomKey('x', 5, rand))}>
@@ -125,16 +126,17 @@ function Editor({ tables, actions, images, confirm, rand = Math.random }: BoardS
           <button onClick={() => confirm('Replace the whole board with the default abilities?') && void actions.replaceBoard(defaultBoard())}>Load default abilities</button>
           <button
             onClick={() =>
-              confirm(
-                'Replace the whole board with the 9-class abilities (levels 1 to 10, with Golden versions)? Characters keep their level, but their equipped abilities may change.',
-              ) && void actions.replaceBoard(vocationBoard())
+              confirm('Replace the whole board with the 9-class abilities (levels 1 to 10, with Golden versions)? Characters keep their level, but their equipped abilities may change.') &&
+              void actions.replaceBoard(vocationBoard())
             }
           >
             Load 9-class abilities
           </button>
           <button onClick={() => void actions.setBoardSetting('drawnIcons', !tables.drawnIcons)}>Icons: {tables.drawnIcons ? 'drawn' : 'emoji'}</button>
           <button onClick={() => void actions.setBoardSetting('showAll', !tables.showAll)}>Players see: {tables.showAll ? 'all abilities' : 'unlocked only'}</button>
+          <IconImport board={board} enemies={tables.enemies} setAbilityIcon={actions.setAbilityIcon} setSkillIcon={actions.setSkillIcon} />
         </div>
+        <p className="note">Import icons: pick many pictures at once. Each is matched by its file name to the abilities and monster skills of that name (for example "Frost Lance.png").</p>
         <div className="row mini">
           <span className="sub">Show:</span>
           <button className={filter ? '' : 'pri'} onClick={() => setFilter('')}>
@@ -199,8 +201,8 @@ function Equip({ tables, dm, me, actions, images }: BoardScreenProps) {
         <h2>Ability board</h2>
         <p className="note">
           Equipped {usedSlots(c, eq, board)} / {slots}.{atn ? ` Attuned ${attunedSet(c, board).length} / ${atn} (attuned Golden abilities use no slot).` : ''}{' '}
-          {here ? 'You are at an altar, bonfire or guild: you can change your abilities.' : 'You can only change abilities next to an altar, a bonfire or at a guild.'} More slots and abilities unlock as you level
-          up.
+          {here ? 'You are at an altar, bonfire or guild: you can change your abilities.' : 'You can only change abilities next to an altar, a bonfire or at a guild.'} More slots and abilities unlock
+          as you level up.
         </p>
       </div>
       <div className="card">
@@ -255,9 +257,7 @@ function Reference({ tables, dm, me, images }: BoardScreenProps) {
           </button>
         ))}
       </div>
-      <p className="note">
-        You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}
-      </p>
+      <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}</p>
       <table>
         <thead>
           <tr>

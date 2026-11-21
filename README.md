@@ -90,7 +90,9 @@ npm run build
 6. Cutover: the new app becomes the root, the old file is kept as a backup at `/classic/`. **Done** (1.0.0).
    Saved logins carry over (the app now uses the old page's saved-session names).
 7. Cleanup and new features: the parity checks now ignore content added since the cutover
-   (1.0.1); then bulk icon import, the cutscene video field and the Nameless King setup.
+   (1.0.1). "Import icons" on the ability board: many pictures at once, each matched by its
+   file name to the board abilities and monster skills of that name (1.1.0). Next: the
+   cutscene video field and the Nameless King setup.
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

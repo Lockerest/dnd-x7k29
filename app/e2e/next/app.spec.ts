@@ -764,6 +764,19 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
     expect(a.length, p).toBe(b.length)
     expect(a === b, p).toBe(true)
   }
+
+  // "Import icons" on the board: many pictures at once, matched by file name, made the same way.
+  const singles = { ab: mine.get(`${T}/abicons/k1`), sk: mine.get(`${T}/skicons/bite`) }
+  mine.set(`${T}/abicons/k1`, null)
+  mine.set(`${T}/skicons/bite`, null)
+  await next.getByLabel('Icon files').setInputFiles([
+    { ...file, name: 'Cleave.png' },
+    { ...file, name: 'bite.png' },
+    { ...file, name: 'Fireball.png' },
+  ])
+  await expect(next.getByText('2 imported; no ability named Fireball.png')).toBeVisible()
+  expect(mine.get(`${T}/abicons/k1`)).toEqual(singles.ab)
+  expect(mine.get(`${T}/skicons/bite`)).toEqual(singles.sk)
   expect(errors).toEqual([])
   await ctx.close()
 })
