@@ -226,3 +226,35 @@ export const CLASS_ICONS: Record<string, string> = {
   echo_strike: 'eb52c0a7-ed7f-4d8c-81d8-4b47a126a9be.jpg',
   curtain_call: '2ae2ed0c-9115-4f1e-9d98-f2572b4ad8da.jpg',
 }
+
+// Golden versions: the same picture with the ability itself turned gold, by the
+// base ability's name slug. Golden board abilities get these instead.
+export const GOLDEN_ICONS: Record<string, string> = {
+  rending_combo: 'cdb7a7ec-7759-42de-9fac-f96c72b021a9.jpg',
+  bulwark_charge: '733aad98-08bc-4063-90ed-31e8ff7eca66.jpg',
+  oathbreaker: 'bb5835a8-3845-40a0-8588-ee319acb2fca.jpg',
+  arrowstorm: 'd043b962-97e7-45d0-809c-8345c22716f0.jpg',
+  wildfire_arrow: 'b15af324-cd97-432d-a1f4-978928d23f7c.jpg',
+  dragonpiercer: 'f48217cb-f54f-4ec7-867f-eea02e708422.jpg',
+  arcane_barrage: 'b2d7304e-06ad-4ecc-9c12-e4d753c79469.jpg',
+  lightning_lash: '79790225-f597-4fb5-9a9f-753be00dc61f.jpg',
+  meteor_fall: '6ef53bbc-40b7-4b44-bd82-34dde02570ef.jpg',
+  shadow_flurry: '3b33a80c-0b8f-4ed9-b012-91f4457a8f72.jpg',
+  venomous_edge: '5aeea091-be51-4776-88f4-ec694ffe509b.jpg',
+  heartseeker: '302ac2dc-bfab-4cee-addf-16d46634b5f4.jpg',
+  skullsplitter: '3be5f9d7-b142-4a11-89d9-21973e9b8e4c.jpg',
+  crushing_blow: '8d4fa314-87b1-4707-a670-8e4a208ad24a.jpg',
+  titan_s_fall: '8b6faa03-4048-4bbd-a708-09d1260dfff1.jpg',
+  tempest_lances: '45160a34-d9d9-4719-9605-ee77de5e79b4.jpg',
+  elemental_surge: '83880604-a132-404c-9b5e-7467b9bb8587.jpg',
+  cataclysm: '3ee966df-0e08-46d2-8261-7dbfb11e036b.jpg',
+  spiral_lance: '3bda62b9-1ef8-4ccf-995a-355bc4109b93.jpg',
+  gravity_pull: '75ee07ab-6075-45da-8ab1-821a71052c49.jpg',
+  singularity_spear: '4347710c-a9e3-4e50-9ba9-ffe671a02154.jpg',
+  sigil_volley: 'c95bd51f-41f3-4641-9b61-9c3784fc3903.jpg',
+  seeking_sigil: '181e6416-58b7-49f1-8038-8ce604c76e46.jpg',
+  starfall_barrage: '081dd8f7-4e4b-4900-87d0-228e1e2982f9.jpg',
+  mirage_dance: 'e6448360-7977-4bd7-aaa7-e88076a55b4c.jpg',
+  fool_s_gambit: '9085e245-97ed-46ee-b437-3d95ce5ae76b.jpg',
+  grand_illusion: 'fd98fddf-4ff2-4eda-a4b3-47dd6e0633d4.jpg',
+}

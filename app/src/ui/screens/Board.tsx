@@ -3,10 +3,12 @@
 import { Fragment, useState, type ReactNode } from 'react'
 import { BONUSES, GLYPHS, KINDS, VOCATIONS } from '../../data/abilityIcons'
 import { CLASSES } from '../../data/classes'
-import { CLASS_ICONS, ICON_BASE } from '../../data/icons'
+import { ABILITY_SOUNDS } from '../../data/audio'
+import { ICON_BASE } from '../../data/icons'
 import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
 import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, type Board } from '../../logic/board'
 import { randomKey } from '../../logic/enemies'
+import { classIcon } from '../../logic/iconImport'
 import { abilitySlug } from '../../logic/text'
 import { abilityCost } from '../../logic/stamina'
 import type { Sheet } from '../../logic/sheet'
@@ -35,7 +37,7 @@ export function AbilityIcon({
   const k = keyByName(board)[name]
   const e = k ? board[k] : undefined
   if (!k || !e) return null
-  const full = CLASS_ICONS[abilitySlug(name)]
+  const full = classIcon(name, !!e.gb)
   if (images[k]) return zoom ? <Zoom className="abi" src={images[k]} full={full && ICON_BASE + full} name={name} /> : <img className="abi" src={images[k]} alt="" />
   if (drawn) {
     const { glyph, color, golden } = glyphOf(board, k)
@@ -83,6 +85,18 @@ export type BoardScreenProps = {
   /** The class Reference folded to its title (this device). */
   refShut?: boolean
   onRefShut?: (shut: boolean) => void
+  /** Plays an ability's sound (the ▶ on the Reference). */
+  onPlay?: (name: string) => void
+}
+
+/** The ▶ that plays an ability's sound, for abilities that have one. */
+function Play({ name, onPlay }: { name: string; onPlay?: (name: string) => void }) {
+  if (!onPlay || !ABILITY_SOUNDS[abilitySlug(name)]) return null
+  return (
+    <button className="snd" aria-label={`Play the sound of ${name}`} onClick={() => onPlay(name)}>
+      ▶
+    </button>
+  )
 }
 
 /** The two tabs above both screens. */
@@ -260,7 +274,7 @@ function Equip({ tables, dm, me, actions, images }: BoardScreenProps) {
   )
 }
 
-function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => {} }: BoardScreenProps) {
+function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => {}, onPlay }: BoardScreenProps) {
   const c = tables.chars[me]
   const board = boardOrDefault(tables.board as Board | null)
   const [picked, setPicked] = useState<string | null>(null)
@@ -306,6 +320,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                         <div className="abx">
                           <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} zoom />
                           <b>{r.name}</b>
+                          <Play name={r.name} onPlay={onPlay} />
                         </div>
                       </td>
                       <td>{r.cost}</td>
@@ -318,6 +333,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                           <div className="abx">
                             <AbilityIcon board={board} name={r.golden.name} images={images} drawn={tables.drawnIcons} zoom />
                             <b>{r.golden.name}</b>
+                            <Play name={r.golden.name} onPlay={onPlay} />
                           </div>
                         </td>
                         <td>{r.golden.cost}</td>

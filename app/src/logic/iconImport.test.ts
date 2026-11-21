@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { CLASS_ICONS, SKILL_ICONS } from '../data/icons'
-import { fileSlug, iconImportStatus, matchIcon, webIcons } from './iconImport'
+import { CLASS_ICONS, GOLDEN_ICONS, SKILL_ICONS } from '../data/icons'
+import { classIcon, fileSlug, iconImportStatus, matchIcon, webIcons } from './iconImport'
 
 const board = {
   a: { n: 'Frost Lance', k: 'atk' },
@@ -45,5 +45,21 @@ describe('the built-in icons from the web', () => {
     const all = webIcons({ s: { n: 'Spear Thrust', k: 'atk' }, g: { n: 'Spear Thrust (Golden)', k: 'atk' } } as never)
     expect(all).toHaveLength(Object.keys(SKILL_ICONS).length + 1)
     expect(all.at(-1)).toEqual({ file: CLASS_ICONS.spear_thrust, skill: null, board: ['s', 'g'] })
+  })
+})
+
+describe('Golden pictures', () => {
+  it('a Golden ability gets its gold picture when there is one, else the class picture', () => {
+    const b = { m: { n: 'Meteor Fall', k: 'atk' }, mg: { n: 'Meteor Fall (Golden)', k: 'atk', gb: 'm' }, h: { n: 'Heal', k: 'heal' }, hg: { n: 'Heal (Golden)', gb: 'h' } } as never
+    expect(webIcons(b, {}, { meteor_fall: 'm.jpg', heal: 'h.jpg' }, { meteor_fall: 'mg.jpg' })).toEqual([
+      { file: 'm.jpg', skill: null, board: ['m'] },
+      { file: 'mg.jpg', skill: null, board: ['mg'] },
+      { file: 'h.jpg', skill: null, board: ['h', 'hg'] },
+    ])
+    expect(classIcon('Meteor Fall (Golden)', true)).toBe(GOLDEN_ICONS.meteor_fall)
+    expect(classIcon('Meteor Fall', false)).toBe(CLASS_ICONS.meteor_fall)
+    expect(classIcon('Brace (Golden)', true)).toBe(CLASS_ICONS.brace)
+    expect(classIcon('Nothing', false)).toBeUndefined()
+    expect(Object.keys(GOLDEN_ICONS).every((k) => CLASS_ICONS[k])).toBe(true)
   })
 })

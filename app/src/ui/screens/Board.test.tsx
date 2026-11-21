@@ -257,6 +257,28 @@ describe('the class Reference folds to its title', () => {
   })
 })
 
+describe('ability sounds on the Reference', () => {
+  it('a ▶ plays the sound of abilities that have one, Golden versions too', () => {
+    const board = {
+      k: { n: 'Heavy Swing', v: 'warrior', l: 1, c: 2, k: 'atk', d: '2d6', r: 1 },
+      g: { n: 'Heavy Swing (Golden)', v: 'warrior', l: 1, c: 3, k: 'atk', d: '4d6', r: 1, gb: 'k' },
+      q: { n: 'Quiet', v: 'warrior', l: 1, c: 1, k: 'util' },
+    } as unknown as Board
+    const onPlay = vi.fn()
+    const p = { onView: () => {}, tables: { ...emptyTables(), board }, dm: true, me: 'gm', actions: createGameStore().getState(), images: {}, confirm: () => true }
+    render(<BoardScreen view="ref" {...p} onPlay={onPlay} />)
+    click('Warrior')
+    click('Play the sound of Heavy Swing')
+    click('Play the sound of Heavy Swing (Golden)')
+    expect(onPlay.mock.calls).toEqual([['Heavy Swing'], ['Heavy Swing (Golden)']])
+    expect(screen.queryByRole('button', { name: 'Play the sound of Quiet' })).toBeNull()
+    cleanup()
+    render(<BoardScreen view="ref" {...p} />)
+    click('Warrior')
+    expect(screen.queryByRole('button', { name: /Play the sound/ })).toBeNull()
+  })
+})
+
 describe('ability pictures open big on the Reference', () => {
   it('an uploaded picture can be clicked to view it larger', () => {
     const board = { k: { n: 'Cleave', v: 'fighter', l: 1, c: 2, k: 'atk', d: '2d6', r: 1 } } as unknown as Board

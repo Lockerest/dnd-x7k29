@@ -115,6 +115,9 @@ npm run build
    in place of the older pictures (1.8.0). The 16 starting abilities of Fighter, Archer, Mage
    and Thief got theirs too; class pictures open big at full sharpness; the Reference shows each
    Golden version as its own row with its icon (1.8.1).
+   The 27 Golden abilities have their own icons, with the ability itself turned gold; "Import
+   icons from web" puts them on the Golden versions (1.9.0). The class Reference has a ▶
+   sound button on every ability that has a sound, Golden versions included (1.10.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

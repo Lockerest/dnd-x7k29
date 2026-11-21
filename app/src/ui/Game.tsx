@@ -416,6 +416,7 @@ export function Game({
         confirm={confirm ?? ((q) => window.confirm(q))}
         rand={rand}
         refShut={refShut}
+        onPlay={(name) => void fxp.playSkillSound(name)}
         onRefShut={(v) => {
           setRefShut(v)
           savePrefs(storage, { refShut: v })

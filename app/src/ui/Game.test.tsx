@@ -220,6 +220,7 @@ describe('<Game /> Game Master', () => {
     expect(screen.queryByLabelText('Boss abilities')).toBeNull()
     click('Reference')
     expect(await screen.findByLabelText('Boss abilities')).toBeInTheDocument()
+    click('Play the sound of Power Strike')
     click('Show or hide the class abilities')
     expect(storage.getItem('rfs')).toBe('1')
     click('Show or hide the Boss abilities')
