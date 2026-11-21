@@ -39,7 +39,10 @@ function Harness({ store, open, onToggle, onPlay, confirm }: { store: GameStore;
 
 function setup(enemies: Record<string, Enemy>, open: string[] = Object.keys(enemies), extra: Partial<ReturnType<typeof emptyTables>> = {}) {
   const f = fakeDb()
-  const store = createGameStore(() => f.db, () => 5)
+  const store = createGameStore(
+    () => f.db,
+    () => 5,
+  )
   store.getState().connect({ pin: 'p', role: 'gm', me: 'gm' })
   store.getState().applySnapshot({ ...emptyTables(), enemies, ...extra })
   const onToggle = vi.fn()
@@ -83,6 +86,33 @@ describe('<EnemiesPanel /> list', () => {
     setup({ a: { name: 'A', nx: 'b', max: 0, hp: 0 }, b: { name: 'B' } }, [])
     expect(within(card('B')).getByText('Phase 2 sheet')).toBeInTheDocument()
     expect(screen.getAllByRole('meter')[0]!.querySelector('i')!.style.width).toBe('0%')
+  })
+
+  it('a phase sheet not being fought shows only its name until its settings open', () => {
+    const { r } = setup({ a: { name: 'King', hp: 40, max: 100, nx: 'b', type: 'Undead' }, b: { name: 'King on foot', hp: 90, max: 90, type: 'Undead' } }, [])
+    expect(within(card('King')).getAllByRole('meter')).toHaveLength(1)
+    expect(within(card('King on foot')).queryByRole('meter')).toBeNull()
+    expect(within(card('King on foot')).queryByText(/Undead/)).toBeNull()
+    expect(within(card('King on foot')).getByText('Phase 2 sheet')).toBeInTheDocument()
+    r.unmount()
+    setup({ a: { name: 'King', hp: 40, max: 100, nx: 'b' }, b: { name: 'King on foot', hp: 90, max: 90 } }, ['b'])
+    expect(within(card('King on foot')).getAllByRole('meter')).toHaveLength(1)
+  })
+
+  it('the whole card folds to its title', () => {
+    const onShut = vi.fn()
+    const props = { actions: {} as never, open: [], onToggle: vi.fn(), themes: [], onPlayCinematic: vi.fn() }
+    const t = (enemies: Record<string, Enemy>) => ({ ...emptyTables(), enemies })
+    const { rerender } = render(<EnemiesPanel {...props} tables={t({ a: { name: 'Wolf' }, b: { name: 'Ogre' } })} shut onShut={onShut} />, { wrapper: FakeKit })
+    expect(screen.getByText('2 hidden. Open the list to see them.')).toBeInTheDocument()
+    expect(screen.queryByText('Wolf')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Show or hide the Enemies list' }))
+    expect(onShut).toHaveBeenCalledWith(false)
+    rerender(<EnemiesPanel {...props} tables={t({})} shut onShut={onShut} />)
+    expect(screen.getByText('None in sight.')).toBeInTheDocument()
+    rerender(<EnemiesPanel {...props} tables={t({})} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Show or hide the Enemies list' })) // no handler: nothing happens
+    expect(onShut).toHaveBeenCalledTimes(1)
   })
 
   it('says when there are none', () => {
@@ -210,10 +240,7 @@ describe('<EnemiesPanel /> editor', () => {
   })
 
   it('next phase, gate reached, start phase 2, stun, remove', () => {
-    const { f, store, confirm } = setup(
-      { a: { name: 'Aethelric', hp: 75, max: 100, pg: 75, gr: 75, nx: 'b', mx: 1, my: 1 }, b: { name: 'Aethelric (phase 2)', max: 200 } },
-      ['a'],
-    )
+    const { f, store, confirm } = setup({ a: { name: 'Aethelric', hp: 75, max: 100, pg: 75, gr: 75, nx: 'b', mx: 1, my: 1 }, b: { name: 'Aethelric (phase 2)', max: 200 } }, ['a'])
     const c = card('Aethelric')
     expect(within(c).getByText('Gate reached at 75% HP: run your scripted event.')).toBeInTheDocument()
     fireEvent.click(within(c).getByRole('button', { name: 'Done' }))
@@ -222,19 +249,21 @@ describe('<EnemiesPanel /> editor', () => {
     expect(f.writes.at(-1)).toEqual(['PATCH', 'enemies/a', { stun: true }])
     expect(within(card('Aethelric')).getByRole('button', { name: 'Unstun' })).toBeInTheDocument()
     fireEvent.click(within(card('Aethelric')).getByRole('button', { name: 'Start phase 2: Aethelric (phase 2)' }))
-    return vi.waitFor(() => expect(f.writes.some((w) => (w[2] as { ev?: string })?.ev?.endsWith('rises!'))).toBe(true)).then(async () => {
-      expect(store.getState().tables.enemies.b!.mx).toBe(1)
-      fireEvent.click(within(card('Aethelric')).getByRole('button', { name: '+ Add next phase sheet' }))
-      await vi.waitFor(() => expect(Object.keys(store.getState().tables.enemies)).toHaveLength(3))
-      const added = Object.keys(store.getState().tables.enemies).find((k) => k !== 'a' && k !== 'b')!
-      expect(store.getState().tables.enemies[added]!.name).toBe('Aethelric (phase 3)')
-      confirm.mockReturnValueOnce(false)
-      fireEvent.click(within(card('Aethelric')).getByRole('button', { name: 'Remove' }))
-      expect(store.getState().tables.enemies.a).toBeDefined()
-      fireEvent.click(within(card('Aethelric')).getByRole('button', { name: 'Remove' }))
-      await vi.waitFor(() => expect(store.getState().tables.enemies.a).toBeUndefined())
-      expect(confirm).toHaveBeenCalledWith('Remove this enemy?')
-    })
+    return vi
+      .waitFor(() => expect(f.writes.some((w) => (w[2] as { ev?: string })?.ev?.endsWith('rises!'))).toBe(true))
+      .then(async () => {
+        expect(store.getState().tables.enemies.b!.mx).toBe(1)
+        fireEvent.click(within(card('Aethelric')).getByRole('button', { name: '+ Add next phase sheet' }))
+        await vi.waitFor(() => expect(Object.keys(store.getState().tables.enemies)).toHaveLength(3))
+        const added = Object.keys(store.getState().tables.enemies).find((k) => k !== 'a' && k !== 'b')!
+        expect(store.getState().tables.enemies[added]!.name).toBe('Aethelric (phase 3)')
+        confirm.mockReturnValueOnce(false)
+        fireEvent.click(within(card('Aethelric')).getByRole('button', { name: 'Remove' }))
+        expect(store.getState().tables.enemies.a).toBeDefined()
+        fireEvent.click(within(card('Aethelric')).getByRole('button', { name: 'Remove' }))
+        await vi.waitFor(() => expect(store.getState().tables.enemies.a).toBeUndefined())
+        expect(confirm).toHaveBeenCalledWith('Remove this enemy?')
+      })
   })
 
   it('uses the browser confirm box by default', () => {
@@ -285,7 +314,11 @@ describe('<EnemiesPanel /> adding', () => {
     type('Attack bonus', '6')
     type('Damage', '3d10')
     fireEvent.click(screen.getByRole('button', { name: 'Add' }))
-    expect(f.writes[0]).toEqual(['PUT', expect.stringMatching(/^enemies\/e[a-z0-9]{1,6}$/), expect.objectContaining({ name: 'Troll', type: 'Giant', sz: 3, hp: 400, pm: 30, ac: 15, ab: 6, dm: '3d10' })])
+    expect(f.writes[0]).toEqual([
+      'PUT',
+      expect.stringMatching(/^enemies\/e[a-z0-9]{1,6}$/),
+      expect.objectContaining({ name: 'Troll', type: 'Giant', sz: 3, hp: 400, pm: 30, ac: 15, ab: 6, dm: '3d10' }),
+    ])
     expect(Object.values(store.getState().tables.enemies)[0]!.name).toBe('Troll')
     expect(screen.getByLabelText('Name')).toHaveValue('')
   })
@@ -325,13 +358,21 @@ describe('pictures in the Enemies panel', () => {
 
 describe('the enemy extras buttons', () => {
   it('auto turn, boss intro and spawn point; a skill without a sound says so', async () => {
-    const { f, store } = setup({ w: { name: 'Wolf', hp: 5, mx: 3, my: 2, sk: { a: { n: 'Bite', d: '1d6', r: 1, t: 's' } } } }, ['w'], { chars: {}, maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10 } }, cur: 'm' })
+    const { f, store } = setup({ w: { name: 'Wolf', hp: 5, mx: 3, my: 2, sk: { a: { n: 'Bite', d: '1d6', r: 1, t: 's' } } } }, ['w'], {
+      chars: {},
+      maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10 } },
+      cur: 'm',
+    })
     fireEvent.click(screen.getByRole('button', { name: 'Auto turn' }))
     fireEvent.click(screen.getByRole('button', { name: 'Boss intro' }))
     fireEvent.click(screen.getByRole('button', { name: 'Set spawn' }))
     fireEvent.click(screen.getByRole('button', { name: 'Play sound' }))
     await vi.waitFor(() => expect(f.writes.map((w) => w[1])).toEqual(['rolls', 'rolls', 'enemies/w']))
-    expect(f.writes.map((w) => w[2])).toEqual([expect.objectContaining({ ev: 'Wolf finds no one to attack' }), expect.objectContaining({ boss: expect.objectContaining({ n: 'Wolf' }) }), { hx: 3, hy: 2 }])
+    expect(f.writes.map((w) => w[2])).toEqual([
+      expect.objectContaining({ ev: 'Wolf finds no one to attack' }),
+      expect.objectContaining({ boss: expect.objectContaining({ n: 'Wolf' }) }),
+      { hx: 3, hy: 2 },
+    ])
     await vi.waitFor(() => expect(store.getState().error).toBe('No custom sound for Bite yet. The skill name must match an imported ability name, and sound must be on.'))
   })
 })

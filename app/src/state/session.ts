@@ -40,6 +40,9 @@ export type Prefs = {
   music: boolean
   /** Enemy sheets whose editor is open. */
   openEnemies: string[]
+  /** The whole Enemies card folded away, and the GM's Boss abilities list shown (this device). */
+  enemiesShut: boolean
+  bossList: boolean
 }
 
 export function loadPrefs(storage: StorageLike): Prefs {
@@ -53,6 +56,8 @@ export function loadPrefs(storage: StorageLike): Prefs {
       const x: unknown = JSON.parse(get('eop') || '[]')
       return Array.isArray(x) ? x.map(String) : []
     }, []),
+    enemiesShut: get('ens') === '1',
+    bossList: get('bal') === '1',
   }
 }
 
@@ -62,4 +67,6 @@ export function savePrefs(storage: StorageLike, p: Partial<Prefs>): void {
   if (p.volume !== undefined) set('sv', String(p.volume))
   if (p.music !== undefined) set('bgm', p.music ? '1' : '0')
   if (p.openEnemies !== undefined) set('eop', JSON.stringify(p.openEnemies))
+  if (p.enemiesShut !== undefined) set('ens', p.enemiesShut ? '1' : '0')
+  if (p.bossList !== undefined) set('bal', p.bossList ? '1' : '0')
 }

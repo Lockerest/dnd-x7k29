@@ -203,6 +203,7 @@ test("the GM's Boss abilities list: every boss move with its icon, and notes kep
   await page.getByRole('button', { name: 'Abilities' }).click()
   await page.getByRole('button', { name: 'Reference' }).click()
   const list = page.getByLabel('Boss abilities')
+  await page.getByRole('button', { name: 'Show or hide the Boss abilities' }).click()
   await list.getByRole('button', { name: 'Nameless King' }).click()
   const wager = list.getByLabel("Boss ability Storm's Wager").first()
   await expect(wager).toContainText('Roll a d4 in the open')

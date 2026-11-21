@@ -16,8 +16,8 @@ describe('the Boss abilities list', () => {
       ['Lonely', ['']],
     ])
     expect(out[0]!.phases[0]!.rows).toEqual([
-      { name: 'Club', dice: '2d8', range: 1, target: 's', text: 'Smash.', slug: 'club', damage: '2d8', reach: '1 square, one target' },
-      { name: 'Roar', dice: '0', range: 3, target: 'a', slug: 'roar', damage: '—', reach: '3 squares, area' },
+      { name: 'Club', dice: '2d8', range: 1, target: 's', text: 'Smash.', slug: 'club', damage: '2d8', reach: '1 sq, single' },
+      { name: 'Roar', dice: '0', range: 3, target: 'a', slug: 'roar', damage: '—', reach: '3 sq, area' },
     ])
     expect(out[0]!.phases[1]!.rows[0]!.slug).toBe('ogre_s_fury')
   })

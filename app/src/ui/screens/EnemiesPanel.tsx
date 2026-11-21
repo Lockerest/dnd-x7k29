@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { AETHELRIC_75, AETHELRIC_SLAM_VIDEO } from '../../data/cinematics'
 import { SKILL_SETS } from '../../data/skillSets'
 import { enemyFieldChange, enemyPills, hpStep, NEW_SKILL, newEnemy, randomKey, rankOf, RANKS, skillFieldValue, type NewEnemyForm } from '../../logic/enemies'
-import { enemyListOrder } from '../../logic/phases'
+import { enemyListOrder, waitingPhases } from '../../logic/phases'
 import { addSkillSet } from '../../logic/skills'
 import type { Enemy } from '../../logic/types'
 import type { GameState, Tables } from '../../state/store'
@@ -50,6 +50,9 @@ export type EnemiesPanelProps = {
   skillIcons?: Record<string, string>
   /** Plays a skill's ability sound here; false when it has none. */
   onPlaySkill?: (name: string) => Promise<boolean>
+  /** The whole card folded to its title (this device). */
+  shut?: boolean
+  onShut?: (shut: boolean) => void
 }
 
 const EMPTY_FORM: NewEnemyForm = { name: '', type: '', size: '1', hp: '', speed: '', poise: '', ac: '', attack: '', damage: '' }
@@ -66,6 +69,8 @@ export function EnemiesPanel({
   icons = {},
   skillIcons = {},
   onPlaySkill = async () => false,
+  shut = false,
+  onShut = () => {},
 }: EnemiesPanelProps) {
   const { enemies, chars, maps } = tables
   const order = enemyListOrder(enemies, Object.keys(enemies))
@@ -74,9 +79,25 @@ export function EnemiesPanel({
 
   const field = (id: string, e: Enemy, f: string, v: string | boolean) => void actions.updateEnemy(id, enemyFieldChange(e, f, v))
 
+  const waiting = waitingPhases(enemies)
+  const head = (
+    <div className="row mini">
+      <button className="tgl" aria-expanded={!shut} aria-label="Show or hide the Enemies list" onClick={() => onShut(!shut)}>
+        {shut ? '▸' : '▾'}
+      </button>
+      <h2>Enemies</h2>
+    </div>
+  )
+  if (shut)
+    return (
+      <div className="card" aria-label="Enemies">
+        {head}
+        <p className="note">{order.length ? `${order.length} hidden. Open the list to see them.` : 'None in sight.'}</p>
+      </div>
+    )
   return (
     <div className="card" aria-label="Enemies">
-      <h2>Enemies</h2>
+      {head}
       {!order.length && <p className="note">None in sight.</p>}
       {order.map(([id, depth]) => {
         const e = enemies[id]!
@@ -85,6 +106,8 @@ export function EnemiesPanel({
         const sz = e.sz || 1
         const pills = enemyPills(id, e, chars)
         const k = (f: string) => `${id}-${f}-${String(e[f] ?? '')}` // re-read a box when the saved value changes
+        // A phase sheet not being fought shows only its name (open its settings to see the rest).
+        const fold = waiting.has(id) && !isOpen
         return (
           <div className="ab enemy" key={id} style={depth ? { marginLeft: depth * 12, borderLeft: '3px solid #8a7a3a', paddingLeft: 6 } : undefined}>
             <div className="grow">
@@ -96,34 +119,38 @@ export function EnemiesPanel({
                 <b>{e.name}</b>
               </div>
               {e.pl ? <small>{e.pl}</small> : depth ? <small>Phase {depth + 1} sheet</small> : null}
-              <small>
-                {e.type} · {sz}×{sz}
-                {e.mx == null ? ' · not placed' : mapName ? ` · on ${mapName}` : ''}
-              </small>
-              {pills.length > 0 && (
-                <div className="pills">
-                  {pills.map((p) => (
-                    <i className="pill bad" key={p}>
-                      {p}
-                    </i>
-                  ))}
-                </div>
-              )}
-              <Meter v={e.hp ?? 0} max={e.max ?? 0} kind="hp" />
-              {(e.pm ?? 0) > 0 && (
+              {!fold && (
                 <>
-                  <small>Poise</small>
-                  <Meter v={e.po ?? e.pm!} max={e.pm!} kind="st" />
+                  <small>
+                    {e.type} · {sz}×{sz}
+                    {e.mx == null ? ' · not placed' : mapName ? ` · on ${mapName}` : ''}
+                  </small>
+                  {pills.length > 0 && (
+                    <div className="pills">
+                      {pills.map((p) => (
+                        <i className="pill bad" key={p}>
+                          {p}
+                        </i>
+                      ))}
+                    </div>
+                  )}
+                  <Meter v={e.hp ?? 0} max={e.max ?? 0} kind="hp" />
+                  {(e.pm ?? 0) > 0 && (
+                    <>
+                      <small>Poise</small>
+                      <Meter v={e.po ?? e.pm!} max={e.pm!} kind="st" />
+                    </>
+                  )}
+                  <div className="row mini">
+                    {[-50, -10, 10, 50].map((n) => (
+                      <button key={n} aria-label={`${n > 0 ? '+' : ''}${n} HP for ${e.name}`} onClick={() => void actions.updateEnemy(id, hpStep(e, n))}>
+                        {n > 0 ? '+' : ''}
+                        {n}
+                      </button>
+                    ))}
+                  </div>
                 </>
               )}
-              <div className="row mini">
-                {[-50, -10, 10, 50].map((n) => (
-                  <button key={n} aria-label={`${n > 0 ? '+' : ''}${n} HP for ${e.name}`} onClick={() => void actions.updateEnemy(id, hpStep(e, n))}>
-                    {n > 0 ? '+' : ''}
-                    {n}
-                  </button>
-                ))}
-              </div>
               {isOpen && (
                 <div className="eedit">
                   <div className="efld">

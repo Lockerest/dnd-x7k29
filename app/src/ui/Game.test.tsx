@@ -208,14 +208,22 @@ describe('<Game /> characters', () => {
 describe('<Game /> Game Master', () => {
   it("the Boss abilities list on the Reference tab, with the GM's notes", async () => {
     const h = await gmPinHash('secret')
-    const { fb } = setup({ tables: { dragon42: { meta: { dm: h } } } })
+    const { fb, storage } = setup({ tables: { dragon42: { meta: { dm: h } } } })
     type(/Table PIN/, 'dragon42')
     type(/Game Master PIN/, 'secret')
     click('Open as Game Master')
+    // The Enemies card folds away, and stays folded on this device.
+    click(await screen.findByRole('button', { name: 'Show or hide the Enemies list' }).then((b) => b.getAttribute('aria-label')!))
+    expect(storage.getItem('ens')).toBe('1')
+    expect(screen.getByText('None in sight.')).toBeInTheDocument()
     click(await screen.findByRole('button', { name: 'Abilities' }).then((b) => b.textContent!))
     expect(screen.queryByLabelText('Boss abilities')).toBeNull()
     click('Reference')
-    const list = await screen.findByLabelText('Boss abilities')
+    expect(await screen.findByLabelText('Boss abilities')).toBeInTheDocument()
+    click('Show or hide the Boss abilities')
+    expect(storage.getItem('bal')).toBe('1')
+    const list = screen.getByLabelText('Boss abilities')
+    fireEvent.click(within(list).getAllByRole('button', { name: "Play the sound of Warden's Cut" })[0]!)
     // No notes yet, then a note written and saved.
     const note = within(list).getAllByLabelText('Notes: Chain Pull')[0]!
     expect(note).toHaveValue('')

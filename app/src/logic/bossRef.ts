@@ -21,7 +21,7 @@ export function bossSections(sets: Record<string, SkillRow[]>): BossEntry[] {
         ...r,
         slug: abilitySlug(r.name),
         damage: isUtilitySkill(r.dice) ? '—' : r.dice,
-        reach: `${r.range} ${r.range === 1 ? 'square' : 'squares'}, ${r.target === 'a' ? 'area' : 'one target'}`,
+        reach: `${r.range} sq, ${r.target === 'a' ? 'area' : 'single'}`,
       })),
     })
   }

@@ -137,3 +137,24 @@ export function enemyListOrder(all: Record<string, Enemy>, ids: string[]): [stri
   ids.forEach((i) => add(i, 0))
   return order
 }
+
+/**
+ * Sheets in a phase chain that are not the one being fought: the current phase is
+ * the first sheet along the chain still standing (or the last one when all are
+ * down). The Enemies list folds the others to their name.
+ */
+export function waitingPhases(all: Record<string, Enemy>): Set<string> {
+  const isNext = new Set(
+    Object.values(all)
+      .map((e) => e?.nx)
+      .filter((k): k is string => !!k && !!all[k]),
+  )
+  const out = new Set<string>()
+  for (const root of Object.keys(all).filter((i) => !isNext.has(i) && all[i]?.nx && all[all[i]!.nx!])) {
+    const chain: string[] = []
+    for (let i: string | undefined = root; i && all[i] && !chain.includes(i); i = all[i]!.nx) chain.push(i)
+    const cur = chain.find((i) => (all[i]!.hp ?? 0) > 0) ?? chain[chain.length - 1]!
+    for (const i of chain) if (i !== cur) out.add(i)
+  }
+  return out
+}

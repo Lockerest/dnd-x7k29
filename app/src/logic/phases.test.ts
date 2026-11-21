@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildNextPhase, chainEnd, chainRoot, damageEnemy, enemyListOrder, nextPhasePatch } from './phases'
+import { buildNextPhase, chainEnd, chainRoot, damageEnemy, enemyListOrder, nextPhasePatch, waitingPhases } from './phases'
 import type { Enemy } from './types'
 
 describe('damageEnemy', () => {
@@ -114,4 +114,23 @@ describe('enemyListOrder', () => {
       ['a', 0],
       ['b', 1],
     ]))
+})
+
+describe('waiting phase sheets', () => {
+  it('folds every sheet in a chain but the one being fought', () => {
+    const all = {
+      a: { name: 'Aethelric', hp: 50, nx: 'b' },
+      b: { name: 'Golden', hp: 100, nx: 'c' },
+      c: { name: 'Third', hp: 100 },
+      w: { name: 'Wolf', hp: 0 },
+      k: { name: 'King', hp: 0, nx: 'f' },
+      f: { name: 'On foot', hp: 30 },
+      x: { name: 'Lost', hp: 5, nx: 'gone' },
+      d: { name: 'Done', nx: 'e' },
+      e: { name: 'Done 2', hp: 0 },
+      l: { name: 'Loop', hp: 0, nx: 'm' },
+      m: { name: 'Loop 2', hp: 0, nx: 'l' },
+    } as Record<string, Enemy>
+    expect([...waitingPhases(all)].sort()).toEqual(['b', 'c', 'd', 'k'])
+  })
 })

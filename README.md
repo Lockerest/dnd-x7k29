@@ -104,6 +104,9 @@ npm run build
    The GM's Boss abilities list under Reference: every boss move by phase with its icon,
    damage, reach, what it does and the GM's own note (saved under `skdesc/`); four
    Nameless King icons redone; Aethelric's and Arachne's icons added to the web import (1.5.0).
+   The Boss abilities list folds away (folded by default), every boss move has a description
+   and a ▶ sound button; the Enemies card folds away; phase sheets not being fought show only
+   their name (1.6.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

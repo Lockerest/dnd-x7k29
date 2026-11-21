@@ -108,6 +108,8 @@ export function Game({
   const [claimMode, setClaimMode] = useState(false)
 
   const [open, setOpen] = useState<string[]>(() => loadPrefs(storage).openEnemies)
+  const [enemiesShut, setEnemiesShut] = useState(() => loadPrefs(storage).enemiesShut)
+  const [bossList, setBossList] = useState(() => loadPrefs(storage).bossList)
   const toggleOpen = (id: string) => {
     const next = open.includes(id) ? open.filter((x) => x !== id) : [...open, id]
     setOpen(next)
@@ -414,6 +416,12 @@ export function Game({
         rand={rand}
         bossAbilities={
           <BossAbilities
+            open={bossList}
+            onOpen={(v) => {
+              setBossList(v)
+              savePrefs(storage, { bossList: v })
+            }}
+            onPlay={(name) => void fxp.playSkillSound(name)}
             icons={skillIcons}
             notes={bossNotes}
             onNote={(slug, t) => {
@@ -494,6 +502,11 @@ export function Game({
             actions={store.getState()}
             open={open}
             onToggle={toggleOpen}
+            shut={enemiesShut}
+            onShut={(v) => {
+              setEnemiesShut(v)
+              savePrefs(storage, { enemiesShut: v })
+            }}
             themes={themeKeys.map((key) => ({
               key,
               name: THEMES.find((t) => t.key === key)?.name ?? key,

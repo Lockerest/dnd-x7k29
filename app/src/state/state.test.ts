@@ -50,7 +50,14 @@ describe('session and prefs', () => {
     const m = new Map<string, string>()
     return { getItem: (k: string) => m.get(k) ?? null, setItem: (k: string, v: string) => void m.set(k, v), m }
   }
-  const broken = { getItem: () => { throw new Error('blocked') }, setItem: () => { throw new Error('blocked') } }
+  const broken = {
+    getItem: () => {
+      throw new Error('blocked')
+    },
+    setItem: () => {
+      throw new Error('blocked')
+    },
+  }
   it('table screens keep a separate session, and the new app uses its own names', () => {
     expect(sessionKey('#table')).toBe('stT')
     expect(sessionKey('')).toBe('st')
@@ -62,7 +69,16 @@ describe('session and prefs', () => {
     expect(s.m.get('next.st')).toBeDefined()
     clearSession(s, '', 'next.')
     expect(s.m.has('next.st')).toBe(false)
-    expect(() => clearSession({ removeItem: () => { throw new Error('x') } }, '')).not.toThrow()
+    expect(() =>
+      clearSession(
+        {
+          removeItem: () => {
+            throw new Error('x')
+          },
+        },
+        '',
+      ),
+    ).not.toThrow()
   })
   it('saves and loads', () => {
     const s = mem()
@@ -79,11 +95,11 @@ describe('session and prefs', () => {
   })
   it('prefs defaults and round trip', () => {
     const s = mem()
-    expect(loadPrefs(s)).toEqual({ sound: true, volume: 0.5, music: true, openEnemies: [] })
-    savePrefs(s, { sound: false, volume: 0.8, music: false, openEnemies: ['a'] })
-    expect(loadPrefs(s)).toEqual({ sound: false, volume: 0.8, music: false, openEnemies: ['a'] })
-    savePrefs(s, { sound: true, music: true })
-    expect(loadPrefs(s)).toMatchObject({ sound: true, music: true })
+    expect(loadPrefs(s)).toEqual({ sound: true, volume: 0.5, music: true, openEnemies: [], enemiesShut: false, bossList: false })
+    savePrefs(s, { sound: false, volume: 0.8, music: false, openEnemies: ['a'], enemiesShut: true, bossList: true })
+    expect(loadPrefs(s)).toEqual({ sound: false, volume: 0.8, music: false, openEnemies: ['a'], enemiesShut: true, bossList: true })
+    savePrefs(s, { sound: true, music: true, enemiesShut: false, bossList: false })
+    expect(loadPrefs(s)).toMatchObject({ sound: true, music: true, enemiesShut: false, bossList: false })
     savePrefs(s, {})
   })
   it('prefs clamp volume and ignore junk', () => {
@@ -94,7 +110,7 @@ describe('session and prefs', () => {
     s.setItem('sv', 'abc')
     s.setItem('eop', '[1,"b"]')
     expect(loadPrefs(s)).toMatchObject({ volume: 0, openEnemies: ['1', 'b'] })
-    expect(loadPrefs(broken)).toEqual({ sound: true, volume: 0.5, music: true, openEnemies: [] })
+    expect(loadPrefs(broken)).toEqual({ sound: true, volume: 0.5, music: true, openEnemies: [], enemiesShut: false, bossList: false })
     expect(() => savePrefs(broken, { sound: true })).not.toThrow()
   })
 })
@@ -102,7 +118,11 @@ describe('session and prefs', () => {
 /** A fake Db over an in-memory tree, recording writes. */
 function fakeDb(tree: Record<string, unknown> = {}) {
   const writes: [string, string, unknown][] = []
-  const at = (path: string) => path.split('/').filter(Boolean).reduce<unknown>((n, k) => (n && typeof n === 'object' ? (n as Record<string, unknown>)[k] : undefined), tree) ?? null
+  const at = (path: string) =>
+    path
+      .split('/')
+      .filter(Boolean)
+      .reduce<unknown>((n, k) => (n && typeof n === 'object' ? (n as Record<string, unknown>)[k] : undefined), tree) ?? null
   let fail = false
   const w = async (m: string, p: string, v: unknown) => {
     if (fail) throw new Error('offline')
@@ -112,7 +132,7 @@ function fakeDb(tree: Record<string, unknown> = {}) {
   const db: Db = {
     pin: 't',
     url: (p) => p,
-    get: async <T,>(p: string) => {
+    get: async <T>(p: string) => {
       if (fail) throw new Error('offline')
       return at(p) as T | null
     },
@@ -185,7 +205,10 @@ describe('game store', () => {
   })
   it('logs events with a timestamp and shows save errors', async () => {
     const f = fakeDb()
-    const s = createGameStore(() => f.db, () => 42)
+    const s = createGameStore(
+      () => f.db,
+      () => 42,
+    )
     s.getState().connect({ pin: 'p', role: 'gm', me: 'gm' })
     await s.getState().log('Hello')
     expect(f.writes).toEqual([['POST', 'rolls', { ev: 'Hello', ts: 42 }]])
@@ -343,7 +366,11 @@ describe('sync', () => {
     let tick: () => void = () => {}
     const clear = vi.fn()
     const versions = vi.fn()
-    const stop = startSync(s, f.db, { every: 10, onVersions: versions, timers: { set: ((fn: () => void) => ((tick = fn), 1)) as unknown as typeof setInterval, clear: clear as unknown as typeof clearInterval } })
+    const stop = startSync(s, f.db, {
+      every: 10,
+      onVersions: versions,
+      timers: { set: ((fn: () => void) => ((tick = fn), 1)) as unknown as typeof setInterval, clear: clear as unknown as typeof clearInterval },
+    })
     tick() // overlaps the first refresh: skipped
     await vi.waitFor(() => expect(versions).toHaveBeenCalledTimes(1))
     tick()
@@ -376,7 +403,10 @@ describe('store: Game Master enemy actions', () => {
   const tables = (t: Partial<Tables>): Tables => ({ ...emptyTables(), ...t })
   const gm = (t: Partial<Tables>) => {
     const f = fakeDb()
-    const s = createGameStore(() => f.db, () => 77)
+    const s = createGameStore(
+      () => f.db,
+      () => 77,
+    )
     s.getState().connect({ pin: 'p', role: 'gm', me: 'gm' })
     s.getState().applySnapshot(tables(t))
     return { f, s }
@@ -472,7 +502,10 @@ describe('store: Game Master enemy actions', () => {
   })
   it('a nameless boss cinematic and a cinematic without a session', async () => {
     const f = fakeDb()
-    const s = createGameStore(() => f.db, () => 1)
+    const s = createGameStore(
+      () => f.db,
+      () => 1,
+    )
     s.getState().applySnapshot(tables({ enemies: { a: { gt: 'x' } } }))
     expect(await s.getState().shareCinematic('a')).toEqual({ t: 'x', n: '', k: 'e:a' })
     expect(f.writes[0]![2]).toMatchObject({ by: '' })
