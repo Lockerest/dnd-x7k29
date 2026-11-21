@@ -43,6 +43,8 @@ export type Prefs = {
   /** The whole Enemies card folded away, and the GM's Boss abilities list shown (this device). */
   enemiesShut: boolean
   bossList: boolean
+  /** The class abilities Reference folded to its title. */
+  refShut: boolean
 }
 
 export function loadPrefs(storage: StorageLike): Prefs {
@@ -58,6 +60,7 @@ export function loadPrefs(storage: StorageLike): Prefs {
     }, []),
     enemiesShut: get('ens') === '1',
     bossList: get('bal') === '1',
+    refShut: get('rfs') === '1',
   }
 }
 
@@ -69,4 +72,5 @@ export function savePrefs(storage: StorageLike, p: Partial<Prefs>): void {
   if (p.openEnemies !== undefined) set('eop', JSON.stringify(p.openEnemies))
   if (p.enemiesShut !== undefined) set('ens', p.enemiesShut ? '1' : '0')
   if (p.bossList !== undefined) set('bal', p.bossList ? '1' : '0')
+  if (p.refShut !== undefined) set('rfs', p.refShut ? '1' : '0')
 }

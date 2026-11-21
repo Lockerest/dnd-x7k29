@@ -236,3 +236,20 @@ describe("the GM's ability pictures", () => {
     expect(f.writes[2]).toEqual(['DELETE', `abicons/${first}`, null])
   })
 })
+
+describe('the class Reference folds to its title', () => {
+  it('shut shows only the title; the arrow asks to open it', () => {
+    const onRefShut = vi.fn()
+    const p = { onView: () => {}, tables: emptyTables(), dm: false, me: 'x', actions: createGameStore().getState(), images: {}, confirm: () => true }
+    const { rerender } = render(<BoardScreen view="ref" {...p} refShut onRefShut={onRefShut} />)
+    const ref = screen.getByLabelText('Class abilities')
+    expect(within(ref).getByRole('heading', { name: 'Fighter' })).toBeInTheDocument()
+    expect(within(ref).queryByRole('table')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Show or hide the class abilities' }))
+    expect(onRefShut).toHaveBeenCalledWith(false)
+    rerender(<BoardScreen view="ref" {...p} />)
+    expect(within(screen.getByLabelText('Class abilities')).getByRole('table')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Show or hide the class abilities' })) // no handler: nothing happens
+    expect(onRefShut).toHaveBeenCalledTimes(1)
+  })
+})

@@ -110,6 +110,7 @@ export function Game({
   const [open, setOpen] = useState<string[]>(() => loadPrefs(storage).openEnemies)
   const [enemiesShut, setEnemiesShut] = useState(() => loadPrefs(storage).enemiesShut)
   const [bossList, setBossList] = useState(() => loadPrefs(storage).bossList)
+  const [refShut, setRefShut] = useState(() => loadPrefs(storage).refShut)
   const toggleOpen = (id: string) => {
     const next = open.includes(id) ? open.filter((x) => x !== id) : [...open, id]
     setOpen(next)
@@ -414,6 +415,11 @@ export function Game({
         images={boardStamps ? abilityImages : {}}
         confirm={confirm ?? ((q) => window.confirm(q))}
         rand={rand}
+        refShut={refShut}
+        onRefShut={(v) => {
+          setRefShut(v)
+          savePrefs(storage, { refShut: v })
+        }}
         bossAbilities={
           <BossAbilities
             open={bossList}

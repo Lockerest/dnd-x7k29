@@ -64,6 +64,9 @@ export type BoardScreenProps = {
   rand?: () => number
   /** The GM's Boss abilities list, shown under the Reference. */
   bossAbilities?: ReactNode
+  /** The class Reference folded to its title (this device). */
+  refShut?: boolean
+  onRefShut?: (shut: boolean) => void
 }
 
 /** The two tabs above both screens. */
@@ -241,7 +244,7 @@ function Equip({ tables, dm, me, actions, images }: BoardScreenProps) {
   )
 }
 
-function Reference({ tables, dm, me, images }: BoardScreenProps) {
+function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => {} }: BoardScreenProps) {
   const c = tables.chars[me]
   const board = boardOrDefault(tables.board as Board | null)
   const [picked, setPicked] = useState<string | null>(null)
@@ -250,60 +253,69 @@ function Reference({ tables, dm, me, images }: BoardScreenProps) {
   const lv = dm || tables.showAll ? 99 : c?.level || 1
   const rows = referenceRows(board, cls, lv, goldenHidden(dm, tables.sp))
   return (
-    <div className="card ref">
-      <h2>{info.name}</h2>
-      <p className="note">{info.description}</p>
+    <div className="card ref" aria-label="Class abilities">
       <div className="row mini">
-        {Object.entries(CLASSES).map(([k, v]) => (
-          <button key={k} className={k === cls ? 'pri' : ''} onClick={() => setPicked(k)}>
-            {v.name}
-          </button>
-        ))}
+        <button className="tgl" aria-expanded={!refShut} aria-label="Show or hide the class abilities" onClick={() => onRefShut(!refShut)}>
+          {refShut ? '▸' : '▾'}
+        </button>
+        <h2>{info.name}</h2>
       </div>
-      <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}</p>
-      <table>
-        <thead>
-          <tr>
-            <th>Lvl</th>
-            <th>Ability</th>
-            <th>Cost</th>
-            <th>Effect</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length ? (
-            rows.map((r) => (
-              <tr key={r.key}>
-                <td>{r.level}</td>
-                <td>
-                  <div className="abx">
-                    <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} />
-                    <b>{r.name}</b>
-                  </div>
-                </td>
-                <td>{r.cost}</td>
-                <td>
-                  {r.effect}
-                  {r.golden && (
-                    <>
-                      <br />
-                      <span className="sub">
-                        <b>Golden:</b> {r.golden.dice ? `${r.golden.dice} damage, ` : ''}cost {r.golden.cost}, {r.golden.hc}% max HP
-                      </span>
-                    </>
-                  )}
-                </td>
+      {!refShut && (
+        <>
+          <p className="note">{info.description}</p>
+          <div className="row mini">
+            {Object.entries(CLASSES).map(([k, v]) => (
+              <button key={k} className={k === cls ? 'pri' : ''} onClick={() => setPicked(k)}>
+                {v.name}
+              </button>
+            ))}
+          </div>
+          <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Lvl</th>
+                <th>Ability</th>
+                <th>Cost</th>
+                <th>Effect</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={4} className="note">
-                Nothing to show yet.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {rows.length ? (
+                rows.map((r) => (
+                  <tr key={r.key}>
+                    <td>{r.level}</td>
+                    <td>
+                      <div className="abx">
+                        <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} />
+                        <b>{r.name}</b>
+                      </div>
+                    </td>
+                    <td>{r.cost}</td>
+                    <td>
+                      {r.effect}
+                      {r.golden && (
+                        <>
+                          <br />
+                          <span className="sub">
+                            <b>Golden:</b> {r.golden.dice ? `${r.golden.dice} damage, ` : ''}cost {r.golden.cost}, {r.golden.hc}% max HP
+                          </span>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="note">
+                    Nothing to show yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   )
 }

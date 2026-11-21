@@ -220,6 +220,8 @@ describe('<Game /> Game Master', () => {
     expect(screen.queryByLabelText('Boss abilities')).toBeNull()
     click('Reference')
     expect(await screen.findByLabelText('Boss abilities')).toBeInTheDocument()
+    click('Show or hide the class abilities')
+    expect(storage.getItem('rfs')).toBe('1')
     click('Show or hide the Boss abilities')
     expect(storage.getItem('bal')).toBe('1')
     const list = screen.getByLabelText('Boss abilities')
