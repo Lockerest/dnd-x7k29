@@ -29,7 +29,7 @@ const images = (o: { fail?: boolean } = {}): ImageKit => ({
     if (o.fail) throw new Error('bad')
     return { width: 100, height: 50, source: {} as CanvasImageSource }
   },
-  canvas: () => ({ draw: () => {}, toDataURL: (t) => `data:${t}` }),
+  canvas: () => ({ draw: () => {}, crop: () => {}, toDataURL: (t) => `data:${t}` }),
 })
 function show(o: { t?: Tables; id?: string | null; tool?: Tool; ask?: (q: string, d?: string) => string | null; confirm?: boolean; img?: ImageKit } = {}) {
   const a = actions()

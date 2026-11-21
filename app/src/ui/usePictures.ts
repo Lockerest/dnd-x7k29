@@ -28,17 +28,20 @@ export function usePictures(db: Db | null, wanted: Record<string, unknown>, path
   return out
 }
 
-/** The custom altar, bonfire and guild pictures (one download per version). */
-export function useMarkers(db: Db | null, version: unknown, retry: unknown): Record<string, string> {
+/** A set of small pictures stored together (one download per version): altar, bonfire and guild markers, or monster skill icons. */
+export function useIconSet(db: Db | null, path: string, version: unknown, retry: unknown): Record<string, string> {
   const [got, setGot] = useState<Record<string, string>>({})
   const asked = useRef<unknown>(undefined)
   useEffect(() => {
     if (!db || version == null || asked.current === version) return
     asked.current = version
-    db.get<Record<string, { data?: string }>>('mkicons').then(
+    db.get<Record<string, { data?: string }>>(path).then(
       (d) => setGot(Object.fromEntries(Object.entries(d || {}).flatMap(([k, x]) => (x?.data ? [[k, x.data]] : [])))),
       () => (asked.current = undefined),
     )
-  }, [db, version, retry])
+  }, [db, path, version, retry])
   return version == null ? {} : got
 }
+
+/** The custom altar, bonfire and guild pictures. */
+export const useMarkers = (db: Db | null, version: unknown, retry: unknown) => useIconSet(db, 'mkicons', version, retry)

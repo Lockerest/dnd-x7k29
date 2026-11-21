@@ -64,6 +64,15 @@ describe('the action menu', () => {
     expect(actions.closeMenu).toHaveBeenCalledTimes(1)
   })
 
+  it("a monster's skills show their icons when they have one", () => {
+    const actions = { act: vi.fn(), closeMenu: vi.fn() }
+    const t = tables({ enemies: { w: { name: 'Wolf', hp: 20, max: 20, mx: 3, my: 2, sk: { s1: { n: 'Bite', d: '1d6', r: 1, t: 's' }, s2: { n: 'Howl', d: '1d4', r: 1, t: 's' } } } } })
+    render(<ActionMenu tables={t} dm menu={{ a: 'e:w', t: 'c:a' }} actions={actions} skillIcons={{ bite: 'data:bite' }} />)
+    expect(screen.getByRole('button', { name: /Bite/ }).querySelector('img')).toHaveAttribute('src', 'data:bite')
+    expect(screen.getByRole('button', { name: /Howl/ }).querySelector('img')).toBeNull()
+    expect(screen.getByRole('button', { name: /Light attack/ }).querySelector('img')).toBeNull()
+  })
+
   it("uses the browser's box by default", () => {
     const actions = { act: vi.fn(), closeMenu: vi.fn() }
     const p = vi.spyOn(window, 'prompt').mockReturnValue('Roar')

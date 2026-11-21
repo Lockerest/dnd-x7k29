@@ -669,3 +669,97 @@ test("the GM's map tools: upload a map, draw walls, place an altar, add a pin an
   await gmCtx.close()
   await plCtx.close()
 })
+
+test('pictures: portraits, token icons, boss art, skill and ability icons come out byte for byte like the live page', async ({ browser }) => {
+  const tree = () => ({
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'fighter', hp: 140, maxHp: 140, st: 100, maxSt: 100, x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 30, max: 30, x10: true, sk: { s1: { n: 'Bite', d: '1d6', r: 1, t: 's' } } } },
+    board: { k1: { n: 'Cleave', v: 'fighter', l: 1, c: 2, k: 'atk', d: '2d6', r: 1 } },
+    maps: {},
+  })
+  const mine = new FakeDb()
+  const theirs = new FakeDb()
+  mine.set('tables/dragon42', tree())
+  theirs.set('tables/dragon42', tree())
+  const errors: string[] = []
+  const ctx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const next = await ctx.newPage()
+  next.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(next, mine)
+  await next.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await next.goto(base + 'next/')
+  await expect(next.getByText('No maps yet. Upload one to begin.')).toBeVisible()
+
+  // A test picture with detail in it (a gradient and a shape), drawn by the browser.
+  const b64 = await next.evaluate(() => {
+    const c = document.createElement('canvas')
+    // Taller than a portrait, so its crop and placement matter too.
+    c.width = 500
+    c.height = 900
+    const g = c.getContext('2d')!
+    const gr = g.createLinearGradient(0, 0, 500, 900)
+    gr.addColorStop(0, '#c33')
+    gr.addColorStop(1, '#36c')
+    g.fillStyle = gr
+    g.fillRect(0, 0, 500, 900)
+    g.fillStyle = '#fd4'
+    g.beginPath()
+    g.arc(320, 240, 90, 0, 7)
+    g.fill()
+    return c.toDataURL('image/png').split(',')[1]!
+  })
+  const file = { name: 'pic.png', mimeType: 'image/png', buffer: Buffer.from(b64, 'base64') }
+  const T = 'tables/dragon42'
+
+  // The new app: the hero's portrait and icon on the sheet, the wolf's pictures and skill icon, the ability icon.
+  await next.getByRole('button', { name: 'Sheet' }).click()
+  await next.getByLabel('Set portrait file').setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/chars/p1/pv`)).not.toBeNull()
+  await next.getByLabel('Set icon file').setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/chars/p1/iv`)).not.toBeNull()
+  await next.getByRole('button', { name: 'Table' }).click()
+  await next.getByRole('button', { name: "Show or hide Wolf's settings" }).click()
+  const wolf = next.getByLabel('Enemies')
+  await wolf.getByLabel('Icon file').nth(1).setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/enemies/w/iv`)).not.toBeNull()
+  await wolf.getByLabel('Portrait file').setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/enemies/w/pv`)).not.toBeNull()
+  await wolf.getByLabel('Boss art file').setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/enemies/w/ba`)).not.toBeNull()
+  await wolf.getByLabel('Icon file').nth(0).setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/skicons/bite`)).not.toBeNull()
+  await next.getByRole('button', { name: 'Abilities' }).click()
+  await next.getByLabel('Custom icon image file').setInputFiles(file)
+  await expect.poll(() => mine.get(`${T}/abicons/k1`)).not.toBeNull()
+
+  // The live page, given the same picture through its own file boxes.
+  const live = await ctx.newPage()
+  live.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(live, theirs)
+  await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await live.goto(base)
+  await expect(live.locator('#app')).toContainText('Enemies')
+  for (const k of ['p:p1', 'c:p1', 'e:w', 'p:w', 'b:w']) {
+    await live.evaluate(`iconFor=${JSON.stringify(k)}`)
+    await live.locator('#icf').setInputFiles(file)
+    await live.waitForTimeout(400)
+  }
+  await live.evaluate('skFor="bite"')
+  await live.locator('#skf').setInputFiles(file)
+  await expect.poll(() => theirs.get(`${T}/skicons/bite`)).not.toBeNull()
+  await live.evaluate('view="board";last="";render();abFor="k1"') // its file box is on the board screen
+  await live.locator('#abf').setInputFiles(file)
+  await expect.poll(() => theirs.get(`${T}/abicons/k1`)).not.toBeNull()
+  await expect.poll(() => theirs.get(`${T}/bossart/w`)).not.toBeNull()
+
+  for (const p of ['portraits/p1', 'icons/p1', 'icons/w', 'portraits/w', 'bossart/w', 'skicons/bite', 'abicons/k1']) {
+    const a = (mine.get(`${T}/${p}`) as { data: string }).data
+    const b = (theirs.get(`${T}/${p}`) as { data: string }).data
+    expect(a.slice(0, 30), p).toBe(b.slice(0, 30))
+    expect(a.length, p).toBe(b.length)
+    expect(a === b, p).toBe(true)
+  }
+  expect(errors).toEqual([])
+  await ctx.close()
+})

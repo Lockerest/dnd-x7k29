@@ -11,6 +11,8 @@ import type { Sheet } from '../../logic/sheet'
 import { atRestSpot } from '../../state/boardActions'
 import type { GameState, Tables } from '../../state/store'
 import { Field } from '../parts'
+import { PictureButton } from '../PictureButton'
+import { squareIcon } from '../images'
 
 /** An ability's icon: the GM's uploaded picture, else the drawn icon, else its emoji. */
 export function AbilityIcon({ board, name, images, drawn }: { board: Board; name: string; images: Record<string, string>; drawn: boolean }) {
@@ -54,7 +56,7 @@ export type BoardScreenProps = {
   tables: Tables
   dm: boolean
   me: string
-  actions: Pick<GameState, 'setAbilityField' | 'addAbility' | 'removeAbility' | 'replaceBoard' | 'setBoardSetting' | 'equip' | 'attune'>
+  actions: Pick<GameState, 'setAbilityField' | 'addAbility' | 'removeAbility' | 'replaceBoard' | 'setBoardSetting' | 'equip' | 'attune' | 'setAbilityIcon' | 'notice'>
   /** Uploaded ability pictures by board key (when loaded). */
   images: Record<string, string>
   confirm: (q: string) => boolean
@@ -168,6 +170,10 @@ function Editor({ tables, actions, images, confirm, rand = Math.random }: BoardS
             </div>
             <div className="row mini">
               <AbilityIcon board={board} name={e.n} images={images} drawn={tables.drawnIcons} />
+              <PictureButton process={(kit, src) => squareIcon(kit, src, 96)} onPicture={(d) => actions.setAbilityIcon(id, d)} onError={actions.notice}>
+                Custom icon image
+              </PictureButton>
+              {images[id] && <button onClick={() => void actions.setAbilityIcon(id, null)}>Clear image</button>}
               <button onClick={() => confirm('Remove this ability from the board?') && void actions.removeAbility(id)}>Remove</button>
             </div>
           </div>

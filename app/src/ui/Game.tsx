@@ -20,7 +20,7 @@ import { ClaimForm, ClaimWait, CreateCharacter, WaitApproval } from './screens/C
 import { JoinScreen } from './screens/JoinScreen'
 import { TableScreen } from './screens/Table'
 import { TableDisplay } from './screens/TableDisplay'
-import { useMarkers, usePictures } from './usePictures'
+import { useIconSet, useMarkers, usePictures } from './usePictures'
 import { liveMapId, shownMapId, type Maps } from '../logic/table'
 import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
@@ -112,6 +112,7 @@ export function Game({
   }
   const [themeKeys, setThemeKeys] = useState<string[]>([])
   const [markerVersion, setMarkerVersion] = useState<AssetVersions['mapIcons']>(null)
+  const [skillVersion, setSkillVersion] = useState<AssetVersions['skillIcons']>(null)
   const [soundVersion, setSoundVersion] = useState<AssetVersions['sounds']>(null)
   const [cin, setCin] = useState<{
     c: CinematicEvent
@@ -151,6 +152,7 @@ export function Game({
       onVersions: (v) => {
         setMarkerVersion(v.mapIcons)
         setSoundVersion(v.sounds)
+        setSkillVersion(v.skillIcons)
       },
     })
   }, [conn, store, every])
@@ -213,6 +215,8 @@ export function Game({
   }, [onTable, tables.chars, tables.enemies])
   const icons = usePictures(db, wantedIcons, iconPath, tables)
   const markers = useMarkers(db, onTable ? markerVersion : null, tables)
+  // Monster skill icons (the GM's Enemies panel and the action menu).
+  const skillIcons = useIconSet(db, 'skicons', onTable ? skillVersion : null, tables)
 
   // Players watch for an attack aimed at them (the 3-second dodge/parry prompt).
   useEffect(() => {
@@ -416,6 +420,7 @@ export function Game({
         icons={icons}
         abilityImages={boardStamps ? abilityImages : {}}
         markers={markers}
+        skillIcons={skillIcons}
         now={now}
         storage={storage}
         dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} busy={diceBusy} secretRolls={secretRolls} actions={diceActions} fx={fxp.fx} onFx={fxp.setFx} />}
@@ -434,6 +439,8 @@ export function Game({
             onPlayCinematic={(id) => void playCinematic(id)}
             confirm={confirm}
             rand={rand}
+            icons={icons}
+            skillIcons={skillIcons}
           />
         }
       />

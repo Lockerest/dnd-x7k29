@@ -8,6 +8,8 @@ import { vocationBoard } from '../../logic/abilityBoard'
 import { defaultBoard, type Board } from '../../logic/board'
 import { createGameStore, emptyTables, type GameStore, type Tables } from '../../state/store'
 import { fakeDb } from '../../testing/fakeDb'
+import { pickPicture } from '../../testing/fakeKit'
+import { FakeKit } from '../../testing/KitWrapper'
 import { AbilityIcon, BoardScreen } from './Board'
 
 afterEach(cleanup)
@@ -28,7 +30,7 @@ function setup(t: Partial<Tables>, o: { role?: 'gm' | 'player'; me?: string; sta
   store.getState().connect({ pin: 'p', role: o.role ?? 'player', me: o.me ?? 'a' })
   store.getState().applySnapshot({ ...emptyTables(), maps: { m: MAP }, cur: 'm', ...t })
   const confirm = vi.fn(() => o.confirm ?? true)
-  render(<Harness store={store} start={o.start ?? 'board'} images={o.images ?? {}} confirm={confirm} />)
+  render(<Harness store={store} start={o.start ?? 'board'} images={o.images ?? {}} confirm={confirm} />, { wrapper: FakeKit })
   return { f, store, confirm }
 }
 
@@ -219,5 +221,18 @@ describe('abilities with missing fields', () => {
     cleanup()
     setup({ board: anyBare, chars: { a: hero() }, sp: '-' }, { start: 'ref' })
     expect(screen.getByText(/Golden:/).parentElement).toHaveTextContent('Golden: cost 2, 10% max HP')
+  })
+})
+
+describe("the GM's ability pictures", () => {
+  it('a custom icon image for an ability, and clearing it', async () => {
+    const first = Object.keys(board)[0]!
+    const { f } = setup({ board }, { role: 'gm', me: 'gm', images: { [first]: 'data:mine' } })
+    await pickPicture('Custom icon image')
+    await vi.waitFor(() => expect(f.writes).toHaveLength(2))
+    expect(f.writes[0]).toEqual(['PUT', `abicons/${first}`, { data: 'data:image/png;96x96' }])
+    fireEvent.click(screen.getAllByRole('button', { name: 'Clear image' })[0]!)
+    await vi.waitFor(() => expect(f.writes).toHaveLength(4))
+    expect(f.writes[2]).toEqual(['DELETE', `abicons/${first}`, null])
   })
 })

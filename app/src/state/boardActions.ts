@@ -21,6 +21,8 @@ export type BoardActions = {
   equip: (key: string, learn: boolean) => Promise<void>
   /** This player attunes an equipped Golden ability. */
   attune: (key: string) => Promise<void>
+  /** GM: an ability's own icon (a 96 px PNG); null goes back to the drawn or emoji icon. */
+  setAbilityIcon: (key: string, data: string | null) => Promise<void>
 }
 
 type Get = () => GameState
@@ -33,7 +35,7 @@ export function atRestSpot(t: Tables, c: { mx?: number | null; my?: number | nul
   return !!(nearSpot(c, altarsOf(m)) || nearSpot(c, bonfiresOf(m)) || nearSpot(c, guildsOf(m)))
 }
 
-export function boardActions(get: Get, set: Set_, save: Save): BoardActions {
+export function boardActions(get: Get, set: Set_, save: Save, now: () => number = Date.now): BoardActions {
   const setBoard = (board: Board) => set({ tables: { ...get().tables, board } })
 
   /** A table without a saved board uses the default one; the first edit saves it whole. */
@@ -94,6 +96,27 @@ export function boardActions(get: Get, set: Set_, save: Save): BoardActions {
     attune: async (key) => {
       const m = mine()
       if (m) await apply(attuneChange(m.c, m.board, key, m.here, m.dm, m.hide))
+    },
+
+    setAbilityIcon: async (key, data) => {
+      const { dm, tables } = get()
+      const b0 = boardOrDefault(tables.board as Board | null)
+      if (!dm || !b0[key]) return
+      if (data) {
+        // The board gets the picture's stamp (a table still on the default board saves it whole first).
+        const iv = now()
+        const b = { ...b0, [key]: { ...b0[key]!, iv } }
+        setBoard(b)
+        if (!tables.board) await save((d) => d.put('board', b))
+        await save((d) => d.put(`abicons/${key}`, { data }))
+        await save((d) => d.put(`board/${key}/iv`, iv))
+        return
+      }
+      const e = { ...b0[key]! }
+      delete e.iv
+      if (tables.board) setBoard({ ...b0, [key]: e })
+      await save((d) => d.del(`abicons/${key}`))
+      await save((d) => d.del(`board/${key}/iv`))
     },
   }
 }

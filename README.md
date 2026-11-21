@@ -76,13 +76,13 @@ npm run build
    sounds when they exist, the attack scenes with the 2.5D camera, the Golden Wave, cinematic beat
    sounds, and the Attack scenes, 2.5D camera, Sound and Volume settings, shared with the live page).
    Still on the live page: battle music and boss themes (they start with the boss intro), the GM's
-   test lab and sound uploads, uploading pictures (portraits, tokens, ability and skill icons, boss
-   art), and the enemy extras (auto turn, boss intro when combat begins, spawn point, skill sounds and
-   icons).
+   test lab and sound uploads, and the enemy extras (auto turn, boss intro when combat begins, spawn
+   point, skill sounds).
    Part 2f: the GM's map tools (new maps from a picture or a Dungeondraft export, rename, delete,
    squares across, grid, walls by dragging, fog on/off with reveal and hide by dragging, altars,
    bonfires, guilds, doors, pins with party travel, the arrival point, the "you are here" overview,
-   and the altar, bonfire and guild icons).
+   and the altar, bonfire and guild icons). Part 2g: pictures (portraits and token icons for heroes
+   and monsters, boss art, monster skill icons, ability icons), resized exactly like the live page.
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

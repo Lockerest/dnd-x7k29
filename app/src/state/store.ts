@@ -14,6 +14,7 @@ import { boardActions, type BoardActions } from './boardActions'
 import { initiativeActions, type InitiativeActions } from './initiativeActions'
 import { diceActions, type DiceActions } from './diceActions'
 import { mapActions, type MapActions } from './mapActions'
+import { pictureActions, type PictureActions } from './pictureActions'
 import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
 
@@ -105,7 +106,8 @@ export type GameState = {
   AttackActions &
   TableActions &
   DiceActions &
-  MapActions
+  MapActions &
+  PictureActions
 
 /** What the screen shows for an attack scene ("fx") or a Golden Wave. */
 export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void }
@@ -160,7 +162,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       setError: (e) => set({ error: `Connection problem: ${errorText(e)}` }),
       notice: (text) => set({ error: text }),
       ...sheetActions(get, set, save, now, later),
-      ...boardActions(get, set, save),
+      ...boardActions(get, set, save, now),
+      ...pictureActions(get, save, now),
       ...initiativeActions(get, set, save, rand),
       ...attackActions(get, set, save, db, now, rand, later),
       ...tableActions(get, set, save),

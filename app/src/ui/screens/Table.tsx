@@ -23,6 +23,8 @@ import { canEndTurn, type Initiative } from '../../logic/initiative'
 import { paintFog, paintWalls, type MapEntry, type Tool } from '../../logic/mapTools'
 import { browserImages, type ImageKit } from '../images'
 import { MapTools } from './MapTools'
+import { PictureButton } from '../PictureButton'
+import { tokenIcon } from '../images'
 import { pinPrompts, toolNote } from './mapPrompts'
 
 export type TableActions = Pick<
@@ -68,6 +70,7 @@ export type TableActions = Pick<
   | 'addPin'
   | 'renamePin'
   | 'deletePin'
+  | 'setIcon'
 >
 
 export type TableProps = {
@@ -88,6 +91,8 @@ export type TableProps = {
   tool: Tool
   /** Reads and resizes uploaded pictures. */
   images?: ImageKit
+  /** Monster skill icons by skill slug. */
+  skillIcons?: Record<string, string>
   actions: TableActions
   /** Pictures: map images by map id, token icons by sheet id, ability pictures, custom altar/bonfire/guild markers. */
   mapImages: Record<string, string>
@@ -249,6 +254,9 @@ function StatusBox({ id, tables, dm, me, gmMap, actions, icons }: TableProps & {
                   {signed(n)}
                 </button>
               ))}
+            <PictureButton process={tokenIcon} onPicture={(d) => actions.setIcon(`c:${id}`, d)} onError={actions.notice}>
+              Icon
+            </PictureButton>
           </div>
           {(c.mt || carried.length > 0) && (
             <div className="row mini">
@@ -577,7 +585,7 @@ function MapPanel(p: TableProps & { sel: string | null; onSelect: (k: string | n
           setDraft(null)
         }}
       />
-      <ActionMenu tables={tables} dm={dm} menu={p.menu ?? null} actions={actions} ask={p.ask} />
+      <ActionMenu tables={tables} dm={dm} menu={p.menu ?? null} actions={actions} ask={p.ask} skillIcons={p.skillIcons} />
       <p className="note">
         {info}
         {dm ? toolNote(tool, m!) : ''}

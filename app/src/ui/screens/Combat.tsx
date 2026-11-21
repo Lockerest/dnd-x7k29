@@ -6,8 +6,12 @@ import { boardOrDefault, goldenHidden, type Board } from '../../logic/board'
 import { unitOf, type Initiative } from '../../logic/initiative'
 import { isMyTurn, type Sheet } from '../../logic/sheet'
 import { abilityCost } from '../../logic/stamina'
+import { abilitySlug } from '../../logic/text'
 import { promptButtons, type Qte } from '../../state/attackActions'
 import type { GameState, Tables } from '../../state/store'
+
+/** The icon key of a monster's skill. */
+const skillSlug = (a: U, k: unknown) => abilitySlug((a.o.sk as Record<string, { n?: string }>)[k as string]!.n)
 
 export type MenuProps = {
   tables: Tables
@@ -16,9 +20,11 @@ export type MenuProps = {
   actions: Pick<GameState, 'act' | 'closeMenu'>
   /** Asks for the name of a special attack (the browser's box by default). */
   ask?: (q: string) => string | null
+  /** Monster skill icons by skill slug, shown on their buttons. */
+  skillIcons?: Record<string, string>
 }
 
-export function ActionMenu({ tables, dm, menu, actions, ask = (q) => window.prompt(q) }: MenuProps) {
+export function ActionMenu({ tables, dm, menu, actions, ask = (q) => window.prompt(q), skillIcons = {} }: MenuProps) {
   if (!menu) return null
   const chars = tables.chars as Record<string, Sheet>
   const a = unitOf(chars, tables.enemies, menu.a) as U | null
@@ -41,6 +47,7 @@ export function ActionMenu({ tables, dm, menu, actions, ask = (q) => window.prom
               else actions.closeMenu()
             }}
           >
+            {b.k === 'sk' && skillIcons[skillSlug(a, b.i)] && <img className="abi" src={skillIcons[skillSlug(a, b.i)]} alt="" />}
             {b.label}
           </button>
         ))}

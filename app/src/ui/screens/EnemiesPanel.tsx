@@ -9,10 +9,26 @@ import { addSkillSet } from '../../logic/skills'
 import type { Enemy } from '../../logic/types'
 import type { GameState, Tables } from '../../state/store'
 import { Field, Meter } from '../parts'
+import { PictureButton } from '../PictureButton'
+import { bossArtImage, portraitImage, squareIcon, tokenIcon } from '../images'
+import { abilitySlug } from '../../logic/text'
 
 type Actions = Pick<
   GameState,
-  'updateEnemy' | 'addEnemy' | 'removeEnemy' | 'setSkills' | 'putSkill' | 'setSkillField' | 'deleteSkill' | 'addNextPhase' | 'switchPhase'
+  | 'updateEnemy'
+  | 'addEnemy'
+  | 'removeEnemy'
+  | 'setSkills'
+  | 'putSkill'
+  | 'setSkillField'
+  | 'deleteSkill'
+  | 'addNextPhase'
+  | 'switchPhase'
+  | 'setIcon'
+  | 'setPortrait'
+  | 'setBossArt'
+  | 'setSkillIcon'
+  | 'notice'
 >
 
 export type EnemiesPanelProps = {
@@ -26,11 +42,14 @@ export type EnemiesPanelProps = {
   /** Asked before removing an enemy (the live page uses the browser's confirm box). */
   confirm?: (question: string) => boolean
   rand?: () => number
+  /** Token pictures by enemy id (when loaded), and skill icons by skill slug. */
+  icons?: Record<string, string>
+  skillIcons?: Record<string, string>
 }
 
 const EMPTY_FORM: NewEnemyForm = { name: '', type: '', size: '1', hp: '', speed: '', poise: '', ac: '', attack: '', damage: '' }
 
-export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCinematic, confirm = (q) => window.confirm(q), rand = Math.random }: EnemiesPanelProps) {
+export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCinematic, confirm = (q) => window.confirm(q), rand = Math.random, icons = {}, skillIcons = {} }: EnemiesPanelProps) {
   const { enemies, chars, maps } = tables
   const order = enemyListOrder(enemies, Object.keys(enemies))
   const [form, setForm] = useState<NewEnemyForm>(EMPTY_FORM)
@@ -53,6 +72,7 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
           <div className="ab enemy" key={id} style={depth ? { marginLeft: depth * 12, borderLeft: '3px solid #8a7a3a', paddingLeft: 6 } : undefined}>
             <div className="grow">
               <div className="row mini">
+                {e.iv && icons[id] ? <img className="av" src={icons[id]} alt="" /> : null}
                 <button className="tgl" aria-expanded={isOpen} aria-label={`Show or hide ${e.name ?? 'this enemy'}'s settings`} onClick={() => onToggle(id)}>
                   {isOpen ? '▾' : '▸'}
                 </button>
@@ -194,6 +214,11 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                           Auto-hit
                           <input type="checkbox" checked={!!q.a} onChange={(x) => sv('a', x.target.checked)} />
                         </label>
+                        {skillIcons[abilitySlug(q.n)] && <img className="abi" src={skillIcons[abilitySlug(q.n)]} alt="" />}
+                        <PictureButton process={(kit, src) => squareIcon(kit, src, 96)} onPicture={(d) => actions.setSkillIcon(abilitySlug(q.n), d)} onError={actions.notice}>
+                          {skillIcons[abilitySlug(q.n)] ? 'Change icon' : 'Icon'}
+                        </PictureButton>
+                        {skillIcons[abilitySlug(q.n)] && <button onClick={() => void actions.setSkillIcon(abilitySlug(q.n), null)}>No icon</button>}
                         <button aria-label={`Delete skill ${q.n}`} onClick={() => void actions.deleteSkill(id, sk)}>
                           x
                         </button>
@@ -228,9 +253,18 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                       </button>
                     )}
                     <button onClick={() => void actions.updateEnemy(id, { stun: !e.stun })}>{e.stun ? 'Unstun' : 'Stun'}</button>
+                    <PictureButton process={tokenIcon} onPicture={(d) => actions.setIcon(`e:${id}`, d)} onError={actions.notice}>
+                      Icon
+                    </PictureButton>
+                    <PictureButton process={portraitImage} onPicture={(d) => actions.setPortrait(id, d)} onError={actions.notice}>
+                      Portrait
+                    </PictureButton>
+                    <PictureButton process={bossArtImage} onPicture={(d) => actions.setBossArt(id, d)} onError={actions.notice}>
+                      Boss art
+                    </PictureButton>
                     <button onClick={() => confirm('Remove this enemy?') && void actions.removeEnemy(id)}>Remove</button>
                   </div>
-                  <p className="note">Auto turn, boss intro, spawn point, icons, portraits, boss art and skill sounds are still on the live table.</p>
+                  <p className="note">Auto turn, boss intro, spawn point and skill sounds are still on the live table.</p>
                 </div>
               )}
             </div>

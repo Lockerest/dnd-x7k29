@@ -31,10 +31,12 @@ import { currentMap } from '../../state/sheetActions'
 import type { GameState, Tables } from '../../state/store'
 import { Field, Meter } from '../parts'
 import { RequestPanels } from './RequestPanels'
+import { PictureButton } from '../PictureButton'
+import { portraitImage, tokenIcon } from '../images'
 
 export type SheetActionsProps = Pick<
   GameState,
-  'updateCharacter' | 'patchCharacter' | 'removeCharacter' | 'rest' | 'reviveAt' | 'putDown' | 'castAbility' | 'log' | 'notice' | 'startJump'
+  'updateCharacter' | 'patchCharacter' | 'removeCharacter' | 'rest' | 'reviveAt' | 'putDown' | 'castAbility' | 'log' | 'notice' | 'startJump' | 'setIcon' | 'setPortrait'
 >
 
 type CardProps = {
@@ -115,6 +117,13 @@ export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portr
   return (
     <div className="card" aria-label={`Sheet: ${c.name}`}>
       <Splash c={c} portrait={portraits[id]} />
+      {own && (
+        <div className="row mini">
+          <PictureButton process={portraitImage} onPicture={(d) => actions.setPortrait(id, d)} onError={actions.notice}>
+            Set portrait
+          </PictureButton>
+        </div>
+      )}
       <Pills c={c} />
       <h3>Health</h3>
       <Meter v={c.hp as number} max={c.maxHp as number} kind="hp" />
@@ -166,6 +175,9 @@ export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portr
             <button disabled={dead || (!dm && !bonfire)} onClick={() => void actions.rest(id, 'bf')}>
               Bonfire rest{!dm && !bonfire ? ' (stand by a bonfire)' : ''}
             </button>
+            <PictureButton process={tokenIcon} onPicture={(d) => actions.setIcon(`c:${id}`, d)} onError={actions.notice}>
+              Set icon
+            </PictureButton>
             <button onClick={() => upd(toggleShield(c))}>Shield: {c.shield ? 'on' : 'off'}</button>
             {dm && <button onClick={() => upd(cycleParry(c))}>Parry: {PARRY_LABELS[c.pw || '']}</button>}
             <button onClick={() => upd(toggleArmor(c))}>Armor: {isHeavy(c) ? 'heavy' : 'light'}</button>

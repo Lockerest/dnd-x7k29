@@ -8,6 +8,8 @@ import { SKILL_SETS } from '../../data/skillSets'
 import type { Enemy } from '../../logic/types'
 import { createGameStore, emptyTables, type GameStore } from '../../state/store'
 import { fakeDb } from '../../testing/fakeDb'
+import { pickPicture } from '../../testing/fakeKit'
+import { FakeKit } from '../../testing/KitWrapper'
 import { EnemiesPanel } from './EnemiesPanel'
 
 afterEach(cleanup)
@@ -29,6 +31,8 @@ function Harness({ store, open, onToggle, onPlay, confirm }: { store: GameStore;
       onPlayCinematic={onPlay}
       confirm={confirm}
       rand={rand}
+      icons={{ w: 'data:w' }}
+      skillIcons={{ bite: 'data:bite' }}
     />
   )
 }
@@ -41,7 +45,7 @@ function setup(enemies: Record<string, Enemy>, open: string[] = Object.keys(enem
   const onToggle = vi.fn()
   const onPlay = vi.fn()
   const confirm = vi.fn(() => true)
-  const r = render(<Harness store={store} open={open} onToggle={onToggle} onPlay={onPlay} confirm={confirm} />)
+  const r = render(<Harness store={store} open={open} onToggle={onToggle} onPlay={onPlay} confirm={confirm} />, { wrapper: FakeKit })
   return { f, store, onToggle, onPlay, confirm, r }
 }
 
@@ -268,5 +272,37 @@ describe('<EnemiesPanel /> adding', () => {
     expect(f.writes[0]).toEqual(['PUT', expect.stringMatching(/^enemies\/e[a-z0-9]{1,6}$/), expect.objectContaining({ name: 'Troll', type: 'Giant', sz: 3, hp: 400, pm: 30, ac: 15, ab: 6, dm: '3d10' })])
     expect(Object.values(store.getState().tables.enemies)[0]!.name).toBe('Troll')
     expect(screen.getByLabelText('Name')).toHaveValue('')
+  })
+})
+
+describe('pictures in the Enemies panel', () => {
+  it("the GM's icon, portrait and boss art buttons save each picture; skill icons can be set, changed and removed", async () => {
+    const { f } = setup({ w: { name: 'Wolf', hp: 5, iv: 1, sk: { a: { n: 'Bite', d: '1d6', r: 1, t: 's' }, b: { n: 'Howl', d: '1d4', r: 1, t: 's' } } } })
+    expect(document.querySelector('img.av')).toHaveAttribute('src', 'data:w')
+    await pickPicture('Icon', 1) // the token's (the skills come first)
+    await pickPicture('Portrait')
+    await pickPicture('Boss art')
+    const bite = screen.getByLabelText('Skill Bite')
+    expect(bite.querySelector('img.abi')).toHaveAttribute('src', 'data:bite')
+    expect(within(bite).getByRole('button', { name: 'Change icon' })).toBeInTheDocument()
+    fireEvent.click(within(bite).getByRole('button', { name: 'No icon' }))
+    await pickPicture('Icon', 0) // Howl's
+    await vi.waitFor(() => expect(f.writes.length).toBeGreaterThanOrEqual(10))
+    expect(f.writes.map((w) => `${w[0]} ${w[1]}`)).toEqual([
+      'PUT icons/w',
+      'PATCH enemies/w',
+      'PUT portraits/w',
+      'PATCH enemies/w',
+      'PUT bossart/w',
+      'PATCH enemies/w',
+      'DELETE skicons/bite',
+      'PATCH meta',
+      'PUT skicons/howl',
+      'PATCH meta',
+    ])
+    expect(f.writes[0]![2]).toEqual({ data: 'data:image/jpeg;96x96' })
+    expect(f.writes[2]![2]).toEqual({ data: 'data:image/jpeg;420x560' })
+    expect(f.writes[4]![2]).toEqual({ data: 'data:image/webp;200x100' })
+    expect(f.writes[8]![2]).toEqual({ data: 'data:image/png;96x96' })
   })
 })

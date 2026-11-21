@@ -7,6 +7,8 @@ import type { Board } from '../../logic/board'
 import type { Sheet } from '../../logic/sheet'
 import { createGameStore, emptyTables, type GameStore, type Tables } from '../../state/store'
 import { fakeDb } from '../../testing/fakeDb'
+import { pickPicture } from '../../testing/fakeKit'
+import { FakeKit } from '../../testing/KitWrapper'
 import { lightHit } from '../../logic/sheet'
 import { TableScreen } from './Table'
 
@@ -66,7 +68,7 @@ function setup(t: Partial<Tables>, o: { role?: 'gm' | 'player'; me?: string; ima
   store.getState().connect({ pin: 'p', role: o.role ?? 'player', me: o.me ?? 'a' })
   store.getState().applySnapshot({ ...emptyTables(), maps: { m: MAP }, cur: 'm', ...t })
   const storage = o.storage ?? memory()
-  render(<Harness store={store} storage={storage} images={o.images ?? true} defaults={o.defaults} />)
+  render(<Harness store={store} storage={storage} images={o.images ?? true} defaults={o.defaults} />, { wrapper: FakeKit })
   return { f, store, storage }
 }
 const hero = (o: Partial<Sheet> = {}): Sheet => ({ name: 'Lyra', cls: 'archer', hp: 30, maxHp: 30, st: 50, maxSt: 100, rg: 10, fl: 2, maxFl: 3, mx: 2, my: 2, ...o })
@@ -408,5 +410,13 @@ describe('more table cases', () => {
     cleanup()
     setup({ chars: { a: hero() }, enemies: { w: { name: 'Wolf', hp: 5 } }, ini: { ...go, t: 1, l: [{ k: 'e:w', v: 9 }, { k: 'c:a', v: 1 }] } })
     expect(screen.queryByRole('button', { name: 'End turn' })).toBeNull()
+  })
+})
+
+describe('the token icon from the status box', () => {
+  it('a player sets their own icon', async () => {
+    const { f } = setup({ chars: { a: hero() } })
+    await pickPicture('Icon')
+    await vi.waitFor(() => expect(f.writes.map((w) => w[1])).toEqual(['icons/a', 'chars/a']))
   })
 })

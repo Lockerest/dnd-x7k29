@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from 'vitest'
-import { browserImages, readFile, shrinkImage, squareIcon, type ImageKit } from './images'
+import { bossArtImage, browserImages, portraitImage, readFile, shrinkImage, squareIcon, tokenIcon, type ImageKit } from './images'
 
 /** Pictures of a given size; each canvas encodes to a length that shrinks with size and quality. */
 function kit(width: number, height: number, size: (w: number, q: number) => number) {
@@ -9,6 +9,7 @@ function kit(width: number, height: number, size: (w: number, q: number) => numb
     load: async () => ({ width, height, source: {} as CanvasImageSource }),
     canvas: (w, h) => ({
       draw: (...a) => void drawn.push([w, h, ...a.filter((x) => typeof x !== 'object' || x === null)]),
+      crop: (_p, ...a) => void drawn.push([w, h, 'crop', ...a]),
       toDataURL: (type, q) => `${type}:${'x'.repeat(size(w, q ?? 1))}`,
     }),
   }
@@ -40,6 +41,37 @@ describe('marker icons', () => {
   })
 })
 
+describe('token icons, portraits and boss art', () => {
+  it('a token icon is the middle square at 96 px, as a JPEG', async () => {
+    const { k, drawn } = kit(300, 100, () => 5)
+    expect(await tokenIcon(k, 'src')).toBe('image/jpeg:xxxxx')
+    expect(drawn[0]).toEqual([96, 96, 'crop', 100, 0, 100, 100])
+  })
+
+  it('a portrait covers 420 x 560, kept near its top; a big one is saved at lower quality', async () => {
+    const wide = kit(840, 560, (_w, q) => (q > 0.7 ? 200000 : 9))
+    expect(await portraitImage(wide.k, 'src')).toBe(`image/jpeg:${'x'.repeat(9)}`)
+    expect(wide.drawn[0]).toEqual([420, 560, null, -210, 0, 840, 560])
+    const tall = kit(420, 1120, () => 7)
+    expect(await portraitImage(tall.k, 'src')).toBe('image/jpeg:xxxxxxx')
+    expect(tall.drawn[0]).toEqual([420, 560, null, 0, -112, 420, 1120])
+  })
+
+  it('boss art fits 900 x 1100 as WebP (PNG when the browser has no WebP), shrinking until under 1.4 MB', async () => {
+    const webp: ImageKit = { load: async () => ({ width: 1800, height: 1100, source: {} as CanvasImageSource }), canvas: (w) => ({ draw: () => {}, crop: () => {}, toDataURL: (t) => `data:${t};${'x'.repeat(w * 2000)}` }) }
+    const d = await bossArtImage(webp, 'src')
+    expect(d.startsWith('data:image/webp')).toBe(true)
+    expect(d.length).toBeLessThan(1400000)
+    const sizes: number[] = []
+    const png: ImageKit = { load: async () => ({ width: 10, height: 10, source: {} as CanvasImageSource }), canvas: (w) => (sizes.push(w), { draw: () => {}, crop: () => {}, toDataURL: (t) => (t === 'image/webp' ? 'data:image/png;nope' : 'data:image/png;'.padEnd(2000000, 'x')) }) }
+    expect((await bossArtImage(png, 'src')).startsWith('data:image/png')).toBe(true)
+    expect(sizes).toEqual([10, 8, 6, 5, 4, 3, 3]) // gives up once below 30 %
+    const tiny: ImageKit = { load: async () => ({ width: 1, height: 1, source: {} as CanvasImageSource }), canvas: (w, h) => (sizes.push(w * 100 + h), { draw: () => {}, crop: () => {}, toDataURL: () => 'data:image/webp;x' }) }
+    await bossArtImage(tiny, 'src')
+    expect(sizes.at(-1)).toBe(101)
+  })
+})
+
 describe('in the browser', () => {
   it('loads pictures and draws on a canvas', async () => {
     const ctx = { fillRect: vi.fn(), drawImage: vi.fn(), fillStyle: '' }
@@ -50,8 +82,10 @@ describe('in the browser', () => {
     const p = { width: 1, height: 1, source: {} as CanvasImageSource }
     c.draw('#000', p, 0, 0, 4, 2)
     c.draw(null, p, 1, 1, 2, 2)
+    c.crop(p, 1, 2, 3, 4)
     expect(ctx.fillRect).toHaveBeenCalledTimes(1)
-    expect(ctx.drawImage).toHaveBeenCalledTimes(2)
+    expect(ctx.drawImage).toHaveBeenCalledTimes(3)
+    expect(ctx.drawImage).toHaveBeenLastCalledWith(p.source, 1, 2, 3, 4, 0, 0, 4, 2)
     expect(c.toDataURL('image/png')).toBe('data:out')
     // Images load (or fail) as the browser reports.
     const imgs: HTMLImageElement[] = []

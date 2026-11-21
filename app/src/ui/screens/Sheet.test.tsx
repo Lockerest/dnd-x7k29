@@ -7,6 +7,8 @@ import type { Board } from '../../logic/board'
 import type { Sheet } from '../../logic/sheet'
 import { createGameStore, emptyTables, type GameStore, type Tables } from '../../state/store'
 import { fakeDb } from '../../testing/fakeDb'
+import { pickPicture } from '../../testing/fakeKit'
+import { FakeKit } from '../../testing/KitWrapper'
 import { CharacterCard, SheetScreen } from './Sheet'
 
 afterEach(cleanup)
@@ -48,7 +50,7 @@ function setup(t: Partial<Tables>, opts: { role?: 'gm' | 'player'; me?: string; 
   const confirm = vi.fn(() => opts.confirm ?? true)
   const onApprove = vi.fn()
   const onClaim = vi.fn()
-  render(<Harness store={store} portraits={opts.portraits ?? {}} confirm={confirm} onApprove={onApprove} onClaim={onClaim} />)
+  render(<Harness store={store} portraits={opts.portraits ?? {}} confirm={confirm} onApprove={onApprove} onClaim={onClaim} />, { wrapper: FakeKit })
   return { f, store, confirm, onApprove, onClaim }
 }
 
@@ -292,4 +294,19 @@ it('players never see join or takeover requests', async () => {
   const t = { ...emptyTables(), chars: { c: hero({ ap: false }) }, claims: { x: { who: 'X', target: 'c', st: 'pending' } } }
   const { container } = render(<RequestPanels tables={t} dm={false} onApprove={() => {}} onClaim={() => {}} />)
   expect(container).toBeEmptyDOMElement()
+})
+
+describe('pictures on the sheet', () => {
+  it('a player sets their portrait and token icon', async () => {
+    const { f } = setup({ chars: { a: hero() } }, { role: 'player', me: 'a' })
+    await pickPicture('Set portrait')
+    await pickPicture('Set icon')
+    await vi.waitFor(() => expect(f.writes).toHaveLength(4))
+    expect(f.writes.map((w) => [w[1], w[2]])).toEqual([
+      ['portraits/a', { data: 'data:image/jpeg;420x560' }],
+      ['chars/a', { pv: expect.any(Number) }],
+      ['icons/a', { data: 'data:image/jpeg;96x96' }],
+      ['chars/a', { iv: expect.any(Number) }],
+    ])
+  })
 })
