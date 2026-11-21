@@ -17,12 +17,12 @@ const stubFetch = (impl: () => Promise<Response>) => {
 }
 
 describe('<App /> preview page', () => {
-  it('shows the title, the version and a link back to the live table', () => {
+  it('shows the title, the version and a link to the backup page', () => {
     stubFetch(() => new Promise(() => {}))
     render(<App />)
     expect(screen.getByRole('heading', { name: 'Curse of the Golden Wave' })).toBeInTheDocument()
-    expect(screen.getByText(`New app preview, version ${APP_VERSION}`)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'live table' })).toHaveAttribute('href', LEGACY_URL)
+    expect(screen.getByText(`Version ${APP_VERSION}`)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'backup' })).toHaveAttribute('href', LEGACY_URL)
   })
 
   it('starts in the checking state', () => {

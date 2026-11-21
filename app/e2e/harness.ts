@@ -6,7 +6,7 @@ import { test as base, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-export const LEGACY = pathToFileURL(resolve(import.meta.dirname, '../../index.html')).href
+export const LEGACY = pathToFileURL(resolve(import.meta.dirname, '../../classic/index.html')).href
 
 export type Write = { method: string; path: string; body: unknown }
 

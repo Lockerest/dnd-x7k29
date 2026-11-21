@@ -48,14 +48,14 @@ export default function App() {
     <>
       <Game />
       <footer className="foot">
-        <span>New app preview, version {APP_VERSION}</span>
+        <span>Version {APP_VERSION}</span>
         <span className={`status ${status.kind}`} data-testid="db-status">
           {status.kind === 'checking' && 'Checking the database connection...'}
           {status.kind === 'ok' && 'Database reachable.'}
           {status.kind === 'error' && `Database not reachable right now (${status.message}). Trying again...`}
         </span>
         <span>
-          Still playing? Use the <a href={LEGACY_URL}>live table</a>.
+          Need the old page? Open the <a href={LEGACY_URL}>backup</a>.
         </span>
       </footer>
     </>

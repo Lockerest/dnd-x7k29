@@ -7,7 +7,7 @@ import { keyByName, vocationBoard } from '../../logic/abilityBoard'
 import { defaultBoard, type Board } from '../../logic/board'
 import { AbilityIcon } from './Board'
 // The live page itself, as text.
-import page from '../../../../index.html?raw'
+import page from '../../../../classic/index.html?raw'
 
 afterEach(cleanup)
 

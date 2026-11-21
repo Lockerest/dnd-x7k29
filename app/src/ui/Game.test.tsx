@@ -81,12 +81,11 @@ describe('<Game /> joining', () => {
     expect(fb.get('tables/dragon42/meta')).toEqual({ dm: await gmPinHash('secret') })
     expect(screen.getByRole('heading', { name: 'Dice' })).toBeInTheDocument()
     expect(screen.getByText('No rolls yet.')).toBeInTheDocument()
-    // The new app's session is kept apart from the live page's.
-    expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
-    expect(storage.m.has('st')).toBe(false)
+    // Saved under the old page's name, so logins carry over from it.
+    expect(JSON.parse(storage.m.get('st')!)).toEqual({ pin: 'dragon42', role: 'gm', me: 'gm' })
     click('Leave')
     expect(screen.getByRole('heading', { name: 'Join a table' })).toBeInTheDocument()
-    expect(storage.m.has('next.st')).toBe(false)
+    expect(storage.m.has('st')).toBe(false)
   })
 
   it('a wrong GM PIN is refused', async () => {
@@ -164,7 +163,7 @@ describe('<Game /> characters', () => {
     act(() => fb.set('tables/dragon42/claims/p1/st', 'ok'))
     expect(await screen.findByRole('heading', { name: 'Dice' })).toBeInTheDocument()
     await vi.waitFor(() => expect(fb.get('tables/dragon42/claims/p1')).toBeNull())
-    expect(JSON.parse(storage.m.get('next.st')!)).toEqual({ pin: 'dragon42', role: 'player', me: 'c1' })
+    expect(JSON.parse(storage.m.get('st')!)).toEqual({ pin: 'dragon42', role: 'player', me: 'c1' })
   })
 
   it('a refused takeover can be dismissed; the form has a Back button', async () => {
@@ -360,7 +359,7 @@ describe('<Game /> ability board', () => {
 describe('<Game /> table and map', () => {
   it('shows the map picture, token icons and custom markers; a jump from the sheet opens the map', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     setup(
       {
         tables: {
@@ -389,7 +388,7 @@ describe('<Game /> table and map', () => {
 
   it('"you are here": the overview shows the map whose pin leads here', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     setup(
       {
         tables: {
@@ -424,7 +423,7 @@ describe('<Game /> table and map', () => {
 describe('<Game /> combat', () => {
   it("a player sees the GM's call to roll initiative and the 3-second prompt aimed at them", async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     const { fb } = setup(
       {
         tables: {
@@ -452,7 +451,7 @@ describe('<Game /> combat', () => {
 describe('<Game /> dice', () => {
   it("rolls from the Dice card are shown and shared; other players' new rolls play here; the dice style is remembered", async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     storage.setItem('sk', 'gold')
     const jobs: DiceJob[] = []
     const player: DicePlayer = { play: async (j) => void jobs.push(j), init: () => {}, physics: () => false }
@@ -483,7 +482,7 @@ describe('<Game /> dice', () => {
 
   it('the dice style is Ivory when none was chosen', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     setup({ tables: { dragon42: { meta: { dm: 'h' }, chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } } } } }, { storage })
     expect(await screen.findByLabelText('Dice style')).toHaveValue('classic')
   })
@@ -492,7 +491,7 @@ describe('<Game /> dice', () => {
 describe('<Game /> attack scenes', () => {
   it("another player's attack scene plays here, with the token pictures", async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     const { fb } = setup(
       {
         tables: {
@@ -519,7 +518,7 @@ describe('<Game /> attack scenes', () => {
 
   it("the GM's boss intro shows here with the boss art", async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
     const { fb } = setup(
       {
         tables: {
@@ -548,36 +547,36 @@ describe('<Game /> attack scenes', () => {
 describe('<Game /> coming back', () => {
   it('rejoins the saved table, or forgets it when the table is gone', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'gm', me: 'gm' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'gm', me: 'gm' }))
     setup({ tables: { dragon42: { meta: { dm: 'h' } } } }, { storage })
     expect(await screen.findByText('Game Master')).toBeInTheDocument()
     cleanup()
     const gone = memory()
-    gone.setItem('next.st', JSON.stringify({ pin: 'deleted1', role: 'gm', me: 'gm' }))
+    gone.setItem('st', JSON.stringify({ pin: 'deleted1', role: 'gm', me: 'gm' }))
     setup({}, { storage: gone })
-    await vi.waitFor(() => expect(gone.m.has('next.st')).toBe(false))
+    await vi.waitFor(() => expect(gone.m.has('st')).toBe(false))
     expect(screen.getByRole('heading', { name: 'Join a table' })).toBeInTheDocument()
   })
 
   it('stays on the join screen when the database cannot be reached, and with an old session lacking a role', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'p1' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'p1' }))
     const fb = fakeFirebase()
     fb.setOffline(true)
     render(<Game fetchImpl={fb.fetch} storage={storage} hash="" every={20} />)
     await new Promise((r) => setTimeout(r, 30))
     expect(screen.getByRole('heading', { name: 'Join a table' })).toBeInTheDocument()
-    expect(storage.m.has('next.st')).toBe(true)
+    expect(storage.m.has('st')).toBe(true)
     cleanup()
     const half = memory()
-    half.setItem('next.st', JSON.stringify({ pin: 'dragon42' }))
+    half.setItem('st', JSON.stringify({ pin: 'dragon42' }))
     setup({ tables: { dragon42: { meta: {} } } }, { storage: half })
     expect(screen.getByRole('heading', { name: 'Join a table' })).toBeInTheDocument()
   })
 
   it('a saved table display session without an id rejoins', async () => {
     const storage = memory()
-    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'table' }))
+    storage.setItem('st', JSON.stringify({ pin: 'dragon42', role: 'table' }))
     setup({ tables: { dragon42: { meta: { dm: 'h' }, chars: { x: {} }, enemies: { e: { pl: 'Phase 2' } } } } }, { storage })
     expect(await screen.findByText('Waiting for the GM to show a map…')).toBeInTheDocument()
   })

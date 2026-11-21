@@ -1,7 +1,7 @@
 # Builds and publishes the site to GitHub Pages on every push to main.
-#   - The live single-file app (index.html at the repo root) stays at the site root,
-#     so your players' link does not change.
-#   - The new React app is published under /next/.
+#   - The app (app/) is published at the site root, so your players' link does not change.
+#     The old /next/ address forwards to it.
+#   - The old single-file page (classic/index.html) is kept as a backup at /classic/.
 # Nothing is published if a check fails, so a broken upload never reaches the table.
 name: Deploy to GitHub Pages
 
@@ -45,7 +45,7 @@ jobs:
       - name: Build the new app
         run: npm run build
 
-      - name: Browser tests (live page rules, parity, built app)
+      - name: Browser tests (old page rules, parity, built app)
         run: |
           npx playwright install --with-deps chromium
           npx playwright test
@@ -53,11 +53,11 @@ jobs:
       - name: Assemble the site
         working-directory: .
         run: |
-          mkdir -p _site
-          rsync -a --exclude='.git' --exclude='.github' --exclude='app' --exclude='_site' --exclude='README.md' --exclude='.gitignore' ./ _site/
-          cp -r app/dist _site/next
+          mkdir -p _site/classic
+          cp -r app/dist/. _site/
+          cp classic/index.html _site/classic/index.html
           touch _site/.nojekyll
-          ls -la _site _site/next
+          ls -la _site _site/classic _site/next
 
       - uses: actions/configure-pages@v5
 

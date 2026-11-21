@@ -7,7 +7,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const LEGACY = pathToFileURL(resolve(import.meta.dirname, '../../index.html')).href
+const LEGACY = pathToFileURL(resolve(import.meta.dirname, '../../classic/index.html')).href
 
 type Tree = Record<string, unknown>
 

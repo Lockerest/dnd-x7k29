@@ -1,14 +1,14 @@
 # The Curse of the Golden Wave: table tool
 
-Private browser tool for the campaign. It is moving from one big HTML file to a
-React + TypeScript app, one piece at a time, without breaking the live table.
+Private browser tool for the campaign: a React + TypeScript app. It replaced the
+original single-file page, which is kept as a backup.
 
 ## What is where
 
 | Path | What it is |
 |---|---|
-| `index.html` | The live single-file app (the one players use). Still the real game. |
-| `app/` | The new React + TypeScript app (Vite). Published at `/next/`. |
+| `app/` | The React + TypeScript app (Vite), the one players use. Published at the site root. |
+| `classic/index.html` | The old single-file page, kept as a backup at `/classic/`. The parity tests still compare the app against it. |
 | `app/src/data/` | Game data: classes, skill sets, themes, ability sounds, cinematic preset. |
 | `app/src/logic/` | Game rules as typed functions (no screen code): stamina, health, combat, phases, skills, cinematic, audio, ability board and reference, icons, map geometry, the play table, sheet actions. |
 | `app/src/**/*.test.ts(x)` | Unit tests for the new app (100% coverage required). |
@@ -26,8 +26,9 @@ React + TypeScript app, one piece at a time, without breaking the live table.
 Every push to `main` runs the checks (type check, unit tests with coverage, rule
 and smoke tests on the live page), builds the new app and publishes:
 
-- `https://<you>.github.io/<repo>/` → the live app (unchanged link)
-- `https://<you>.github.io/<repo>/next/` → the new app preview
+- `https://<you>.github.io/<repo>/` → the app (unchanged link)
+- `https://<you>.github.io/<repo>/classic/` → the old page, as a backup
+- `https://<you>.github.io/<repo>/next/` → forwards to the app (the old preview address)
 
 If a check fails, nothing is published and the previous version stays online.
 You can see each run under the repository's **Actions** tab.
@@ -86,8 +87,10 @@ npm run build
    Wave on the GM's screen only) and sound tools (clips for each sound slot, ability sounds from the
    web or from files, the reverb, and boss themes: upload, play, remove, import from the web, add
    another boss). Every part of the live page now exists in the new app.
-6. Cutover: the new app becomes the root, the old file is kept as a backup.
+6. Cutover: the new app becomes the root, the old file is kept as a backup at `/classic/`. **Done** (1.0.0).
+   Saved logins carry over (the app now uses the old page's saved-session names).
 7. Cleanup and new features (bulk icon import, cutscene videos).
 
-New bosses and skill sets go in `app/src/data/` (and, until the cutover, in `index.html` too:
-the parity tests fail if the two disagree).
+New bosses and skill sets go in `app/src/data/`. The parity tests compare the app with
+`classic/index.html`, so data added only to the app makes them fail until the backup is
+updated too or that check is retired (phase 7).

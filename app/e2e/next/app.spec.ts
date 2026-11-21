@@ -1,5 +1,5 @@
 // The built new app in a real browser, served the way GitHub Pages serves it
-// (the live page at /<repo>/, the new app at /<repo>/next/). Run after `vite build`.
+// (the app at /<repo>/, the old page kept as a backup at /<repo>/classic/). Run after `vite build`.
 import { expect, test, type Page } from '@playwright/test'
 import { createReadStream, existsSync } from 'node:fs'
 import { createServer, type Server } from 'node:http'
@@ -8,7 +8,7 @@ import { FakeDb } from '../harness.ts'
 import { wavTone } from '../wav.ts'
 
 const DIST = resolve(import.meta.dirname, '../../dist')
-const LEGACY = resolve(import.meta.dirname, '../../../index.html')
+const LEGACY = resolve(import.meta.dirname, '../../../classic/index.html')
 const TYPES: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml' }
 
 let server: Server
@@ -18,7 +18,7 @@ test.beforeAll(async () => {
   if (!existsSync(join(DIST, 'index.html'))) throw new Error('Build the app first (npm run build).')
   server = createServer((req, res) => {
     const p = decodeURIComponent((req.url ?? '/').split('?')[0]!)
-    let file = p === '/repo/' ? LEGACY : p.startsWith('/repo/next/') ? join(DIST, p.slice('/repo/next/'.length) || 'index.html') : ''
+    let file = p === '/repo/classic/' ? LEGACY : p.startsWith('/repo/') ? join(DIST, p.slice('/repo/'.length) || 'index.html') : ''
     if (file && !extname(file)) file = join(file, 'index.html')
     if (!file || !existsSync(file)) return void res.writeHead(404).end()
     res.writeHead(200, { 'content-type': TYPES[extname(file)] ?? 'application/octet-stream' })
@@ -64,17 +64,15 @@ test('a GM opens a table, a player joins and creates a character, the GM lets th
   await useFakeFirebase(gm, db)
   const playerRequests: string[] = []
   await useFakeFirebase(pl, db, playerRequests)
-  // The live page's own saved session must survive the new app.
-  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"real","role":"gm","me":"gm"}'))
 
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByLabel(/Table PIN/).fill('dragon42')
   await gm.getByLabel(/Game Master PIN/).fill('secret')
   await gm.getByRole('button', { name: 'Open as Game Master' }).click()
   await expect(gm.getByText('Game Master', { exact: true })).toBeVisible()
   expect(db.get('tables/dragon42/meta')).toMatchObject({ dm: expect.stringMatching(/^[0-9a-f]{64}$/) })
 
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   await pl.getByLabel(/Table PIN/).fill('dragon42')
   await pl.getByRole('button', { name: 'Join as player' }).click()
   await pl.getByLabel(/^Name/).fill('Lyra')
@@ -89,18 +87,23 @@ test('a GM opens a table, a player joins and creates a character, the GM lets th
   await expect(pl.getByText("The GM hasn't set a map yet.")).toBeVisible()
   // The player only wrote its own character; the GM's PIN never left the GM's browser.
   expect(playerRequests.filter((r) => !r.startsWith('GET ')).map((r) => r.replace(/p[a-z0-9]+$/, 'ID'))).toEqual(['PUT /tables/dragon42/chars/ID'])
-  expect(await gm.evaluate(() => localStorage.getItem('st'))).toBe('{"pin":"real","role":"gm","me":"gm"}')
+  // Saved under the old page's name, so a login from before the cutover carries over.
+  expect(await gm.evaluate(() => localStorage.getItem('st'))).toBe('{"pin":"dragon42","role":"gm","me":"gm"}')
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()
 })
 
-test('the footer links back to the live table', async ({ page }) => {
+test('the footer links to the backup page', async ({ page }) => {
   await useFakeFirebase(page, new FakeDb())
+  await page.goto(base)
+  await expect(page.getByTestId('db-status')).toHaveText('Database reachable.')
+  await page.getByRole('link', { name: 'backup' }).click()
+  await expect(page).toHaveTitle('Curse of the Golden Wave')
+  expect(page.url()).toBe(base + 'classic/')
+  // The old /next/ address sends you to the app.
   await page.goto(base + 'next/')
   await expect(page.getByTestId('db-status')).toHaveText('Database reachable.')
-  await page.getByRole('link', { name: 'live table' }).click()
-  await expect(page).toHaveTitle('Curse of the Golden Wave')
   expect(page.url()).toBe(base)
 })
 
@@ -119,13 +122,13 @@ test('the GM edits a boss and plays its cinematic; the player sees it too', asyn
   for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(gm, db)
   await useFakeFirebase(pl, db)
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await pl.goto(base + 'next/')
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await pl.goto(base)
   await expect(pl.getByLabel('Status: Lyra')).toBeVisible()
   await expect(pl.getByRole('button', { name: /settings$/ })).toHaveCount(0) // the GM's enemy editor is not shown to players
 
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByRole('button', { name: "Show or hide Aethelric's settings" }).click()
   await gm.getByLabel('Phase label').fill('First encounter')
   await gm.getByLabel('Phase label').blur()
@@ -161,9 +164,9 @@ test('a player uses their sheet in the new app; the GM on the live page sees the
   for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(pl, db)
   await useFakeFirebase(gm, db)
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
 
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   await pl.getByRole('button', { name: 'Sheet' }).click()
   const sheet = pl.getByLabel('Sheet: Lyra')
   await expect(sheet.getByRole('heading', { name: 'Lyra' })).toBeVisible()
@@ -188,7 +191,7 @@ test('a player uses their sheet in the new app; the GM on the live page sees the
 
   // The GM, still on the live page, sees the same sheet.
   await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await gm.goto(base)
+  await gm.goto(base + 'classic/')
   await gm.locator('#tab').click()
   const card = gm.locator('.card', { has: gm.getByRole('heading', { name: 'Lyra' }) })
   await expect(card.locator('textarea[data-f="notes"]')).toHaveValue('Owes Bram 5 gold')
@@ -216,11 +219,11 @@ test('the ability board: the GM edits it in the new app, a player equips at an a
   await useFakeFirebase(gm, db)
   await useFakeFirebase(pl, db)
   gm.on('dialog', (d) => void d.accept())
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
 
   // The GM loads the 9-class board and renames an ability.
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByRole('button', { name: 'Abilities' }).click()
   await gm.getByRole('button', { name: 'Load 9-class abilities' }).click()
   await expect.poll(() => Object.keys((db.get('tables/dragon42/board') as object) || {}).length).toBeGreaterThan(100)
@@ -232,7 +235,7 @@ test('the ability board: the GM edits it in the new app, a player equips at an a
   await expect.poll(() => db.get('tables/dragon42/board/fighter_power_strike/n')).toBe('Mighty Strike')
 
   // The player, standing by the altar, equips and checks the reference.
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   await pl.getByRole('button', { name: 'Abilities' }).click()
   await expect(pl.getByText(/You are at an altar, bonfire or guild/)).toBeVisible()
   const row = pl.locator('.ab', { has: pl.getByText('Mighty Strike', { exact: true }) })
@@ -248,7 +251,7 @@ test('the ability board: the GM edits it in the new app, a player equips at an a
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await live.locator('#tab2').click()
   const liveRow = live.locator('.ab', { has: live.getByText('Mighty Strike', { exact: true }) })
   await expect(liveRow.getByRole('button', { name: 'Equip' })).toBeVisible()
@@ -277,11 +280,11 @@ test('the table: a player walks on the map in the new app, the GM moves a monste
   for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(gm, db)
   await useFakeFirebase(pl, db)
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
 
   // The player taps three squares to the right: in combat that costs 30 stamina.
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   const map = pl.getByRole('img', { name: 'Map: Crypt' })
   await expect(map).toBeVisible()
   await expect(pl.getByText(/Combat: moving costs 1 stamina per square, 6 squares left this round/)).toBeVisible()
@@ -295,7 +298,7 @@ test('the table: a player walks on the map in the new app, the GM moves a monste
   await expect.poll(() => String(db.get('tables/dragon42/maps/m/fg'))).toMatch(/1/) // the fog around her is revealed (saved just after the move)
 
   // The GM picks the wolf and moves it next to her.
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByRole('button', { name: '👹 Wolf' }).click()
   await tapAt(gm, 5, 2)
   await expect.poll(() => db.get('tables/dragon42/enemies/w/mx')).toBe(5)
@@ -305,7 +308,7 @@ test('the table: a player walks on the map in the new app, the GM moves a monste
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.locator('#map')).toBeVisible()
   expect(await live.evaluate('[chars.p1.mx, chars.p1.my, enemies.w.mx, enemies.w.my]')).toEqual([4, 1, 5, 2])
   expect(errors).toEqual([])
@@ -330,14 +333,14 @@ test('initiative: the GM starts it in the new app, the player rolls, combat begi
   for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(gm, db)
   await useFakeFirebase(pl, db)
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
 
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByRole('button', { name: 'Start initiative' }).click()
   await expect.poll(() => (db.get('tables/dragon42/init') as { ph?: string } | null)?.ph).toBe('roll')
 
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   const order = pl.getByLabel('Turn order')
   await order.getByRole('button', { name: 'Roll' }).click()
   await expect.poll(() => (db.get('tables/dragon42/init/l/0') as { v: number | null }).v ?? 0, { timeout: 15_000 }).toBeGreaterThan(2) // d20 + 2 (DEX 14), once the dice land
@@ -362,7 +365,7 @@ test('initiative: the GM starts it in the new app, the player rolls, combat begi
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.getByRole('heading', { name: 'Turn order · Round 2' })).toBeVisible()
   expect(errors).toEqual([])
   await gmCtx.close()
@@ -389,22 +392,22 @@ test('attacks: the GM attacks the player in the new app, the player dodges; the 
   await useFakeFirebase(pl, db)
   // Fixed dice: the wolf rolls 13 (a hit), the player's saves and attacks roll 20.
   await gm.addInitScript(() => {
-    localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}')
+    localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}')
     Math.random = () => 0.6
   })
   await pl.addInitScript(() => {
-    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}')
     Math.random = () => 0.99
   })
   const tapAt = async (p: Page, x: number, y: number) => {
     const b = (await p.getByRole('img', { name: 'Map: Crypt' }).boundingBox())!
     await p.mouse.click(b.x + ((x + 0.5) / 10) * b.width, b.y + ((y + 0.5) / 8) * b.height)
   }
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   await expect(pl.getByRole('img', { name: 'Map: Crypt' })).toBeVisible()
 
   // The GM picks the wolf, taps Lyra and attacks.
-  await gm.goto(base + 'next/')
+  await gm.goto(base)
   await gm.getByRole('button', { name: '👹 Wolf' }).click()
   await tapAt(gm, 4, 4)
   const menu = gm.getByLabel('Actions')
@@ -431,7 +434,7 @@ test('attacks: the GM attacks the player in the new app, the player dodges; the 
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.locator('#map')).toBeVisible()
   expect(await live.evaluate('[chars.p1.st, enemies.w.hp]')).toEqual([db.get('tables/dragon42/chars/p1/st'), db.get('tables/dragon42/enemies/w/hp')])
   expect(errors).toEqual([])
@@ -458,16 +461,16 @@ test('dice: a player rolls from the Dice card; the other player sees the dice fl
   await useFakeFirebase(a, db)
   await useFakeFirebase(b, db)
   await a.addInitScript(() => {
-    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}')
     localStorage.setItem('sk', 'gold')
     Math.random = () => 0.6
   })
-  await b.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p2"}'))
-  await b.goto(base + 'next/')
+  await b.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p2"}'))
+  await b.goto(base)
   await expect(b.getByText('No rolls yet.')).toBeVisible()
 
   // Lyra rolls two d20s with +1 and her DEX (+3), in gold.
-  await a.goto(base + 'next/')
+  await a.goto(base)
   const card = a.getByLabel('Dice', { exact: true })
   await expect(card.getByLabel('Dice style')).toHaveValue('gold')
   await card.getByLabel('How many').fill('2')
@@ -491,7 +494,7 @@ test('dice: a player rolls from the Dice card; the other player sees the dice fl
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p2"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.locator('.rl')).toContainText('Lyra rolled 2d20: 13, 13 +4 = 30')
   expect(errors).toEqual([])
   await ctxA.close()
@@ -534,13 +537,13 @@ test('scenes and sound: an attack plays its scene with sound on both screens; an
       }
     })
   }
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
   await pl.addInitScript(() => {
-    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}')
     Math.random = () => 0.5
   })
-  await gm.goto(base + 'next/')
-  await pl.goto(base + 'next/')
+  await gm.goto(base)
+  await pl.goto(base)
   // Sound starts after a first tap on each screen.
   await gm.getByRole('heading', { name: 'Dice' }).click()
   await pl.getByRole('heading', { name: 'Dice' }).click()
@@ -592,9 +595,9 @@ test("the GM's map tools: upload a map, draw walls, place an altar, add a pin an
     p.on('pageerror', (e) => errors.push(e.message))
     await useFakeFirebase(p, db)
   }
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await gm.goto(base + 'next/')
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.goto(base)
   await expect(gm.getByRole('img', { name: 'Map: World' })).toBeVisible()
 
   // A new map from a picture file (a 400 x 300 PNG drawn in the page).
@@ -653,7 +656,7 @@ test("the GM's map tools: upload a map, draw walls, place an altar, add a pin an
   expect(db.get('tables/dragon42/chars/p1')).toMatchObject({ mp: crypt, mx: 5, my: 5 })
 
   // The player now sees the Crypt, with the overview of where it is on the World map.
-  await pl.goto(base + 'next/')
+  await pl.goto(base)
   await expect(pl.getByRole('img', { name: 'Map: Crypt' })).toBeVisible()
   await expect(pl.getByLabel('Overview')).toContainText('You are here: Crypt gate')
 
@@ -662,7 +665,7 @@ test("the GM's map tools: upload a map, draw walls, place an altar, add a pin an
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, db)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.locator('#map')).toBeVisible()
   expect(await live.evaluate(`[mapId(), [...geo().W].sort(), altars(), chars.p1.mx, chars.p1.my]`)).toEqual([crypt, ['2,3', '3,3', '4,3'], ['6,1'], 5, 5])
   await expect(live.locator('#ovw')).toContainText('You are here: Crypt gate')
@@ -688,8 +691,8 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
   const next = await ctx.newPage()
   next.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(next, mine)
-  await next.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await next.goto(base + 'next/')
+  await next.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await next.goto(base)
   await expect(next.getByText('No maps yet. Upload one to begin.')).toBeVisible()
 
   // A test picture with detail in it (a gradient and a shape), drawn by the browser.
@@ -739,7 +742,7 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
   live.on('pageerror', (e) => errors.push(e.message))
   await useFakeFirebase(live, theirs)
   await live.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await live.goto(base)
+  await live.goto(base + 'classic/')
   await expect(live.locator('#app')).toContainText('Enemies')
   for (const k of ['p:p1', 'c:p1', 'e:w', 'p:w', 'b:w']) {
     await live.evaluate(`iconFor=${JSON.stringify(k)}`)
@@ -803,13 +806,13 @@ test('enemy extras: combat begins with the boss intro and its battle music on ev
       }
     })
   }
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
   await pl.addInitScript(() => {
-    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}')
     Math.random = () => 0.5
   })
-  await gm.goto(base + 'next/')
-  await pl.goto(base + 'next/')
+  await gm.goto(base)
+  await pl.goto(base)
   // A first tap on each screen lets sound play (and the boss theme get ready).
   await gm.getByRole('heading', { name: 'Dice' }).click()
   await pl.getByRole('heading', { name: 'Dice' }).click()
@@ -861,10 +864,10 @@ test("the GM's test lab: test scenes and the wave here only; clips, ability soun
   await useFakeFirebase(gm, db)
   await useFakeFirebase(pl, db, plRequests)
   gm.on('dialog', (d) => void d.accept())
-  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
-  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
-  await gm.goto(base + 'next/')
-  await pl.goto(base + 'next/')
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.goto(base)
+  await pl.goto(base)
   await gm.getByRole('heading', { name: 'Dice' }).click()
   await pl.getByRole('heading', { name: 'Dice' }).click()
   await expect(pl.getByRole('button', { name: 'Show test lab' })).toHaveCount(0)
