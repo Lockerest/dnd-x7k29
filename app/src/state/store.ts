@@ -15,6 +15,7 @@ import { initiativeActions, type InitiativeActions } from './initiativeActions'
 import { diceActions, type DiceActions } from './diceActions'
 import { mapActions, type MapActions } from './mapActions'
 import { pictureActions, type PictureActions } from './pictureActions'
+import { enemyExtras, type BossIntro, type EnemyExtras } from './enemyExtras'
 import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
 
@@ -107,10 +108,11 @@ export type GameState = {
   TableActions &
   DiceActions &
   MapActions &
-  PictureActions
+  PictureActions &
+  EnemyExtras
 
 /** What the screen shows for an attack scene ("fx") or a Golden Wave. */
-export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void }
+export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void; boss: (b: BossIntro) => void }
 
 const signature = (t: Tables) => JSON.stringify(t)
 
@@ -164,7 +166,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       ...sheetActions(get, set, save, now, later),
       ...boardActions(get, set, save, now),
       ...pictureActions(get, save, now),
-      ...initiativeActions(get, set, save, rand),
+      ...enemyExtras(get, save, now, rand),
+      ...initiativeActions(get, set, save, rand, later),
       ...attackActions(get, set, save, db, now, rand, later),
       ...tableActions(get, set, save),
       ...diceActions(get, set, save, now, rand),
@@ -292,6 +295,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
           await save((d) => d.put('init', next))
         }
         await get().log(`${x.name} changes... ${n.name} rises!`)
+        // The new phase gets its own intro a moment later.
+        later(() => get().bossIntro(nid), 400)
       },
       shareCinematic: async (id) => {
         const e = get().tables.enemies[id]

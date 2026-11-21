@@ -306,3 +306,16 @@ describe('pictures in the Enemies panel', () => {
     expect(f.writes[8]![2]).toEqual({ data: 'data:image/png;96x96' })
   })
 })
+
+describe('the enemy extras buttons', () => {
+  it('auto turn, boss intro and spawn point; a skill without a sound says so', async () => {
+    const { f, store } = setup({ w: { name: 'Wolf', hp: 5, mx: 3, my: 2, sk: { a: { n: 'Bite', d: '1d6', r: 1, t: 's' } } } }, ['w'], { chars: {}, maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10 } }, cur: 'm' })
+    fireEvent.click(screen.getByRole('button', { name: 'Auto turn' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Boss intro' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Set spawn' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Play sound' }))
+    await vi.waitFor(() => expect(f.writes.map((w) => w[1])).toEqual(['rolls', 'rolls', 'enemies/w']))
+    expect(f.writes.map((w) => w[2])).toEqual([expect.objectContaining({ ev: 'Wolf finds no one to attack' }), expect.objectContaining({ boss: expect.objectContaining({ n: 'Wolf' }) }), { hx: 3, hy: 2 }])
+    await vi.waitFor(() => expect(store.getState().error).toBe('No custom sound for Bite yet. The skill name must match an imported ability name, and sound must be on.'))
+  })
+})

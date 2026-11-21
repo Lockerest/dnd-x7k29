@@ -8,7 +8,7 @@ import { InitiativePanel } from './Initiative'
 
 afterEach(cleanup)
 
-const actions = () => ({ startInitiative: vi.fn(), rollInitiative: vi.fn(), rollMonsters: vi.fn(), beginCombat: vi.fn(), passTurn: vi.fn(), endCombat: vi.fn() })
+const actions = () => ({ startInitiative: vi.fn(), rollInitiative: vi.fn(), rollMonsters: vi.fn(), beginCombat: vi.fn(), passTurn: vi.fn(), endCombat: vi.fn(), autoTurn: vi.fn() })
 const base = (o: Partial<Tables>): Tables => ({
   ...emptyTables(),
   maps: { m: { w: 500, h: 400, cols: 10, fog: 1 } },
@@ -74,5 +74,16 @@ describe('<InitiativePanel />', () => {
     expect(a.passTurn).toHaveBeenCalled()
     expect(a.startInitiative).toHaveBeenCalled()
     expect(a.endCombat).toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { name: "Run Wolf's turn" }))
+    expect(a.autoTurn).toHaveBeenCalledWith('w')
+  })
+
+  it("no Run button on a hero's turn, a fallen monster's or a missing one", () => {
+    for (const t of [0, 1, 2]) {
+      const go: Initiative = { ph: 'go', t, r: 1, l: [{ k: 'c:a', v: 15 }, { k: 'e:w', v: 12 }, { k: 'e:gone', v: 4 }] }
+      show(base({ ini: go, enemies: { w: { name: 'Wolf', hp: 0, mx: 1, my: 1 } } }), true, 'gm')
+      expect(screen.queryByRole('button', { name: /^Run / })).toBeNull()
+      cleanup()
+    }
   })
 })

@@ -216,3 +216,86 @@ describe('elements', () => {
     expect(elementOf(undefined)).toBeNull()
   })
 })
+
+describe('battle music', () => {
+  function music(o: { music?: boolean; on?: boolean } = {}) {
+    const a = fakeAudio()
+    const timers: [() => void, number][] = []
+    const cleared: unknown[] = []
+    const settings = { on: o.on ?? true, volume: 0.5, reverb: 0.5, music: o.music ?? true }
+    const e = createSoundEngine({ AudioContext: a.Ctor, random: () => 0.5, settings: () => settings, setTimeout: (f, ms) => (timers.push([f, ms]), timers.length), clearTimeout: (h) => void cleared.push(h) })
+    e.unlock()
+    return { e, a, timers, cleared, settings }
+  }
+  const theme = clip('theme', 8)
+
+  it('loops a theme, each pass overlapping the last, until stopped', () => {
+    const { e, a, timers, cleared } = music()
+    expect(e.bgStart(theme, 'w')).toBe(true)
+    expect(e.bgId()).toBe('w')
+    expect(a.played).toEqual(['clip theme'])
+    expect(timers.map((t) => t[1])).toEqual([6000]) // 8 s minus the 2 s overlap
+    for (let i = 0; i < 4; i++) timers[i]![0]()
+    expect(a.played).toHaveLength(5)
+    e.bgStop()
+    expect(e.bgId()).toBeNull()
+    expect(cleared).toHaveLength(1)
+    timers[4]![0]() // a pass due after stopping does nothing
+    expect(a.played).toHaveLength(5)
+    e.bgStop() // already stopped
+  })
+
+  it('a new theme replaces the old; nothing without a theme, with music off (unless forced) or without sound', () => {
+    const { e } = music()
+    e.bgStart(theme, 'w')
+    e.bgStart(theme, 'o')
+    expect(e.bgId()).toBe('o')
+    expect(e.bgStart(null, 'w')).toBe(false)
+    const off = music({ music: false })
+    expect(off.e.bgStart(theme, 'w')).toBe(false)
+    expect(off.e.bgStart(theme, 'pv', true)).toBe(true)
+    const quiet = music({ on: false })
+    expect(quiet.e.bgStart(theme, 'w')).toBe(false)
+  })
+
+  it('a pass that comes due once sound is off does nothing; a stopped node is skipped', () => {
+    const { e, a, timers, settings } = music()
+    e.bgStart(theme, 'w')
+    settings.on = false
+    timers[0]![0]()
+    expect(a.played).toHaveLength(1)
+  })
+
+  it('stopping copes with nodes that are already gone', () => {
+    const { e, a } = music()
+    // Nodes that throw when touched, as closed ones do.
+    const make = a.ctxs[0]!.createGain
+    a.ctxs[0]!.createGain = () => ({ ...make(), gain: { value: 1, cancelScheduledValues: () => { throw new Error('closed') }, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() } }) as never
+    e.bgStart(theme, 'w')
+    expect(() => e.bgStop()).not.toThrow()
+    expect(e.bgId()).toBeNull()
+  })
+
+  it("the theme's opening once (when battle music is off), and clips played on demand", () => {
+    const { e, a } = music({ music: false })
+    expect(e.playTheme(theme, 4)).toBe(true)
+    expect(e.playTheme(null, 4)).toBe(false)
+    expect(e.playClip('ab:x')).toBe(false)
+    e.setClip('ab:x', clip('bite'))
+    expect(e.playClip('ab:x')).toBe(true)
+    expect(a.played).toEqual(['clip theme', 'clip bite'])
+    expect(music({ on: false }).e.playTheme(theme, 4)).toBe(false)
+  })
+
+  it('the window timers by default', () => {
+    vi.useFakeTimers()
+    const a = fakeAudio()
+    const e = createSoundEngine({ AudioContext: a.Ctor, random: () => 0.5, settings: () => ({ on: true, volume: 0.5, reverb: 0.5, music: true }) })
+    e.unlock()
+    e.bgStart(clip('t', 4), 'w')
+    vi.advanceTimersByTime(3100)
+    expect(a.played).toHaveLength(2)
+    e.bgStop()
+    vi.useRealTimers()
+  })
+})

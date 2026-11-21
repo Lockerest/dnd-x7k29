@@ -6,7 +6,7 @@ import { loudnessGain } from '../../logic/audio'
 import { abilitySlug } from '../../logic/text'
 import { EFFECT_KEYWORDS } from '../../data/effects'
 
-export type SoundSettings = { on: boolean; volume: number; reverb: number }
+export type SoundSettings = { on: boolean; volume: number; reverb: number; /** Battle music loops (the boss themes). */ music?: boolean }
 
 /** What an attack scene needs to sound right (the "fx" entry in the shared list). */
 export type FxEvent = { a?: string; t?: string; k?: string; k2?: string | null; o?: string; d?: number; c?: boolean; an?: string; tn?: string; l?: string; ha?: boolean }
@@ -49,6 +49,9 @@ export type SoundEnv = {
   AudioContext: (new () => Ctx) | undefined
   random: () => number
   settings: () => SoundSettings
+  /** Timers for the battle music loop (the window's by default). */
+  setTimeout?: (f: () => void, ms: number) => unknown
+  clearTimeout?: (h: unknown) => void
 }
 
 export type SoundEngine = ReturnType<typeof createSoundEngine>
@@ -290,6 +293,88 @@ export function createSoundEngine(env: SoundEnv) {
   }
 
   const SS = SCENE_SLOW
+  // Battle music: a boss theme looping (each pass overlapping the last by a few
+  // seconds), until the boss falls, a cinematic starts, or it is turned off.
+  const later = env.setTimeout ?? ((f, ms) => setTimeout(f, ms))
+  const cancel = env.clearTimeout ?? ((h) => clearTimeout(h as ReturnType<typeof setTimeout>))
+  type Loop = { stop: boolean; nodes: { x: AudioBufferSourceNode; v: GainNode }[]; id: string; tm: unknown }
+  let BG: Loop | null = null
+  const bgStop = (f = 1.5) => {
+    if (!BG) return
+    const g = BG
+    BG = null
+    g.stop = true
+    cancel(g.tm)
+    const t = AC!.currentTime
+    for (const n of g.nodes) {
+      try {
+        n.v.gain.cancelScheduledValues(t)
+        n.v.gain.setValueAtTime(Math.max(0.0002, n.v.gain.value), t)
+        n.v.gain.exponentialRampToValueAtTime(0.0001, t + f)
+        n.x.stop(t + f + 0.1)
+      } catch {
+        // Already stopped.
+      }
+    }
+  }
+  const bgStart = (buf: AudioBuffer | null, id: string, force = false) => {
+    const c = mg()
+    if (!c || !buf || (!env.settings().music && !force)) return false
+    bgStop(1.2)
+    const g: Loop = (BG = { stop: false, nodes: [], id, tm: 0 })
+    const X = Math.min(2.5, buf.duration / 4)
+    const vl = Math.max(0.0002, Math.min(1, vol() * 0.8))
+    const run = (first: boolean) => {
+      if (g.stop || BG !== g) return
+      const cc = mg()
+      if (!cc) return
+      const x = cc.createBufferSource()
+      const v = cc.createGain()
+      const T = cc.currentTime
+      const d = buf.duration
+      x.buffer = buf
+      v.gain.setValueAtTime(0.0001, T)
+      v.gain.exponentialRampToValueAtTime(vl, T + (first ? 0.4 : X))
+      v.gain.setValueAtTime(vl, T + d - X)
+      v.gain.exponentialRampToValueAtTime(0.0001, T + d)
+      x.connect(v)
+      v.connect(cc.destination)
+      x.start(T)
+      x.stop(T + d + 0.1)
+      g.nodes.push({ x, v })
+      if (g.nodes.length > 3) g.nodes.shift()
+      g.tm = later(() => run(false), (d - X) * 1000)
+    }
+    run(true)
+    return true
+  }
+  /** A theme played once for D seconds (the intro when battle music is off), swelling into the reverb at the end. */
+  const playTheme = (buf: AudioBuffer | null, D: number) => {
+    const c = mg()
+    if (!c || !buf) return false
+    const x = c.createBufferSource()
+    const v = c.createGain()
+    const w = c.createGain()
+    const T = c.currentTime
+    const vl = Math.max(0.0002, Math.min(1, vol() * 1.2))
+    x.buffer = buf
+    v.gain.setValueAtTime(0.0001, T)
+    v.gain.exponentialRampToValueAtTime(vl, T + 0.3)
+    v.gain.setValueAtTime(vl, T + Math.max(0.4, D - 1.4))
+    v.gain.exponentialRampToValueAtTime(0.0001, T + D)
+    w.gain.setValueAtTime(0.05, T)
+    w.gain.setValueAtTime(0.05, T + Math.max(0.4, D - 2))
+    w.gain.linearRampToValueAtTime(vl * 1.4, T + D - 0.5)
+    w.gain.linearRampToValueAtTime(0.0001, T + D + 0.3)
+    x.connect(v)
+    v.connect(c.destination)
+    x.connect(w)
+    w.connect(REV!)
+    x.start(T)
+    x.stop(T + D + 0.4)
+    return true
+  }
+
   /** The sounds of an attack scene: the swing or cast, then the hit, parry or dodge. */
   const sfx = (f: FxEvent) => {
     if (!mg()) return
@@ -356,6 +441,11 @@ export function createSoundEngine(env: SoundEnv) {
     /** True when a sound would play right now. */
     live: () => !!mg(),
     sfx,
+    bgStart,
+    bgStop,
+    /** Whose battle music is playing ("pv" for the GM's preview), or null. */
+    bgId: () => BG?.id ?? null,
+    playTheme,
     /** The Golden Wave's chime (or the altar clip). */
     wave: () => playBuf('altar', 0) || chime(),
     /** The boss intro sting (or the boss clip). */
@@ -365,6 +455,8 @@ export function createSoundEngine(env: SoundEnv) {
       ac()
       if (!playBuf(k, 0)) builtIn[k]?.()
     },
+    /** Plays a clip now; false when there is none (or sound is off). */
+    playClip: (k: string) => playBuf(k, 0),
     /** The volume slider's test sound. */
     volumeTest: () => {
       ac()

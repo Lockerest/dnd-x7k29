@@ -83,7 +83,7 @@ describe('a hero attacks a monster', () => {
   it('the attack scene plays on this screen as well as being shared', async () => {
     const { s } = setup({ chars: { a: hero() }, enemies: { w: wolf({ ac: 30 }) } }, { rand: 0.5 })
     const scenes: Record<string, unknown>[] = []
-    s.getState().setEffects({ scene: (x) => void scenes.push(x), wave: () => {} })
+    s.getState().setEffects({ scene: (x) => void scenes.push(x), wave: () => {}, boss: () => {} })
     s.getState().openMenu('c:a', 'e:w')
     await s.getState().act('l')
     expect(scenes).toEqual([expect.objectContaining({ a: 'c:a', t: 'e:w', o: 'miss' })])

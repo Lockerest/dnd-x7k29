@@ -9,6 +9,11 @@ import type { RollEntry } from '../../logic/dice'
 import { abilitySlug } from '../../logic/text'
 import type { GameStore } from '../../state/store'
 import { SceneOverlay } from './Scene'
+import { BossIntroOverlay } from './BossIntro'
+import type { BossIntro } from '../../state/enemyExtras'
+import { themeKeyFor } from '../../logic/audio'
+import { rankOf } from '../../logic/enemies'
+import { useStore } from 'zustand'
 import { createSoundEngine, type FxEvent, type SoundEngine } from './engine'
 import { loadFxSettings, saveFxSettings, type FxSettings } from './settings'
 import { playWave, waveCenter } from './wave'
@@ -34,6 +39,10 @@ export type EffectsOptions = {
   win?: Window
   /** At most this many scenes waiting behind the one playing (the live page's 4). */
   maxWaiting?: number
+  /** The GM's theme version (meta/thv): themes reload when it changes. */
+  themeVersion?: unknown
+  /** Boss art by enemy id (when loaded). */
+  bossArt?: Record<string, string>
 }
 
 /** The settings, kept outside React so the sound engine can read them any time. */
@@ -60,7 +69,7 @@ const browserEngine = (settings: () => FxSettings) =>
     random: Math.random,
     settings: () => {
       const s = settings()
-      return { on: s.sound, volume: s.volume, reverb: s.reverb }
+      return { on: s.sound, volume: s.volume, reverb: s.reverb, music: s.music }
     },
   })
 
@@ -97,20 +106,40 @@ export function useEffectsPlayer(o: EffectsOptions) {
     )
   }, [db, soundVersion, engine, decodeClips])
 
+  // Boss themes: downloaded and decoded ahead of time for the bosses on the table,
+  // so their intro can start the battle music at once (and again when the GM changes them).
+  const loader = useMemo(() => (db ? createAudioLoader<AudioBuffer>(db, async (b) => (await engine.decode(b)) as AudioBuffer) : null), [db, engine])
+  const enemies = useStore(store, (s) => s.tables.enemies)
+  const bossKey = Object.entries(enemies)
+    .filter(([, e]) => e && ((e.hp as number) > 0 || e.th) && (['m', 'u'].includes(rankOf(e)) || e.th))
+    .map(([, e]) => `${e.name}|${e.th ?? ''}`)
+    .join('\n')
+  const prefetch = useCallback(async () => {
+    if (!loader || !engine.live() || !bossKey) return
+    const keys = await loader.themeKeys()
+    const want = [...new Set(bossKey.split('\n').map((l) => themeKeyFor(l.split('|')[0], l.split('|')[1], keys)))].filter((k): k is string => !!k)
+    await loader.prefetch(want)
+  }, [loader, engine, bossKey])
+  useEffect(() => {
+    if (o.themeVersion == null) return
+    loader?.reset()
+  }, [loader, o.themeVersion])
+  useEffect(() => void prefetch(), [prefetch, o.themeVersion])
+
   // Browsers only allow sound after a tap or key press.
   useEffect(() => {
     const go = () => {
       if (!settings.get().sound) return
       engine.unlock()
       void decodeClips()
+      void prefetch()
     }
     const evs = ['pointerdown', 'keydown', 'touchend']
     evs.forEach((n) => win.document.addEventListener(n, go, { passive: true }))
     return () => evs.forEach((n) => win.document.removeEventListener(n, go))
-  }, [engine, decodeClips, win, settings])
+  }, [engine, decodeClips, win, settings, prefetch])
 
   // Ability sounds: each is looked for once, from the table's copy or the audio host.
-  const loader = useMemo(() => (db ? createAudioLoader<AudioBuffer>(db, async (b) => (await engine.decode(b)) as AudioBuffer) : null), [db, engine])
   const tried = useRef(new Set<string>())
   const abilitySound = useCallback(
     (f: FxEvent): Promise<unknown> => {
@@ -160,11 +189,42 @@ export function useEffectsPlayer(o: EffectsOptions) {
     [engine, win],
   )
 
-  // The store plays my own scenes and waves here (and shares them).
+  // Boss intros: the art and name, with the boss's theme starting the battle music
+  // (or its opening played once when battle music is off), else the boss sting.
+  const [boss, setBoss] = useState<{ n: number; b: BossIntro; seconds: number; image: string | null; art: boolean } | null>(null)
+  const playBoss = useCallback(
+    (b: BossIntro) => {
+      if (!settings.get().scenes) return
+      const ready = loader ? loader.ready() : new Map<string, AudioBuffer>()
+      const key = themeKeyFor(b.n, b.th, [...ready.keys()])
+      const buf = key ? ready.get(key)! : null
+      const seconds = buf ? Math.min(5, Math.max(3, buf.duration)) : 3.7
+      const id = String(b.k).slice(2)
+      const art = opts.current.bossArt?.[id]
+      setBoss((x) => ({ n: (x?.n ?? 0) + 1, b, seconds, image: art ?? opts.current.picture(b.k), art: !!art }))
+      if (!(buf && engine.bgStart(buf, id)) && !(buf && engine.playTheme(buf, seconds))) engine.boss()
+    },
+    [loader, engine, settings],
+  )
+
+  // The battle music stops when its boss falls or leaves the map, or when sound stops.
   useEffect(() => {
-    store.getState().setEffects({ scene: (f) => playScene(f as FxEvent), wave })
+    const h = win.setInterval(() => {
+      const id = engine.bgId()
+      if (!id) return
+      if (!engine.live()) return engine.bgStop(0.3)
+      if (id === 'pv') return
+      const e = store.getState().tables.enemies[id]
+      if (!e || !((e.hp as number) > 0) || e.mx == null) engine.bgStop(2)
+    }, 1000)
+    return () => win.clearInterval(h)
+  }, [engine, store, win])
+
+  // The store plays my own scenes, waves and boss intros here (and shares them).
+  useEffect(() => {
+    store.getState().setEffects({ scene: (f) => playScene(f as FxEvent), wave, boss: playBoss })
     return () => store.getState().setEffects(null)
-  }, [store, playScene, wave])
+  }, [store, playScene, wave, playBoss])
 
   /** A new entry from another screen: its scene or wave plays here too (if recent). */
   const remote = useCallback(
@@ -173,14 +233,16 @@ export function useEffectsPlayer(o: EffectsOptions) {
       const age = now - (e.ts ?? 0)
       if (e.fx && age < 15000) playScene(e.fx as FxEvent)
       if (e.wave && age < 20000) wave(e.wave as Wave)
+      if (e.boss && age < 15000) playBoss(e.boss as BossIntro)
     },
-    [playScene, wave],
+    [playScene, wave, playBoss],
   )
 
   const setFx = (p: Partial<FxSettings>) => {
     settings.set(p)
     if (p.sound) engine.unlock()
     if (p.volume != null) engine.volumeTest()
+    if (p.music === false) engine.bgStop(0.8)
   }
 
   const scene = current && (
@@ -196,5 +258,15 @@ export function useEffectsPlayer(o: EffectsOptions) {
     />
   )
 
-  return { fx, setFx, scene, remote, engine, cinematicSounds: engine.cinematic }
+  /** The GM's "Play sound" on a monster skill: its ability sound, if there is one. */
+  const playSkillSound = async (name: string) => {
+    engine.unlock()
+    void decodeClips()
+    await abilitySound({ l: name })
+    return engine.playClip(`ab:${abilitySlug(name)}`)
+  }
+
+  const bossIntro = boss && <BossIntroOverlay key={boss.n} b={boss.b} image={boss.image} art={boss.art} seconds={boss.seconds} onDone={() => setBoss(null)} />
+
+  return { fx, setFx, scene, bossIntro, remote, engine, playSkillSound, cinematicSounds: engine.cinematic }
 }

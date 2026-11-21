@@ -45,7 +45,7 @@ export function attackInfo(u: Unit, kind: 'l' | 'h'): AttackInfo {
     : { label: 'Heavy attack', rng, dmg: '1d10', tb, db, cost: 1, cs: abilityCost(c, 1), po: 3, heavy: true }
 }
 
-type Placed = { e: boolean; o: { mx?: number | null; my?: number | null; sz?: number } }
+export type Placed = { e: boolean; o: { mx?: number | null; my?: number | null; sz?: number } }
 const sizeOf = (u: Placed) => (u.e ? u.o.sz || 1 : 1)
 
 /** Squares between two units' nearest edges (minimum 1). Enemies can be larger than 1x1. */

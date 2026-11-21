@@ -71,6 +71,7 @@ export type TableActions = Pick<
   | 'renamePin'
   | 'deletePin'
   | 'setIcon'
+  | 'autoTurn'
 >
 
 export type TableProps = {

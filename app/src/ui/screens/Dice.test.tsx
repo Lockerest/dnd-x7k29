@@ -91,7 +91,7 @@ describe('scene and sound settings on the Dice card', () => {
         dice={defaultDice()}
         secretRolls={[]}
         actions={{ setDice: vi.fn(), rollDie: vi.fn() }}
-        fx={{ scenes: true, s25: false, sound: true, volume: 0.42, reverb: 0.5 }}
+        fx={{ scenes: true, s25: false, sound: true, volume: 0.42, reverb: 0.5, music: true }}
         onFx={onFx}
       />,
     )
@@ -100,13 +100,14 @@ describe('scene and sound settings on the Dice card', () => {
     expect(screen.getByLabelText('Volume')).toHaveValue('42')
     fireEvent.click(screen.getByLabelText('Attack scenes'))
     fireEvent.click(screen.getByLabelText('2.5D camera'))
+    fireEvent.click(screen.getByLabelText('Battle music'))
     fireEvent.click(screen.getByLabelText('Sound'))
     fireEvent.change(screen.getByLabelText('Volume'), { target: { value: '80' } })
-    expect(onFx.mock.calls.map((c) => c[0])).toEqual([{ scenes: false }, { s25: true }, { sound: false }, { volume: 0.8 }])
+    expect(onFx.mock.calls.map((c) => c[0])).toEqual([{ scenes: false }, { s25: true }, { music: false }, { sound: false }, { volume: 0.8 }])
   })
 
   it('changing them without a handler does nothing', () => {
-    render(<DicePanel tables={tables()} dm={false} me="a" dice={defaultDice()} secretRolls={[]} actions={{ setDice: vi.fn(), rollDie: vi.fn() }} fx={{ scenes: true, s25: true, sound: true, volume: 0.5, reverb: 0.5 }} />)
+    render(<DicePanel tables={tables()} dm={false} me="a" dice={defaultDice()} secretRolls={[]} actions={{ setDice: vi.fn(), rollDie: vi.fn() }} fx={{ scenes: true, s25: true, sound: true, volume: 0.5, reverb: 0.5, music: true }} />)
     fireEvent.click(screen.getByLabelText('Sound'))
   })
 })

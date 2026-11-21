@@ -113,6 +113,7 @@ export function Game({
   const [themeKeys, setThemeKeys] = useState<string[]>([])
   const [markerVersion, setMarkerVersion] = useState<AssetVersions['mapIcons']>(null)
   const [skillVersion, setSkillVersion] = useState<AssetVersions['skillIcons']>(null)
+  const [themeVersion, setThemeVersion] = useState<AssetVersions['themes']>(null)
   const [soundVersion, setSoundVersion] = useState<AssetVersions['sounds']>(null)
   const [cin, setCin] = useState<{
     c: CinematicEvent
@@ -153,6 +154,7 @@ export function Game({
         setMarkerVersion(v.mapIcons)
         setSoundVersion(v.sounds)
         setSkillVersion(v.skillIcons)
+        setThemeVersion(v.themes)
       },
     })
   }, [conn, store, every])
@@ -215,6 +217,13 @@ export function Game({
   }, [onTable, tables.chars, tables.enemies])
   const icons = usePictures(db, wantedIcons, iconPath, tables)
   const markers = useMarkers(db, onTable ? markerVersion : null, tables)
+  // Boss art for the boss intros (downloaded once per version, ba).
+  const wantedArt = useMemo(() => {
+    const o: Record<string, unknown> = {}
+    if (onTable) for (const [i, x] of Object.entries(tables.enemies)) if (x.ba) o[i] = x.ba
+    return o
+  }, [onTable, tables.enemies])
+  const bossArt = usePictures(db, wantedArt, bossArtPath, tables)
   // Monster skill icons (the GM's Enemies panel and the action menu).
   const skillIcons = useIconSet(db, 'skicons', onTable ? skillVersion : null, tables)
 
@@ -257,7 +266,14 @@ export function Game({
     shownMap: mapId,
     cols: Number((tables.maps[mapId ?? ''] as { cols?: number } | undefined)?.cols) || 24,
     engine: soundEngine,
+    themeVersion,
+    bossArt,
   })
+
+  // A cinematic stops the battle music.
+  useEffect(() => {
+    if (cin) fxp.engine.bgStop(2)
+  }, [cin, fxp.engine])
 
   const remoteFx = fxp.remote
 
@@ -441,6 +457,7 @@ export function Game({
             rand={rand}
             icons={icons}
             skillIcons={skillIcons}
+            onPlaySkill={fxp.playSkillSound}
           />
         }
       />
@@ -472,6 +489,7 @@ export function Game({
       )}
       {onTable && (screen === 'table' || role === 'table') && <Overview maps={tables.maps as Record<string, MapEntry>} id={mapId} images={mapImages} />}
       {fxp.scene}
+      {fxp.bossIntro}
       {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} sound={fxp.cinematicSounds} />}
     </div>
   )
@@ -479,3 +497,4 @@ export function Game({
 
 const mapImagePath = (id: string) => `mapimg/${id}`
 const iconPath = (id: string) => `icons/${id}`
+const bossArtPath = (id: string) => `bossart/${id}`

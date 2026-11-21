@@ -10,10 +10,22 @@ export type InitiativeProps = {
   dm: boolean
   me: string
   gmMap: string | null
-  actions: Pick<GameState, 'startInitiative' | 'rollInitiative' | 'rollMonsters' | 'beginCombat' | 'passTurn' | 'endCombat'>
+  actions: Pick<GameState, 'startInitiative' | 'rollInitiative' | 'rollMonsters' | 'beginCombat' | 'passTurn' | 'endCombat' | 'autoTurn'>
 }
 
 const approved = (c: { ap?: unknown }) => c.ap !== false && c.ap !== 'no'
+
+/** On a monster's turn: the GM can let the computer play it. */
+function AutoButton({ tables, ini, onRun }: { tables: Tables; ini: Initiative; onRun: (id: string) => void }) {
+  const u = ini.l[ini.t]
+  const e = u && u.k[0] === 'e' ? tables.enemies[u.k.slice(2)] : undefined
+  if (!e || !((e.hp as number) > 0)) return null
+  return (
+    <button className="pri" onClick={() => onRun(u!.k.slice(2))}>
+      Run {e.name}'s turn
+    </button>
+  )
+}
 
 export function InitiativePanel({ tables, dm, me, gmMap, actions }: InitiativeProps) {
   const ini = tables.ini as Initiative | null
@@ -81,6 +93,7 @@ export function InitiativePanel({ tables, dm, me, gmMap, actions }: InitiativePr
           </div>
         ) : (
           <div className="row mini">
+            <AutoButton tables={tables} ini={ini} onRun={(id) => void actions.autoTurn(id)} />
             <button className="pri" onClick={() => void actions.passTurn()}>
               Next turn
             </button>

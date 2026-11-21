@@ -22,6 +22,11 @@ function fakeEngine(live = true) {
     sfx: vi.fn(),
     wave: vi.fn(),
     boss: vi.fn(),
+    bgStart: vi.fn((_b: unknown, _id: string) => true),
+    bgStop: vi.fn(),
+    bgId: vi.fn((): string | null => null),
+    playTheme: vi.fn((_b: unknown, _d: number) => true),
+    playClip: vi.fn((_k: string) => true),
     preview: vi.fn(),
     volumeTest: vi.fn(),
     setReverb: vi.fn(),
@@ -38,7 +43,7 @@ function fakeDb(tree: Record<string, unknown>, fail = false) {
     if (fail) throw new Error('offline')
     return (tree[p] ?? null) as never
   })
-  return { get, keys: vi.fn(async () => []) } as unknown as Db & { get: typeof get }
+  return { get, keys: vi.fn(async () => (tree.__keys as string[]) ?? []) } as unknown as Db & { get: typeof get }
 }
 
 const mem = (o: Record<string, string> = {}) => {
@@ -52,7 +57,12 @@ function Harness(p: EffectsOptions) {
   useEffect(() => {
     box.latest = r
   })
-  return <>{r.scene}</>
+  return (
+    <>
+      {r.scene}
+      {r.bossIntro}
+    </>
+  )
 }
 
 function setup(o: Partial<EffectsOptions> & { live?: boolean } = {}) {
@@ -82,7 +92,7 @@ describe('settings', () => {
   it("read from this device; changing them saves; turning sound on starts audio; the volume slider plays a test sound", () => {
     const storage = mem({ sc: '0', sn: '0' })
     const { engine } = setup({ storage })
-    expect(box.latest!.fx).toEqual({ scenes: false, s25: true, sound: false, volume: 0.5, reverb: 0.5 })
+    expect(box.latest!.fx).toEqual({ scenes: false, s25: true, sound: false, volume: 0.5, reverb: 0.5, music: true })
     act(() => box.latest!.setFx({ sound: true }))
     expect(engine.unlock).toHaveBeenCalled()
     act(() => box.latest!.setFx({ volume: 0.8 }))
@@ -247,6 +257,8 @@ describe('the wave on this window', () => {
       requestAnimationFrame: (f: (t: number) => void) => frames.push(f),
       performance: { now: () => 0 },
       setTimeout: (f: () => void) => timers.push(f),
+      setInterval: () => 1,
+      clearInterval: () => {},
     } as unknown as Window
     const { store } = setup({ win })
     act(() => store.getState().effects!.wave({ x: 1, y: 1 }))
@@ -255,5 +267,111 @@ describe('the wave on this window', () => {
     timers[0]!()
     expect(document.querySelector('canvas.gwave')).toBeNull()
     vi.restoreAllMocks()
+  })
+})
+
+describe('boss intros and battle music', () => {
+  const themes = { __keys: ['aethelric', 'firstdefier'], 'themes/aethelric': { data: AUDIO }, 'themes/firstdefier': { data: AUDIO } }
+  const withBosses = (o: Partial<EffectsOptions> & { live?: boolean } = {}) => {
+    const x = setup({ db: fakeDb(themes), ...o })
+    act(() => {
+      x.store.getState().applySnapshot({ ...x.store.getState().tables, enemies: { a: { name: 'Aethelric', rk: 'u', hp: 9, mx: 1 }, d: { name: 'Defier', th: 'firstdefier', hp: 0 }, n: { name: 'Rat', hp: 9 } } })
+    })
+    x.engine.decode.mockResolvedValue({ tag: 'theme', duration: 4.2 } as unknown as AudioBuffer)
+    return x
+  }
+
+  it("themes for the bosses on the table are ready before their intro: it starts the boss's battle music", async () => {
+    const { store, engine, r, props } = withBosses({ bossArt: { a: 'data:art' } })
+    await flush()
+    await flush()
+    expect((props.db as unknown as { get: ReturnType<typeof vi.fn> }).get.mock.calls.map((c) => c[0])).toEqual(['themes/aethelric', 'themes/firstdefier'])
+    act(() => store.getState().effects!.boss({ k: 'e:a', n: 'Aethelric', t: 'The First', th: '' }))
+    expect(engine.bgStart).toHaveBeenCalledWith({ tag: 'theme', duration: 4.2 }, 'a')
+    const el = r.getByRole('img', { name: 'Boss: Aethelric' })
+    expect(el.querySelector('img')).toHaveAttribute('src', 'data:art')
+    await act(async () => void (await new Promise((res) => setTimeout(res, 4300))))
+    expect(r.queryByRole('img', { name: 'Boss: Aethelric' })).toBeNull()
+  }, 10000)
+
+  it("with battle music off the theme's opening plays once; without a theme, the boss sting; scenes off, nothing", async () => {
+    const { store, engine, r } = withBosses({ picture: (k) => (k === 'e:n' ? 'data:rat' : null) })
+    await flush()
+    await flush()
+    engine.bgStart.mockReturnValueOnce(false)
+    act(() => store.getState().effects!.boss({ k: 'e:a', n: 'Aethelric', t: '', th: '' }))
+    expect(engine.playTheme).toHaveBeenCalledWith({ tag: 'theme', duration: 4.2 }, 4.2)
+    act(() => store.getState().effects!.boss({ k: 'e:n', n: 'Rat', t: '', th: '' }))
+    expect(engine.boss).toHaveBeenCalledTimes(1)
+    expect(r.getByRole('img', { name: 'Boss: Rat' }).querySelector('img')).toHaveAttribute('src', 'data:rat')
+    engine.bgStart.mockReturnValueOnce(false)
+    engine.playTheme.mockReturnValueOnce(false)
+    act(() => store.getState().effects!.boss({ k: 'e:a', n: 'Aethelric', t: '', th: '' }))
+    expect(engine.boss).toHaveBeenCalledTimes(2)
+    act(() => box.latest!.remote({ boss: { k: 'e:n', n: 'Rat', t: '', th: '' }, by: 'gm', ts: 0 } as never, 'a', 14999))
+    expect(engine.boss).toHaveBeenCalledTimes(3)
+    act(() => box.latest!.remote({ boss: { k: 'e:n', n: 'Rat', t: '', th: '' }, by: 'gm', ts: 0 } as never, 'a', 15000))
+    expect(engine.boss).toHaveBeenCalledTimes(3)
+    act(() => box.latest!.setFx({ scenes: false }))
+    act(() => store.getState().effects!.boss({ k: 'e:n', n: 'Rat', t: '', th: '' }))
+    expect(engine.boss).toHaveBeenCalledTimes(3)
+  })
+
+  it('new themes from the GM are fetched again; no database, no bosses or no audio: nothing to fetch', async () => {
+    const x = withBosses()
+    await flush()
+    await flush()
+    const get = (x.props.db as unknown as { get: ReturnType<typeof vi.fn> }).get
+    const before = get.mock.calls.length
+    x.rerender({ themeVersion: 2 })
+    await flush()
+    await flush()
+    expect(get.mock.calls.length).toBeGreaterThan(before)
+    cleanup()
+    const silent = withBosses({ live: false })
+    await flush()
+    expect((silent.props.db as unknown as { get: ReturnType<typeof vi.fn> }).get).not.toHaveBeenCalled()
+    cleanup()
+    const nodb = setup({ db: null })
+    act(() => nodb.store.getState().effects!.boss({ k: 'e:n', n: 'Rat', t: '', th: '' }))
+    expect(nodb.engine.boss).toHaveBeenCalled()
+    cleanup()
+    const none = setup({ db: fakeDb(themes) })
+    await flush()
+    expect((none.props.db as unknown as { get: ReturnType<typeof vi.fn> }).get).not.toHaveBeenCalled()
+  })
+
+  it('the music stops when its boss falls or leaves, or when sound stops; previews and silence are left alone; turning it off stops it', () => {
+    let tick = () => {}
+    const win = { document, setInterval: (f: () => void) => ((tick = f), 1), clearInterval: vi.fn() } as unknown as Window
+    const { store, engine } = setup({ win })
+    act(() => store.getState().applySnapshot({ ...store.getState().tables, enemies: { a: { name: 'A', hp: 5, mx: 1 }, b: { name: 'B', hp: 0, mx: 1 }, c: { name: 'C', hp: 5 } } }))
+    tick()
+    for (const id of ['pv', 'a']) {
+      engine.bgId.mockReturnValueOnce(id)
+      tick()
+    }
+    expect(engine.bgStop).not.toHaveBeenCalled()
+    for (const id of ['b', 'c', 'gone']) {
+      engine.bgId.mockReturnValueOnce(id)
+      tick()
+    }
+    expect(engine.bgStop.mock.calls).toEqual([[2], [2], [2]])
+    engine.bgId.mockReturnValueOnce('a')
+    engine.live.mockReturnValueOnce(false)
+    tick()
+    expect(engine.bgStop).toHaveBeenLastCalledWith(0.3)
+    act(() => box.latest!.setFx({ music: false }))
+    expect(engine.bgStop).toHaveBeenLastCalledWith(0.8)
+    act(() => box.latest!.setFx({ music: true }))
+    expect(engine.bgStop).toHaveBeenCalledTimes(5)
+  })
+
+  it("a skill's sound: looked for, then played", async () => {
+    const { engine } = setup({ db: fakeDb({ 'absnd/bite': { data: AUDIO } }) })
+    let ok: boolean | undefined
+    await act(async () => void (ok = await box.latest!.playSkillSound('Bite')))
+    expect(engine.playClip).toHaveBeenCalledWith('ab:bite')
+    expect(ok).toBe(true)
   })
 })

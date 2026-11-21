@@ -15,6 +15,7 @@ import {
 } from '../logic/initiative'
 import type { Sheet } from '../logic/sheet'
 import { liveMapId, nextRound, type Maps } from '../logic/table'
+import type { Timers } from './sheetActions'
 import type { GameState } from './store'
 
 export type InitiativeActions = {
@@ -36,7 +37,7 @@ type Get = () => GameState
 type Set_ = (p: Partial<GameState>) => void
 type Save = (f: (d: Db) => Promise<unknown>) => Promise<void>
 
-export function initiativeActions(get: Get, set: Set_, save: Save, rand: () => number): InitiativeActions {
+export function initiativeActions(get: Get, set: Set_, save: Save, rand: () => number, later: Timers): InitiativeActions {
   const state = () => {
     const { tables } = get()
     return { tables, chars: tables.chars as Record<string, Sheet>, enemies: tables.enemies, ini: tables.ini as Initiative | null }
@@ -90,6 +91,8 @@ export function initiativeActions(get: Get, set: Set_, save: Save, rand: () => n
     beginCombat: async () => {
       const { chars, enemies, ini } = state()
       if (!ini || ini.ph !== 'roll' || !allRolled(ini, chars, enemies)) return
+      // The first boss in sight gets its intro half a second later.
+      later(() => get().introBosses(), 500)
       const next = beginCombat(ini, chars, enemies, rand)
       setIni(next, true)
       await save((d) => d.put('init', next))

@@ -29,6 +29,9 @@ type Actions = Pick<
   | 'setBossArt'
   | 'setSkillIcon'
   | 'notice'
+  | 'autoTurn'
+  | 'bossIntro'
+  | 'setSpawn'
 >
 
 export type EnemiesPanelProps = {
@@ -45,11 +48,13 @@ export type EnemiesPanelProps = {
   /** Token pictures by enemy id (when loaded), and skill icons by skill slug. */
   icons?: Record<string, string>
   skillIcons?: Record<string, string>
+  /** Plays a skill's ability sound here; false when it has none. */
+  onPlaySkill?: (name: string) => Promise<boolean>
 }
 
 const EMPTY_FORM: NewEnemyForm = { name: '', type: '', size: '1', hp: '', speed: '', poise: '', ac: '', attack: '', damage: '' }
 
-export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCinematic, confirm = (q) => window.confirm(q), rand = Math.random, icons = {}, skillIcons = {} }: EnemiesPanelProps) {
+export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCinematic, confirm = (q) => window.confirm(q), rand = Math.random, icons = {}, skillIcons = {}, onPlaySkill = async () => false }: EnemiesPanelProps) {
   const { enemies, chars, maps } = tables
   const order = enemyListOrder(enemies, Object.keys(enemies))
   const [form, setForm] = useState<NewEnemyForm>(EMPTY_FORM)
@@ -215,6 +220,15 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                           <input type="checkbox" checked={!!q.a} onChange={(x) => sv('a', x.target.checked)} />
                         </label>
                         {skillIcons[abilitySlug(q.n)] && <img className="abi" src={skillIcons[abilitySlug(q.n)]} alt="" />}
+                        <button
+                          onClick={() =>
+                            void onPlaySkill(q.n).then(
+                              (ok) => ok || actions.notice(`No custom sound for ${q.n} yet. The skill name must match an imported ability name, and sound must be on.`),
+                            )
+                          }
+                        >
+                          Play sound
+                        </button>
                         <PictureButton process={(kit, src) => squareIcon(kit, src, 96)} onPicture={(d) => actions.setSkillIcon(abilitySlug(q.n), d)} onError={actions.notice}>
                           {skillIcons[abilitySlug(q.n)] ? 'Change icon' : 'Icon'}
                         </PictureButton>
@@ -252,6 +266,9 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                         Start phase 2: {enemies[e.nx]!.name}
                       </button>
                     )}
+                    <button onClick={() => void actions.autoTurn(id)}>Auto turn</button>
+                    <button onClick={() => void actions.bossIntro(id)}>Boss intro</button>
+                    <button onClick={() => void actions.setSpawn(id)}>Set spawn</button>
                     <button onClick={() => void actions.updateEnemy(id, { stun: !e.stun })}>{e.stun ? 'Unstun' : 'Stun'}</button>
                     <PictureButton process={tokenIcon} onPicture={(d) => actions.setIcon(`e:${id}`, d)} onError={actions.notice}>
                       Icon
@@ -264,7 +281,7 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                     </PictureButton>
                     <button onClick={() => confirm('Remove this enemy?') && void actions.removeEnemy(id)}>Remove</button>
                   </div>
-                  <p className="note">Auto turn, boss intro, spawn point and skill sounds are still on the live table.</p>
+                  
                 </div>
               )}
             </div>

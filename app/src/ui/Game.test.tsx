@@ -516,6 +516,33 @@ describe('<Game /> attack scenes', () => {
     expect(scene.querySelector('.R img')).toHaveAttribute('src', 'data:image/png;base64,QQ')
     expect(scene.querySelector('.L .em')).toHaveTextContent('W')
   })
+
+  it("the GM's boss intro shows here with the boss art", async () => {
+    const storage = memory()
+    storage.setItem('next.st', JSON.stringify({ pin: 'dragon42', role: 'player', me: 'a' }))
+    const { fb } = setup(
+      {
+        tables: {
+          dragon42: {
+            meta: { dm: 'h' },
+            cur: 'm',
+            maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, iv: 1 } },
+            mapimg: { m: { data: 'data:image/png;base64,TQ' } },
+            bossart: { w: { data: 'data:image/webp;base64,QVJU' } },
+            chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, mx: 1, my: 1, x10: true } },
+            enemies: { w: { name: 'Aethelric', hp: 9, max: 9, mx: 2, my: 1, ba: 3, x10: true } },
+          },
+        },
+      },
+      { storage },
+    )
+    await screen.findByRole('img', { name: 'Map: Crypt' })
+    await vi.waitFor(() => expect((fb.fetch as unknown as { mock: { calls: [string][] } }).mock.calls.some(([u]) => u.includes('/bossart/w'))).toBe(true))
+    await new Promise((r) => setTimeout(r, 50))
+    fb.set('tables/dragon42/rolls/b1', { boss: { k: 'e:w', n: 'Aethelric', t: 'The First', th: '' }, ts: 1000, by: 'gm' })
+    const intro = await screen.findByRole('img', { name: 'Boss: Aethelric' })
+    expect(intro.querySelector('img')).toHaveAttribute('src', 'data:image/webp;base64,QVJU')
+  })
 })
 
 describe('<Game /> coming back', () => {

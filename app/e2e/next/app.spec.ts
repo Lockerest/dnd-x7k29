@@ -763,3 +763,93 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
   expect(errors).toEqual([])
   await ctx.close()
 })
+
+test('enemy extras: combat begins with the boss intro and its battle music on every screen; the GM runs the boss turn', async ({ browser }) => {
+  // A 4-second test tone as the boss theme (a WAV the browser can decode).
+  const rate = 8000
+  const n = rate * 4
+  const wav = Buffer.alloc(44 + n * 2)
+  wav.write('RIFF', 0)
+  wav.writeUInt32LE(36 + n * 2, 4)
+  wav.write('WAVEfmt ', 8)
+  wav.writeUInt32LE(16, 16)
+  wav.writeUInt16LE(1, 20)
+  wav.writeUInt16LE(1, 22)
+  wav.writeUInt32LE(rate, 24)
+  wav.writeUInt32LE(rate * 2, 28)
+  wav.writeUInt16LE(2, 32)
+  wav.writeUInt16LE(16, 34)
+  wav.write('data', 36)
+  wav.writeUInt32LE(n * 2, 40)
+  for (let i = 0; i < n; i++) wav.writeInt16LE(Math.round(Math.sin((i / rate) * 2 * Math.PI * 220) * 8000), 44 + i * 2)
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x', thv: 1 },
+    themes: { aethelric: { n: 'Aethelric', data: `data:audio/wav;base64,${wav.toString('base64')}` } },
+    chars: { p1: { name: 'Lyra', cls: 'fighter', hp: 140, maxHp: 140, st: 100, maxSt: 100, dex: 10, ac: 30, mx: 1, my: 1, mp: 'm', x10: true } },
+    enemies: { a: { name: 'Aethelric', bt: 'The Fallen King', rk: 'u', hp: 300, max: 300, mx: 6, my: 1, mp: 'm', ib: -20, x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1 } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) {
+    p.on('pageerror', (e) => errors.push(e.message))
+    await useFakeFirebase(p, db)
+    // Record how long each sound that starts is (the theme is the 4-second one).
+    await p.addInitScript(() => {
+      const w = window as unknown as { __long: number }
+      w.__long = 0
+      const C = window.AudioContext
+      window.AudioContext = class extends C {
+        createBufferSource() {
+          const s = super.createBufferSource()
+          const start = s.start.bind(s)
+          s.start = (...a: number[]) => {
+            if (s.buffer && s.buffer.duration > 3.5) w.__long++
+            return start(...(a as []))
+          }
+          return s
+        }
+      }
+    })
+  }
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => {
+    localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}')
+    Math.random = () => 0.5
+  })
+  await gm.goto(base + 'next/')
+  await pl.goto(base + 'next/')
+  // A first tap on each screen lets sound play (and the boss theme get ready).
+  await gm.getByRole('heading', { name: 'Dice' }).click()
+  await pl.getByRole('heading', { name: 'Dice' }).click()
+
+  await gm.getByRole('button', { name: 'Start initiative' }).click()
+  await pl.getByLabel('Turn order').getByRole('button', { name: 'Roll' }).click()
+  await gm.getByRole('button', { name: 'Roll enemies' }).click()
+  await expect(gm.getByRole('button', { name: 'Begin combat' })).toBeEnabled({ timeout: 15_000 })
+  await gm.getByRole('button', { name: 'Begin combat' }).click()
+
+  // The boss intro on both screens, with the theme as battle music.
+  await expect(gm.getByRole('img', { name: 'Boss: Aethelric' })).toBeVisible({ timeout: 5000 })
+  await expect(gm.getByRole('img', { name: 'Boss: Aethelric' })).toContainText('The Fallen King')
+  await expect(pl.getByRole('img', { name: 'Boss: Aethelric' })).toBeVisible({ timeout: 8000 })
+  await expect.poll(() => gm.evaluate(() => (window as unknown as { __long: number }).__long)).toBeGreaterThan(0)
+  await expect.poll(() => pl.evaluate(() => (window as unknown as { __long: number }).__long)).toBeGreaterThan(0)
+  expect(db.get('tables/dragon42/enemies/a/bi')).toBe(true)
+
+  // Lyra goes first (the boss rolled low); then the GM lets the computer run the boss's turn.
+  await gm.getByRole('button', { name: 'Next turn' }).click()
+  await gm.getByRole('button', { name: "Run Aethelric's turn" }).click()
+  const said = () => Object.values((db.get('tables/dragon42/rolls') as object) ?? {}).flatMap((r: { ev?: string }) => (r.ev ? [r.ev] : []))
+  await expect.poll(said, { timeout: 10_000 }).toContain('Aethelric advances on Lyra')
+  await expect.poll(said, { timeout: 15_000 }).toContainEqual(expect.stringMatching(/^Aethelric (misses|hits) Lyra/))
+  expect(db.get('tables/dragon42/enemies/a/mx')).toBe(2)
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})

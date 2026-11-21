@@ -99,6 +99,9 @@ export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, act
                 <input type="checkbox" checked={fx.s25} style={{ width: 'auto' }} onChange={(e) => onFx({ s25: e.target.checked })} /> 2.5D camera
               </label>
               <label className="sub">
+                <input type="checkbox" checked={fx.music} style={{ width: 'auto' }} onChange={(e) => onFx({ music: e.target.checked })} /> Battle music
+              </label>
+              <label className="sub">
                 <input type="checkbox" checked={fx.sound} style={{ width: 'auto' }} onChange={(e) => onFx({ sound: e.target.checked })} /> Sound
               </label>
               <input type="range" min={0} max={100} value={Math.round(fx.volume * 100)} style={{ width: 90 }} aria-label="Volume" onChange={(e) => onFx({ volume: +e.target.value / 100 })} />
