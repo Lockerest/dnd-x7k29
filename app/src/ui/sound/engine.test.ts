@@ -198,7 +198,7 @@ describe('other sounds', () => {
     expect(await setup({}, { badDecode: true }).e.decode(new ArrayBuffer(1))).toBeNull()
   })
 
-  it("clips can be removed; new GM clips replace the old ones but keep ability sounds", () => {
+  it('clips can be removed; new GM clips replace the old ones but keep ability sounds', () => {
     const { e } = setup()
     e.setClip('slash', clip('a'))
     e.setClip('ab:x', clip('b'))
@@ -206,6 +206,14 @@ describe('other sounds', () => {
     expect([e.hasClip('slash'), e.hasClip('ab:x')]).toEqual([false, true])
     e.setClip('ab:x', null)
     expect(e.hasClip('ab:x')).toBe(false)
+  })
+
+  it('every ability sound can be dropped at once, keeping the GM clips', () => {
+    const { e } = setup()
+    e.setClip('slash', clip('a'))
+    e.setClip('ab:x', clip('b'))
+    e.clearAbilities()
+    expect([e.hasClip('slash'), e.hasClip('ab:x')]).toEqual([true, false])
   })
 })
 
@@ -223,7 +231,13 @@ describe('battle music', () => {
     const timers: [() => void, number][] = []
     const cleared: unknown[] = []
     const settings = { on: o.on ?? true, volume: 0.5, reverb: 0.5, music: o.music ?? true }
-    const e = createSoundEngine({ AudioContext: a.Ctor, random: () => 0.5, settings: () => settings, setTimeout: (f, ms) => (timers.push([f, ms]), timers.length), clearTimeout: (h) => void cleared.push(h) })
+    const e = createSoundEngine({
+      AudioContext: a.Ctor,
+      random: () => 0.5,
+      settings: () => settings,
+      setTimeout: (f, ms) => (timers.push([f, ms]), timers.length),
+      clearTimeout: (h) => void cleared.push(h),
+    })
     e.unlock()
     return { e, a, timers, cleared, settings }
   }
@@ -270,7 +284,19 @@ describe('battle music', () => {
     const { e, a } = music()
     // Nodes that throw when touched, as closed ones do.
     const make = a.ctxs[0]!.createGain
-    a.ctxs[0]!.createGain = () => ({ ...make(), gain: { value: 1, cancelScheduledValues: () => { throw new Error('closed') }, setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() } }) as never
+    a.ctxs[0]!.createGain = () =>
+      ({
+        ...make(),
+        gain: {
+          value: 1,
+          cancelScheduledValues: () => {
+            throw new Error('closed')
+          },
+          setValueAtTime: vi.fn(),
+          exponentialRampToValueAtTime: vi.fn(),
+          linearRampToValueAtTime: vi.fn(),
+        },
+      }) as never
     e.bgStart(theme, 'w')
     expect(() => e.bgStop()).not.toThrow()
     expect(e.bgId()).toBeNull()

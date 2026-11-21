@@ -17,6 +17,7 @@ import { useStore } from 'zustand'
 import { createSoundEngine, type FxEvent, type SoundEngine } from './engine'
 import { loadFxSettings, saveFxSettings, type FxSettings } from './settings'
 import { playWave, waveCenter } from './wave'
+import { useSoundTools } from './useSoundTools'
 
 type Wave = { m?: string | null; x: number; y: number }
 
@@ -87,6 +88,7 @@ export function useEffectsPlayer(o: EffectsOptions) {
 
   // The GM's clips (raw), decoded once audio may play.
   const clips = useRef<Record<string, string>>({})
+  const [slots, setSlots] = useState<string[]>([])
   const decodeClips = useCallback(async () => {
     for (const [k, data] of Object.entries(clips.current)) {
       if (engine.hasClip(k)) continue
@@ -99,6 +101,7 @@ export function useEffectsPlayer(o: EffectsOptions) {
     db.get<Record<string, { data?: string }>>('sounds').then(
       (d) => {
         clips.current = Object.fromEntries(Object.entries(d || {}).flatMap(([k, v]) => (v?.data ? [[k, v.data]] : [])))
+        setSlots(Object.keys(clips.current))
         engine.clearSlots()
         if (engine.live()) void decodeClips()
       },
@@ -156,8 +159,8 @@ export function useEffectsPlayer(o: EffectsOptions) {
   const [scenes, setScenes] = useState<{ id: number; f: FxEvent }[]>([])
   const nextId = useRef(0)
   const playScene = useCallback(
-    (f: FxEvent) => {
-      if (!settings.get().scenes || !f.a || !f.t) return
+    (f: FxEvent, force = false) => {
+      if (!(settings.get().scenes || force) || !f.a || !f.t) return
       setScenes((q) => (q.length - 1 < maxWaiting ? [...q, { id: ++nextId.current, f }] : q))
     },
     [maxWaiting, settings],
@@ -243,6 +246,35 @@ export function useEffectsPlayer(o: EffectsOptions) {
     if (p.sound) engine.unlock()
     if (p.volume != null) engine.volumeTest()
     if (p.music === false) engine.bgStop(0.8)
+    if (p.reverb != null) engine.setReverb(p.reverb)
+  }
+
+  const tools = useSoundTools({
+    store,
+    db,
+    engine,
+    loader,
+    clipsRef: clips,
+    slots,
+    setSlots,
+    decodeClips,
+    forgetAbility: (slug) => {
+      loader?.forgetSound(slug)
+      if (slug == null) tried.current.clear()
+      else tried.current.delete(slug)
+    },
+  })
+  /** The test lab: a scene or the Golden Wave, only on this screen (even with scenes off). */
+  const lab = {
+    scene: (f: FxEvent) => playScene(f, true),
+    wave: () => {
+      const { shownMap, cols } = opts.current
+      const m = store.getState().tables.maps[shownMap ?? ''] as { w?: number; h?: number } | undefined
+      const rows = m?.w && m.h ? Math.floor(m.h / (m.w / cols)) : 0
+      wave({ m: shownMap, x: m ? cols / 2 : 0, y: rows / 2 })
+    },
+    /** The Reverb slider (this device). */
+    reverb: (v: number) => setFx({ reverb: v }),
   }
 
   const scene = current && (
@@ -268,5 +300,5 @@ export function useEffectsPlayer(o: EffectsOptions) {
 
   const bossIntro = boss && <BossIntroOverlay key={boss.n} b={boss.b} image={boss.image} art={boss.art} seconds={boss.seconds} onDone={() => setBoss(null)} />
 
-  return { fx, setFx, scene, bossIntro, remote, engine, playSkillSound, cinematicSounds: engine.cinematic }
+  return { fx, setFx, scene, bossIntro, remote, engine, playSkillSound, cinematicSounds: engine.cinematic, tools, lab }
 }

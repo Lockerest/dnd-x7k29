@@ -5,6 +5,7 @@ import { createReadStream, existsSync } from 'node:fs'
 import { createServer, type Server } from 'node:http'
 import { extname, join, resolve } from 'node:path'
 import { FakeDb } from '../harness.ts'
+import { wavTone } from '../wav.ts'
 
 const DIST = resolve(import.meta.dirname, '../../dist')
 const LEGACY = resolve(import.meta.dirname, '../../../index.html')
@@ -766,22 +767,7 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
 
 test('enemy extras: combat begins with the boss intro and its battle music on every screen; the GM runs the boss turn', async ({ browser }) => {
   // A 4-second test tone as the boss theme (a WAV the browser can decode).
-  const rate = 8000
-  const n = rate * 4
-  const wav = Buffer.alloc(44 + n * 2)
-  wav.write('RIFF', 0)
-  wav.writeUInt32LE(36 + n * 2, 4)
-  wav.write('WAVEfmt ', 8)
-  wav.writeUInt32LE(16, 16)
-  wav.writeUInt16LE(1, 20)
-  wav.writeUInt16LE(1, 22)
-  wav.writeUInt32LE(rate, 24)
-  wav.writeUInt32LE(rate * 2, 28)
-  wav.writeUInt16LE(2, 32)
-  wav.writeUInt16LE(16, 34)
-  wav.write('data', 36)
-  wav.writeUInt32LE(n * 2, 40)
-  for (let i = 0; i < n; i++) wav.writeInt16LE(Math.round(Math.sin((i / rate) * 2 * Math.PI * 220) * 8000), 44 + i * 2)
+  const wav = wavTone(4)
   const db = new FakeDb()
   db.set('tables/dragon42', {
     meta: { dm: 'x', thv: 1 },
@@ -849,6 +835,108 @@ test('enemy extras: combat begins with the boss intro and its battle music on ev
   await expect.poll(said, { timeout: 10_000 }).toContain('Aethelric advances on Lyra')
   await expect.poll(said, { timeout: 15_000 }).toContainEqual(expect.stringMatching(/^Aethelric (misses|hits) Lyra/))
   expect(db.get('tables/dragon42/enemies/a/mx')).toBe(2)
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})
+
+test("the GM's test lab: test scenes and the wave here only; clips, ability sounds and boss themes saved for every screen", async ({ browser }) => {
+  const wav = wavTone(1)
+  const audio = (name: string) => ({ name, mimeType: 'audio/wav', buffer: wav })
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x', snd: 1, thv: 1 },
+    chars: { p1: { name: 'Lyra', cls: 'fighter', hp: 30, maxHp: 30, st: 100, maxSt: 100, x10: true } },
+    enemies: { w: { name: 'Wolf', hp: 20, max: 20, x10: true } },
+    maps: { m: { name: 'Crypt', w: 500, h: 400, cols: 10, v2: 1 } },
+    cur: 'm',
+  })
+  const errors: string[] = []
+  const gmCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const plCtx = await browser.newContext({ viewport: { width: 1400, height: 1000 } })
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  const plRequests: string[] = []
+  for (const p of [gm, pl]) p.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(gm, db)
+  await useFakeFirebase(pl, db, plRequests)
+  gm.on('dialog', (d) => void d.accept())
+  await gm.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('next.st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await gm.goto(base + 'next/')
+  await pl.goto(base + 'next/')
+  await gm.getByRole('heading', { name: 'Dice' }).click()
+  await pl.getByRole('heading', { name: 'Dice' }).click()
+  await expect(pl.getByRole('button', { name: 'Show test lab' })).toHaveCount(0)
+
+  // Scenes are off on the GM's screen, yet the lab still plays one there (and only there).
+  await gm.getByLabel('Attack scenes').uncheck()
+  await gm.getByRole('button', { name: 'Show test lab' }).click()
+  const lab = gm.getByLabel('Test lab')
+  await lab.getByLabel('Attacker').selectOption({ label: 'Lyra (player)' })
+  await lab.getByLabel('Target').selectOption({ label: 'Wolf (enemy)' })
+  await lab.getByRole('button', { name: 'Critical hit' }).click()
+  await expect(gm.getByRole('img', { name: 'Lyra attacks Wolf' })).toBeVisible()
+  await lab.getByRole('button', { name: 'Golden Wave' }).click()
+  await expect(gm.locator('canvas.gwave')).toHaveCount(1)
+  await gm.waitForTimeout(1500)
+  await expect(pl.locator('.scn')).toHaveCount(0)
+  await expect(pl.locator('canvas.gwave')).toHaveCount(0)
+
+  // A clip for the slash hit: saved, stamped, and loaded by the player's screen.
+  const slot = lab.getByLabel('Slot: Slash hit')
+  await expect(slot).toContainText('Slash hit: built-in')
+  const upload = async (b: ReturnType<typeof gm.getByRole>, file: { name: string; mimeType: string; buffer: Buffer }) => {
+    const chooser = gm.waitForEvent('filechooser')
+    await b.click()
+    await (await chooser).setFiles(file)
+  }
+  await upload(slot.getByRole('button', { name: 'Upload' }), audio('slash.wav'))
+  await expect(slot).toContainText('Slash hit: custom')
+  expect(db.get('tables/dragon42/sounds/slash/data')).toBe(`data:audio/wav;base64,${wav.toString('base64')}`)
+  expect(db.get('tables/dragon42/meta/snd')).not.toBe(1)
+  await expect.poll(() => plRequests.filter((r) => r === 'GET /tables/dragon42/sounds').length, { timeout: 10_000 }).toBeGreaterThan(1)
+  // A clip that is too big is refused.
+  await upload(lab.getByLabel('Slot: Parry').getByRole('button', { name: 'Upload' }), { name: 'big.wav', mimeType: 'audio/wav', buffer: Buffer.alloc(460_000) })
+  await expect(gm.getByText('That clip is too big (max about 450 KB). Trim it or lower its quality first.')).toBeVisible()
+  await slot.getByRole('button', { name: 'Remove' }).click()
+  await expect(slot).toContainText('Slash hit: built-in')
+  expect(db.get('tables/dragon42/sounds/slash')).toBeNull()
+
+  // The audio host is out of reach here: the web import says so.
+  await lab.getByRole('button', { name: 'Import base attack sounds from web' }).click()
+  await expect(lab.getByText('Blocked by the browser. Use the Upload buttons.')).toBeVisible({ timeout: 10_000 })
+
+  // Ability sound files, matched by name; then all removed.
+  const chooser = gm.waitForEvent('filechooser')
+  await lab.getByRole('button', { name: 'Import files' }).click()
+  await (await chooser).setFiles([audio('Firebolt.mp3'), audio('mystery.mp3')])
+  await expect(lab.getByText('1 imported, 1 unmatched/failed')).toBeVisible()
+  expect(db.get('tables/dragon42/absnd/firebolt/data')).toBeTruthy()
+  await lab.getByRole('button', { name: 'Remove all' }).click()
+  await expect(lab.getByText('Removed.')).toBeVisible()
+  expect(db.get('tables/dragon42/absnd')).toBeNull()
+
+  // A boss theme: uploaded, played, removed; and one for a boss of the GM's own.
+  const arachne = lab.getByLabel('Theme: Arachne')
+  await upload(arachne.getByRole('button', { name: 'Upload' }), audio('arachne.wav'))
+  await expect(arachne).toContainText('Arachne: theme loaded')
+  expect(db.get('tables/dragon42/themes/arachne/n')).toBe('Arachne')
+  await arachne.getByRole('button', { name: 'Play' }).click()
+  await arachne.getByRole('button', { name: 'Remove' }).click()
+  await expect(arachne).toContainText('Arachne: none')
+  gm.removeAllListeners('dialog')
+  gm.once('dialog', (d) => void d.accept('The Warden'))
+  await upload(lab.getByRole('button', { name: 'Add another boss theme' }), audio('warden.wav'))
+  await expect(lab.getByLabel('Theme: The Warden')).toContainText('The Warden: theme loaded')
+  expect(db.get('tables/dragon42/themes/thewarden/n')).toBe('The Warden')
+  // Opened again later, the lab lists the saved themes.
+  await gm.getByRole('button', { name: 'Hide test lab' }).click()
+  await gm.getByRole('button', { name: 'Show test lab' }).click()
+  await expect(gm.getByLabel('Theme: The Warden')).toContainText('theme loaded')
+  // The reverb slider is this device's setting.
+  await gm.getByLabel('Reverb').fill('20')
+  expect(await gm.evaluate(() => localStorage.getItem('rv'))).toBe('0.2')
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()

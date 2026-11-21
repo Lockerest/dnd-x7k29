@@ -28,6 +28,8 @@ import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
 import { CinematicOverlay } from './CinematicOverlay'
 import { DicePanel } from './screens/Dice'
+import { TestLab } from './screens/TestLab'
+import type { Sheet } from '../logic/sheet'
 import { Overview } from './screens/MapTools'
 import { parentOf, type MapEntry } from '../logic/mapTools'
 import { boardOrDefault, type Board } from '../logic/board'
@@ -439,7 +441,31 @@ export function Game({
         skillIcons={skillIcons}
         now={now}
         storage={storage}
-        dicePanel={<DicePanel tables={tables} dm={dm} me={me} dice={dice} busy={diceBusy} secretRolls={secretRolls} actions={diceActions} fx={fxp.fx} onFx={fxp.setFx} />}
+        dicePanel={
+          <DicePanel
+            tables={tables}
+            dm={dm}
+            me={me}
+            dice={dice}
+            busy={diceBusy}
+            secretRolls={secretRolls}
+            actions={diceActions}
+            fx={fxp.fx}
+            onFx={fxp.setFx}
+            lab={
+              <TestLab
+                chars={tables.chars as Record<string, Sheet>}
+                enemies={tables.enemies}
+                board={boardOrDefault(tables.board as Board | null)}
+                tools={fxp.tools}
+                lab={fxp.lab}
+                reverb={fxp.fx.reverb}
+                onReverb={fxp.lab.reverb}
+                ask={ask}
+              />
+            }
+          />
+        }
         onApprove={approve}
         onClaim={decideClaim}
         enemiesPanel={

@@ -65,7 +65,16 @@ describe('the Dice card', () => {
   it('the log: lines in italics, rolls with their style, bonus and total, newest first', () => {
     const rolls = {
       a: { ev: 'Lyra hits Wolf for 40', ts: 1 },
-      b: { n: 'Lyra', ds: [{ d: 6, r: 2 }, { d: 6, r: 5 }], m: 3, ts: 2, sk: 'gold' },
+      b: {
+        n: 'Lyra',
+        ds: [
+          { d: 6, r: 2 },
+          { d: 6, r: 5 },
+        ],
+        m: 3,
+        ts: 2,
+        sk: 'gold',
+      },
       c: { n: 'Bo', ds: [{ d: 20, r: 9 }], ts: 3 },
     }
     show({ t: tables({ rolls }) })
@@ -81,7 +90,7 @@ describe('the Dice card', () => {
 })
 
 describe('scene and sound settings on the Dice card', () => {
-  it('shows this device\'s settings and changes them', () => {
+  it("shows this device's settings and changes them", () => {
     const onFx = vi.fn()
     render(
       <DicePanel
@@ -107,7 +116,32 @@ describe('scene and sound settings on the Dice card', () => {
   })
 
   it('changing them without a handler does nothing', () => {
-    render(<DicePanel tables={tables()} dm={false} me="a" dice={defaultDice()} secretRolls={[]} actions={{ setDice: vi.fn(), rollDie: vi.fn() }} fx={{ scenes: true, s25: true, sound: true, volume: 0.5, reverb: 0.5, music: true }} />)
+    render(
+      <DicePanel
+        tables={tables()}
+        dm={false}
+        me="a"
+        dice={defaultDice()}
+        secretRolls={[]}
+        actions={{ setDice: vi.fn(), rollDie: vi.fn() }}
+        fx={{ scenes: true, s25: true, sound: true, volume: 0.5, reverb: 0.5, music: true }}
+      />,
+    )
     fireEvent.click(screen.getByLabelText('Sound'))
+  })
+})
+
+describe("the GM's test lab", () => {
+  it('shown and hidden with its button; players never see it', () => {
+    const props = { tables: tables(), me: 'a', dice: defaultDice(), secretRolls: [], actions: { setDice: vi.fn(), rollDie: vi.fn() }, lab: <p>The lab</p> }
+    render(<DicePanel {...props} dm />)
+    expect(screen.queryByText('The lab')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: 'Show test lab' }))
+    expect(screen.getByText('The lab')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Hide test lab' }))
+    expect(screen.queryByText('The lab')).toBeNull()
+    cleanup()
+    render(<DicePanel {...props} dm={false} />)
+    expect(screen.queryByRole('button', { name: 'Show test lab' })).toBeNull()
   })
 })

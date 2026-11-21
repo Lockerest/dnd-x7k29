@@ -7,36 +7,18 @@ import type { Db } from '../../db/client'
 import { createGameStore } from '../../state/store'
 import type { SoundEngine } from './engine'
 import { useEffectsPlayer, type EffectsOptions } from './useEffects'
+import { fakeEngine } from '../../testing/fakeEngine'
 
 afterEach(cleanup)
-beforeEach(() => vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 404 }))))
+beforeEach(() =>
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async () => new Response('', { status: 404 })),
+  ),
+)
 afterEach(() => vi.unstubAllGlobals())
 
 const AUDIO = `data:audio/mpeg;base64,${btoa('abc')}`
-
-function fakeEngine(live = true) {
-  const clips = new Set<string>()
-  return {
-    unlock: vi.fn(() => (live ? ({} as AudioContext) : null)),
-    live: vi.fn(() => live),
-    sfx: vi.fn(),
-    wave: vi.fn(),
-    boss: vi.fn(),
-    bgStart: vi.fn((_b: unknown, _id: string) => true),
-    bgStop: vi.fn(),
-    bgId: vi.fn((): string | null => null),
-    playTheme: vi.fn((_b: unknown, _d: number) => true),
-    playClip: vi.fn((_k: string) => true),
-    preview: vi.fn(),
-    volumeTest: vi.fn(),
-    setReverb: vi.fn(),
-    cinematic: { thunk: vi.fn(), glow: vi.fn(), slam: vi.fn(), crack: vi.fn(), collapse: vi.fn() },
-    decode: vi.fn(async () => ({ tag: 'buf' }) as unknown as AudioBuffer),
-    setClip: vi.fn((k: string, b: AudioBuffer | null) => (b ? clips.add(k) : clips.delete(k))),
-    hasClip: vi.fn((k: string) => clips.has(k)),
-    clearSlots: vi.fn(() => clips.clear()),
-  }
-}
 
 function fakeDb(tree: Record<string, unknown>, fail = false) {
   const get = vi.fn(async (p: string) => {
@@ -89,7 +71,7 @@ function setup(o: Partial<EffectsOptions> & { live?: boolean } = {}) {
 const flush = () => act(async () => void (await new Promise((r) => setTimeout(r, 0))))
 
 describe('settings', () => {
-  it("read from this device; changing them saves; turning sound on starts audio; the volume slider plays a test sound", () => {
+  it('read from this device; changing them saves; turning sound on starts audio; the volume slider plays a test sound', () => {
     const storage = mem({ sc: '0', sn: '0' })
     const { engine } = setup({ storage })
     expect(box.latest!.fx).toEqual({ scenes: false, s25: true, sound: false, volume: 0.5, reverb: 0.5, music: true })
@@ -275,7 +257,9 @@ describe('boss intros and battle music', () => {
   const withBosses = (o: Partial<EffectsOptions> & { live?: boolean } = {}) => {
     const x = setup({ db: fakeDb(themes), ...o })
     act(() => {
-      x.store.getState().applySnapshot({ ...x.store.getState().tables, enemies: { a: { name: 'Aethelric', rk: 'u', hp: 9, mx: 1 }, d: { name: 'Defier', th: 'firstdefier', hp: 0 }, n: { name: 'Rat', hp: 9 } } })
+      x.store
+        .getState()
+        .applySnapshot({ ...x.store.getState().tables, enemies: { a: { name: 'Aethelric', rk: 'u', hp: 9, mx: 1 }, d: { name: 'Defier', th: 'firstdefier', hp: 0 }, n: { name: 'Rat', hp: 9 } } })
     })
     x.engine.decode.mockResolvedValue({ tag: 'theme', duration: 4.2 } as unknown as AudioBuffer)
     return x

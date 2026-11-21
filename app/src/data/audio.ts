@@ -305,3 +305,23 @@ export const ABILITY_SOUNDS: Record<string, string> = {
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`
+
+/** The GM's base attack sounds on the audio host, by clip slot ("Import base attack sounds from web"). */
+export const BASE_SOUNDS: Record<string, string> = {
+  swing: 'de0e6e2b-d041-4f3a-bca1-e01f611048ff',
+  bow: '13d91d45-d01c-4aac-b095-07eca8eb5269',
+  slash: '0b034496-b0e1-4305-b543-d6562d6d11ab',
+  heavy: '0c811e37-07a8-46d4-88fb-a950093f6dae',
+  bash: 'ba48cb49-1b8f-4bf7-949e-4738b73df541',
+  parry: '6fe842e4-1701-4c7f-98a5-4edf3be31db6',
+  dodge: '05be4be7-009f-4b35-9892-9abd3e63c224',
+  dodgeh: '5b033a3c-3be2-4c8b-a7df-735da06db897',
+  fire: '2346f2d0-593d-4096-a247-c7fc0968fc54',
+  ice: '730630cd-fc62-4c04-8cba-a9443cf88ff6',
+  bolt: 'bd9221a2-0675-47a6-8bc0-a1d6054ba94b',
+  arrow: 'cb7d9d2d-1e66-400e-aa8f-979757272ed6',
+  poison: '0486ac81-1758-4c63-93b6-9d441221f0be',
+}
+
+/** The bosses that always get a row in the GM's Boss themes list. */
+export const BOSS_NAMES = ['Aethelric', 'Arachne', 'Kernunos', 'Nameless King', "Odi'ram", 'Xibalba', "Izat'al"]

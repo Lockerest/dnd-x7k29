@@ -1,6 +1,7 @@
 // Parity: the data files in src/data must equal the tables inside the live page.
 import { expect, test } from '../harness.ts'
-import { ABILITY_SOUNDS, AUDIO_BASE, THEME_GROUPS, THEMES } from '../../src/data/audio.ts'
+import { SOUND_SLOTS } from '../../src/ui/sound/engine.ts'
+import { ABILITY_SOUNDS, AUDIO_BASE, BASE_SOUNDS, BOSS_NAMES, THEME_GROUPS, THEMES } from '../../src/data/audio.ts'
 import { AETHELRIC_75 } from '../../src/data/cinematics.ts'
 import { CLASSES } from '../../src/data/classes.ts'
 import { EFFECT_EMOJI, EFFECT_KEYWORDS } from '../../src/data/effects.ts'
@@ -12,9 +13,7 @@ import type { Enemy } from '../../src/logic/types.ts'
 import { rng } from './random.ts'
 
 test('rule tables', async ({ legacy }) => {
-  const p = await legacy.run<Record<string, unknown>>(
-    '({SC,CS,WR,AD0,HEAL0:Object.fromEntries(Object.entries(HEAL0).map(([k,v])=>[k,{d:v.d,b:v.b({level:7,int:16})}]))})',
-  )
+  const p = await legacy.run<Record<string, unknown>>('({SC,CS,WR,AD0,HEAL0:Object.fromEntries(Object.entries(HEAL0).map(([k,v])=>[k,{d:v.d,b:v.b({level:7,int:16})}]))})')
   expect(SC).toBe(p.SC)
   expect(CLASS_STAT).toEqual(p.CS)
   expect(WEAPON_REACH).toEqual(p.WR)
@@ -34,9 +33,7 @@ test('classes', async ({ legacy }) => {
 })
 
 test('skill sets, cinematic preset and effects', async ({ legacy }) => {
-  const p = await legacy.run<{ SKP: unknown; CINP: string; FXK: [string, string, string][]; FXE: unknown }>(
-    '({SKP,CINP,FXK:FXK.map(([r,k])=>[r.source,r.flags,k]),FXE})',
-  )
+  const p = await legacy.run<{ SKP: unknown; CINP: string; FXK: [string, string, string][]; FXE: unknown }>('({SKP,CINP,FXK:FXK.map(([r,k])=>[r.source,r.flags,k]),FXE})')
   expect(Object.fromEntries(Object.entries(SKILL_SETS).map(([k, rows]) => [k, rows.map((r) => [r.name, r.dice, r.range, r.target])]))).toEqual(p.SKP)
   expect(AETHELRIC_75).toBe(p.CINP)
   expect(EFFECT_KEYWORDS.map(([r, k]) => [r.source, r.flags, k])).toEqual(p.FXK)
@@ -44,10 +41,13 @@ test('skill sets, cinematic preset and effects', async ({ legacy }) => {
 })
 
 test('audio lists', async ({ legacy }) => {
-  const p = await legacy.run<{ THU: string[][]; ABU: unknown; ABBASE: string }>('({THU,ABU,ABBASE})')
+  const p = await legacy.run<{ THU: string[][]; ABU: unknown; ABBASE: string; BSU: unknown; BOSSN: string[]; SLOTS: string[][] }>('({THU,ABU,ABBASE,BSU,BOSSN,SLOTS})')
   expect(THEMES.map((t) => [t.key, t.name, t.id])).toEqual(p.THU)
   expect(ABILITY_SOUNDS).toEqual(p.ABU)
   expect(AUDIO_BASE).toBe(p.ABBASE)
+  expect(BASE_SOUNDS).toEqual(p.BSU)
+  expect(BOSS_NAMES).toEqual(p.BOSSN)
+  expect(SOUND_SLOTS).toEqual(p.SLOTS)
 })
 
 test('theme groups match the "+ Add next phase sheet" button', async ({ legacy, page }) => {
@@ -76,7 +76,20 @@ test('"+ Add next phase sheet" on random chains', async ({ legacy, page }) => {
     const all: Record<string, Enemy> = {}
     for (let i = 0; i < len; i++)
       all[`p${i}`] = JSON.parse(
-        JSON.stringify({ name: i ? `${boss} (phase ${i + 1})` : boss, hp: r.int(1, 99), max: 100, pm: r.maybe(r.int(1, 20)), po: 0, mx: r.maybe(2), my: r.maybe(3), mp: r.maybe('m'), pg: r.maybe(r.pick([10, 50])), gr: r.maybe(5), sk: { s: { n: 'Cut', d: '2d8', r: 1, t: 's' } }, ...(i < len - 1 ? { nx: `p${i + 1}` } : {}) }),
+        JSON.stringify({
+          name: i ? `${boss} (phase ${i + 1})` : boss,
+          hp: r.int(1, 99),
+          max: 100,
+          pm: r.maybe(r.int(1, 20)),
+          po: 0,
+          mx: r.maybe(2),
+          my: r.maybe(3),
+          mp: r.maybe('m'),
+          pg: r.maybe(r.pick([10, 50])),
+          gr: r.maybe(5),
+          sk: { s: { n: 'Cut', d: '2d8', r: 1, t: 's' } },
+          ...(i < len - 1 ? { nx: `p${i + 1}` } : {}),
+        }),
       )
     const from = `p${r.int(0, len - 1)}`
     await page.reload()
@@ -124,7 +137,10 @@ test('loading skill-set presets', async ({ legacy, page }) => {
     await expect.poll(() => legacy.writes.length).toBeGreaterThan(before)
     const saved = legacy.writes.at(-1)!.body as Record<string, unknown>
     const mine = addSkillSet(existing, SKILL_SETS[set]!, (i) => `k${i}`)
-    const norm = (o: Record<string, unknown>) => Object.values(o).map((v) => JSON.stringify(v)).sort()
+    const norm = (o: Record<string, unknown>) =>
+      Object.values(o)
+        .map((v) => JSON.stringify(v))
+        .sort()
     expect(norm(mine), `${set} #${n}`).toEqual(norm(saved))
   }
 })

@@ -3,7 +3,7 @@
 export const DB_URL = 'https://stamina-based-project-trial-default-rtdb.firebaseio.com'
 
 // Shown in the corner so you can tell which version you have loaded.
-export const APP_VERSION = '0.13.0'
+export const APP_VERSION = '0.14.0'
 
 // Where the live, single-file app is published (one folder up from /next/).
 export const LEGACY_URL = '../'

@@ -504,5 +504,9 @@ export function createSoundEngine(env: SoundEnv) {
     clearSlots: () => {
       for (const k of [...buffers.keys()]) if (!k.startsWith('ab:')) buffers.delete(k)
     },
+    /** Drops every ability sound (the GM removed them all). */
+    clearAbilities: () => {
+      for (const k of [...buffers.keys()]) if (k.startsWith('ab:')) buffers.delete(k)
+    },
   }
 }

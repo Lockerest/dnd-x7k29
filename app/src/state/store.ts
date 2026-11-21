@@ -15,6 +15,7 @@ import { initiativeActions, type InitiativeActions } from './initiativeActions'
 import { diceActions, type DiceActions } from './diceActions'
 import { mapActions, type MapActions } from './mapActions'
 import { pictureActions, type PictureActions } from './pictureActions'
+import { soundActions, type SoundActions } from './soundActions'
 import { enemyExtras, type BossIntro, type EnemyExtras } from './enemyExtras'
 import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
@@ -109,6 +110,7 @@ export type GameState = {
   DiceActions &
   MapActions &
   PictureActions &
+  SoundActions &
   EnemyExtras
 
 /** What the screen shows for an attack scene ("fx") or a Golden Wave. */
@@ -166,6 +168,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       ...sheetActions(get, set, save, now, later),
       ...boardActions(get, set, save, now),
       ...pictureActions(get, save, now),
+      ...soundActions(get, db, now),
       ...enemyExtras(get, save, now, rand),
       ...initiativeActions(get, set, save, rand, later),
       ...attackActions(get, set, save, db, now, rand, later),
@@ -192,10 +195,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
         const chars = { ...tables.chars }
         for (const [i, pos] of Object.entries(riders)) chars[i] = { ...chars[i], ...(pos as Partial<Character>) }
         set({ tables: { ...tables, chars, enemies: { ...tables.enemies, [id]: next } } })
-        await Promise.all([
-          ...Object.entries(riders).map(([i, pos]) => save((d) => d.patch(`chars/${i}`, pos))),
-          save((d) => d.patch(`enemies/${id}`, patch)),
-        ])
+        await Promise.all([...Object.entries(riders).map(([i, pos]) => save((d) => d.patch(`chars/${i}`, pos))), save((d) => d.patch(`enemies/${id}`, patch))])
       },
 
       log: (text) => save((d) => d.post('rolls', { ev: text, ts: now() })),

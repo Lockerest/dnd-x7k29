@@ -14,7 +14,13 @@ function setup(store: Record<string, unknown>, host: Record<string, string> = {}
       if (p === 'boom/x') throw new Error('down')
       return (store[p] as unknown) ?? null
     }),
-    keys: vi.fn(async (p: string) => (p === 'themes' ? Object.keys(store).filter((k) => k.startsWith('themes/')).map((k) => k.slice(7)) : [])),
+    keys: vi.fn(async (p: string) =>
+      p === 'themes'
+        ? Object.keys(store)
+            .filter((k) => k.startsWith('themes/'))
+            .map((k) => k.slice(7))
+        : [],
+    ),
   } as unknown as Db
   const f = vi.fn(async (u: string) => (host[u] !== undefined ? new Response(host[u]) : new Response('', { status: 404 })))
   const decode = vi.fn(async (b: ArrayBuffer) => `decoded:${text(b)}`)
@@ -45,6 +51,34 @@ describe('audio loader', () => {
     expect(gets).toEqual(['themes/aethelric'])
     expect(decode).toHaveBeenCalledTimes(1)
     expect(loader.ready().get('aethelric')).toBe('decoded:A')
+  })
+
+  it('a theme the GM just saved is used at once; a removed one is gone; the key list is read again', async () => {
+    const { loader, db, gets } = setup({ 'themes/x': { data: dataUrl('X') } })
+    await loader.themeKeys()
+    loader.setTheme('arachne', 'mine')
+    expect(await loader.theme('arachne')).toBe('mine')
+    expect(loader.ready().get('arachne')).toBe('mine')
+    expect(gets).toEqual([])
+    await loader.themeKeys()
+    expect(db.keys).toHaveBeenCalledTimes(2)
+    loader.setTheme('arachne', null)
+    expect(loader.ready().has('arachne')).toBe(false)
+    await loader.theme('arachne')
+    expect(gets).toEqual(['themes/arachne'])
+  })
+
+  it('ability sounds are looked for again after the GM changes them', async () => {
+    const { loader, gets } = setup({ 'absnd/firebolt': { data: dataUrl('F') }, 'absnd/thorn_whip': { data: dataUrl('T') } })
+    await loader.abilitySound('firebolt')
+    await loader.abilitySound('thorn_whip')
+    loader.forgetSound('firebolt')
+    await loader.abilitySound('firebolt')
+    await loader.abilitySound('thorn_whip')
+    expect(gets).toEqual(['absnd/firebolt', 'absnd/thorn_whip', 'absnd/firebolt'])
+    loader.forgetSound()
+    await loader.abilitySound('thorn_whip')
+    expect(gets.at(-1)).toBe('absnd/thorn_whip')
   })
   it('falls back to the audio host when the database has no copy', async () => {
     const t = THEMES[0]!
@@ -97,7 +131,10 @@ describe('audio loader', () => {
   })
   it('uses the global fetch by default', async () => {
     const t = THEMES[0]!
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('G')))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('G')),
+    )
     const db = { get: async () => null } as unknown as Db
     expect(await createAudioLoader(db, async (b) => text(b)).theme(t.key)).toBe('G')
     vi.unstubAllGlobals()

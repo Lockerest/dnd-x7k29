@@ -50,7 +50,7 @@ npm run build
 2. Scaffold and deploy: React app at `/next/`. **Done.**
 3. Move pure logic (dice, damage, phases, cinematic script, skill sets, sounds) into tested modules. **Done.**
 4. Data layer and state: Firebase module, store, lazy loading of themes and sounds. **Done.**
-5. Screens, one at a time. **In progress.** Done: app shell and header, joining (player, table display,
+5. Screens, one at a time. **Done.** app shell and header, joining (player, table display,
    Game Master with PIN), creating a character, waiting for approval, taking over a character from
    another device, the GM's join and device requests, the GM's Enemies panel and enemy editor
    (stats, phase gates and next-phase sheets, themes, skills and skill sets, cinematic script) and the
@@ -75,8 +75,6 @@ npm run build
    Part 2e: sound and scenes (the synthesised attack sounds, the GM's uploaded clips and ability
    sounds when they exist, the attack scenes with the 2.5D camera, the Golden Wave, cinematic beat
    sounds, and the Attack scenes, 2.5D camera, Sound and Volume settings, shared with the live page).
-   Still on the live page: battle music and boss themes (they start with the boss intro), the GM's
-   test lab and the sound, ability sound and boss theme uploads and imports.
    Part 2f: the GM's map tools (new maps from a picture or a Dungeondraft export, rename, delete,
    squares across, grid, walls by dragging, fog on/off with reveal and hide by dragging, altars,
    bonfires, guilds, doors, pins with party travel, the arrival point, the "you are here" overview,
@@ -84,7 +82,10 @@ npm run build
    and monsters, boss art, monster skill icons, ability icons), resized exactly like the live page.
    Part 2h: the enemy extras (a monster's turn played by the computer, the spawn point, the boss
    intro on every screen, by itself when combat begins or a boss changes phase, battle music from
-   the boss themes, a skill's own sound).
+   the boss themes, a skill's own sound). Part 2i: the GM's test lab (any attack scene or the Golden
+   Wave on the GM's screen only) and sound tools (clips for each sound slot, ability sounds from the
+   web or from files, the reverb, and boss themes: upload, play, remove, import from the web, add
+   another boss). Every part of the live page now exists in the new app.
 6. Cutover: the new app becomes the root, the old file is kept as a backup.
 7. Cleanup and new features (bulk icon import, cutscene videos).
 

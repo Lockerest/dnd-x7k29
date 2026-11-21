@@ -1,5 +1,6 @@
 // The Dice card: dice buttons, how many, the bonus (and a player's stat), the
 // dice style, the GM's Secret box, and the shared log. Same as the live page.
+import { useState, type ReactNode } from 'react'
 import { DIE_SIZES, SKINS } from '../../data/dice'
 import { diceLog, rollLine, type RollEntry } from '../../logic/dice'
 import type { Sheet } from '../../logic/sheet'
@@ -23,6 +24,8 @@ export type DicePanelProps = {
   /** This device's scene and sound settings (not shown when missing). */
   fx?: FxSettings
   onFx?: (p: Partial<FxSettings>) => void
+  /** The GM's test lab, behind its Show test lab button. */
+  lab?: ReactNode
 }
 
 function LogLine({ r }: { r: RollEntry }) {
@@ -44,7 +47,8 @@ function LogLine({ r }: { r: RollEntry }) {
   )
 }
 
-export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions, fx, onFx = () => {} }: DicePanelProps) {
+export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions, fx, onFx = () => {}, lab }: DicePanelProps) {
+  const [showLab, setShowLab] = useState(false)
   const c = tables.chars[me] as Sheet | undefined
   const gates = Object.values(tables.enemies).filter((e) => e?.gr)
   const log = diceLog(tables.rolls as Record<string, RollEntry | null>, secretRolls, dm)
@@ -66,8 +70,7 @@ export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, act
         </div>
         <div className="row mini">
           <label className="sub">
-            How many{' '}
-            <input type="number" min={1} max={10} value={dice.count} style={{ width: 64 }} onChange={(e) => actions.setDice({ count: Math.max(1, Math.min(10, +e.target.value || 1)) })} />
+            How many <input type="number" min={1} max={10} value={dice.count} style={{ width: 64 }} onChange={(e) => actions.setDice({ count: Math.max(1, Math.min(10, +e.target.value || 1)) })} />
           </label>
           <span className="sub">Tap a die to throw it now</span>
         </div>
@@ -107,12 +110,14 @@ export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, act
               <input type="range" min={0} max={100} value={Math.round(fx.volume * 100)} style={{ width: 90 }} aria-label="Volume" onChange={(e) => onFx({ volume: +e.target.value / 100 })} />
             </>
           )}
+          {dm && lab && <button onClick={() => setShowLab((v) => !v)}>{showLab ? 'Hide' : 'Show'} test lab</button>}
           {dm && (
             <label className="sub">
               <input type="checkbox" checked={dice.secret} style={{ width: 'auto' }} onChange={(e) => actions.setDice({ secret: e.target.checked })} /> Secret
             </label>
           )}
         </div>
+        {dm && showLab && lab}
         <ul className="dlog" aria-label="Dice log">
           {log.length ? (
             log.map((r, i) => (

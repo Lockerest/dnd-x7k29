@@ -26,6 +26,10 @@ export type AudioLoader<T> = {
   reset: () => void
   /** Themes already decoded, for synchronous lookups while playing. */
   ready: () => Map<string, T>
+  /** The GM just saved (or with null removed) a theme here: use it without downloading. */
+  setTheme: (key: string, b: T | null) => void
+  /** The GM changed an ability sound (or all, with no slug): look for it again next time. */
+  forgetSound: (slug?: string) => void
 }
 
 export function createAudioLoader<T>(db: Db, decode: (bytes: ArrayBuffer) => Promise<T>, f: typeof fetch = (...a) => fetch(...a)): AudioLoader<T> {
@@ -85,6 +89,20 @@ export function createAudioLoader<T>(db: Db, decode: (bytes: ArrayBuffer) => Pro
       done.clear()
     },
     ready: () => done,
+    setTheme: (key, b) => {
+      if (b) {
+        done.set(key, b)
+        themes.set(key, Promise.resolve(b))
+      } else {
+        done.delete(key)
+        themes.delete(key)
+      }
+      keys = null
+    },
+    forgetSound: (slug) => {
+      if (slug == null) sounds = new Map()
+      else sounds.delete(slug)
+    },
   }
   return loader
 }
