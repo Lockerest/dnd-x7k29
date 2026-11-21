@@ -323,7 +323,7 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a"
     },
     {
-      "name": "Wingbeat Gale",
+      "name": "Coiling Gale",
       "dice": "0",
       "range": 3,
       "target": "a"

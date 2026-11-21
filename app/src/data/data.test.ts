@@ -6,6 +6,7 @@ import { ABILITY_SOUNDS, AUDIO_BASE, THEME_GROUPS, THEMES, themeUrl } from './au
 import { CLASSES } from './classes'
 import { EFFECT_EMOJI, EFFECT_KEYWORDS } from './effects'
 import { ABILITY_DAMAGE, ABILITY_HEAL, CLASS_STAT, SC, WEAPON_REACH } from './rules'
+import { SKILL_ICONS } from './icons'
 import { SKILL_SETS } from './skillSets'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
@@ -48,6 +49,10 @@ describe('skill sets', () => {
         expect(['s', 'a']).toContain(r.target)
       }
     }
+  })
+  it('every built-in boss icon is for a boss skill', () => {
+    const slugs = new Set(Object.values(SKILL_SETS).flat().map((r) => abilitySlug(r.name)))
+    expect(Object.keys(SKILL_ICONS).filter((k) => !slugs.has(k))).toEqual([])
   })
   it('every boss skill has a sound', () => {
     const missing = Object.values(SKILL_SETS)

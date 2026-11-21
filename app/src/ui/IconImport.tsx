@@ -3,6 +3,7 @@
 // file name matches.
 import { useContext, useRef, useState } from 'react'
 import type { Board } from '../logic/board'
+import { ICON_BASE, SKILL_ICONS } from '../data/icons'
 import { iconImportStatus, matchIcon } from '../logic/iconImport'
 import type { Enemy } from '../logic/types'
 import { readFile, squareIcon } from './images'
@@ -13,9 +14,17 @@ export type IconImportProps = {
   enemies: Record<string, Enemy>
   setAbilityIcon: (key: string, data: string) => Promise<void>
   setSkillIcon: (slug: string, data: string) => Promise<void>
+  /** Downloads a picture (the built-in boss icons). */
+  download?: (url: string) => Promise<Blob>
 }
 
-export function IconImport({ board, enemies, setAbilityIcon, setSkillIcon }: IconImportProps) {
+const fetchBlob = async (url: string) => {
+  const r = await fetch(url)
+  if (!r.ok) throw new Error(`HTTP ${r.status}`)
+  return r.blob()
+}
+
+export function IconImport({ board, enemies, setAbilityIcon, setSkillIcon, download = fetchBlob }: IconImportProps) {
   const kit = kitOr(useContext(ImagesContext))
   const input = useRef<HTMLInputElement>(null)
   const [status, setStatus] = useState('')
@@ -43,9 +52,26 @@ export function IconImport({ board, enemies, setAbilityIcon, setSkillIcon }: Ico
     }
     setStatus(iconImportStatus(done, unmatched, failed))
   }
+  // "Import boss icons from web": the boss skill icons made for the game, saved for this table.
+  const fromWeb = async () => {
+    const all = Object.entries(SKILL_ICONS)
+    let done = 0
+    let bad = 0
+    for (const [slug, file] of all) {
+      try {
+        await setSkillIcon(slug, await squareIcon(kit, await readFile(await download(ICON_BASE + file), 'dataUrl'), 96))
+        done++
+      } catch {
+        bad++
+      }
+      setStatus(`${done} of ${all.length}...`)
+    }
+    setStatus(`${done} boss icons imported${bad ? `, ${bad} failed` : ''}`)
+  }
   return (
     <>
       <button onClick={() => input.current!.click()}>Import icons</button>
+      <button onClick={() => void fromWeb()}>Import boss icons from web</button>
       <input
         ref={input}
         type="file"

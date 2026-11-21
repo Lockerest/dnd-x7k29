@@ -99,6 +99,8 @@ npm run build
 8. Bosses. The Nameless King's three skill sets (storm rider, on foot with Storm's Wager
    and Lightning Reprisal, cloud dragon) with a sound for every move; a new Chain Pull
    sound for Aethelric (1.3.0). Changed entries are listed in `app/e2e/parity/kept.ts`.
+   His 18 skill icons (Shōryū the Ancestral Dragon as his mount; Wingbeat Gale became
+   Coiling Gale) and "Import boss icons from web" on the ability board (1.4.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

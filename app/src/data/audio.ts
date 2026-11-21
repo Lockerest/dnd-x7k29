@@ -305,7 +305,7 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "skyward_lance": "d00ed858-2270-417f-945b-a2d4ea7ddcbb",
   "tail_sweep": "7bca70d7-3469-44f6-8696-ef2d2953afe2",
   "storm_breath": "633b813c-47bc-46dd-8dea-bd10b2e3caf5",
-  "wingbeat_gale": "37cda0f9-7535-4534-be0f-5f7c5ab47e6a",
+  "coiling_gale": "ddbdbeb1-b3bf-4a7f-9f31-bfa5c3b88770",
   "thunder_dive": "43bae564-9202-4592-90ab-56f5cc89a9a8",
   "king_s_thrust": "1806738c-7822-430f-b1d8-493fe2aafaee",
   "storm_s_wager": "94302f8b-cb3b-4859-8f86-61f954a41864",
