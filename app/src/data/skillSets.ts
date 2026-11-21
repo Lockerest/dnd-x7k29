@@ -348,6 +348,55 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "range": 20,
       "target": "a",
       "text": "Roots drain life from every hero and heal him."
+    },
+    {
+      "name": "Rot Claw",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "A rotten claw slash at one hero, with poison."
+    },
+    {
+      "name": "Maggot Swarm",
+      "dice": "5d6",
+      "range": 3,
+      "target": "a",
+      "text": "A swarm of maggots and flies pours over an area."
+    },
+    {
+      "name": "Bursting Pods",
+      "dice": "5d8",
+      "range": 4,
+      "target": "a",
+      "text": "Fleshy pods swell and burst one after another, spraying poison gas."
+    },
+    {
+      "name": "Rotting Embrace",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "His decayed ribcage closes around one hero and holds them."
+    },
+    {
+      "name": "Grave Roots",
+      "dice": "3d8",
+      "range": 6,
+      "target": "a",
+      "text": "Dead root ribs erupt in a line from the ground."
+    },
+    {
+      "name": "Vomit of Decay",
+      "dice": "6d6",
+      "range": 3,
+      "target": "a",
+      "text": "A cone of rotten sludge and poison."
+    },
+    {
+      "name": "Plague Bloom",
+      "dice": "8d6",
+      "range": 10,
+      "target": "a",
+      "text": "His ultimate: thousands of spore pods burst and poison gas fills the arena."
     }
   ],
   "Nameless King: phase 1 (storm rider)": [

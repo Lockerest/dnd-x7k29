@@ -14,8 +14,9 @@ export const keptList = <T>(mine: T[], theirs: unknown[], key: (x: T) => unknown
 /**
  * Entries the GM chose to change since the cutover (they no longer match the backup):
  * - chain_pull: a new Chain Pull sound (a heavy throw, then a strong pull).
+ * - Kernunos: phase 3 (rooted): also has all his phase 2 moves after the rooted ones.
  */
-export const CHANGED = { abilitySounds: ['chain_pull'] }
+export const CHANGED = { abilitySounds: ['chain_pull'], skillSets: ['Kernunos: phase 3 (rooted)'] }
 
 /** `theirs` without the given keys. */
 export const without = <T>(theirs: Record<string, T>, keys: string[]): Record<string, T> => Object.fromEntries(Object.entries(theirs).filter(([k]) => !keys.includes(k)))

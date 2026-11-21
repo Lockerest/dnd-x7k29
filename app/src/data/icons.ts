@@ -33,6 +33,26 @@ export const SKILL_ICONS: Record<string, string> = {
   ceiling_drop: 'e7cd17ea-6ca9-4549-9939-45cb1e2f99f2.jpg',
   silk_net: '39072d44-cdf4-46c9-aa77-1611f0cb8f61.jpg',
   final_offer: 'ccd98e48-8095-4bbf-90a9-0b02f669da12.jpg',
+  // Kernunos: forest lord.
+  antler_gore: '5170080c-e3d0-4fcf-885d-f84e6254e6c1.jpg',
+  thorn_whip: 'd44a5822-20bb-4c90-8128-138840513043.jpg',
+  spore_burst: '4d208141-0368-4b1b-b313-5ba16694e36b.jpg',
+  entangling_roots: 'd737923b-dff1-483d-a65d-0337df9d807c.jpg',
+  stag_charge: '0a2be1e1-188f-4d37-89ff-f6ba1a0001aa.jpg',
+  heartwood_bloom: '1abb39e9-c777-4c09-b382-4e373363fc17.jpg',
+  thorned_hide: '80cb8620-f9aa-4333-89be-736b8572b61f.jpg',
+  the_bloom_withers: 'bc99e2ce-73e9-4e96-b2a2-efa0c33620c4.jpg',
+  // Kernunos: rotten.
+  rot_claw: '45101d02-d1b1-43ec-a7a5-d4bd8141e5ef.jpg',
+  maggot_swarm: 'd7ed1a69-498a-43c5-a1ad-d838b1f5d261.jpg',
+  bursting_pods: '790c898c-ee72-401c-9f5e-85af52dc4cad.jpg',
+  rotting_embrace: '0f7cc6ed-b55b-4190-981f-0671925b8426.jpg',
+  grave_roots: '83c6c092-2972-4a61-84fe-f5335f601dac.jpg',
+  vomit_of_decay: '94a34bb0-6906-4707-8b68-6d97c3c1eafb.jpg',
+  plague_bloom: 'bd7d4870-0df7-4e53-a91c-8f4556308e2f.jpg',
+  // Kernunos: rooted.
+  spring_returns: '964e139b-aef3-48d1-b681-e8c6e80944f8.jpg',
+  withering_drain: '96de523b-2d7d-4d1d-aed7-31fc98b4aa96.jpg',
   // The Nameless King: storm rider, on foot, cloud dragon.
   skyward_lance: '34aa45eb-ed2f-44e5-ae27-969882652014.jpg',
   tail_sweep: 'f695973a-1d4d-475f-85c7-0cfdc16b0275.jpg',

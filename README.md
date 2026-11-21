@@ -107,6 +107,7 @@ npm run build
    The Boss abilities list folds away (folded by default), every boss move has a description
    and a ▶ sound button; the Enemies card folds away; phase sheets not being fought show only
    their name (1.6.0). The class abilities Reference folds the same way (1.6.1).
+   Kernunos's 17 icons; his phase 3 (rooted) set also carries all his phase 2 moves (1.7.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

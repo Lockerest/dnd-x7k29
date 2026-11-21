@@ -36,7 +36,8 @@ test('classes', async ({ legacy }) => {
 
 test('skill sets, cinematic preset and effects', async ({ legacy }) => {
   const p = await legacy.run<{ SKP: unknown; CINP: string; FXK: [string, string, string][]; FXE: unknown }>('({SKP,CINP,FXK:FXK.map(([r,k])=>[r.source,r.flags,k]),FXE})')
-  expect(Object.fromEntries(Object.entries(kept(SKILL_SETS, p.SKP as object)).map(([k, rows]) => [k, rows.map((r) => [r.name, r.dice, r.range, r.target])]))).toEqual(p.SKP)
+  const skp = without(p.SKP as Record<string, unknown>, CHANGED.skillSets)
+  expect(Object.fromEntries(Object.entries(kept(SKILL_SETS, skp)).map(([k, rows]) => [k, rows.map((r) => [r.name, r.dice, r.range, r.target])]))).toEqual(skp)
   expect(AETHELRIC_75).toBe(p.CINP)
   const kw = EFFECT_KEYWORDS.map(([r, k]): [string, string, string] => [r.source, r.flags, k])
   expect(keptList(kw, p.FXK, (x) => x.join('|'))).toEqual(p.FXK)
@@ -139,7 +140,7 @@ test('enemy list order and indenting', async ({ legacy }) => {
 test('loading skill-set presets', async ({ legacy, page }) => {
   const r = rng(23)
   const known = await legacy.run<object>('SKP')
-  const sets = Object.keys(kept(SKILL_SETS, known))
+  const sets = Object.keys(kept(SKILL_SETS, without(known as Record<string, unknown>, CHANGED.skillSets)))
   for (let n = 0; n < 8; n++) {
     const set = r.pick(sets)
     await page.reload()

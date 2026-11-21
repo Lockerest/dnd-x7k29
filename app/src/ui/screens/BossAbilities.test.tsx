@@ -50,8 +50,8 @@ describe("the GM's Boss abilities list", () => {
     expect(wager).toHaveTextContent('—')
     expect(wager.querySelector('img')).toHaveAttribute('src', ICON_BASE + SKILL_ICONS.storm_s_wager)
     // A move with no icon anywhere shows none.
-    fireEvent.click(within(list).getByRole('button', { name: 'Kernunos' }))
-    expect(within(list).getAllByLabelText('Boss ability Antler Gore')[0]!.querySelector('img')).toBeNull()
+    fireEvent.click(within(list).getByRole('button', { name: 'Arachne' }))
+    expect(within(list).getAllByLabelText('Boss ability The Bill Comes Due')[0]!.querySelector('img')).toBeNull()
   })
 
   it('built-in icons only, when the table has none', () => {
