@@ -92,9 +92,9 @@ npm run build
 7. Cleanup and new features: the parity checks now ignore content added since the cutover
    (1.0.1). "Import icons" on the ability board: many pictures at once, each matched by its
    file name to the board abilities and monster skills of that name (1.1.0). Cutscene video link on a boss (1.2.0):
-   it plays full screen on every device before the cinematic text (with sound when the
+   it plays full screen on every device instead of the cinematic text (with sound when the
    browser allows, muted otherwise; a click skips it); "Use the Aethelric sword-slam clip"
-   fills in the Seedance cave-collapse clip.
+   fills in the Seedance cave-collapse clip. Video or text, never both (1.2.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

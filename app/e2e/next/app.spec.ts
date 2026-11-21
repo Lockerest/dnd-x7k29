@@ -146,7 +146,7 @@ test('the GM edits a boss and plays its cinematic; the player sees it too', asyn
   await plCtx.close()
 })
 
-test('a cutscene video plays before the cinematic text, on the GM and the player screens', async ({ browser }) => {
+test('a cutscene video plays instead of the cinematic text, on the GM and the player screens', async ({ browser }) => {
   const db = new FakeDb()
   db.set('tables/dragon42', {
     meta: { dm: 'x' },
@@ -178,13 +178,14 @@ test('a cutscene video plays before the cinematic text, on the GM and the player
   await link.blur()
   await expect.poll(() => db.get('tables/dragon42/enemies/a/gvu')).toBe('https://cdn.example.test/clip.webm')
   await gm.getByRole('button', { name: 'Play cinematic' }).click()
-  for (const p of [gm, pl]) {
-    const dialog = p.getByRole('dialog', { name: 'Cinematic: Aethelric' })
-    await expect(dialog.getByLabel('Cutscene video')).toBeVisible({ timeout: 10_000 })
-    // When the clip ends, the text follows.
-    await expect(dialog.getByLabel('Cutscene video')).toHaveCount(0, { timeout: 10_000 })
-    await expect(dialog.getByText('The dust settles.')).toBeVisible({ timeout: 10_000 })
-  }
+  await Promise.all(
+    [gm, pl].map(async (p) => {
+      const dialog = p.getByRole('dialog', { name: 'Cinematic: Aethelric' })
+      await expect(dialog.getByLabel('Cutscene video')).toBeVisible({ timeout: 10_000 })
+      // When the clip ends the scene fades out; the text is not played as well.
+      await expect(dialog).toHaveCount(0, { timeout: 10_000 })
+    }),
+  )
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()

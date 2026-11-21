@@ -103,7 +103,7 @@ describe('<CinematicOverlay /> sounds', () => {
   })
 })
 
-describe('a cutscene video before the script', () => {
+describe('a cutscene video instead of the script', () => {
   const setup = (o: { t?: string; volume?: number; play?: () => Promise<void> } = {}) => {
     const play = vi.fn(o.play ?? (() => Promise.resolve()))
     vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(play)
@@ -115,8 +115,8 @@ describe('a cutscene video before the script', () => {
     return { el, v, play, onDone, flush }
   }
 
-  it('plays it with sound, then the script', async () => {
-    const { el, v, play, flush } = setup({ t: 'After the fall.', volume: 0.4 })
+  it('plays it with sound, then fades out without the script', async () => {
+    const { el, v, play, flush, onDone } = setup({ t: '[portrait] After the fall.', volume: 0.4 })
     await flush()
     expect(play).toHaveBeenCalledTimes(1)
     expect(v()).toHaveAttribute('src', 'https://x.co/v.mp4')
@@ -124,14 +124,15 @@ describe('a cutscene video before the script', () => {
     expect(v()!.volume).toBeCloseTo(0.4)
     expect(el.querySelector('.ct')).toHaveTextContent('')
     act(() => void vi.advanceTimersByTime(5000))
-    expect(el.querySelector('.ct')).toHaveTextContent('') // the script waits for the video
     fireEvent.ended(v()!)
     expect(v()).toBeNull()
-    act(() => void vi.advanceTimersByTime(10))
-    expect(el.querySelector('.ct')).toHaveTextContent('After the fall.')
+    expect(el.querySelector('.ci')).toBeNull()
+    act(() => void vi.advanceTimersByTime(1600))
+    expect(el.querySelector('.ct')).toHaveTextContent('')
+    expect(onDone).toHaveBeenCalled()
   })
 
-  it('with sound off it plays muted; a video alone fades out after it', async () => {
+  it('with sound off it plays muted', async () => {
     const { v, onDone, flush } = setup({ volume: 0 })
     await flush()
     expect(v()!.muted).toBe(true)

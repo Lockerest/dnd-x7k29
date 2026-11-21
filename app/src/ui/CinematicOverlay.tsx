@@ -1,5 +1,5 @@
-// Full-screen cinematic: the cutscene video first (when there is one), then the
-// script beat by beat (same timing and effects and beat sounds as the live page).
+// Full-screen cinematic: the cutscene video when there is one, otherwise the script
+// beat by beat (same timing and effects and beat sounds as the live page). Never both.
 import { useEffect, useRef, useState } from 'react'
 import { cinematicSeconds, parseCinematic, type CinematicEvent } from '../logic/cinematic'
 
@@ -65,7 +65,7 @@ export function CinematicOverlay({
   })
 
   // The video: with sound if this browser allows it, muted if not; it gives way to
-  // the script when it ends, fails, is clicked, or runs too long.
+  // the fade-out when it ends, fails, is clicked, or runs too long.
   useEffect(() => {
     if (!playing) return
     const v = video.current!
@@ -100,7 +100,7 @@ export function CinematicOverlay({
       void node.offsetWidth
       node.classList.add(cls)
     }
-    const beats = parseCinematic(cin.t)
+    const beats = cin.v ? [] : parseCinematic(cin.t)
     for (const b of beats) {
       const g = b.tags
       at(b.at, () => {
@@ -143,14 +143,14 @@ export function CinematicOverlay({
         }
       })
     }
-    // A video with no script after it just fades out.
-    const D = !beats.length && cin.v ? 1.6 : cinematicSeconds(beats)
+    // After a video it just fades out.
+    const D = cin.v ? 1.6 : cinematicSeconds(beats)
     at((D - 1.6) * 1000, () => el.classList.add('out'))
     at(D * 1000, () => done.current())
     return () => timers.forEach(clearTimeout)
   }, [cin, rand, playing])
 
-  const hasPortrait = parseCinematic(cin.t).some((b) => b.tags.portrait)
+  const hasPortrait = !cin.v && parseCinematic(cin.t).some((b) => b.tags.portrait)
   return (
     <div className="cin" ref={root} role="dialog" aria-label={`Cinematic: ${cin.n}`}>
       {playing && (

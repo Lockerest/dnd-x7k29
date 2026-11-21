@@ -197,7 +197,7 @@ export function EnemiesPanel({
                   </div>
                   <Field
                     key={k('gvu')}
-                    label="Cutscene video link (plays first, then the text above)"
+                    label="Cutscene video link (plays instead of the text above)"
                     value={e.gvu ?? ''}
                     placeholder="https://... .mp4"
                     onSave={(v) => void actions.updateEnemy(id, { gvu: v.trim().slice(0, 500) })}
