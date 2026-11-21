@@ -89,8 +89,11 @@ npm run build
    another boss). Every part of the live page now exists in the new app.
 6. Cutover: the new app becomes the root, the old file is kept as a backup at `/classic/`. **Done** (1.0.0).
    Saved logins carry over (the app now uses the old page's saved-session names).
-7. Cleanup and new features (bulk icon import, cutscene videos).
+7. Cleanup and new features: the parity checks now ignore content added since the cutover
+   (1.0.1); then bulk icon import, the cutscene video field and the Nameless King setup.
+   French comes last, after the story and balancing.
 
-New bosses and skill sets go in `app/src/data/`. The parity tests compare the app with
-`classic/index.html`, so data added only to the app makes them fail until the backup is
-updated too or that check is retired (phase 7).
+New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
+tests compare the app with `classic/index.html` on what the backup already has: those
+entries must stay as they were, and anything added since the cutover is left out of the
+comparison (`app/e2e/parity/kept.ts`). So the backup never needs updating.

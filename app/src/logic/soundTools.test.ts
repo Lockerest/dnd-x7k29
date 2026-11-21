@@ -61,6 +61,10 @@ describe('the test lab', () => {
 })
 
 describe('boss themes', () => {
+  it('the main bosses can be given', () => {
+    expect(themeRows({}, ['A Boss'])).toEqual([['aboss', 'A Boss']])
+  })
+
   it('slugs a boss name', () => {
     expect(themeSlug("Odi'ram")).toBe('odiram')
     expect(themeSlug('Nameless King')).toBe('namelessking')

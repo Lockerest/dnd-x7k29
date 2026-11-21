@@ -2,7 +2,6 @@
 // (and the Attacker, Target and Ability choices), the Boss themes rows, and what
 // each upload, removal and import saves, against the live page.
 import { expect, test } from '../harness.ts'
-import { ABILITY_SOUNDS, BASE_SOUNDS, THEMES } from '../../src/data/audio.ts'
 import type { Board } from '../../src/logic/board.ts'
 import type { Sheet } from '../../src/logic/sheet.ts'
 import { TEST_KINDS, TEST_OUTCOMES, testAbilities, testOptions, testScene, themeRows } from '../../src/logic/soundTools.ts'
@@ -35,6 +34,9 @@ function gmStore() {
   return { s, w }
 }
 const theirs = async (legacy: { run: <T>(e: string) => Promise<T> }) => norm(await legacy.run<W[]>('__w'))
+/** The backup page's own lists: entries added to the app since the cutover are not compared. */
+type Lists = { base: Record<string, string>; themes: { key: string; name: string; id: string }[]; abilities: Record<string, string>; bosses: string[] }
+const listsOf = (legacy: { run: <T>(e: string) => Promise<T> }) => legacy.run<Lists>('({base:BSU,themes:THU.map(([key,name,id])=>({key,name,id})),abilities:ABU,bosses:BOSSN})')
 
 test('the test lab: its choices and the scene each button plays', async ({ legacy }) => {
   const r = rng(901)
@@ -70,12 +72,13 @@ test('the test lab: its choices and the scene each button plays', async ({ legac
 
 test('the Boss themes rows', async ({ legacy }) => {
   const r = rng(902)
+  const { themes: THEMES, bosses } = await listsOf(legacy)
   for (let k = 0; k < 20; k++) {
     const keys = Array.from({ length: r.int(0, 5) }, () => r.pick([...THEMES.map((t) => t.key), 'thewarden', 'odiram', 'x']))
     const loaded = Object.fromEntries(keys.map((key) => [key, r.pick(['', 'The Warden', 'Some Name'])]))
     await legacy.run(SETUP(`TH=${JSON.stringify(Object.fromEntries(Object.entries(loaded).map(([key, n]) => [key, { n, data: 'x' }])))}`))
     const live = await legacy.run<string[][]>('[...thHtml().matchAll(/data-a="thup" data-k="([^"]*)" data-n="([^"]*)"/g)].map(m=>[m[1],m[2].replace(/&#39;/g,"\'")])')
-    expect(themeRows(loaded), JSON.stringify(loaded)).toEqual(live)
+    expect(themeRows(loaded, bosses), JSON.stringify(loaded)).toEqual(live)
   }
 })
 
@@ -83,6 +86,7 @@ test('uploading and removing clips and themes, and removing every ability sound'
   const file = (name: string) => ({ name, mimeType: 'audio/wav', buffer: WAV })
   const until = (n: number) => page.waitForFunction((n) => (window as unknown as { __w: unknown[] }).__w.length >= n, n)
   const r = rng(903)
+  const { base: BASE_SOUNDS, themes: THEMES } = await listsOf(legacy)
   for (let k = 0; k < 6; k++) {
     const slot = r.pick(Object.keys(BASE_SOUNDS))
     const theme = r.pick(THEMES)
@@ -123,7 +127,7 @@ const pagePlan = (plan: Plan) => `window.__plan=${JSON.stringify(plan)};window._
    if(p==="throw")throw new TypeError("Failed to fetch");if(p===404||(p==="retry"&&__seen[id]===1))return new Response("",{status:p===404?404:503});
    return new Response(new Blob([p==="junk"?"not audio at all":b],{type:p==="junk"?"application/octet-stream":"audio/wav"}))}}`
 
-function nodeDeps(plan: Plan, actions: ImportDeps<object>['actions']): ImportDeps<object> & { text: () => string } {
+function nodeDeps(plan: Plan, actions: ImportDeps<object>['actions'], lists?: Lists): ImportDeps<object> & { text: () => string } {
   const seen: Record<string, number> = {}
   let text = ''
   return {
@@ -144,6 +148,7 @@ function nodeDeps(plan: Plan, actions: ImportDeps<object>['actions']): ImportDep
         : null,
     audio: () => true,
     actions,
+    lists,
     status: (t) => void (text = t),
     text: () => text,
   }
@@ -153,13 +158,15 @@ const byPath = (w: unknown[][]) => [...w].sort((a, b) => String(a[1]).localeComp
 
 test('base attack sounds from the web', async ({ legacy, page }) => {
   const r = rng(904)
+  const lists = await listsOf(legacy)
+  const BASE_SOUNDS = lists.base
   for (let k = 0; k < 5; k++) {
     const plan = randomPlan(r, Object.values(BASE_SOUNDS), k ? 0.3 : 1)
     await legacy.run(SETUP(pagePlan(plan)))
     await page.locator('[data-a="bsweb"]').click()
     await page.waitForFunction(() => (window as unknown as { __w: W[] }).__w.some((x) => x[1] === 'meta'))
     const { s, w } = gmStore()
-    const d = nodeDeps(plan, s.getState())
+    const d = nodeDeps(plan, s.getState(), lists)
     await importBaseSounds(d)
     expect(norm(w), JSON.stringify(plan)).toEqual(await theirs(legacy))
     await expect(page.locator('#bsst')).toHaveText(d.text())
@@ -168,6 +175,8 @@ test('base attack sounds from the web', async ({ legacy, page }) => {
 
 test('boss themes from the web: each tried twice', async ({ legacy, page }) => {
   const r = rng(905)
+  const lists = await listsOf(legacy)
+  const THEMES = lists.themes
   for (let k = 0; k < 4; k++) {
     const plan = randomPlan(
       r,
@@ -178,7 +187,7 @@ test('boss themes from the web: each tried twice', async ({ legacy, page }) => {
     await page.locator('[data-a="thweb"]').click()
     await page.waitForFunction(() => (window as unknown as { __w: W[] }).__w.some((x) => x[1] === 'meta'), undefined, { timeout: 20000 })
     const { s, w } = gmStore()
-    const d = nodeDeps(plan, s.getState())
+    const d = nodeDeps(plan, s.getState(), lists)
     await importThemes(d)
     expect(norm(w), JSON.stringify(plan)).toEqual(await theirs(legacy))
     // The same count and the same failed themes (the browser words its reasons its own way).
@@ -189,11 +198,12 @@ test('boss themes from the web: each tried twice', async ({ legacy, page }) => {
 
 test('ability sounds from the web, four at a time', async ({ legacy, page }) => {
   const r = rng(906)
-  const ids = Object.values(ABILITY_SOUNDS)
+  const lists = await listsOf(legacy)
+  const ids = Object.values(lists.abilities)
   for (const p of [0.1, 0.4, 1]) {
     const plan = randomPlan(r, ids, p)
     const { s, w } = gmStore()
-    const d = nodeDeps(plan, s.getState())
+    const d = nodeDeps(plan, s.getState(), lists)
     await importAbilitySounds(d)
     await legacy.run(SETUP(pagePlan(plan)))
     await page.locator('[data-a="abweb"]').click()
@@ -205,6 +215,7 @@ test('ability sounds from the web, four at a time', async ({ legacy, page }) => 
 
 test('ability sound files: matched by ability name or id', async ({ legacy, page }) => {
   const r = rng(907)
+  const { abilities: ABILITY_SOUNDS } = await listsOf(legacy)
   const keys = Object.keys(ABILITY_SOUNDS)
   for (let k = 0; k < 6; k++) {
     const files = Array.from({ length: r.int(1, 6) }, (_, i) => {

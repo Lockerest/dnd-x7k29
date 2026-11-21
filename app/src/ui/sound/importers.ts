@@ -22,6 +22,8 @@ export type ImportDeps<B> = {
   onClip?: (slot: string, data: string, b: B) => void
   onTheme?: (key: string, name: string, data: string, b: B) => void
   onAbility?: (slug: string) => void
+  /** The lists to import (the built-in ones unless given). */
+  lists?: { base?: Record<string, string>; themes?: typeof THEMES; abilities?: Record<string, string> }
 }
 
 const download = async <B>(o: ImportDeps<B>, id: string) => {
@@ -34,7 +36,7 @@ const download = async <B>(o: ImportDeps<B>, id: string) => {
 export async function importBaseSounds<B>(o: ImportDeps<B>) {
   let ok = 0
   let bad = 0
-  for (const [k, id] of Object.entries(BASE_SOUNDS)) {
+  for (const [k, id] of Object.entries(o.lists?.base ?? BASE_SOUNDS)) {
     try {
       const u = await download(o, id)
       const b = await o.decode(u)
@@ -56,7 +58,7 @@ export async function importBaseSounds<B>(o: ImportDeps<B>) {
 export async function importThemes<B>(o: ImportDeps<B>) {
   let ok = 0
   const bad: string[] = []
-  for (const { key, name, id } of THEMES) {
+  for (const { key, name, id } of o.lists?.themes ?? THEMES) {
     let why = ''
     let done = false
     for (let tr = 0; tr < 2 && !done; tr++) {
@@ -100,7 +102,7 @@ async function storeAbility<B>(o: ImportDeps<B>, slug: string, u: string) {
 
 /** "Import from web" for ability sounds: four at a time; it gives up after six failures with none imported. */
 export async function importAbilitySounds<B>(o: ImportDeps<B>) {
-  const ents = Object.entries(ABILITY_SOUNDS)
+  const ents = Object.entries(o.lists?.abilities ?? ABILITY_SOUNDS)
   let ok = 0
   let bad = 0
   let i = 0

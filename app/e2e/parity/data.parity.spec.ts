@@ -1,4 +1,5 @@
-// Parity: the data files in src/data must equal the tables inside the live page.
+// Parity: the data files in src/data must keep every table entry the backup page has
+// (entries added since the cutover are left out, see kept.ts).
 import { expect, test } from '../harness.ts'
 import { SOUND_SLOTS } from '../../src/ui/sound/engine.ts'
 import { ABILITY_SOUNDS, AUDIO_BASE, BASE_SOUNDS, BOSS_NAMES, THEME_GROUPS, THEMES } from '../../src/data/audio.ts'
@@ -10,50 +11,63 @@ import { SKILL_SETS } from '../../src/data/skillSets.ts'
 import { addSkillSet } from '../../src/logic/skills.ts'
 import { buildNextPhase, enemyListOrder } from '../../src/logic/phases.ts'
 import type { Enemy } from '../../src/logic/types.ts'
+import { kept, keptList } from './kept.ts'
 import { rng } from './random.ts'
 
 test('rule tables', async ({ legacy }) => {
   const p = await legacy.run<Record<string, unknown>>('({SC,CS,WR,AD0,HEAL0:Object.fromEntries(Object.entries(HEAL0).map(([k,v])=>[k,{d:v.d,b:v.b({level:7,int:16})}]))})')
   expect(SC).toBe(p.SC)
-  expect(CLASS_STAT).toEqual(p.CS)
-  expect(WEAPON_REACH).toEqual(p.WR)
+  expect(kept(CLASS_STAT, p.CS as object)).toEqual(p.CS)
+  expect(kept(WEAPON_REACH, p.WR as object)).toEqual(p.WR)
   const dmg = Object.fromEntries(Object.entries(ABILITY_DAMAGE).map(([k, v]) => [k, { r: v.range, d: v.dice, ...(v.autoHit ? { t: 1 } : {}) }]))
-  expect(dmg).toEqual(p.AD0)
+  expect(kept(dmg, p.AD0 as object)).toEqual(p.AD0)
   // Level 7, INT 16: the "level" bonus is 7, the "int" bonus is +3.
   const heal = Object.fromEntries(Object.entries(ABILITY_HEAL).map(([k, v]) => [k, { d: v.dice, b: v.bonus === 'level' ? 7 : 3 }]))
-  expect(heal).toEqual(p.HEAL0)
+  expect(kept(heal, p.HEAL0 as object)).toEqual(p.HEAL0)
 })
 
 test('classes', async ({ legacy }) => {
-  const p = await legacy.run('C')
+  const p = await legacy.run<object>('C')
   const mine = Object.fromEntries(
-    Object.entries(CLASSES).map(([k, c]) => [k, { n: c.name, d: c.description, hp: c.hp, st: c.stamina, rg: c.regen, ab: c.abilities.map((a) => [a.name, a.cost, a.text]) }]),
+    Object.entries(kept(CLASSES, p)).map(([k, c]) => [k, { n: c.name, d: c.description, hp: c.hp, st: c.stamina, rg: c.regen, ab: c.abilities.map((a) => [a.name, a.cost, a.text]) }]),
   )
   expect(mine).toEqual(p)
 })
 
 test('skill sets, cinematic preset and effects', async ({ legacy }) => {
   const p = await legacy.run<{ SKP: unknown; CINP: string; FXK: [string, string, string][]; FXE: unknown }>('({SKP,CINP,FXK:FXK.map(([r,k])=>[r.source,r.flags,k]),FXE})')
-  expect(Object.fromEntries(Object.entries(SKILL_SETS).map(([k, rows]) => [k, rows.map((r) => [r.name, r.dice, r.range, r.target])]))).toEqual(p.SKP)
+  expect(Object.fromEntries(Object.entries(kept(SKILL_SETS, p.SKP as object)).map(([k, rows]) => [k, rows.map((r) => [r.name, r.dice, r.range, r.target])]))).toEqual(p.SKP)
   expect(AETHELRIC_75).toBe(p.CINP)
-  expect(EFFECT_KEYWORDS.map(([r, k]) => [r.source, r.flags, k])).toEqual(p.FXK)
-  expect(EFFECT_EMOJI).toEqual(p.FXE)
+  const kw = EFFECT_KEYWORDS.map(([r, k]): [string, string, string] => [r.source, r.flags, k])
+  expect(keptList(kw, p.FXK, (x) => x.join('|'))).toEqual(p.FXK)
+  expect(kept(EFFECT_EMOJI, p.FXE as object)).toEqual(p.FXE)
 })
 
 test('audio lists', async ({ legacy }) => {
   const p = await legacy.run<{ THU: string[][]; ABU: unknown; ABBASE: string; BSU: unknown; BOSSN: string[]; SLOTS: string[][] }>('({THU,ABU,ABBASE,BSU,BOSSN,SLOTS})')
-  expect(THEMES.map((t) => [t.key, t.name, t.id])).toEqual(p.THU)
-  expect(ABILITY_SOUNDS).toEqual(p.ABU)
+  expect(
+    keptList(
+      THEMES,
+      p.THU,
+      (t) => t.key,
+      (x: string[]) => x[0],
+    ).map((t) => [t.key, t.name, t.id]),
+  ).toEqual(p.THU)
+  expect(kept(ABILITY_SOUNDS, p.ABU as object)).toEqual(p.ABU)
   expect(AUDIO_BASE).toBe(p.ABBASE)
-  expect(BASE_SOUNDS).toEqual(p.BSU)
-  expect(BOSS_NAMES).toEqual(p.BOSSN)
-  expect(SOUND_SLOTS).toEqual(p.SLOTS)
+  expect(kept(BASE_SOUNDS, p.BSU as object)).toEqual(p.BSU)
+  expect(BOSS_NAMES.filter((n) => p.BOSSN.includes(n))).toEqual(p.BOSSN)
+  expect(keptList(SOUND_SLOTS, p.SLOTS, (x) => x[0])).toEqual(p.SLOTS)
 })
 
 test('theme groups match the "+ Add next phase sheet" button', async ({ legacy, page }) => {
   // The groups live inside a click handler, so compare through the button: for every
   // boss and phase, the new sheet must get the same theme the new module picks.
-  for (const [boss, keys] of Object.entries(THEME_GROUPS)) {
+  // Only the bosses and themes the backup page knows.
+  const known = await legacy.run<string[]>('THU.map(t=>t[0])')
+  for (const [boss, all_] of Object.entries(THEME_GROUPS)) {
+    const keys = all_.filter((k) => known.includes(k))
+    if (keys.length !== all_.length) continue
     for (let depth = 0; depth < keys.length; depth++) {
       const all: Record<string, Enemy> = {}
       await page.reload()
@@ -123,7 +137,8 @@ test('enemy list order and indenting', async ({ legacy }) => {
 
 test('loading skill-set presets', async ({ legacy, page }) => {
   const r = rng(23)
-  const sets = Object.keys(SKILL_SETS)
+  const known = await legacy.run<object>('SKP')
+  const sets = Object.keys(kept(SKILL_SETS, known))
   for (let n = 0; n < 8; n++) {
     const set = r.pick(sets)
     await page.reload()

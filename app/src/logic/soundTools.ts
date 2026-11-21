@@ -76,8 +76,8 @@ export const themeSlug = (n: unknown) =>
     .replace(/[^a-z0-9]/g, '')
 
 /** The Boss themes rows: the main bosses, then any other theme the GM added. */
-export function themeRows(loaded: Record<string, string>): [string, string][] {
-  const rows: [string, string][] = BOSS_NAMES.map((n) => [themeSlug(n), n])
+export function themeRows(loaded: Record<string, string>, bosses = BOSS_NAMES): [string, string][] {
+  const rows: [string, string][] = bosses.map((n) => [themeSlug(n), n])
   for (const k of Object.keys(loaded)) if (!rows.some((r) => r[0] === k)) rows.push([k, loaded[k] || k])
   return rows
 }

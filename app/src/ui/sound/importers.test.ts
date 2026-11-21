@@ -54,6 +54,23 @@ describe('base attack sounds from the web', () => {
   })
 })
 
+describe('the lists to import can be given', () => {
+  it('base sounds, themes and ability sounds', async () => {
+    const { d, saved } = deps()
+    d.lists = { base: { slash: 'i1' }, themes: [{ key: 'k', name: 'K', id: 'i2' }], abilities: { firebolt: 'i3' } }
+    await importBaseSounds(d)
+    await importThemes(d)
+    await importAbilitySounds(d)
+    expect(saved.map((s) => s.slice(0, 2))).toEqual([
+      ['clip', 'slash'],
+      ['stamp', 'snd'],
+      ['theme', 'k'],
+      ['stamp', 'thv'],
+      ['ab', 'firebolt'],
+    ])
+  })
+})
+
 describe('boss themes from the web', () => {
   it('tries each twice and lists what failed', async () => {
     let tries = 0
