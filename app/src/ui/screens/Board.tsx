@@ -1,11 +1,13 @@
 // The ability board (the GM's editor, or a player equipping abilities) and the
 // reference table. Same layout and rules as the live page.
-import { useState, type ReactNode } from 'react'
+import { Fragment, useState, type ReactNode } from 'react'
 import { BONUSES, GLYPHS, KINDS, VOCATIONS } from '../../data/abilityIcons'
 import { CLASSES } from '../../data/classes'
+import { CLASS_ICONS, ICON_BASE } from '../../data/icons'
 import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
 import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, type Board } from '../../logic/board'
 import { randomKey } from '../../logic/enemies'
+import { abilitySlug } from '../../logic/text'
 import { abilityCost } from '../../logic/stamina'
 import type { Sheet } from '../../logic/sheet'
 import { atRestSpot } from '../../state/boardActions'
@@ -33,7 +35,8 @@ export function AbilityIcon({
   const k = keyByName(board)[name]
   const e = k ? board[k] : undefined
   if (!k || !e) return null
-  if (images[k]) return zoom ? <Zoom className="abi" src={images[k]} name={name} /> : <img className="abi" src={images[k]} alt="" />
+  const full = CLASS_ICONS[abilitySlug(name)]
+  if (images[k]) return zoom ? <Zoom className="abi" src={images[k]} full={full && ICON_BASE + full} name={name} /> : <img className="abi" src={images[k]} alt="" />
   if (drawn) {
     const { glyph, color, golden } = glyphOf(board, k)
     const id = `g${k.replace(/[^a-z0-9]/gi, '').slice(0, 18)}`
@@ -296,27 +299,34 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
             <tbody>
               {rows.length ? (
                 rows.map((r) => (
-                  <tr key={r.key}>
-                    <td>{r.level}</td>
-                    <td>
-                      <div className="abx">
-                        <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} zoom />
-                        <b>{r.name}</b>
-                      </div>
-                    </td>
-                    <td>{r.cost}</td>
-                    <td>
-                      {r.effect}
-                      {r.golden && (
-                        <>
-                          <br />
-                          <span className="sub">
-                            <b>Golden:</b> {r.golden.dice ? `${r.golden.dice} damage, ` : ''}cost {r.golden.cost}, {r.golden.hc}% max HP
-                          </span>
-                        </>
-                      )}
-                    </td>
-                  </tr>
+                  <Fragment key={r.key}>
+                    <tr>
+                      <td>{r.level}</td>
+                      <td>
+                        <div className="abx">
+                          <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} zoom />
+                          <b>{r.name}</b>
+                        </div>
+                      </td>
+                      <td>{r.cost}</td>
+                      <td>{r.effect}</td>
+                    </tr>
+                    {r.golden && (
+                      <tr className="gold">
+                        <td>{r.level}</td>
+                        <td>
+                          <div className="abx">
+                            <AbilityIcon board={board} name={r.golden.name} images={images} drawn={tables.drawnIcons} zoom />
+                            <b>{r.golden.name}</b>
+                          </div>
+                        </td>
+                        <td>{r.golden.cost}</td>
+                        <td>
+                          {r.golden.dice ? `${r.golden.dice} damage. ` : ''}Costs {r.golden.hc}% max HP.
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 ))
               ) : (
                 <tr>

@@ -74,10 +74,14 @@ export const SKILL_ICONS: Record<string, string> = {
   cloud_dragon_s_judgement: '696ddf8e-9c79-4f63-bf56-a8c7b2a23c37.jpg',
 }
 
-// Class ability icons, by ability name slug: the same import saves them on the
+// Class ability icons (all 139), by ability name slug: the same import saves them on the
 // ability board, Golden versions included, replacing the older pictures.
 export const CLASS_ICONS: Record<string, string> = {
   // Fighter.
+  power_strike: '81f18be9-a1d7-4343-8796-2bce83244bd1.jpg',
+  multi_slash: '7061bff6-65bf-41da-a226-2f63416603ea.jpg',
+  shield_bash: '593caf7d-ff02-4694-88ca-7912223a1348.jpg',
+  second_wind: 'b0e6b4f6-ebae-4c80-bb55-8d6098afb7f5.jpg',
   rending_combo: '2a87dcdd-fe7b-41be-8401-e0d0673ce2b7.jpg',
   shield_wall: '7dd7420d-6ddf-4a45-b6d8-ea906ae7587a.jpg',
   bulwark_charge: '6c92345f-fcde-4447-b8a1-56eed9722994.jpg',
@@ -91,6 +95,10 @@ export const CLASS_ICONS: Record<string, string> = {
   last_bastion: 'b98713ac-5344-4474-99c0-05825494c1ea.jpg',
   titanic_guard: 'c33ad7e8-5a85-4f0d-8cb5-a4ab8db7fbe9.jpg',
   // Archer.
+  piercing_shot: '59db50e4-e5ac-4cdc-bcb8-c4a019325ed8.jpg',
+  triple_volley: '3e3db612-6925-4895-b1e8-ba0df38dec75.jpg',
+  pinning_shot: '2ef1564d-1db0-4408-8b6c-0c3df6608fcc.jpg',
+  hunter_s_eye: 'cfb9747e-5385-4584-8333-cd858c7227d7.jpg',
   arrowstorm: '6ac3dcf5-a7db-4c38-ba90-7fabf54a744a.jpg',
   nailing_shot: '24d17ad6-1682-4b9d-9573-cbcd31a3f043.jpg',
   wildfire_arrow: 'cf4235c4-9518-4378-84a3-d01a6a4e4969.jpg',
@@ -104,6 +112,10 @@ export const CLASS_ICONS: Record<string, string> = {
   camouflage: 'b0faa63d-688e-4a4d-b73f-d6b708e8915a.jpg',
   storm_of_barbs: '504f43a5-28af-4206-9c74-911786bba45e.jpg',
   // Mage.
+  firebolt: '7d02ba49-21c7-47b8-bd1e-26f7f9da960a.jpg',
+  ember_burst: 'ee8693a6-5976-4bac-8f08-406fa8f4f783.jpg',
+  arcane_ward: '6dc192f0-afc4-4193-93e0-0278df32ebfc.jpg',
+  mending_light: '0a4e4d1a-2249-4bc8-9787-cf3ca081743e.jpg',
   arcane_barrage: '47261a8d-9e5b-4959-aa26-7b5f09f813b7.jpg',
   ward_of_ages: '35633ec6-fdc4-4a56-9fef-f18d2cdc2253.jpg',
   lightning_lash: '81ccff1c-281a-4303-9f1e-0a1564589146.jpg',
@@ -117,6 +129,10 @@ export const CLASS_ICONS: Record<string, string> = {
   blink_step: '4518e6bf-f249-4498-97be-a78dabb4b9e0.jpg',
   void_lance: '49c36dc3-3df9-4647-8b3c-d7e8eb026060.jpg',
   // Thief.
+  backstab: 'b4da3a16-b863-472b-b200-2ad970a24959.jpg',
+  cutting_flurry: '3996c604-0866-461b-8fc3-db075a3dc225.jpg',
+  smoke_bomb: '42cd96c3-7f1c-4648-8e0d-1c5f89e741c6.jpg',
+  pilfer: '929a7805-ac09-4765-b836-451ddb0c50b8.jpg',
   shadow_flurry: '7c745da1-3fe7-4010-b10d-04a9cb4a24b0.jpg',
   choking_smoke: '0b41e210-6a7a-4aaf-8b99-0825e83f293d.jpg',
   venomous_edge: '08e4208a-0204-4fba-b872-57353621dbd2.jpg',

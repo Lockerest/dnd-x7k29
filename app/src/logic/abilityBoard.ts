@@ -103,7 +103,14 @@ export function equipChange(c: Character & { eq?: unknown; at?: unknown; atn?: u
 }
 
 /** Attune an equipped Golden ability so it stops using a slot. */
-export function attuneChange(c: Character & { eq?: unknown; at?: Record<string, unknown> | null; atn?: unknown }, board: Board, key: string, here: boolean, dm: boolean, hideGolden: boolean): EquipResult {
+export function attuneChange(
+  c: Character & { eq?: unknown; at?: Record<string, unknown> | null; atn?: unknown },
+  board: Board,
+  key: string,
+  here: boolean,
+  dm: boolean,
+  hideGolden: boolean,
+): EquipResult {
   if (!board[key] || !board[key].gb) return null
   if (!dm && !here) return { error: NOT_HERE_ATTUNE }
   const a0 = attunedSet(c, board)
@@ -118,15 +125,19 @@ export function equipRow(c: Character & { eq?: unknown; at?: unknown; atn?: unkn
   const at = attunedSet(c, board)
   const info = e.k === 'atk' ? `Damage ${e.d || ''}, range ${e.r || 1}${e.a ? ', auto-hit' : ''}` : e.k === 'heal' ? `Heals ${e.d || ''}` : e.k === 'check' ? 'd20 check' : ''
   const notes = [e.t || '', info, (e.l || 1) > (c.level || 1) ? `unlocks at level ${e.l}` : '', e.gb && board[e.gb] && !equipped.has(e.gb) && !on ? `needs ${board[e.gb].n} equipped` : '']
-  const text = notes[0] + notes.slice(1).map((x) => (x ? ` · ${x}` : '')).join('')
+  const text =
+    notes[0] +
+    notes
+      .slice(1)
+      .map((x) => (x ? ` · ${x}` : ''))
+      .join('')
   const attune: 'attuned' | 'button' | null = !e.gb || !on ? null : at.includes(key) ? 'attuned' : here && at.length < (Number(c.atn) || 0) ? 'button' : null
   const canToggle = here && (e.l || 1) <= (c.level || 1) && (on || ((at.includes(key) || usedSlots(c, equipped, board) < slotsOf(c)) && (!e.gb || equipped.has(e.gb))))
   return { on, text, attune, canToggle }
 }
 
 /** The GM's list order: by vocation, then level. */
-export const editorOrder = (board: Board) =>
-  Object.keys(board).sort((a, b) => (board[a]!.v || '').localeCompare(board[b]!.v || '') || (board[a]!.l || 1) - (board[b]!.l || 1))
+export const editorOrder = (board: Board) => Object.keys(board).sort((a, b) => (board[a]!.v || '').localeCompare(board[b]!.v || '') || (board[a]!.l || 1) - (board[b]!.l || 1))
 
 /** A typed or picked value in the GM's editor, as saved. Names are unique. */
 export function boardFieldValue(board: Board, id: string, f: string, raw: string | boolean): string | number {
@@ -144,7 +155,7 @@ export function boardFieldValue(board: Board, id: string, f: string, raw: string
 export const NEW_ABILITY: BoardEntry = { n: 'New ability', c: 2, l: 1, v: 'any', k: 'atk', d: '2d6', r: 1, a: 0, b: '', t: '' }
 
 /** One line of the reference table. golden is the Golden version's numbers, when shown. */
-export type ReferenceRow = { key: string; level: number; name: string; cost: number; effect: string; golden: { dice: string; cost: number | string; hc: number | string } | null }
+export type ReferenceRow = { key: string; level: number; name: string; cost: number; effect: string; golden: { name: string; dice: string; cost: number | string; hc: number | string } | null }
 
 /** The reference table for a class: base abilities up to a level, with their Golden versions. */
 export function referenceRows(board: Board, cls: string, maxLevel: number, hideGolden: boolean): ReferenceRow[] {
@@ -161,6 +172,6 @@ export function referenceRows(board: Board, cls: string, maxLevel: number, hideG
       if (e.k === 'atk' && e.d && !(e.t || '').includes(e.d)) effect = `${e.d} damage. ${effect}`
       if (e.ch && !/charge/i.test(e.t || '')) effect += ' Takes a round to charge.'
       if (e.hc && !g) effect += ` Costs ${e.hc}% max HP.`
-      return { key: k, level: e.l || 1, name: e.n, cost: Number(e.c) || 0, effect, golden: g ? { dice: g.d || '', cost: g.c as number, hc: g.hc || 10 } : null }
+      return { key: k, level: e.l || 1, name: e.n, cost: Number(e.c) || 0, effect, golden: g ? { name: g.n, dice: g.d || '', cost: g.c as number, hc: g.hc || 10 } : null }
     })
 }

@@ -308,7 +308,9 @@ button.warn{border-color:var(--hp)}
 .abx .snd{flex:none;padding:2px 8px}
 .zoomb{padding:0;border:0;background:none;cursor:zoom-in;flex:none;line-height:0}
 .zoomv{position:fixed;inset:0;z-index:90;background:#000d;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;cursor:zoom-out}
-.zoomv img{max-width:min(92vw,720px);max-height:80vh;border-radius:12px;image-rendering:auto}
+.zoomv img{width:min(92vw,720px);height:auto;max-height:80vh;object-fit:contain;border-radius:12px;image-rendering:auto}
+.ref tr.gold td{background:#f2c14e10}
+.ref tr.gold b{color:#f2c14e}
 .zoomv b{color:#e8dfc4;font-size:1.2rem}
 .abx .bai{width:64px;height:64px;border-radius:10px;margin:0;flex:none;border:1px solid var(--ln);object-fit:cover}
 .abx .abe{font-size:46px;width:76px;text-align:center;margin:0;flex:none}

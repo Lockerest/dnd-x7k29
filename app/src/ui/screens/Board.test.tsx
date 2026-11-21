@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useStore } from 'zustand'
+import { CLASS_ICONS, ICON_BASE } from '../../data/icons'
 import { vocationBoard } from '../../logic/abilityBoard'
 import { defaultBoard, type Board } from '../../logic/board'
 import { createGameStore, emptyTables, type GameStore, type Tables } from '../../state/store'
@@ -182,8 +183,10 @@ describe('the reference', () => {
     const rows = [...document.querySelectorAll('tbody tr')].map((r) => [...r.children].map((td) => td.textContent))
     expect(rows).toEqual([
       ['1', 'Rally', '1', ''],
-      ['1', 'Cleave', '2', '2d6 damage. A wide swing.Golden: 4d6 damage, cost 3, 10% max HP'],
+      ['1', 'Cleave', '2', '2d6 damage. A wide swing.'],
+      ['1', 'Cleave (Golden)', '3', '4d6 damage. Costs 10% max HP.'],
     ])
+    expect(document.querySelector('tr.gold')).toHaveTextContent('Cleave (Golden)')
     click('Mage')
     expect(screen.getByRole('heading', { name: 'Mage' })).toBeInTheDocument()
     expect(screen.getByText('Nothing to show yet.')).toBeInTheDocument()
@@ -220,7 +223,7 @@ describe('abilities with missing fields', () => {
     expect(document.querySelector('.ab')).toHaveTextContent('Lv 1 · 0 St')
     cleanup()
     setup({ board: anyBare, chars: { a: hero() }, sp: '-' }, { start: 'ref' })
-    expect(screen.getByText(/Golden:/).parentElement).toHaveTextContent('Golden: cost 2, 10% max HP')
+    expect(document.querySelector('tr.gold')).toHaveTextContent('Gold (Golden)2Costs 10% max HP.')
   })
 })
 
@@ -261,5 +264,15 @@ describe('ability pictures open big on the Reference', () => {
     render(<BoardScreen view="ref" {...p} />)
     fireEvent.click(screen.getByRole('button', { name: 'View Cleave larger' }))
     expect(screen.getByRole('dialog', { name: 'Cleave' })).toBeInTheDocument()
+    expect(within(screen.getByRole('dialog')).getByRole('img')).toHaveAttribute('src', 'data:cleave')
+  })
+
+  it('a class ability shows its sharp built-in picture big', () => {
+    const board = { k: { n: 'Heavy Swing', v: 'warrior', l: 1, c: 2, k: 'atk', d: '2d6', r: 1 } } as unknown as Board
+    const p = { onView: () => {}, tables: { ...emptyTables(), board }, dm: true, me: 'gm', actions: createGameStore().getState(), images: { k: 'data:small' }, confirm: () => true }
+    render(<BoardScreen view="ref" {...p} />)
+    click('Warrior')
+    fireEvent.click(screen.getByRole('button', { name: 'View Heavy Swing larger' }))
+    expect(within(screen.getByRole('dialog')).getByRole('img')).toHaveAttribute('src', ICON_BASE + CLASS_ICONS.heavy_swing)
   })
 })

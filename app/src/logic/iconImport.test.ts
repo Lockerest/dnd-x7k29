@@ -41,7 +41,7 @@ describe('the built-in icons from the web', () => {
   })
 
   it('every class ability has its icon, and the built-in lists are used by default', () => {
-    expect(Object.keys(CLASS_ICONS)).toHaveLength(123)
+    expect(Object.keys(CLASS_ICONS)).toHaveLength(139)
     const all = webIcons({ s: { n: 'Spear Thrust', k: 'atk' }, g: { n: 'Spear Thrust (Golden)', k: 'atk' } } as never)
     expect(all).toHaveLength(Object.keys(SKILL_ICONS).length + 1)
     expect(all.at(-1)).toEqual({ file: CLASS_ICONS.spear_thrust, skill: null, board: ['s', 'g'] })

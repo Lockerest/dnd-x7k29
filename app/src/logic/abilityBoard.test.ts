@@ -33,7 +33,9 @@ describe('the 9-class board', () => {
     const base = b[g[1].gb!]!
     expect(g[1]).toMatchObject({ n: `${base.n} (Golden)`, c: Math.ceil(Number(base.c) * 3) / 2, ic: '✨' })
     expect(g[1].t).toMatch(new RegExp(`^Golden form of ${base.n}\\. Needs ${base.n} equipped\\. .* Costs \\d+% of your max HP \\(never below 1\\)\\.$`))
-    const charged = Object.values(b).filter((e) => e.ch).map((e) => e.n)
+    const charged = Object.values(b)
+      .filter((e) => e.ch)
+      .map((e) => e.n)
     expect(charged).toEqual(expect.arrayContaining(['Oathbreaker', 'Oathbreaker (Golden)', 'Meteor Fall', 'Cataclysm']))
     const nonAttack = Object.values(b).find((e) => e.gb && e.k !== 'atk')!
     expect(nonAttack.d).toBe('')
@@ -160,9 +162,9 @@ describe('the reference table', () => {
   }
   it('base abilities up to a level, by level then cost, with damage, charge, HP cost and Golden notes', () => {
     expect(referenceRows(b, 'fighter', 2, false)).toEqual([
-      { key: 'b1', level: 1, name: 'Base', cost: 2, effect: '2d6 damage. Hit.', golden: { dice: '', cost: 3, hc: 10 } },
-      { key: 'b3', level: 1, name: 'Third', cost: 3, effect: '', golden: { dice: '', cost: 4, hc: 15 } },
-      { key: 'c1', level: 1, name: 'Charge', cost: 5, effect: '4d6 boom. Takes a round to charge.', golden: { dice: '6d6', cost: 7, hc: 10 } },
+      { key: 'b1', level: 1, name: 'Base', cost: 2, effect: '2d6 damage. Hit.', golden: { name: 'Base (Golden)', dice: '', cost: 3, hc: 10 } },
+      { key: 'b3', level: 1, name: 'Third', cost: 3, effect: '', golden: { name: 'Third (Golden)', dice: '', cost: 4, hc: 15 } },
+      { key: 'c1', level: 1, name: 'Charge', cost: 5, effect: '4d6 boom. Takes a round to charge.', golden: { name: 'Charge (Golden)', dice: '6d6', cost: 7, hc: 10 } },
       { key: 'c2', level: 1, name: 'Charge Up', cost: 5, effect: 'Charge it. Costs 5% max HP.', golden: null },
       { key: 'b2', level: 2, name: 'Second', cost: 1, effect: '', golden: null },
     ])
