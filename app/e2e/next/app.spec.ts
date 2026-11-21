@@ -191,6 +191,34 @@ test('a cutscene video plays instead of the cinematic text, on the GM and the pl
   await plCtx.close()
 })
 
+test("the GM's Boss abilities list: every boss move with its icon, and notes kept for the table", async ({ page }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', { meta: { dm: 'x' } })
+  const errors: string[] = []
+  page.on('pageerror', (e) => errors.push(e.message))
+  await useFakeFirebase(page, db)
+  await page.route('https://cdn.creativeclaw.co/**', (route) => route.fulfill({ body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64'), contentType: 'image/png' }))
+  await page.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await page.goto(base)
+  await page.getByRole('button', { name: 'Abilities' }).click()
+  await page.getByRole('button', { name: 'Reference' }).click()
+  const list = page.getByLabel('Boss abilities')
+  await list.getByRole('button', { name: 'Nameless King' }).click()
+  const wager = list.getByLabel("Boss ability Storm's Wager").first()
+  await expect(wager).toContainText('Roll a d4 in the open')
+  await expect(wager.locator('img')).toHaveJSProperty('naturalWidth', 1)
+  const note = list.getByLabel('Notes: Twin Thrust').first()
+  await note.fill('Use when a player is cornered.')
+  await note.blur()
+  await expect.poll(() => db.get('tables/dragon42/skdesc/twin_thrust')).toBe('Use when a player is cornered.')
+  await page.reload()
+  await page.getByRole('button', { name: 'Abilities' }).click()
+  await page.getByRole('button', { name: 'Reference' }).click()
+  await page.getByLabel('Boss abilities').getByRole('button', { name: 'Nameless King' }).click()
+  await expect(page.getByLabel('Boss abilities').getByLabel('Notes: Twin Thrust').first()).toHaveValue('Use when a player is cornered.')
+  expect(errors).toEqual([])
+})
+
 test('a player uses their sheet in the new app; the GM on the live page sees the same sheet', async ({ browser }) => {
   const db = new FakeDb()
   db.set('tables/dragon42', {

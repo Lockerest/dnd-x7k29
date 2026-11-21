@@ -105,7 +105,10 @@ describe('<Game /> joining', () => {
   })
 
   it('the table display joins without a character', async () => {
-    setup({ tables: { dragon42: { meta: { dm: 'h' }, enemies: { w: { name: 'Wolf', hp: 50, max: 50, x10: true }, g: { name: 'Golem', hp: 9, max: 9, mx: 2, my: 2, x10: true } } } } }, { hash: '#table' })
+    setup(
+      { tables: { dragon42: { meta: { dm: 'h' }, enemies: { w: { name: 'Wolf', hp: 50, max: 50, x10: true }, g: { name: 'Golem', hp: 9, max: 9, mx: 2, my: 2, x10: true } } } } },
+      { hash: '#table' },
+    )
     type(/Table PIN/, 'dragon42')
     click('Open table view (projector)')
     expect(await screen.findByText('Waiting for the GM to show a map…')).toBeInTheDocument()
@@ -203,6 +206,35 @@ describe('<Game /> characters', () => {
 })
 
 describe('<Game /> Game Master', () => {
+  it("the Boss abilities list on the Reference tab, with the GM's notes", async () => {
+    const h = await gmPinHash('secret')
+    const { fb } = setup({ tables: { dragon42: { meta: { dm: h } } } })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    click(await screen.findByRole('button', { name: 'Abilities' }).then((b) => b.textContent!))
+    expect(screen.queryByLabelText('Boss abilities')).toBeNull()
+    click('Reference')
+    const list = await screen.findByLabelText('Boss abilities')
+    // No notes yet, then a note written and saved.
+    const note = within(list).getAllByLabelText('Notes: Chain Pull')[0]!
+    expect(note).toHaveValue('')
+    fireEvent.change(note, { target: { value: 'Pulls 3 squares.' } })
+    fireEvent.blur(note)
+    await vi.waitFor(() => expect(fb.get('tables/dragon42/skdesc/chain_pull')).toBe('Pulls 3 squares.'))
+    // Notes saved elsewhere show when the tab opens again; a failed read keeps what is shown.
+    fb.set('tables/dragon42/skdesc/rime_guard', 'Blocks once.')
+    click('Ability board')
+    click('Reference')
+    await vi.waitFor(() => expect(within(screen.getByLabelText('Boss abilities')).getAllByLabelText('Notes: Rime Guard')[0]).toHaveValue('Blocks once.'))
+    fb.setOffline(true)
+    click('Ability board')
+    click('Reference')
+    await act(async () => void (await new Promise((r) => setTimeout(r, 30))))
+    expect(within(screen.getByLabelText('Boss abilities')).getAllByLabelText('Notes: Rime Guard')[0]).toHaveValue('Blocks once.')
+    fb.setOffline(false)
+  })
+
   it('approves or declines join requests and device requests', async () => {
     const h = await gmPinHash('secret')
     const { fb } = setup({
@@ -456,10 +488,7 @@ describe('<Game /> dice', () => {
     const jobs: DiceJob[] = []
     const player: DicePlayer = { play: async (j) => void jobs.push(j), init: () => {}, physics: () => false }
     const old = { n: 'Bo', ds: [{ d: 6, r: 3 }], ts: 1000, by: 'b', sk: 'red' }
-    const { fb } = setup(
-      { tables: { dragon42: { meta: { dm: 'h' }, chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } }, rolls: { r1: old } } } },
-      { storage, player },
-    )
+    const { fb } = setup({ tables: { dragon42: { meta: { dm: 'h' }, chars: { a: { name: 'Lyra', hp: 50, maxHp: 50, st: 50, maxSt: 100, x10: true } }, rolls: { r1: old } } } }, { storage, player })
     expect(await screen.findByText('Bo rolled d6:')).toBeInTheDocument()
     expect(screen.getByLabelText('Dice style')).toHaveValue('gold')
     click('d20')

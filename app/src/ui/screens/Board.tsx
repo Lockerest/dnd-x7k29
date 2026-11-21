@@ -1,6 +1,6 @@
 // The ability board (the GM's editor, or a player equipping abilities) and the
 // reference table. Same layout and rules as the live page.
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { BONUSES, GLYPHS, KINDS, VOCATIONS } from '../../data/abilityIcons'
 import { CLASSES } from '../../data/classes'
 import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
@@ -62,6 +62,8 @@ export type BoardScreenProps = {
   images: Record<string, string>
   confirm: (q: string) => boolean
   rand?: () => number
+  /** The GM's Boss abilities list, shown under the Reference. */
+  bossAbilities?: ReactNode
 }
 
 /** The two tabs above both screens. */
@@ -83,6 +85,7 @@ export function BoardScreen(p: BoardScreenProps) {
     <div className={p.dm && p.view === 'board' ? 'sheets' : 'solo'}>
       <Tabs view={p.view} onView={p.onView} dm={p.dm} />
       {p.view === 'ref' ? <Reference {...p} /> : p.dm ? <Editor {...p} /> : <Equip {...p} />}
+      {p.view === 'ref' && p.dm && p.bossAbilities}
     </div>
   )
 }

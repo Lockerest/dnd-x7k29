@@ -26,6 +26,7 @@ import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
 import { InitiativeCall, QtePrompt } from './screens/Combat'
 import { BoardScreen } from './screens/Board'
+import { BossAbilities } from './screens/BossAbilities'
 import { CinematicOverlay } from './CinematicOverlay'
 import { DicePanel } from './screens/Dice'
 import { TestLab } from './screens/TestLab'
@@ -228,6 +229,15 @@ export function Game({
   const bossArt = usePictures(db, wantedArt, bossArtPath, tables)
   // Monster skill icons (the GM's Enemies panel and the action menu).
   const skillIcons = useIconSet(db, 'skicons', onTable ? skillVersion : null, tables)
+  // The GM's notes on boss moves (read when the Reference tab opens).
+  const [bossNotes, setBossNotes] = useState<Record<string, string>>({})
+  useEffect(() => {
+    if (!db || !dm || view !== 'ref') return
+    void db
+      .get<Record<string, string>>('skdesc')
+      .then((n) => setBossNotes(n ?? {}))
+      .catch(() => {})
+  }, [db, dm, view])
 
   // Players watch for an attack aimed at them (the 3-second dodge/parry prompt).
   useEffect(() => {
@@ -402,6 +412,16 @@ export function Game({
         images={boardStamps ? abilityImages : {}}
         confirm={confirm ?? ((q) => window.confirm(q))}
         rand={rand}
+        bossAbilities={
+          <BossAbilities
+            icons={skillIcons}
+            notes={bossNotes}
+            onNote={(slug, t) => {
+              setBossNotes((n) => ({ ...n, [slug]: t.trim() }))
+              void store.getState().setSkillNote(slug, t)
+            }}
+          />
+        }
       />
     )
   else if (screen === 'sheet')

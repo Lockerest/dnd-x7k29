@@ -14,6 +14,8 @@ export type PictureActions = {
   setBossArt: (id: string, data: string) => Promise<void>
   /** A monster skill's icon by its slug; null removes it (the GM). */
   setSkillIcon: (slug: string, data: string | null) => Promise<void>
+  /** The GM's note on a boss move (Boss abilities list); empty removes it. */
+  setSkillNote: (slug: string, text: string) => Promise<void>
 }
 
 type Get = () => GameState
@@ -57,6 +59,11 @@ export function pictureActions(get: Get, save: Save, now: () => number): Picture
         else await d.del(`skicons/${slug}`)
         await d.patch('meta', { skiv: st })
       })
+    },
+    setSkillNote: async (slug, text) => {
+      if (!get().dm) return
+      const t = text.trim().slice(0, 1000)
+      await save((d) => (t ? d.put(`skdesc/${slug}`, t) : d.del(`skdesc/${slug}`)))
     },
   }
 }

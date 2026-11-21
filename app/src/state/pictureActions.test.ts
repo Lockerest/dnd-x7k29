@@ -4,7 +4,11 @@ import { createGameStore, emptyTables, type Tables } from './store'
 
 function setup(t: Partial<Tables> = {}, role: 'gm' | 'player' = 'gm', me = 'gm') {
   const f = fakeDb()
-  const s = createGameStore(() => f.db, () => 77, () => 0.5)
+  const s = createGameStore(
+    () => f.db,
+    () => 77,
+    () => 0.5,
+  )
   s.getState().connect({ pin: 'p', role, me })
   s.getState().applySnapshot({ ...emptyTables(), chars: { a: { name: 'Lyra' }, b: { name: 'Bram' } }, enemies: { w: { name: 'Wolf', hp: 5 } }, ...t })
   return { s, f }
@@ -75,6 +79,21 @@ describe('skill icons', () => {
     ])
     const pl = setup({}, 'player', 'a')
     await pl.s.getState().setSkillIcon('bite', 'x')
+    expect(pl.f.writes).toEqual([])
+  })
+})
+
+describe('boss move notes', () => {
+  it('saved or removed by the GM only', async () => {
+    const { s, f } = setup()
+    await s.getState().setSkillNote('bite', '  Bleeds.  ')
+    await s.getState().setSkillNote('bite', '  ')
+    expect(f.writes).toEqual([
+      ['PUT', 'skdesc/bite', 'Bleeds.'],
+      ['DELETE', 'skdesc/bite', null],
+    ])
+    const pl = setup({}, 'player', 'a')
+    await pl.s.getState().setSkillNote('bite', 'x')
     expect(pl.f.writes).toEqual([])
   })
 })
