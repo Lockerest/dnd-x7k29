@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { fileSlug, iconImportStatus, matchIcon } from './iconImport'
+import { CLASS_ICONS, SKILL_ICONS } from '../data/icons'
+import { fileSlug, iconImportStatus, matchIcon, webIcons } from './iconImport'
 
 const board = {
   a: { n: 'Frost Lance', k: 'atk' },
@@ -27,5 +28,22 @@ describe('matching an icon file to abilities', () => {
   it('the status line', () => {
     expect(iconImportStatus(3, [], [])).toBe('3 imported')
     expect(iconImportStatus(1, ['a.png', 'b.png'], ['c.png'])).toBe("1 imported; no ability named a.png, b.png; couldn't read c.png")
+  })
+})
+
+describe('the built-in icons from the web', () => {
+  it('boss skills first, then class icons for the board abilities of that name', () => {
+    expect(webIcons(board, { bite: 'b.jpg' }, { frost_lance: 'f.jpg', heal: 'h.jpg', fireball: 'x.jpg' })).toEqual([
+      { file: 'b.jpg', skill: 'bite', board: [] },
+      { file: 'f.jpg', skill: null, board: ['a', 'b'] },
+      { file: 'h.jpg', skill: null, board: ['c'] },
+    ])
+  })
+
+  it('every class ability has its icon, and the built-in lists are used by default', () => {
+    expect(Object.keys(CLASS_ICONS)).toHaveLength(123)
+    const all = webIcons({ s: { n: 'Spear Thrust', k: 'atk' }, g: { n: 'Spear Thrust (Golden)', k: 'atk' } } as never)
+    expect(all).toHaveLength(Object.keys(SKILL_ICONS).length + 1)
+    expect(all.at(-1)).toEqual({ file: CLASS_ICONS.spear_thrust, skill: null, board: ['s', 'g'] })
   })
 })

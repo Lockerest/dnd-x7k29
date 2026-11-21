@@ -856,11 +856,14 @@ test('pictures: portraits, token icons, boss art, skill and ability icons come o
   await expect(next.getByText('2 imported; no ability named Fireball.png')).toBeVisible()
   expect(mine.get(`${T}/abicons/k1`)).toEqual(singles.ab)
   expect(mine.get(`${T}/skicons/bite`)).toEqual(singles.sk)
-  // "Import boss icons from web": the built-in boss icons (served here by the test).
+  // "Import icons from web": the built-in boss and class icons (served here by the test).
+  mine.set(`${T}/board`, { ...(mine.get(`${T}/board`) as object), k2: { n: 'Heavy Swing', v: 'warrior', l: 1, c: 1, k: 'atk', d: '2d8', r: 1 } })
+  await expect(next.getByRole('button', { name: 'All (2)' })).toBeVisible()
   await next.route('https://cdn.creativeclaw.co/**', (route) => route.fulfill({ body: file.buffer, contentType: 'image/png', headers: { 'access-control-allow-origin': '*' } }))
-  await next.getByRole('button', { name: 'Import boss icons from web' }).click()
-  await expect(next.getByText(/^\d+ boss icons imported$/)).toBeVisible({ timeout: 20_000 })
+  await next.getByRole('button', { name: 'Import icons from web' }).click()
+  await expect(next.getByText(/^\d+ icons imported$/)).toBeVisible({ timeout: 20_000 })
   expect(mine.get(`${T}/skicons/storm_s_wager`)).toEqual(singles.sk)
+  expect(mine.get(`${T}/abicons/k2`)).toEqual(singles.ab)
   expect(errors).toEqual([])
   await ctx.close()
 })

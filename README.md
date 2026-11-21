@@ -110,6 +110,9 @@ npm run build
    Kernunos's 17 icons; his phase 3 (rooted) set also carries all his phase 2 moves (1.7.0).
    Ability and boss move pictures open big when clicked (Reference and Boss abilities); two
    Kernunos icons redone as a four-legged centaur (1.7.1).
+   New icons for all 123 class abilities (9 classes) in the same ink-and-wash style as the
+   bosses; "Import icons from web" saves them on the ability board, Golden versions included,
+   in place of the older pictures (1.8.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

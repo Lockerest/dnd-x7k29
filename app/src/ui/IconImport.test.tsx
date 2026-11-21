@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { fakeKit } from '../testing/fakeKit'
-import { ICON_BASE, SKILL_ICONS } from '../data/icons'
+import { CLASS_ICONS, ICON_BASE, SKILL_ICONS } from '../data/icons'
 import { IconImport } from './IconImport'
 import { ImagesContext } from './imageKit'
 
@@ -56,8 +56,9 @@ describe('Import icons', () => {
   })
 })
 
-describe('Import boss icons from web', () => {
-  it('downloads each built-in boss icon and saves it squared', async () => {
+describe('Import icons from web', () => {
+  it('downloads each built-in icon and saves it squared', async () => {
+    const setAbilityIcon = vi.fn(async () => {})
     const setSkillIcon = vi.fn(async () => {})
     let n = 0
     const download = vi.fn(async () => {
@@ -66,34 +67,37 @@ describe('Import boss icons from web', () => {
     })
     render(
       <ImagesContext.Provider value={fakeKit}>
-        <IconImport board={board} enemies={{}} setAbilityIcon={vi.fn(async () => {})} setSkillIcon={setSkillIcon} download={download} />
+        <IconImport board={{ ...(board as object), h2: { n: 'Healing Rain', k: 'heal' } } as never} enemies={{}} setAbilityIcon={setAbilityIcon} setSkillIcon={setSkillIcon} download={download} />
       </ImagesContext.Provider>,
     )
-    fireEvent.click(screen.getByRole('button', { name: 'Import boss icons from web' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Import icons from web' }))
     await act(async () => void (await new Promise((r) => setTimeout(r, 100))))
     const total = Object.keys(SKILL_ICONS).length
     expect(download).toHaveBeenCalledWith(ICON_BASE + SKILL_ICONS.skyward_lance)
     expect(setSkillIcon).toHaveBeenCalledTimes(total - 1)
     expect(setSkillIcon).toHaveBeenCalledWith('skyward_lance', 'data:image/png;96x96')
-    expect(screen.getByText(`${total - 1} boss icons imported, 1 failed`)).toBeInTheDocument()
+    expect(setAbilityIcon).toHaveBeenCalledTimes(1)
+    expect(setAbilityIcon).toHaveBeenCalledWith('h2', 'data:image/png;96x96')
+    expect(download).toHaveBeenCalledWith(ICON_BASE + CLASS_ICONS.healing_rain)
+    expect(screen.getByText(`${total} icons imported, 1 failed`)).toBeInTheDocument()
   })
 
   it('downloads with the browser by default', async () => {
     const f = vi.fn(async () => ({ ok: false, status: 404, blob: async () => new Blob() }))
     vi.stubGlobal('fetch', f)
     show()
-    fireEvent.click(screen.getByRole('button', { name: 'Import boss icons from web' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Import icons from web' }))
     await act(async () => void (await new Promise((r) => setTimeout(r, 50))))
     expect(f).toHaveBeenCalledWith(ICON_BASE + SKILL_ICONS.skyward_lance)
-    expect(screen.getByText(`0 boss icons imported, ${Object.keys(SKILL_ICONS).length} failed`)).toBeInTheDocument()
+    expect(screen.getByText(`0 icons imported, ${Object.keys(SKILL_ICONS).length} failed`)).toBeInTheDocument()
     vi.unstubAllGlobals()
     const ok = vi.fn(async () => ({ ok: true, status: 200, blob: async () => new Blob(['x']) }))
     vi.stubGlobal('fetch', ok)
     cleanup()
     show()
-    fireEvent.click(screen.getByRole('button', { name: 'Import boss icons from web' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Import icons from web' }))
     await act(async () => void (await new Promise((r) => setTimeout(r, 50))))
-    expect(screen.getByText(`${Object.keys(SKILL_ICONS).length} boss icons imported`)).toBeInTheDocument()
+    expect(screen.getByText(`${Object.keys(SKILL_ICONS).length} icons imported`)).toBeInTheDocument()
     vi.unstubAllGlobals()
   })
 })
