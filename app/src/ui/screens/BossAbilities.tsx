@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { ICON_BASE, SKILL_ICONS } from '../../data/icons'
 import { SKILL_SETS } from '../../data/skillSets'
 import { bossSections } from '../../logic/bossRef'
+import { Zoom } from '../Zoom'
 
 export type BossAbilitiesProps = {
   /** Shown or folded to its title (this device). */
@@ -23,7 +24,8 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
   const bosses = bossSections(SKILL_SETS)
   const [picked, setPicked] = useState(bosses[0]!.boss)
   const b = bosses.find((x) => x.boss === picked)!
-  const icon = (slug: string) => icons[slug] ?? (SKILL_ICONS[slug] ? ICON_BASE + SKILL_ICONS[slug] : null)
+  const builtIn = (slug: string) => (SKILL_ICONS[slug] ? ICON_BASE + SKILL_ICONS[slug] : null)
+  const icon = (slug: string) => icons[slug] ?? builtIn(slug)
   return (
     <div className="card ref" aria-label="Boss abilities">
       <div className="row mini">
@@ -61,7 +63,7 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
                       <tr key={r.slug} aria-label={`Boss ability ${r.name}`}>
                         <td>
                           <div className="abx">
-                            {src && <img className="bai" src={src} alt="" />}
+                            {src && <Zoom className="bai" src={src} full={builtIn(r.slug)} name={r.name} />}
                             <b>{r.name}</b>
                             <button className="snd" aria-label={`Play the sound of ${r.name}`} onClick={() => onPlay(r.name)}>
                               ▶

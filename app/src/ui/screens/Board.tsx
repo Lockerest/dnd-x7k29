@@ -13,14 +13,27 @@ import type { GameState, Tables } from '../../state/store'
 import { Field } from '../parts'
 import { IconImport } from '../IconImport'
 import { PictureButton } from '../PictureButton'
+import { Zoom } from '../Zoom'
 import { squareIcon } from '../images'
 
 /** An ability's icon: the GM's uploaded picture, else the drawn icon, else its emoji. */
-export function AbilityIcon({ board, name, images, drawn }: { board: Board; name: string; images: Record<string, string>; drawn: boolean }) {
+export function AbilityIcon({
+  board,
+  name,
+  images,
+  drawn,
+  zoom = false,
+}: {
+  board: Board
+  name: string
+  images: Record<string, string>
+  drawn: boolean
+  /** Click the picture to see it big. */ zoom?: boolean
+}) {
   const k = keyByName(board)[name]
   const e = k ? board[k] : undefined
   if (!k || !e) return null
-  if (images[k]) return <img className="abi" src={images[k]} alt="" />
+  if (images[k]) return zoom ? <Zoom className="abi" src={images[k]} name={name} /> : <img className="abi" src={images[k]} alt="" />
   if (drawn) {
     const { glyph, color, golden } = glyphOf(board, k)
     const id = `g${k.replace(/[^a-z0-9]/gi, '').slice(0, 18)}`
@@ -287,7 +300,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                     <td>{r.level}</td>
                     <td>
                       <div className="abx">
-                        <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} />
+                        <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} zoom />
                         <b>{r.name}</b>
                       </div>
                     </td>

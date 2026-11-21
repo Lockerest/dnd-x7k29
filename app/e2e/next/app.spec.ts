@@ -208,6 +208,11 @@ test("the GM's Boss abilities list: every boss move with its icon, and notes kep
   const wager = list.getByLabel("Boss ability Storm's Wager").first()
   await expect(wager).toContainText('Roll a d4 in the open')
   await expect(wager.locator('img')).toHaveJSProperty('naturalWidth', 1)
+  // Its picture opens big, and closes with a click.
+  await wager.getByRole('button', { name: "View Storm's Wager larger" }).click()
+  await expect(page.getByRole('dialog', { name: "Storm's Wager" })).toBeVisible()
+  await page.getByRole('dialog', { name: "Storm's Wager" }).click()
+  await expect(page.getByRole('dialog', { name: "Storm's Wager" })).toHaveCount(0)
   const note = list.getByLabel('Notes: Twin Thrust').first()
   await note.fill('Use when a player is cornered.')
   await note.blur()

@@ -253,3 +253,13 @@ describe('the class Reference folds to its title', () => {
     expect(onRefShut).toHaveBeenCalledTimes(1)
   })
 })
+
+describe('ability pictures open big on the Reference', () => {
+  it('an uploaded picture can be clicked to view it larger', () => {
+    const board = { k: { n: 'Cleave', v: 'fighter', l: 1, c: 2, k: 'atk', d: '2d6', r: 1 } } as unknown as Board
+    const p = { onView: () => {}, tables: { ...emptyTables(), board }, dm: true, me: 'gm', actions: createGameStore().getState(), images: { k: 'data:cleave' }, confirm: () => true }
+    render(<BoardScreen view="ref" {...p} />)
+    fireEvent.click(screen.getByRole('button', { name: 'View Cleave larger' }))
+    expect(screen.getByRole('dialog', { name: 'Cleave' })).toBeInTheDocument()
+  })
+})

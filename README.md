@@ -108,6 +108,8 @@ npm run build
    and a ▶ sound button; the Enemies card folds away; phase sheets not being fought show only
    their name (1.6.0). The class abilities Reference folds the same way (1.6.1).
    Kernunos's 17 icons; his phase 3 (rooted) set also carries all his phase 2 moves (1.7.0).
+   Ability and boss move pictures open big when clicked (Reference and Boss abilities); two
+   Kernunos icons redone as a four-legged centaur (1.7.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

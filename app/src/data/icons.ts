@@ -41,7 +41,7 @@ export const SKILL_ICONS: Record<string, string> = {
   stag_charge: '0a2be1e1-188f-4d37-89ff-f6ba1a0001aa.jpg',
   heartwood_bloom: '1abb39e9-c777-4c09-b382-4e373363fc17.jpg',
   thorned_hide: '80cb8620-f9aa-4333-89be-736b8572b61f.jpg',
-  the_bloom_withers: 'bc99e2ce-73e9-4e96-b2a2-efa0c33620c4.jpg',
+  the_bloom_withers: '44a291e7-85ce-4f17-9025-45372eef4069.jpg',
   // Kernunos: rotten.
   rot_claw: '45101d02-d1b1-43ec-a7a5-d4bd8141e5ef.jpg',
   maggot_swarm: 'd7ed1a69-498a-43c5-a1ad-d838b1f5d261.jpg',
@@ -52,7 +52,7 @@ export const SKILL_ICONS: Record<string, string> = {
   plague_bloom: 'bd7d4870-0df7-4e53-a91c-8f4556308e2f.jpg',
   // Kernunos: rooted.
   spring_returns: '964e139b-aef3-48d1-b681-e8c6e80944f8.jpg',
-  withering_drain: '96de523b-2d7d-4d1d-aed7-31fc98b4aa96.jpg',
+  withering_drain: 'c740ceef-c8b6-4559-92bc-7801734bd092.jpg',
   // The Nameless King: storm rider, on foot, cloud dragon.
   skyward_lance: '34aa45eb-ed2f-44e5-ae27-969882652014.jpg',
   tail_sweep: 'f695973a-1d4d-475f-85c7-0cfdc16b0275.jpg',
