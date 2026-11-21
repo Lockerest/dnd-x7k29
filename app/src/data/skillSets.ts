@@ -1,5 +1,5 @@
-// Copied from the live page (index.html). The parity tests in e2e/parity check
-// this stays identical to the page until the page is retired.
+// Started from the live page (index.html). The parity tests check the sets the
+// backup page has stay unchanged; sets added since the cutover (Nameless King) are the app's own.
 /** One boss skill. dice "0", "-" or "none" is a utility skill (scene and sound, no damage). target s = one hero, a = area. */
 export type SkillRow = { name: string; dice: string; range: number; target: 's' | 'a' }
 
@@ -299,6 +299,186 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
     {
       "name": "Withering Drain",
       "dice": "2d8",
+      "range": 20,
+      "target": "a"
+    }
+  ],
+  "Nameless King: phase 1 (storm rider)": [
+    {
+      "name": "Skyward Lance",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Tail Sweep",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a"
+    },
+    {
+      "name": "Storm Breath",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a"
+    },
+    {
+      "name": "Wingbeat Gale",
+      "dice": "0",
+      "range": 3,
+      "target": "a"
+    },
+    {
+      "name": "Thunder Dive",
+      "dice": "5d8",
+      "range": 4,
+      "target": "a"
+    }
+  ],
+  "Nameless King: phase 2 (on foot)": [
+    {
+      "name": "King's Thrust",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Storm's Wager",
+      "dice": "0",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Wager: Thunder Lance",
+      "dice": "3d8",
+      "range": 6,
+      "target": "a"
+    },
+    {
+      "name": "Wager: Spear Hurl",
+      "dice": "2d10",
+      "range": 8,
+      "target": "s"
+    },
+    {
+      "name": "Wager: Storm Vault",
+      "dice": "3d8",
+      "range": 4,
+      "target": "a"
+    },
+    {
+      "name": "Wager: Crowned in Lightning",
+      "dice": "0",
+      "range": 1,
+      "target": "s"
+    },
+    {
+      "name": "Twin Thrust",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Sweeping Arc",
+      "dice": "2d10",
+      "range": 2,
+      "target": "a"
+    },
+    {
+      "name": "Lunging Pierce",
+      "dice": "3d10",
+      "range": 4,
+      "target": "s"
+    },
+    {
+      "name": "Sovereign's Theft",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Lightning Reprisal",
+      "dice": "2d8",
+      "range": 12,
+      "target": "s"
+    }
+  ],
+  "Nameless King: phase 3 (cloud dragon)": [
+    {
+      "name": "King's Thrust",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Storm's Wager",
+      "dice": "0",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Wager: Thunder Lance",
+      "dice": "3d8",
+      "range": 6,
+      "target": "a"
+    },
+    {
+      "name": "Wager: Spear Hurl",
+      "dice": "2d10",
+      "range": 8,
+      "target": "s"
+    },
+    {
+      "name": "Wager: Storm Vault",
+      "dice": "3d8",
+      "range": 4,
+      "target": "a"
+    },
+    {
+      "name": "Wager: Crowned in Lightning",
+      "dice": "0",
+      "range": 1,
+      "target": "s"
+    },
+    {
+      "name": "Twin Thrust",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Sweeping Arc",
+      "dice": "2d10",
+      "range": 2,
+      "target": "a"
+    },
+    {
+      "name": "Lunging Pierce",
+      "dice": "3d10",
+      "range": 4,
+      "target": "s"
+    },
+    {
+      "name": "Sovereign's Theft",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s"
+    },
+    {
+      "name": "Lightning Reprisal",
+      "dice": "2d8",
+      "range": 12,
+      "target": "s"
+    },
+    {
+      "name": "Shape the Storm",
+      "dice": "0",
+      "range": 20,
+      "target": "a"
+    },
+    {
+      "name": "Cloud Dragon's Judgement",
+      "dice": "3d8",
       "range": 20,
       "target": "a"
     }

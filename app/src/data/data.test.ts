@@ -38,8 +38,8 @@ describe('classes and rules', () => {
 })
 
 describe('skill sets', () => {
-  it('8 sets of valid skills with unique names', () => {
-    expect(Object.keys(SKILL_SETS)).toHaveLength(8)
+  it('11 sets of valid skills with unique names', () => {
+    expect(Object.keys(SKILL_SETS)).toHaveLength(11)
     for (const [set, rows] of Object.entries(SKILL_SETS)) {
       expect(new Set(rows.map((r) => r.name)).size, set).toBe(rows.length)
       for (const r of rows) {

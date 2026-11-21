@@ -277,7 +277,7 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "grand_illusion": "295e6790-ec6f-45d2-a2c6-e246c6eafeb3",
   "warden_s_cut": "94b47b8e-14cd-4a74-bc07-62b7bc2e1bc3",
   "rime_guard": "d1f78c68-8e7b-4f44-9748-d61c94e805f4",
-  "chain_pull": "0efe8241-5070-4190-89e5-ffc60822bc16",
+  "chain_pull": "34e5ef1d-eef3-467e-9afa-b4919f506268",
   "prison_bars": "2287fcd1-e173-4bfd-af6c-ef188f75536e",
   "frostbite_cleave": "9a1221d8-5ab0-4141-aafc-abd532236af2",
   "cold_snap": "b6a4ac80-b766-458a-8c9f-9e88b73d77a1",
@@ -301,7 +301,25 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "venom_mist": "f756221f-ed29-43b3-ac85-915e59382a68",
   "ceiling_drop": "ad2b7abe-4386-48b0-9642-39edf3d96520",
   "silk_net": "dffc14f1-3d49-4d3e-bc55-ba7ee5e282e1",
-  "final_offer": "92a4415f-3da1-440d-9f83-e8de39b0ef03"
+  "final_offer": "92a4415f-3da1-440d-9f83-e8de39b0ef03",
+  "skyward_lance": "d00ed858-2270-417f-945b-a2d4ea7ddcbb",
+  "tail_sweep": "7bca70d7-3469-44f6-8696-ef2d2953afe2",
+  "storm_breath": "633b813c-47bc-46dd-8dea-bd10b2e3caf5",
+  "wingbeat_gale": "37cda0f9-7535-4534-be0f-5f7c5ab47e6a",
+  "thunder_dive": "43bae564-9202-4592-90ab-56f5cc89a9a8",
+  "king_s_thrust": "1806738c-7822-430f-b1d8-493fe2aafaee",
+  "storm_s_wager": "94302f8b-cb3b-4859-8f86-61f954a41864",
+  "wager_thunder_lance": "9abc6096-8a5f-453c-9302-12f15446f33c",
+  "wager_spear_hurl": "cd206b54-c18f-4504-bc91-78778578d21e",
+  "wager_storm_vault": "08009d39-2814-4040-ae0e-5ebc007b199e",
+  "wager_crowned_in_lightning": "850278de-a6c4-4682-aa95-e5d93529a4d2",
+  "twin_thrust": "90fa3870-ab06-4322-a007-702771833217",
+  "sweeping_arc": "643e12da-bf69-4410-8ea4-02c15c647fb3",
+  "lunging_pierce": "6fe92f85-27fc-42ec-bfd6-ff88eed8f1f1",
+  "sovereign_s_theft": "2d729b6c-400c-4cac-9381-6795bb30ad4b",
+  "lightning_reprisal": "cbcfeeba-6013-42fc-be1e-d7244890e7d5",
+  "shape_the_storm": "58cc8d8f-5c92-439b-a9e3-0e9804950429",
+  "cloud_dragon_s_judgement": "33f45ecc-7084-4a92-b285-24ce2aafba6b"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`

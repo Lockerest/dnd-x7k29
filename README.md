@@ -95,6 +95,10 @@ npm run build
    it plays full screen on every device instead of the cinematic text (with sound when the
    browser allows, muted otherwise; a click skips it); "Use the Aethelric sword-slam clip"
    fills in the Seedance cave-collapse clip. Video or text, never both (1.2.1).
+   Phase 7 is done.
+8. Bosses. The Nameless King's three skill sets (storm rider, on foot with Storm's Wager
+   and Lightning Reprisal, cloud dragon) with a sound for every move; a new Chain Pull
+   sound for Aethelric (1.3.0). Changed entries are listed in `app/e2e/parity/kept.ts`.
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

@@ -11,7 +11,7 @@ import { SKILL_SETS } from '../../src/data/skillSets.ts'
 import { addSkillSet } from '../../src/logic/skills.ts'
 import { buildNextPhase, enemyListOrder } from '../../src/logic/phases.ts'
 import type { Enemy } from '../../src/logic/types.ts'
-import { kept, keptList } from './kept.ts'
+import { CHANGED, kept, keptList, without } from './kept.ts'
 import { rng } from './random.ts'
 
 test('rule tables', async ({ legacy }) => {
@@ -53,7 +53,8 @@ test('audio lists', async ({ legacy }) => {
       (x: string[]) => x[0],
     ).map((t) => [t.key, t.name, t.id]),
   ).toEqual(p.THU)
-  expect(kept(ABILITY_SOUNDS, p.ABU as object)).toEqual(p.ABU)
+  const abu = without(p.ABU as Record<string, string>, CHANGED.abilitySounds)
+  expect(kept(ABILITY_SOUNDS, abu)).toEqual(abu)
   expect(AUDIO_BASE).toBe(p.ABBASE)
   expect(kept(BASE_SOUNDS, p.BSU as object)).toEqual(p.BSU)
   expect(BOSS_NAMES.filter((n) => p.BOSSN.includes(n))).toEqual(p.BOSSN)

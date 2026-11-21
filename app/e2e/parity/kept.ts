@@ -10,3 +10,12 @@ export const keptList = <T>(mine: T[], theirs: unknown[], key: (x: T) => unknown
   const have = new Set(theirs.map((x) => theirKey(x as never)))
   return mine.filter((x) => have.has(key(x)))
 }
+
+/**
+ * Entries the GM chose to change since the cutover (they no longer match the backup):
+ * - chain_pull: a new Chain Pull sound (a heavy throw, then a strong pull).
+ */
+export const CHANGED = { abilitySounds: ['chain_pull'] }
+
+/** `theirs` without the given keys. */
+export const without = <T>(theirs: Record<string, T>, keys: string[]): Record<string, T> => Object.fromEntries(Object.entries(theirs).filter(([k]) => !keys.includes(k)))
