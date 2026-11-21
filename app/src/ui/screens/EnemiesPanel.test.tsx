@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useStore } from 'zustand'
-import { AETHELRIC_75 } from '../../data/cinematics'
+import { AETHELRIC_75, AETHELRIC_SLAM_VIDEO } from '../../data/cinematics'
 import { SKILL_SETS } from '../../data/skillSets'
 import type { Enemy } from '../../logic/types'
 import { createGameStore, emptyTables, type GameStore } from '../../state/store'
@@ -142,6 +142,22 @@ describe('<EnemiesPanel /> editor', () => {
     const labels = ['Type', 'Speed', 'Bonus', 'Poise', 'AC', 'Atk +', 'Range', 'Init +', 'Title', 'GM notes (only you see this)', /Gate cinematic text/]
     labels.forEach((l, i) => blur(within(c).getByLabelText(l) as HTMLInputElement, String(i + 2)))
     expect(f.writes.map((w) => Object.keys(w[2] as object)[0])).toEqual(['type', 'spd', 'bon', 'pm', 'ac', 'ab', 'er', 'ib', 'bt', 'nt', 'gt'])
+  })
+
+  it('cinematic: the cutscene video link, the Aethelric clip, and no video', () => {
+    const { f, onPlay } = setup({ a: { name: 'Aethelric' } }, ['a'])
+    const c = () => card('Aethelric')
+    const link = within(c()).getByLabelText(/Cutscene video link/) as HTMLInputElement
+    blur(link, '  https://x.co/v.mp4 ')
+    expect(f.writes.at(-1)).toEqual(['PATCH', 'enemies/a', { gvu: 'https://x.co/v.mp4' }])
+    fireEvent.click(within(c()).getByRole('button', { name: 'Play cinematic' }))
+    expect(onPlay).toHaveBeenCalledWith('a')
+    fireEvent.click(within(c()).getByRole('button', { name: 'Use the Aethelric sword-slam clip' }))
+    expect(f.writes.at(-1)).toEqual(['PATCH', 'enemies/a', { gvu: AETHELRIC_SLAM_VIDEO }])
+    fireEvent.click(within(c()).getByRole('button', { name: 'No video' }))
+    expect(f.writes.at(-1)).toEqual(['PATCH', 'enemies/a', { gvu: '' }])
+    expect(within(c()).queryByRole('button', { name: 'No video' })).toBeNull()
+    expect(within(c()).queryByRole('button', { name: 'Play cinematic' })).toBeNull()
   })
 
   it('shows a removed next phase so it can be picked again', () => {

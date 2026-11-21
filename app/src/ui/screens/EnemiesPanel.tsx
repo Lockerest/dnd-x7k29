@@ -1,7 +1,7 @@
 // The Game Master's Enemies panel: the list (phase sheets indented under their
 // boss), HP buttons, and the editor for each enemy.
 import { useState } from 'react'
-import { AETHELRIC_75 } from '../../data/cinematics'
+import { AETHELRIC_75, AETHELRIC_SLAM_VIDEO } from '../../data/cinematics'
 import { SKILL_SETS } from '../../data/skillSets'
 import { enemyFieldChange, enemyPills, hpStep, NEW_SKILL, newEnemy, randomKey, rankOf, RANKS, skillFieldValue, type NewEnemyForm } from '../../logic/enemies'
 import { enemyListOrder } from '../../logic/phases'
@@ -54,7 +54,19 @@ export type EnemiesPanelProps = {
 
 const EMPTY_FORM: NewEnemyForm = { name: '', type: '', size: '1', hp: '', speed: '', poise: '', ac: '', attack: '', damage: '' }
 
-export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCinematic, confirm = (q) => window.confirm(q), rand = Math.random, icons = {}, skillIcons = {}, onPlaySkill = async () => false }: EnemiesPanelProps) {
+export function EnemiesPanel({
+  tables,
+  actions,
+  open,
+  onToggle,
+  themes,
+  onPlayCinematic,
+  confirm = (q) => window.confirm(q),
+  rand = Math.random,
+  icons = {},
+  skillIcons = {},
+  onPlaySkill = async () => false,
+}: EnemiesPanelProps) {
   const { enemies, chars, maps } = tables
   const order = enemyListOrder(enemies, Object.keys(enemies))
   const [form, setForm] = useState<NewEnemyForm>(EMPTY_FORM)
@@ -183,6 +195,17 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                   <div className="row mini">
                     <button onClick={() => void actions.updateEnemy(id, { gt: AETHELRIC_75 })}>Load the Aethelric 75% scene</button>
                   </div>
+                  <Field
+                    key={k('gvu')}
+                    label="Cutscene video link (plays first, then the text above)"
+                    value={e.gvu ?? ''}
+                    placeholder="https://... .mp4"
+                    onSave={(v) => void actions.updateEnemy(id, { gvu: v.trim().slice(0, 500) })}
+                  />
+                  <div className="row mini">
+                    <button onClick={() => void actions.updateEnemy(id, { gvu: AETHELRIC_SLAM_VIDEO })}>Use the Aethelric sword-slam clip</button>
+                    {e.gvu && <button onClick={() => void actions.updateEnemy(id, { gvu: '' })}>No video</button>}
+                  </div>
                   <p className="note">
                     Effects at the start of a line: [portrait] shows his picture, [stagger], [glow], [flash], [shake], [slam], [crack], [collapse], [black], [big] for shouted text, [wait=3] seconds.
                     Plain text with no effects just fades in on black.
@@ -193,7 +216,7 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                   <Field key={k('nt')} area={2} label="GM notes (only you see this)" value={(e.nt as string) ?? ''} onSave={(v) => field(id, e, 'nt', v)} />
                   <div className="row mini">
                     <button onClick={() => void actions.addNextPhase(id, randomKey('e', 6, rand), (key) => themes.some((t) => t.key === key))}>+ Add next phase sheet</button>
-                    {e.gt && (
+                    {(e.gt || e.gvu) && (
                       <button className="pri" onClick={() => onPlayCinematic(id)}>
                         Play cinematic
                       </button>
@@ -222,9 +245,7 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                         {skillIcons[abilitySlug(q.n)] && <img className="abi" src={skillIcons[abilitySlug(q.n)]} alt="" />}
                         <button
                           onClick={() =>
-                            void onPlaySkill(q.n).then(
-                              (ok) => ok || actions.notice(`No custom sound for ${q.n} yet. The skill name must match an imported ability name, and sound must be on.`),
-                            )
+                            void onPlaySkill(q.n).then((ok) => ok || actions.notice(`No custom sound for ${q.n} yet. The skill name must match an imported ability name, and sound must be on.`))
                           }
                         >
                           Play sound
@@ -246,7 +267,11 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                       value=""
                       onChange={(x) => {
                         const preset = SKILL_SETS[x.target.value]
-                        if (preset) void actions.setSkills(id, addSkillSet(e.sk, preset, (ix) => randomKey('s', 4, rand) + ix))
+                        if (preset)
+                          void actions.setSkills(
+                            id,
+                            addSkillSet(e.sk, preset, (ix) => randomKey('s', 4, rand) + ix),
+                          )
                       }}
                     >
                       <option value="">Load a skill set...</option>
@@ -281,7 +306,6 @@ export function EnemiesPanel({ tables, actions, open, onToggle, themes, onPlayCi
                     </PictureButton>
                     <button onClick={() => confirm('Remove this enemy?') && void actions.removeEnemy(id)}>Remove</button>
                   </div>
-                  
                 </div>
               )}
             </div>

@@ -73,6 +73,8 @@ export type Enemy = {
   th?: string
   /** Cinematic script for the gate. */
   gt?: string
+  /** Cutscene video link for the gate (plays before the script). */
+  gvu?: string
   /** Light attack dice, reach and attack bonus. */
   dm?: string
   er?: number

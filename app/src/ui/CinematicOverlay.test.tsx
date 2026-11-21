@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 import '@testing-library/jest-dom/vitest'
-import { act, cleanup, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AETHELRIC_75 } from '../data/cinematics'
 import { cinematicSeconds, parseCinematic } from '../logic/cinematic'
-import { CinematicOverlay } from './CinematicOverlay'
+import { CinematicOverlay, MAX_VIDEO_MS } from './CinematicOverlay'
 
 beforeEach(() => vi.useFakeTimers())
 afterEach(() => {
@@ -100,5 +100,67 @@ describe('<CinematicOverlay /> sounds', () => {
     act(() => void vi.advanceTimersByTime(30000))
     expect(sound.thunk).toHaveBeenCalledTimes(2)
     for (const f of [sound.glow, sound.slam, sound.crack, sound.collapse]) expect(f).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('a cutscene video before the script', () => {
+  const setup = (o: { t?: string; volume?: number; play?: () => Promise<void> } = {}) => {
+    const play = vi.fn(o.play ?? (() => Promise.resolve()))
+    vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(play)
+    const onDone = vi.fn()
+    render(<CinematicOverlay cin={{ t: o.t ?? '', n: 'Aethelric', k: 'e:a', v: 'https://x.co/v.mp4' }} onDone={onDone} volume={o.volume} />)
+    const el = screen.getByRole('dialog', { name: 'Cinematic: Aethelric' })
+    const v = () => screen.queryByLabelText('Cutscene video') as HTMLVideoElement | null
+    const flush = () => act(async () => void (await vi.advanceTimersByTimeAsync(0)))
+    return { el, v, play, onDone, flush }
+  }
+
+  it('plays it with sound, then the script', async () => {
+    const { el, v, play, flush } = setup({ t: 'After the fall.', volume: 0.4 })
+    await flush()
+    expect(play).toHaveBeenCalledTimes(1)
+    expect(v()).toHaveAttribute('src', 'https://x.co/v.mp4')
+    expect(v()!.muted).toBe(false)
+    expect(v()!.volume).toBeCloseTo(0.4)
+    expect(el.querySelector('.ct')).toHaveTextContent('')
+    act(() => void vi.advanceTimersByTime(5000))
+    expect(el.querySelector('.ct')).toHaveTextContent('') // the script waits for the video
+    fireEvent.ended(v()!)
+    expect(v()).toBeNull()
+    act(() => void vi.advanceTimersByTime(10))
+    expect(el.querySelector('.ct')).toHaveTextContent('After the fall.')
+  })
+
+  it('with sound off it plays muted; a video alone fades out after it', async () => {
+    const { v, onDone, flush } = setup({ volume: 0 })
+    await flush()
+    expect(v()!.muted).toBe(true)
+    fireEvent.error(v()!)
+    act(() => void vi.advanceTimersByTime(1600))
+    expect(onDone).toHaveBeenCalled()
+  })
+
+  it('a browser that blocks sound gets it muted; one that blocks it all skips it', async () => {
+    let n = 0
+    const a = setup({ play: () => (n++ ? Promise.resolve() : Promise.reject(new Error('no sound'))) })
+    await a.flush()
+    expect(a.play).toHaveBeenCalledTimes(2)
+    expect(a.v()!.muted).toBe(true)
+    cleanup()
+    const b = setup({ play: () => Promise.reject(new Error('blocked')) })
+    await b.flush()
+    expect(b.v()).toBeNull()
+  })
+
+  it('a click skips it, and a video that never ends gives way after a while', async () => {
+    const a = setup()
+    await a.flush()
+    fireEvent.click(a.v()!)
+    expect(a.v()).toBeNull()
+    cleanup()
+    const b = setup()
+    await b.flush()
+    act(() => void vi.advanceTimersByTime(MAX_VIDEO_MS))
+    expect(b.v()).toBeNull()
   })
 })

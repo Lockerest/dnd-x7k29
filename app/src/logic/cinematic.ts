@@ -53,8 +53,14 @@ export function unknownTags(script: string): string[] {
   return [...new Set(used.filter((t) => !(CINEMATIC_TAGS as readonly string[]).includes(t)))]
 }
 
-/** A cinematic as it is shared: script, boss name and token key ("e:<id>") for the portrait. */
-export type CinematicEvent = { t: string; n: string; k: string }
+/** A cinematic as it is shared: script, boss name, token key ("e:<id>") for the portrait, and a video to play first. */
+export type CinematicEvent = { t: string; n: string; k: string; v?: string }
+
+/** A cutscene video link that is safe to play (a web address), or null. */
+export const videoUrl = (u: unknown): string | null => {
+  const s = String(u ?? '').trim()
+  return /^https?:\/\/\S+$/i.test(s) ? s : null
+}
 
 /** A cinematic someone else started in the last 20 seconds (it plays here too). */
 export const othersCinematic = (e: { cin?: CinematicEvent; by?: string; ts?: number }, me: string, now: number): e is { cin: CinematicEvent } => !!e.cin && e.by !== me && now - (e.ts ?? 0) < 20000

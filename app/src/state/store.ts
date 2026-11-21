@@ -4,7 +4,7 @@
 import { createStore } from 'zustand/vanilla'
 import type { Db } from '../db/client'
 import { buildNextPhase, nextPhasePatch } from '../logic/phases'
-import type { CinematicEvent } from '../logic/cinematic'
+import { videoUrl, type CinematicEvent } from '../logic/cinematic'
 import type { Character, Enemy, EnemySkill } from '../logic/types'
 import type { Session } from './session'
 import { errorText } from '../util/errors'
@@ -300,8 +300,9 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       },
       shareCinematic: async (id) => {
         const e = get().tables.enemies[id]
-        if (!e?.gt) return null
-        const c: CinematicEvent = { t: e.gt, n: e.name ?? '', k: `e:${id}` }
+        const v = videoUrl(e?.gvu)
+        if (!e?.gt && !v) return null
+        const c: CinematicEvent = { t: e!.gt ?? '', n: e!.name ?? '', k: `e:${id}`, ...(v ? { v } : {}) }
         await save((d) => d.post('rolls', { cin: c, ts: now(), by: get().session?.me ?? '' }))
         return c
       },

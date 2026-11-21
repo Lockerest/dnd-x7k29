@@ -516,7 +516,16 @@ export function Game({
       {onTable && (screen === 'table' || role === 'table') && <Overview maps={tables.maps as Record<string, MapEntry>} id={mapId} images={mapImages} />}
       {fxp.scene}
       {fxp.bossIntro}
-      {cin && <CinematicOverlay key={cin.c.t + cin.c.k} cin={cin.c} portrait={cin.portrait} onDone={() => setCin(null)} sound={fxp.cinematicSounds} />}
+      {cin && (
+        <CinematicOverlay
+          key={cin.c.t + cin.c.k + (cin.c.v ?? '')}
+          cin={cin.c}
+          portrait={cin.portrait}
+          onDone={() => setCin(null)}
+          sound={fxp.cinematicSounds}
+          volume={Number(fxp.fx.sound) * fxp.fx.volume /* 0 with sound off */}
+        />
+      )}
     </div>
   )
 }

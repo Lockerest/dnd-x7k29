@@ -1,7 +1,7 @@
 // The built new app in a real browser, served the way GitHub Pages serves it
 // (the app at /<repo>/, the old page kept as a backup at /<repo>/classic/). Run after `vite build`.
 import { expect, test, type Page } from '@playwright/test'
-import { createReadStream, existsSync } from 'node:fs'
+import { createReadStream, existsSync, readFileSync } from 'node:fs'
 import { createServer, type Server } from 'node:http'
 import { extname, join, resolve } from 'node:path'
 import { FakeDb } from '../harness.ts'
@@ -141,6 +141,50 @@ test('the GM edits a boss and plays its cinematic; the player sees it too', asyn
   await expect(pl.getByRole('dialog', { name: 'Cinematic: Aethelric' })).toBeVisible({ timeout: 10_000 })
   await expect(pl.getByRole('dialog').getByText('"ENOUGH GAMES!"')).toBeVisible({ timeout: 30_000 })
   expect(Object.values(db.get('tables/dragon42/enemies/a/sk') as object).map((q: { n: string }) => q.n)).toEqual(["Warden's Cut", 'Rime Guard', 'Chain Pull'])
+  expect(errors).toEqual([])
+  await gmCtx.close()
+  await plCtx.close()
+})
+
+test('a cutscene video plays before the cinematic text, on the GM and the player screens', async ({ browser }) => {
+  const db = new FakeDb()
+  db.set('tables/dragon42', {
+    meta: { dm: 'x' },
+    chars: { p1: { name: 'Lyra', cls: 'archer', hp: 110, maxHp: 110, st: 100, maxSt: 100, x10: true } },
+    enemies: { a: { name: 'Aethelric', hp: 100, max: 100, mx: 2, my: 2, x10: true, gt: 'The dust settles.' } },
+  })
+  const clip = readFileSync(new URL('../fixtures/clip.webm', import.meta.url))
+  const errors: string[] = []
+  const gmCtx = await browser.newContext()
+  const plCtx = await browser.newContext()
+  const gm = await gmCtx.newPage()
+  const pl = await plCtx.newPage()
+  for (const p of [gm, pl]) {
+    p.on('pageerror', (e) => errors.push(e.message))
+    await useFakeFirebase(p, db)
+    // The video host (a one-second test clip).
+    await p.route('https://cdn.example.test/**', (route) => route.fulfill({ body: clip, contentType: 'video/webm' }))
+  }
+  await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
+  await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
+  await pl.goto(base)
+  await expect(pl.getByLabel('Status: Lyra')).toBeVisible()
+  await gm.goto(base)
+  await gm.getByRole('button', { name: "Show or hide Aethelric's settings" }).click()
+  await gm.getByRole('button', { name: 'Use the Aethelric sword-slam clip' }).click()
+  await expect.poll(() => db.get('tables/dragon42/enemies/a/gvu')).toMatch(/^https:\/\/cdn\.creativeclaw\.co\/.+\.mp4$/)
+  const link = gm.getByLabel(/Cutscene video link/)
+  await link.fill('https://cdn.example.test/clip.webm')
+  await link.blur()
+  await expect.poll(() => db.get('tables/dragon42/enemies/a/gvu')).toBe('https://cdn.example.test/clip.webm')
+  await gm.getByRole('button', { name: 'Play cinematic' }).click()
+  for (const p of [gm, pl]) {
+    const dialog = p.getByRole('dialog', { name: 'Cinematic: Aethelric' })
+    await expect(dialog.getByLabel('Cutscene video')).toBeVisible({ timeout: 10_000 })
+    // When the clip ends, the text follows.
+    await expect(dialog.getByLabel('Cutscene video')).toHaveCount(0, { timeout: 10_000 })
+    await expect(dialog.getByText('The dust settles.')).toBeVisible({ timeout: 10_000 })
+  }
   expect(errors).toEqual([])
   await gmCtx.close()
   await plCtx.close()

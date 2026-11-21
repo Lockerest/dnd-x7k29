@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AETHELRIC_75 } from '../data/cinematics'
-import { cinematicSeconds, parseCinematic, unknownTags } from './cinematic'
+import { cinematicSeconds, parseCinematic, unknownTags, videoUrl } from './cinematic'
 
 describe('parseCinematic', () => {
   it('one beat per line with its tags', () => {
@@ -32,6 +32,14 @@ describe('cinematicSeconds', () => {
     expect(cinematicSeconds(parseCinematic('Hi'))).toBe(6)
   })
   it('end of the last beat + 1.8 s', () => expect(cinematicSeconds(parseCinematic('[wait=12] Hold'))).toBeCloseTo(12.0006 + 1.8, 6))
+})
+
+describe('videoUrl', () => {
+  it('a web address, trimmed; anything else is no video', () => {
+    expect(videoUrl(' https://cdn.x.co/a.mp4 ')).toBe('https://cdn.x.co/a.mp4')
+    expect(videoUrl('http://x.co/a')).toBe('http://x.co/a')
+    for (const u of ['', null, undefined, 'javascript:alert(1)', 'https://x.co/a b', 'x.mp4']) expect(videoUrl(u)).toBeNull()
+  })
 })
 
 describe('unknownTags', () => {

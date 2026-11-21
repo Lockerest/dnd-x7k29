@@ -464,6 +464,12 @@ describe('store: Game Master enemy actions', () => {
     await s.getState().vanish('b') // not in the turn order
     expect(f.writes.map((w) => w[1])).toEqual(['rolls', 'enemies/a', 'init', 'enemies/b'])
   })
+  it('a cutscene video goes with the cinematic, even with no script', async () => {
+    const { s } = gm({ enemies: { a: { name: 'A', gvu: ' https://x.co/v.mp4 ' }, b: { name: 'B', gt: 'x', gvu: 'javascript:alert(1)' }, c: { name: 'C', gt: 'y', gvu: 'https://x.co/c.mp4' } } })
+    expect(await s.getState().shareCinematic('a')).toEqual({ t: '', n: 'A', k: 'e:a', v: 'https://x.co/v.mp4' })
+    expect(await s.getState().shareCinematic('b')).toEqual({ t: 'x', n: 'B', k: 'e:b' })
+    expect(await s.getState().shareCinematic('c')).toEqual({ t: 'y', n: 'C', k: 'e:c', v: 'https://x.co/c.mp4' })
+  })
   it('a nameless boss cinematic and a cinematic without a session', async () => {
     const f = fakeDb()
     const s = createGameStore(() => f.db, () => 1)
