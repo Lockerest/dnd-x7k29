@@ -238,7 +238,7 @@ export const CLASS_ICONS: Record<string, string> = {
   hex_of_frailty: '8f92a4fb-2a36-4719-a152-ee2dd917472b.jpg',
   coiling_snare: '3e6cf1e1-e10b-4b65-9a02-ee925b17c04c.jpg',
   bloodbound: 'f50b4509-7883-4a73-9743-7081253cdbbe.jpg',
-  blade_guard: '9fbe486e-223c-4081-9fa3-2b32ae2a9f52.jpg',
+  blade_guard: 'c407c671-9121-44e9-8c83-aa5b3daefb95.jpg',
   exsanguinate: '0874d8ff-34eb-4374-bcf7-68fc30a44055.jpg',
   red_eclipse: '309be85f-6127-4244-8874-ef0b2e512e90.jpg',
   // Duelist.

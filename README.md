@@ -125,6 +125,7 @@ npm run build
    versions are Crimson) and the Duelist (parries, counters and Flow), each with 15 abilities, icons
    and sounds. Every class has its own class rules at the top of its Reference page (the Hexblade's
    Hunger is GM only). "Add new class abilities" adds them to a saved board without changing it (1.12.0).
+   The Hexblade's Blade Guard icon redone: the bone blade now coils around her (1.12.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
