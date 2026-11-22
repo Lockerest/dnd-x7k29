@@ -5,7 +5,7 @@ import type { Sheet } from '../../logic/sheet'
 import { grid, liveMapId, onMap, type Maps } from '../../logic/table'
 import type { Tables } from '../../state/store'
 import { MapView } from '../map/MapView'
-import { realSizeBox, type TvSettings } from '../../logic/projector'
+import { realSizeBox, turnedDrag, turnedSize, type TvSettings } from '../../logic/projector'
 
 const read = (s: Pick<Storage, 'getItem'>): TvSettings => {
   try {
@@ -14,7 +14,6 @@ const read = (s: Pick<Storage, 'getItem'>): TvSettings => {
     return {}
   }
 }
-
 
 export function TableDisplay({
   tables,
@@ -56,11 +55,23 @@ export function TableDisplay({
   const g = grid(tables.maps as Maps, id)
   const image = id ? mapImages[id] : undefined
   const chars = tables.chars as Record<string, Sheet>
-  let style: React.CSSProperties = { width: '100vw', height: '100vh', left: 0, top: 0 }
+  const rot = tv.rot || 0
+  const screen = size()
+  const area = turnedSize(rot, screen.w, screen.h)
+  // The turned area: a quarter turn lays the picture along the other side of the table.
+  const turn: React.CSSProperties = {
+    position: 'absolute',
+    left: '50%',
+    top: '50%',
+    width: `${area.w}px`,
+    height: `${area.h}px`,
+    transform: `translate(-50%, -50%) rotate(${rot}deg)`,
+    overflow: 'hidden',
+  }
+  let style: React.CSSProperties = { width: '100%', height: '100%', left: 0, top: 0 }
   if (g && tv.mode === 'real') {
     const party = Object.values(chars).filter((c) => c.ap !== false && c.ap !== 'no' && c.mx != null && onMap(c, id)) as { mx: number; my: number }[]
-    const { w, h } = size()
-    const b = realSizeBox(tv, w, h, g.cols, g.rows, g.m.w as number, g.m.h as number, party, pan)
+    const b = realSizeBox(tv, area.w, area.h, g.cols, g.rows, g.m.w as number, g.m.h as number, party, pan, screen.w)
     style = { width: `${b.width}px`, height: `${b.height}px`, left: `${b.left}px`, top: `${b.top}px` }
   }
   return (
@@ -73,11 +84,27 @@ export function TableDisplay({
           if (!drag.current) return
           const [x, y] = drag.current
           drag.current = [e.clientX, e.clientY]
-          setPan(([a, b]) => [a + e.clientX - x, b + e.clientY - y])
+          const [dx, dy] = turnedDrag(rot, e.clientX - x, e.clientY - y)
+          setPan(([a, b]) => [a + dx, b + dy])
         }}
       >
         {g && image ? (
-          <MapView g={g} image={image} chars={chars} enemies={tables.enemies} dm={false} selected="c:" combat={tables.combat} icons={icons} markers={markers} now={now()} style={style} />
+          <div style={turn}>
+            <MapView
+              g={g}
+              image={image}
+              chars={chars}
+              enemies={tables.enemies}
+              dm={false}
+              selected="c:"
+              combat={tables.combat}
+              icons={icons}
+              markers={markers}
+              now={now()}
+              style={style}
+              minis={!!tv.bk}
+            />
+          </div>
         ) : (
           <p style={{ color: '#bbb', padding: 24 }}>Waiting for the GM to show a map…</p>
         )}
@@ -107,6 +134,24 @@ export function TableDisplay({
             </label>
           </div>
           <p className="note">Measure the width of the projected picture on the table, in millimetres. In real size the view follows the party, and you can drag it to move.</p>
+          <div className="row">
+            <label className="sub">
+              <input type="checkbox" checked={!!tv.bk} onChange={(e) => save({ ...tv, bk: e.target.checked })} style={{ width: 'auto' }} /> Miniatures on the table: every token is a black square, so
+              no light lands on the painted minis
+            </label>
+          </div>
+          <div className="row">
+            <label className="sub">
+              Turn the picture{' '}
+              <select aria-label="Turn the picture" value={rot} onChange={(e) => save({ ...tv, rot: Number(e.target.value) as TvSettings['rot'] })}>
+                <option value={0}>Not turned</option>
+                <option value={90}>A quarter turn right (90°)</option>
+                <option value={180}>Upside down (180°)</option>
+                <option value={270}>A quarter turn left (270°)</option>
+              </select>
+            </label>
+          </div>
+          <p className="note">Turn it a quarter when the projector's long side runs along the table's length, so the map reads the right way from your seat.</p>
           <div className="row">
             <button onClick={() => setPan([0, 0])}>Center on party</button>
             <button onClick={() => setPanel(false)}>Close</button>

@@ -10,7 +10,6 @@ import type { Enemy } from '../../logic/types'
 /** The live page's HTML escaping. */
 export const esc = (s: unknown) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
-
 export type MapPicture = {
   g: Grid
   /** The map's uploaded picture. */
@@ -27,6 +26,8 @@ export type MapPicture = {
   markers: Record<string, string>
   /** For the hit flash, which lasts 4.5 s after a hit (ht). */
   now: number
+  /** Projector with miniatures on the table: every standing token is a plain black square, so no light lands on the painted minis. */
+  minis?: boolean
 }
 
 const approved = (c: { ap?: unknown }) => c.ap !== false && c.ap !== 'no'
@@ -161,7 +162,11 @@ export function mapSvg(p: MapPicture): string {
     .join('')
   const emojiSpot = (key: 'bf' | 'gd', emoji: string) =>
     spots(m[key])
-      .map(([x, y]) => (p.markers[key] ? markerImg(p.markers[key]!, (x + 0.5) * cs, (y + 0.5) * cs, cs * 1.2) : `<text x="${(x + 0.5) * cs}" y="${(y + 0.5) * cs}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.8}px">${emoji}</text>`))
+      .map(([x, y]) =>
+        p.markers[key]
+          ? markerImg(p.markers[key]!, (x + 0.5) * cs, (y + 0.5) * cs, cs * 1.2)
+          : `<text x="${(x + 0.5) * cs}" y="${(y + 0.5) * cs}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.8}px">${emoji}</text>`,
+      )
       .join('')
   v += emojiSpot('bf', '🔥')
   v += emojiSpot('gd', '🍺')
@@ -178,6 +183,7 @@ export function mapSvg(p: MapPicture): string {
     if ((o.hp as number) <= 0) return tomb(o as Enemy, en, cs)
     const id = key.slice(2)
     const z = en ? (o as Enemy).sz || 1 : 1
+    if (p.minis) return `<rect x="${o.mx * cs}" y="${(o.my as number) * cs}" width="${z * cs}" height="${z * cs}" style="fill:#000"/>`
     const x = (o.mx + z / 2) * cs
     const y = ((o.my as number) + z / 2) * cs
     const r = cs * (z === 1 ? 0.4 : z * 0.47)
@@ -205,4 +211,3 @@ export function mapSvg(p: MapPicture): string {
   for (const i in chars) if (approved(chars[i]!) && onMap(chars[i]!, g.id) && !(chars[i]!.mt && chars[i]!.mon)) v += token(chars[i]!, `c:${i}`, false)
   return v
 }
-
