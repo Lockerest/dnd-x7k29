@@ -136,6 +136,7 @@ npm run build
    Izat'al's phase 2 comes in four versions, one per outcome for Arachne and Odi'ram (both spared,
    one fell, both fell, which adds Cinder Web); Crowned Fang redone with all six heads (1.15.1).
    Boss abilities list: each move's description and note now run across the full width under it (1.15.2).
+   Encounters (GM, under Enemies): save placed enemies as a ready-made group in a region folder, with their phase sheets and pictures; Deploy puts a copy on the map on screen in the same formation (spawn points set), Clear removes it. Saved encounters are never loaded until the list is opened (1.16.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

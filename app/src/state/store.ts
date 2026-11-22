@@ -19,6 +19,7 @@ import { soundActions, type SoundActions } from './soundActions'
 import { enemyExtras, type BossIntro, type EnemyExtras } from './enemyExtras'
 import { attackActions, type AttackActions } from './attackActions'
 import { tableActions, type TableActions } from './tableActions'
+import { encounterActions, type EncounterActions } from './encounterActions'
 
 export type Tables = {
   chars: Record<string, CharacterWithLog>
@@ -111,7 +112,8 @@ export type GameState = {
   MapActions &
   PictureActions &
   SoundActions &
-  EnemyExtras
+  EnemyExtras &
+  EncounterActions
 
 /** What the screen shows for an attack scene ("fx") or a Golden Wave. */
 export type Effects = { scene: (f: Record<string, unknown>) => void; wave: (w: { m?: string | null; x: number; y: number }) => void; boss: (b: BossIntro) => void }
@@ -154,7 +156,7 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       },
       disconnect: () => {
         lastSig = ''
-        set({ session: null, dm: false, gmMap: null, jump: null, status: 'idle', error: '', tables: emptyTables() })
+        set({ session: null, dm: false, gmMap: null, jump: null, status: 'idle', error: '', tables: emptyTables(), encounters: null })
       },
       applySnapshot: (t) => {
         const sig = signature(t)
@@ -175,6 +177,8 @@ export function createGameStore(db: () => Db | null = () => null, now: () => num
       ...tableActions(get, set, save),
       ...diceActions(get, set, save, now, rand),
       ...mapActions(get, set, save, now, rand),
+      encounters: null,
+      ...encounterActions(get, set, save, rand),
 
       updateCharacter: async (id, p, msg) => {
         const { tables, dm, session } = get()

@@ -22,6 +22,7 @@ import { TableScreen } from './screens/Table'
 import { TableDisplay } from './screens/TableDisplay'
 import { useIconSet, useMarkers, usePictures } from './usePictures'
 import { liveMapId, shownMapId, type Maps } from '../logic/table'
+import { EncountersPanel } from './screens/EncountersPanel'
 import { EnemiesPanel } from './screens/EnemiesPanel'
 import { SheetScreen } from './screens/Sheet'
 import { InitiativeCall, QtePrompt } from './screens/Combat'
@@ -88,6 +89,7 @@ export function Game({
   const dice = useStore(store, (s) => s.dice)
   const secretRolls = useStore(store, (s) => s.secretRolls)
   const diceBusy = useStore(store, (s) => s.diceBusy)
+  const encounters = useStore(store, (s) => s.encounters)
 
   // Rolls are shown on screen; the dice style is remembered (shared with the live page).
   const [player] = useState(() => (dicePlayer === undefined ? defaultDicePlayer(window) : dicePlayer))
@@ -526,6 +528,7 @@ export function Game({
             onPlaySkill={fxp.playSkillSound}
           />
         }
+        encountersPanel={<EncountersPanel tables={tables} actions={{ ...store.getState(), encounters }} confirm={confirm} rand={rand} />}
       />
     )
 

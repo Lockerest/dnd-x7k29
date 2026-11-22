@@ -103,6 +103,8 @@ export type TableProps = {
   now: () => number
   /** The GM's Enemies panel (already built), shown on the right. */
   enemiesPanel?: React.ReactNode
+  /** GM: the saved encounters, under the Enemies panel. */
+  encountersPanel?: React.ReactNode
   /** The Dice card (already built), under it. */
   dicePanel?: React.ReactNode
   onApprove: (id: string, ok: boolean) => void
@@ -176,7 +178,14 @@ export function TableScreen(p: TableProps) {
       </div>
       <div>
         <InitiativePanel tables={tables} dm={dm} me={me} gmMap={p.gmMap} actions={actions} />
-        {dm ? p.enemiesPanel : <PlayerEnemies {...p} />}
+        {dm ? (
+          <>
+            {p.enemiesPanel}
+            {p.encountersPanel}
+          </>
+        ) : (
+          <PlayerEnemies {...p} />
+        )}
         {p.dicePanel}
       </div>
     </div>
