@@ -133,6 +133,8 @@ npm run build
    Izat'al, the final boss: sorceress, the debt (six-headed dragon) and the monster, with her
    contract and crystal rules, the Echoes of the fallen bosses and The Last Breath, 19 moves with
    icons and sounds. Every main boss now has a full sheet (1.15.0).
+   Izat'al's phase 2 comes in four versions, one per outcome for Arachne and Odi'ram (both spared,
+   one fell, both fell, which adds Cinder Web); Crowned Fang redone with all six heads (1.15.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

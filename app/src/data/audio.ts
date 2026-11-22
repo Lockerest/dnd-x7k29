@@ -402,7 +402,8 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "echo_abyssal_maw": "5111aec1-e717-4579-be02-15a107351da5",
   "storm_singularity": "35635e92-72e9-4c52-bea8-f9ce40c0ba8c",
   "the_last_breath": "77f5a561-2544-491e-b1af-2c42073bf6e6",
-  "the_contract": "1b1f4dcd-1fd7-4ce2-8301-5c8b2320b0b6"
+  "the_contract": "1b1f4dcd-1fd7-4ce2-8301-5c8b2320b0b6",
+  "cinder_web": "1a33fd8d-547e-4d91-8dac-eb58777a4100"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`
