@@ -378,4 +378,19 @@ describe('hidden words', () => {
     expect(spoilerParts('Plain', [])).toEqual([{ t: 'Plain', hide: false }])
     expect(spoilerParts('', ['x'])).toEqual([])
   })
+
+  it('with clause, hides the whole clause around each hidden word', () => {
+    expect(spoilerParts('Passive. Once per altar rest, drop to 1 HP instead of 0.', ['altar'], true)).toEqual([
+      { t: 'Passive. ', hide: false },
+      { t: 'Once per altar rest', hide: true },
+      { t: ', drop to 1 HP instead of 0.', hide: false },
+    ])
+    expect(spoilerParts('Altar Call', ['altar'], true)).toEqual([{ t: 'Altar Call', hide: true }])
+    expect(spoilerParts('Revive at an altar', ['altar', 'revive'], true)).toEqual([{ t: 'Revive at an altar', hide: true }])
+    expect(spoilerParts('Heal (at a bonfire) now', ['bonfire'], true)).toEqual([
+      { t: 'Heal (', hide: false },
+      { t: 'at a bonfire', hide: true },
+      { t: ') now', hide: false },
+    ])
+  })
 })

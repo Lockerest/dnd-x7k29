@@ -87,8 +87,14 @@ export function spoilerList(sp: string | null | undefined): string[] {
 }
 
 /** Golden abilities are hidden from players while "golden" is a spoiler. */
-/** A text split into plain and hidden parts: each hidden word (whole words, any case) is its own part. */
-export function spoilerParts(text: string, words: string[]): { t: string; hide: boolean }[] {
+/** Where a clause ends: punctuation between parts of a sentence. */
+const CLAUSE = /[.,;:!?()\n]/
+
+/**
+ * A text split into plain and hidden parts. Each hidden word (whole words, any case) hides,
+ * with `clause`, the whole clause around it ("Once per altar rest" in "Once per altar rest, drop to 1 HP").
+ */
+export function spoilerParts(text: string, words: string[], clause = false): { t: string; hide: boolean }[] {
   if (!words.length || !text) return text ? [{ t: text, hide: false }] : []
   const re = new RegExp(
     `\\b(${[...words]
@@ -97,12 +103,25 @@ export function spoilerParts(text: string, words: string[]): { t: string; hide: 
       .join('|')})\\b`,
     'gi',
   )
+  const spans: [number, number][] = []
+  for (const m of text.matchAll(re)) {
+    let a = m.index
+    let b = a + m[0].length
+    if (clause) {
+      while (a > 0 && !CLAUSE.test(text[a - 1]!)) a--
+      while (text[a] === ' ') a++
+      while (b < text.length && !CLAUSE.test(text[b]!)) b++
+    }
+    const last = spans.at(-1)
+    if (last && a <= last[1]) last[1] = Math.max(last[1], b)
+    else spans.push([a, b])
+  }
   const out: { t: string; hide: boolean }[] = []
   let i = 0
-  for (const m of text.matchAll(re)) {
-    if (m.index > i) out.push({ t: text.slice(i, m.index), hide: false })
-    out.push({ t: m[0], hide: true })
-    i = m.index + m[0].length
+  for (const [a, b] of spans) {
+    if (a > i) out.push({ t: text.slice(i, a), hide: false })
+    out.push({ t: text.slice(a, b), hide: true })
+    i = b
   }
   if (i < text.length) out.push({ t: text.slice(i), hide: false })
   return out

@@ -204,7 +204,7 @@ describe('the reference', () => {
     expect(document.querySelector('tr.gold')).toBeNull()
     expect(screen.queryByText(/Golden/)).toBeNull()
     const bars = [...document.querySelectorAll('.spl')].map((e) => e.textContent)
-    expect(bars).toEqual(expect.arrayContaining(['Altar', 'Revive', 'altar']))
+    expect(bars).toEqual(expect.arrayContaining(['Altar Call', 'Revive an ally at an altar']))
     cleanup()
     setup({ board: b }, { role: 'gm', me: 'gm', start: 'ref' })
     expect(document.querySelector('.spl')).toBeNull()

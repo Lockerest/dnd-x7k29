@@ -89,11 +89,11 @@ export type BoardScreenProps = {
   onPlay?: (name: string) => void
 }
 
-/** A text with the hidden words shown as black bars. */
+/** A text with each clause that holds a hidden word shown as a black bar. */
 function Masked({ text, words }: { text: string; words: string[] }) {
   return (
     <>
-      {spoilerParts(text, words).map((p, i) =>
+      {spoilerParts(text, words, true).map((p, i) =>
         p.hide ? (
           <span key={i} className="spl" aria-label="hidden word">
             {p.t}
