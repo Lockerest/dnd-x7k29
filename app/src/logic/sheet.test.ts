@@ -1,19 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { COMMON_ABILITIES, PARRY } from '../data/abilities'
-import {
-  attunedSet,
-  boardIndex,
-  boardOrDefault,
-  DEFAULT_SPOILERS,
-  defaultBoard,
-  equippedIds,
-  goldenHidden,
-  parryMode,
-  sheetAbilities,
-  slotsOf,
-  spoilerList,
-  type Board,
-} from './board'
+import { attunedSet, boardIndex, boardOrDefault, DEFAULT_SPOILERS, defaultBoard, equippedIds, goldenHidden, parryMode, sheetAbilities, slotsOf, spoilerList, type Board, spoilerParts } from './board'
 import { altarsOf, blocked, bonfiresOf, geometry, lineOfSight, nearSpot, revealAround, waveCenter } from './geometry'
 import {
   abilityLocked,
@@ -373,5 +360,22 @@ describe('the world reset', () => {
       ['p4', { hp: 20, mx: null, my: null, po: 0, stun: false, sg: false }],
     ])
     expect(respawnPatches({})).toEqual([])
+  })
+})
+
+describe('hidden words', () => {
+  it('splits a text into plain parts and whole hidden words, any case, longest first', () => {
+    expect(spoilerParts('Revive at the Altar; revived.', ['revive', 'revived', 'altar'])).toEqual([
+      { t: 'Revive', hide: true },
+      { t: ' at the ', hide: false },
+      { t: 'Altar', hide: true },
+      { t: '; ', hide: false },
+      { t: 'revived', hide: true },
+      { t: '.', hide: false },
+    ])
+    expect(spoilerParts('Altars', ['altar'])).toEqual([{ t: 'Altars', hide: false }])
+    expect(spoilerParts('a.b', ['a.b'])).toEqual([{ t: 'a.b', hide: true }])
+    expect(spoilerParts('Plain', [])).toEqual([{ t: 'Plain', hide: false }])
+    expect(spoilerParts('', ['x'])).toEqual([])
   })
 })

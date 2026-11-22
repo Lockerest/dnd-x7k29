@@ -519,3 +519,4 @@ textarea {
 @keyframes bimg{0%{opacity:0;transform:translateX(70px) scale(1.06)}12%{opacity:1;transform:none}100%{opacity:1;transform:translateX(-14px) scale(1.03)}}
 @keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes bln{to{transform:scaleX(1)}}
+.spl{background:#111;color:#111;border:1px solid #555;border-radius:3px;padding:0 3px;user-select:none;-webkit-user-select:none}

@@ -74,8 +74,7 @@ export function boardIndex(board: Board): BoardIndex {
 }
 
 /** Words players don't see until the GM says so. "-" means none; missing means the default list. */
-export const DEFAULT_SPOILERS =
-  'altar,altars,bonfire,bonfires,revive,revives,revived,revival,curse,cursed,golden,attune,attuned,attunement,attunements,crystal,crystals'
+export const DEFAULT_SPOILERS = 'altar,altars,bonfire,bonfires,revive,revives,revived,revival,curse,cursed,golden,attune,attuned,attunement,attunements,crystal,crystals'
 
 export function spoilerList(sp: string | null | undefined): string[] {
   const t = sp == null ? DEFAULT_SPOILERS : sp
@@ -88,6 +87,27 @@ export function spoilerList(sp: string | null | undefined): string[] {
 }
 
 /** Golden abilities are hidden from players while "golden" is a spoiler. */
+/** A text split into plain and hidden parts: each hidden word (whole words, any case) is its own part. */
+export function spoilerParts(text: string, words: string[]): { t: string; hide: boolean }[] {
+  if (!words.length || !text) return text ? [{ t: text, hide: false }] : []
+  const re = new RegExp(
+    `\\b(${[...words]
+      .sort((a, b) => b.length - a.length)
+      .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|')})\\b`,
+    'gi',
+  )
+  const out: { t: string; hide: boolean }[] = []
+  let i = 0
+  for (const m of text.matchAll(re)) {
+    if (m.index > i) out.push({ t: text.slice(i, m.index), hide: false })
+    out.push({ t: m[0], hide: true })
+    i = m.index + m[0].length
+  }
+  if (i < text.length) out.push({ t: text.slice(i), hide: false })
+  return out
+}
+
 export const goldenHidden = (dm: boolean, sp: string | null | undefined) => !dm && spoilerList(sp).includes('golden')
 
 /** Ability slots: level + 2, at most 6. */

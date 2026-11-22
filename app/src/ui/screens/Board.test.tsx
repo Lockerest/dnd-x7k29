@@ -176,15 +176,16 @@ describe("the GM's board editor", () => {
 })
 
 describe('the reference', () => {
-  it("opens on the player's class, lists what they have unlocked, and switches class", () => {
+  it("opens on the player's class, lists every ability, and switches class", () => {
     setup({ board, chars: { a: hero({ cls: 'fighter' }) }, sp: '-' }, { start: 'ref' })
     expect(screen.getByRole('heading', { name: 'Fighter' })).toBeInTheDocument()
-    expect(screen.getByText(/Abilities you have not unlocked yet are hidden\./)).toBeInTheDocument()
+    expect(screen.queryByText(/not unlocked yet/)).toBeNull()
     const rows = [...document.querySelectorAll('tbody tr')].map((r) => [...r.children].map((td) => td.textContent))
     expect(rows).toEqual([
       ['1', 'Rally', '1', ''],
       ['1', 'Cleave', '2', '2d6 damage. A wide swing.'],
       ['1', 'Cleave (Golden)', '3', '4d6 damage. Costs 10% max HP.'],
+      ['5', 'Doom', '6', '8d6 damage. '],
     ])
     expect(document.querySelector('tr.gold')).toHaveTextContent('Cleave (Golden)')
     click('Mage')
@@ -194,6 +195,20 @@ describe('the reference', () => {
     expect(screen.getByRole('heading', { name: 'Ability board' })).toBeInTheDocument()
     click('Reference')
     expect(screen.getByRole('heading', { name: 'Fighter' })).toBeInTheDocument()
+  })
+
+  it('players see every ability but no Golden versions, and hidden words as black bars', () => {
+    const b = { ...board, b5: { n: 'Altar Call', v: 'fighter', l: 2, c: 1, k: 'util', t: 'Revive an ally at an altar.' } } as Board
+    setup({ board: b, chars: { a: hero({ cls: 'fighter' }) } }, { start: 'ref' })
+    expect(screen.getByText('Doom')).toBeInTheDocument()
+    expect(document.querySelector('tr.gold')).toBeNull()
+    expect(screen.queryByText(/Golden/)).toBeNull()
+    const bars = [...document.querySelectorAll('.spl')].map((e) => e.textContent)
+    expect(bars).toEqual(expect.arrayContaining(['Altar', 'Revive', 'altar']))
+    cleanup()
+    setup({ board: b }, { role: 'gm', me: 'gm', start: 'ref' })
+    expect(document.querySelector('.spl')).toBeNull()
+    expect(document.querySelector('tr.gold')).not.toBeNull()
   })
 
   it('the GM sees every level; without a sheet it starts on Fighter', () => {

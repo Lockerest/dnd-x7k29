@@ -118,6 +118,9 @@ npm run build
    The 27 Golden abilities have their own icons, with the ability itself turned gold; "Import
    icons from web" puts them on the Golden versions (1.9.0). The class Reference has a ▶
    sound button on every ability that has a sound, Golden versions included (1.10.0).
+   The Reference shows players every ability of the class, whatever their level; while words
+   are hidden, the hidden words show as black bars and, with "golden" hidden, Golden versions
+   stay out (1.11.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

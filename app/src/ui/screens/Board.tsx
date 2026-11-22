@@ -6,7 +6,7 @@ import { CLASSES } from '../../data/classes'
 import { ABILITY_SOUNDS } from '../../data/audio'
 import { ICON_BASE } from '../../data/icons'
 import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
-import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, type Board } from '../../logic/board'
+import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, spoilerList, spoilerParts, type Board } from '../../logic/board'
 import { randomKey } from '../../logic/enemies'
 import { classIcon } from '../../logic/iconImport'
 import { abilitySlug } from '../../logic/text'
@@ -87,6 +87,23 @@ export type BoardScreenProps = {
   onRefShut?: (shut: boolean) => void
   /** Plays an ability's sound (the ▶ on the Reference). */
   onPlay?: (name: string) => void
+}
+
+/** A text with the hidden words shown as black bars. */
+function Masked({ text, words }: { text: string; words: string[] }) {
+  return (
+    <>
+      {spoilerParts(text, words).map((p, i) =>
+        p.hide ? (
+          <span key={i} className="spl" aria-label="hidden word">
+            {p.t}
+          </span>
+        ) : (
+          p.t
+        ),
+      )}
+    </>
+  )
 }
 
 /** The ▶ that plays an ability's sound, for abilities that have one. */
@@ -280,8 +297,9 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
   const [picked, setPicked] = useState<string | null>(null)
   const cls = picked ?? (c && CLASSES[c.cls as keyof typeof CLASSES] ? (c.cls as string) : 'fighter')
   const info = CLASSES[cls as keyof typeof CLASSES]
-  const lv = dm || tables.showAll ? 99 : c?.level || 1
-  const rows = referenceRows(board, cls, lv, goldenHidden(dm, tables.sp))
+  // Everyone sees every ability here; players do not see Golden versions or hidden words while those are hidden.
+  const words = dm ? [] : spoilerList(tables.sp)
+  const rows = referenceRows(board, cls, 99, goldenHidden(dm, tables.sp))
   return (
     <div className="card ref" aria-label="Class abilities">
       <div className="row mini">
@@ -292,7 +310,9 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
       </div>
       {!refShut && (
         <>
-          <p className="note">{info.description}</p>
+          <p className="note">
+            <Masked text={info.description} words={words} />
+          </p>
           <div className="row mini">
             {Object.entries(CLASSES).map(([k, v]) => (
               <button key={k} className={k === cls ? 'pri' : ''} onClick={() => setPicked(k)}>
@@ -300,7 +320,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
               </button>
             ))}
           </div>
-          <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.{lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}</p>
+          <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.</p>
           <table>
             <thead>
               <tr>
@@ -319,12 +339,16 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                       <td>
                         <div className="abx">
                           <AbilityIcon board={board} name={r.name} images={images} drawn={tables.drawnIcons} zoom />
-                          <b>{r.name}</b>
+                          <b>
+                            <Masked text={r.name} words={words} />
+                          </b>
                           <Play name={r.name} onPlay={onPlay} />
                         </div>
                       </td>
                       <td>{r.cost}</td>
-                      <td>{r.effect}</td>
+                      <td>
+                        <Masked text={r.effect} words={words} />
+                      </td>
                     </tr>
                     {r.golden && (
                       <tr className="gold">
