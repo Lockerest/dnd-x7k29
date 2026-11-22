@@ -130,6 +130,9 @@ npm run build
    18 moves with descriptions, icons and sounds on the GM's Boss abilities list (1.13.0).
    Xibalba, the living void: three phase sheets (rift, brood, singularity) with her Gravity Field
    and limb combos, 17 moves with icons and sounds. Odi'ram's Embers burst at 4, at 2 in blue fire (1.14.0).
+   Izat'al, the final boss: sorceress, the debt (six-headed dragon) and the monster, with her
+   contract and crystal rules, the Echoes of the fallen bosses and The Last Breath, 19 moves with
+   icons and sounds. Every main boss now has a full sheet (1.15.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

@@ -383,7 +383,26 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "tail_impale": "c6f91f40-d2f5-4530-9d01-089eedc8a8af",
   "abyssal_maw": "b4f847b7-4ac0-443d-b34e-5cd94c3a4b11",
   "starless_night": "79e1a514-9279-4d7f-917f-349f0ab436a6",
-  "gravity_crush": "e5ddf353-4adb-443a-a50d-e87e912b41b8"
+  "gravity_crush": "e5ddf353-4adb-443a-a50d-e87e912b41b8",
+  "gilded_talon": "4ce37a2c-add9-4ef3-8e14-ccc23399e2f2",
+  "golden_wave": "7850f0d2-7827-4324-96b5-5fc1a9b5dd78",
+  "soul_tithe": "8ea48d0c-f017-4c4c-823b-eeae8aa6b351",
+  "forgetting": "731fdc04-daae-4641-96e1-719ef0f03e89",
+  "echo_absolute_zero": "27c7f847-5c79-4c0e-9771-478f12812ddd",
+  "echo_plague_bloom": "323aaf05-8d20-4018-bcc8-84d124342d76",
+  "rime_and_rot": "1d7375a0-2ef1-492a-b2b5-8ed0ad26f308",
+  "crystals": "896c2022-7148-466f-8a68-eb22ab008fe4",
+  "dominion_breath": "51ac25b1-8f25-4147-95b5-19a36f88c671",
+  "sky_fall": "ef589242-67fc-4a92-8965-08360240e319",
+  "crowned_fang": "0b2f051f-e06e-4a4f-b9b0-942d5eb41752",
+  "echo_the_bill_comes_due": "8b28e9cc-f364-43e6-908d-ed9c12877f9a",
+  "echo_final_offer": "9def223d-10eb-4af9-82d7-c0e9bb650e5a",
+  "echo_sun_s_collapse": "8ca707ad-046f-4d1d-82b4-211ad1cf262b",
+  "echo_cloud_dragon_s_judgement": "aa8b1924-2948-4b89-a20c-a00df982a463",
+  "echo_abyssal_maw": "5111aec1-e717-4579-be02-15a107351da5",
+  "storm_singularity": "35635e92-72e9-4c52-bea8-f9ce40c0ba8c",
+  "the_last_breath": "77f5a561-2544-491e-b1af-2c42073bf6e6",
+  "the_contract": "1b1f4dcd-1fd7-4ce2-8301-5c8b2320b0b6"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`

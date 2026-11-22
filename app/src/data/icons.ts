@@ -108,6 +108,26 @@ export const SKILL_ICONS: Record<string, string> = {
   abyssal_maw: '0f072235-ed44-4d24-8938-4d106de8724c.jpg',
   starless_night: 'ad4bd20d-19b6-474a-a34e-9e55f5661df0.jpg',
   gravity_crush: '7a48fab9-e386-4d01-b1f1-290292e61c13.jpg',
+  // Izat'al: sorceress, the debt (dragon), the monster.
+  the_contract: '23872c71-8563-456f-828c-32ea5a797336.jpg',
+  crystals: '34ad7edf-7076-42c3-aee4-0583e9316412.jpg',
+  gilded_talon: 'b1c702ac-6497-498f-9607-38cfe160ec46.jpg',
+  golden_wave: 'a56d596b-4b9e-4667-941e-7070abb5de9b.jpg',
+  soul_tithe: 'f9871ebc-d6c1-42ef-8859-206f45f877f6.jpg',
+  forgetting: 'b1107a2d-1c7e-453d-9170-ffe9ccaffd76.jpg',
+  echo_absolute_zero: '1250e2c4-9296-4e9c-84cf-d7885fbe3c9a.jpg',
+  echo_plague_bloom: 'eeb44649-48a5-4127-bf79-debcf89e561d.jpg',
+  rime_and_rot: '13712ea5-67c1-40c8-b8a0-15566c94ad38.jpg',
+  crowned_fang: 'a03a5ccc-dfa8-443e-862b-26eb01d44c85.jpg',
+  dominion_breath: 'da43b7aa-9f93-44a0-9335-b7257e163b01.jpg',
+  sky_fall: 'cf284c0b-d0c8-4b11-9388-1fef2d6c09e4.jpg',
+  echo_the_bill_comes_due: '23872c71-8563-456f-828c-32ea5a797336.jpg',
+  echo_final_offer: '6bf67f6b-8cb4-4ef0-b48f-06c4541d460c.jpg',
+  echo_sun_s_collapse: '79f2d761-1e5a-4465-9533-86e0f6a3ddd7.jpg',
+  echo_cloud_dragon_s_judgement: '9cde57fa-8b1e-4d39-998f-57b5b4ca32be.jpg',
+  echo_abyssal_maw: 'e8b77d81-8da9-4e78-9a0b-7012dea62c32.jpg',
+  storm_singularity: 'ddeb89eb-0478-4c28-a2ba-d166d4010200.jpg',
+  the_last_breath: '49a9d26b-d410-4a0a-b023-537feb565456.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

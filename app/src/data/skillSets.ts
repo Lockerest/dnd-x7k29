@@ -1,5 +1,5 @@
 // Started from the live page (index.html). The parity tests check the sets the
-// backup page has stay unchanged; sets added since the cutover (Nameless King, Odi'ram, Xibalba) are the app's own.
+// backup page has stay unchanged; sets added since the cutover (Nameless King, Odi'ram, Xibalba, Izat'al) are the app's own.
 /** One boss skill. dice "0", "-" or "none" is a utility skill (scene and sound, no damage). target s = one hero, a = area. */
 export type SkillRow = { name: string; dice: string; range: number; target: 's' | 'a'; /** What it does, for the GM's Boss abilities list. */ text?: string }
 
@@ -1024,6 +1024,215 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "range": 4,
       "target": "a",
       "text": "Everyone within 4 squares is swung 2 squares around her and takes damage."
+    }
+  ],
+  "Izat'al: phase 1 (sorceress)": [
+    {
+      "name": "The Contract",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+    },
+    {
+      "name": "Crystals",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+    },
+    {
+      "name": "Gilded Talon",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "A strike of golden claws. Can be parried."
+    },
+    {
+      "name": "Golden Wave",
+      "dice": "3d8",
+      "range": 20,
+      "target": "a",
+      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+    },
+    {
+      "name": "Soul Tithe",
+      "dice": "2d8",
+      "range": 8,
+      "target": "s",
+      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+    },
+    {
+      "name": "Forgetting",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "WIS save or the target forgets one equipped ability until the end of their next turn."
+    },
+    {
+      "name": "Echo: Absolute Zero",
+      "dice": "6d8",
+      "range": 8,
+      "target": "a",
+      "text": "Aethelric's frozen finisher, cast as a spell (toned down from 8d8)."
+    },
+    {
+      "name": "Echo: Plague Bloom",
+      "dice": "6d6",
+      "range": 10,
+      "target": "a",
+      "text": "Kernunos's rot finisher, cast as a spell (toned down from 8d6)."
+    },
+    {
+      "name": "Rime and Rot",
+      "dice": "5d8",
+      "range": 4,
+      "target": "a",
+      "text": "Aethelric's frost and Kernunos's rot together: frozen roots burst up. DEX save or restrained, and 1d8 rot for 2 rounds."
+    }
+  ],
+  "Izat'al: phase 2 (the debt)": [
+    {
+      "name": "The Contract",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+    },
+    {
+      "name": "Crystals",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+    },
+    {
+      "name": "Crowned Fang",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "The crowned head bites. Can be parried."
+    },
+    {
+      "name": "Dominion Breath",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a",
+      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+    },
+    {
+      "name": "Sky-Fall",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a",
+      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+    },
+    {
+      "name": "Golden Wave",
+      "dice": "3d8",
+      "range": 20,
+      "target": "a",
+      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+    },
+    {
+      "name": "Soul Tithe",
+      "dice": "2d8",
+      "range": 8,
+      "target": "s",
+      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+    },
+    {
+      "name": "Echo: The Bill Comes Due",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Only if Arachne died: her collecting finisher. Every hero bound by a contract thread pays its price."
+    },
+    {
+      "name": "Echo: Final Offer",
+      "dice": "3d8",
+      "range": 6,
+      "target": "a",
+      "text": "Only if Arachne died: venom and webs in a cone (toned down from 4d8)."
+    },
+    {
+      "name": "Echo: Sun's Collapse",
+      "dice": "6d8",
+      "range": 20,
+      "target": "a",
+      "text": "Only if Odi'ram died: telegraphed for 2 turns, then the arena erupts (toned down from 8d8). His Embers rule returns for this fight. Safe spots take half."
+    }
+  ],
+  "Izat'al: phase 3 (the monster)": [
+    {
+      "name": "The Contract",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+    },
+    {
+      "name": "Crystals",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+    },
+    {
+      "name": "Echo: Cloud Dragon's Judgement",
+      "dice": "3d8",
+      "range": 20,
+      "target": "a",
+      "text": "Her son's finisher: she summons a twisted copy of his cloud dragon to strike the arena."
+    },
+    {
+      "name": "Echo: Abyssal Maw",
+      "dice": "5d8",
+      "range": 3,
+      "target": "a",
+      "text": "Her daughter's black hole, torn out of her: anyone ending their turn within 3 squares takes damage unless anchored (toned down from 6d8)."
+    },
+    {
+      "name": "Storm Singularity",
+      "dice": "3d8",
+      "range": 6,
+      "target": "a",
+      "text": "Both children's powers together: everyone is pulled 2 squares, then lightning strikes each hero pulled."
+    },
+    {
+      "name": "The Last Breath",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "At 0 HP she does not fall: she begins to re-form. Only a strike from the Hexblade's blade finishes her; it devours her soul."
+    },
+    {
+      "name": "Crowned Fang",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "The crowned head bites. Can be parried."
+    },
+    {
+      "name": "Dominion Breath",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a",
+      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+    },
+    {
+      "name": "Sky-Fall",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a",
+      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+    },
+    {
+      "name": "Golden Wave",
+      "dice": "3d8",
+      "range": 20,
+      "target": "a",
+      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
     }
   ]
 }
