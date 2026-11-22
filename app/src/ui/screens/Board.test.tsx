@@ -152,7 +152,7 @@ describe("the GM's board editor", () => {
     const { f, confirm } = gm({}, { confirm: false })
     click('Remove', screen.getByLabelText('Ability: Rally'))
     click('Load default abilities')
-    click('Load 9-class abilities')
+    click('Load class abilities')
     expect(confirm).toHaveBeenCalledTimes(3)
     expect(f.writes).toEqual([])
     click('Add ability')
@@ -170,8 +170,21 @@ describe("the GM's board editor", () => {
     await vi.waitFor(() => expect(f.writes.at(-1)).toEqual(['DELETE', 'board/b2', null]))
     click('Load default abilities')
     expect(store.getState().tables.board).toEqual(defaultBoard())
-    click('Load 9-class abilities')
+    click('Load class abilities')
     expect(store.getState().tables.board).toEqual(vocationBoard())
+    click('Add new class abilities')
+    expect(store.getState().tables.board).toEqual(vocationBoard())
+  })
+
+  it('adds the new class abilities to a saved board, keeping what it has', async () => {
+    const old = Object.fromEntries(Object.entries(vocationBoard()).filter(([, e]) => !['hexblade', 'duelist'].includes(e.v as string)))
+    const { store } = gm({ board: { ...old, x1: { n: 'Mine', v: 'any', k: 'util' } } })
+    click('Add new class abilities')
+    const b = store.getState().tables.board as Board
+    expect(b.x1).toEqual({ n: 'Mine', v: 'any', k: 'util' })
+    expect(b.hexblade_sinew_lash_g!.n).toBe('Sinew Lash (Crimson)')
+    expect(b.duelist_twin_fang_g!.n).toBe('Twin Fang (Golden)')
+    expect(Object.keys(b)).toHaveLength(Object.keys(vocationBoard()).length + 1)
   })
 })
 
@@ -269,6 +282,25 @@ describe('the class Reference folds to its title', () => {
     expect(within(screen.getByLabelText('Class abilities')).getByRole('table')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'Show or hide the class abilities' })) // no handler: nothing happens
     expect(onRefShut).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('class rules on the Reference', () => {
+  it('lists the class rules; GM-only ones only for the GM; hidden words still hide', () => {
+    setup({ board: vocationBoard(), chars: { a: hero({ cls: 'hexblade' }) } }, { start: 'ref' })
+    const rules = screen.getByRole('list', { name: 'Class rules' })
+    expect(rules).toHaveTextContent('Fed.')
+    expect(rules).toHaveTextContent('Blood Price.')
+    expect(rules).not.toHaveTextContent('Hunger')
+    expect(screen.queryByText('Sinew Lash (Crimson)')).toBeNull()
+    cleanup()
+    setup({ board: vocationBoard() }, { role: 'gm', me: 'gm', start: 'ref' })
+    click('Hexblade')
+    expect(screen.getByRole('list', { name: 'Class rules' })).toHaveTextContent('Hunger.')
+    const row = screen.getByText('Sinew Lash (Crimson)').closest('tr')!
+    expect(row).toHaveClass('crimson')
+    click('Duelist')
+    expect(screen.getByText('Twin Fang (Golden)').closest('tr')).not.toHaveClass('crimson')
   })
 })
 

@@ -9,6 +9,7 @@ import {
   equipRow,
   glyphOf,
   keyByName,
+  missingAbilities,
   NEW_ABILITY,
   NOT_HERE,
   NOT_HERE_ATTUNE,
@@ -18,6 +19,7 @@ import {
 } from './abilityBoard'
 import type { Board } from './board'
 import { guildsOf } from './geometry'
+import { abilitySlug } from './text'
 
 describe('the 9-class board', () => {
   const b = vocationBoard()
@@ -194,5 +196,24 @@ describe('missing fields count as level 1, cost 0, no text', () => {
       { key: 'a', level: 1, name: 'Bare', cost: 0, effect: '', golden: null },
       { key: 'b', level: 1, name: 'Bolt', cost: 0, effect: '1d6 damage. ', golden: null },
     ])
+  })
+})
+
+describe('the new classes', () => {
+  it('Hexblade versions are Crimson, Duelist ones Golden; both share the base sound and icon', () => {
+    const b = vocationBoard()
+    expect(b.hexblade_exsanguinate_g).toMatchObject({ n: 'Exsanguinate (Crimson)', ic: '🩸', gb: 'hexblade_exsanguinate', hc: 20 })
+    expect(b.hexblade_exsanguinate_g!.t).toMatch(/^Crimson form of Exsanguinate\./)
+    expect(b.duelist_final_measure_g).toMatchObject({ n: 'Final Measure (Golden)', ic: '✨' })
+    expect(abilitySlug('Exsanguinate (Crimson)')).toBe('exsanguinate')
+    expect(Object.values(b).filter((e) => e.v === 'hexblade' && !e.gb)).toHaveLength(15)
+    expect(Object.values(b).filter((e) => e.v === 'duelist' && !e.gb)).toHaveLength(15)
+  })
+
+  it('adds only what a saved board is missing', () => {
+    const all = vocationBoard()
+    expect(missingAbilities(all)).toBeNull()
+    const { hexblade_red_eclipse, ...rest } = all
+    expect(missingAbilities(rest)).toEqual({ hexblade_red_eclipse })
   })
 })

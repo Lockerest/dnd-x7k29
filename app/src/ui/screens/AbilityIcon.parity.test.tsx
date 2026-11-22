@@ -5,6 +5,7 @@ import { cleanup, render } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 import { keyByName, vocationBoard } from '../../logic/abilityBoard'
 import { defaultBoard, type Board } from '../../logic/board'
+import { NEW_CLASSES } from '../../data/classes'
 import { AbilityIcon } from './Board'
 // The live page itself, as text.
 import page from '../../../../classic/index.html?raw'
@@ -44,7 +45,13 @@ const fromHtml = (h: string) => {
 }
 
 describe('ability icons match the live page', () => {
-  const board: Board = { ...vocationBoard(), ...defaultBoard(), z1: { n: 'Odd Thing', v: 'warrior2', k: 'util', ic: '🦊' }, z2: { n: 'Plain', v: 'nobody', k: 'heal' }, z3: { n: 'Hitter', v: 'any', k: 'atk' } }
+  const board: Board = {
+    ...Object.fromEntries(Object.entries(vocationBoard()).filter(([, e]) => !NEW_CLASSES.includes(e.v as string))),
+    ...defaultBoard(),
+    z1: { n: 'Odd Thing', v: 'warrior2', k: 'util', ic: '🦊' },
+    z2: { n: 'Plain', v: 'nobody', k: 'heal' },
+    z3: { n: 'Hitter', v: 'any', k: 'atk' },
+  }
   const names = [...Object.values(board).map((e) => e.n), 'Missing']
   for (const mode of ['drawn', 'emoji', 'image'] as const)
     it(`${mode} (${names.length} abilities)`, () => {

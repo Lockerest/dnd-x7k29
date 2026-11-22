@@ -132,7 +132,40 @@ export const VOCATION_ROWS: VocationRow[] = [
   ["trickster","Confusing Jab",7,3,"atk","3d6",1,0,"","WIS save or the target is confused for 1 round.","😵"],
   ["trickster","Echo Strike",9,3,"atk","4d6",1,0,"","The strike repeats on the target at the start of your next turn.","🔁"],
   ["trickster","Curtain Call",10,5,"atk","6d6",1,1,"","A grand finish that charms nearby enemies for a round.","🎭"],
+  ["hexblade","Hooked Slash",1,1,"atk","2d6",1,0,"","A hooking cut. If the blade is Fed, it lashes 2 squares.","🦴"],
+  ["hexblade","Bloodletting",1,2,"atk","1d10",1,0,"","The target bleeds 1d4 at the start of its turns for 2 rounds.","🩸"],
+  ["hexblade","Blood Mark",1,1,"util","",0,0,"","Mark an enemy within 30 ft for 3 rounds: your hits on it deal +1d4 and heal you 2.","🎯"],
+  ["hexblade","Sinew Lash",3,3,"atk","3d8",3,0,"","The blade uncoils, lashes up to 3 squares and pulls the target 1 square.","🪢","5d8",10],
+  ["hexblade","Blood Hex",3,3,"util","",0,0,"","An enemy within 30 ft makes a CON save or gets -2 AC and can't heal for 2 rounds.","🔻"],
+  ["hexblade","Reaping Arc",5,3,"atk","3d6",1,0,"","Hook every enemy around you. Each one hit feeds the blade.","🌙"],
+  ["hexblade","Drink Deep",5,3,"util","",0,0,"","Your next hit this turn heals you for half the damage it deals.","🍷"],
+  ["hexblade","Thousand Cuts",6,4,"atk","4d8",2,0,"","A flurry of whip cuts. Each one that lands adds 1 bleed.","🦴","6d8",15],
+  ["hexblade","Sanguine Pact",6,0,"util","",0,0,"","Pay 10% of your max HP to recover 20 stamina.","🩸"],
+  ["hexblade","Hex of Frailty",7,3,"util","",0,0,"","Enemies within 15 ft make a CON save or take +1d6 from every hit for 2 rounds.","🕯️"],
+  ["hexblade","Coiling Snare",7,3,"atk","2d8",3,0,"","The blade wraps the target: STR save or restrained for 1 round.","🪢"],
+  ["hexblade","Bloodbound",9,0,"util","",0,0,"","Passive. Below half HP, Fed gives +2d6 instead of +1d6.","❤️"],
+  ["hexblade","Blade Guard",9,2,"util","",0,0,"","The blade curls around you: the next hit on you deals half damage and feeds it.","🛡️"],
+  ["hexblade","Exsanguinate",10,5,"atk","6d10",3,0,"","The blade uncoils fully and tears through a 3-square line. Heal half the damage dealt.","🩸","8d10",20],
+  ["hexblade","Red Eclipse",10,5,"util","",0,0,"","For 3 rounds every hit heals you 1d8, but each miss costs double the blood price.","🌑"],
+  ["duelist","Riposte",1,1,"atk","2d6",1,0,"","Reaction after a clean parry: strike back, +1d6 per Flow.","🗡️"],
+  ["duelist","Lunge",1,2,"atk","2d8",2,0,"","Close 2 squares and thrust.","🤺"],
+  ["duelist","Challenge",1,1,"util","",0,0,"","Mark an enemy within 30 ft for 3 rounds: if it attacks anyone else, you get a free Lunge at it.","⚔️"],
+  ["duelist","Sidestep Cut",3,2,"atk","2d8",1,0,"","Reaction: dodge an attack you can't parry, then strike. +1 Flow on a success.","💨"],
+  ["duelist","Twin Fang",3,3,"atk","3d8",1,0,"","Broadsword then dagger in one motion.","⚔️","5d8",10],
+  ["duelist","Measured Guard",5,2,"util","",0,0,"","This round, a parry that fails by only 1 counts as clean.","🛡️"],
+  ["duelist","Disarming Bind",5,3,"atk","2d6",1,0,"","Bind their weapon: STR save or the target's next attack has disadvantage.","🔗"],
+  ["duelist","Cartwheel Slash",6,3,"atk","3d6",2,0,"","Flip over the target and cut; you land behind it.","🌀"],
+  ["duelist","Cascade of Steel",6,4,"atk","4d8",1,0,"","A spinning combo. Each hit adds 1 Flow.","🌪️","6d8",15],
+  ["duelist","Read the Blade",7,2,"util","",0,0,"","Study one enemy within 30 ft: +1 to parry its attacks for the rest of the fight.","👁️"],
+  ["duelist","Punish",7,3,"atk","3d10",1,0,"","Only against an off-balance or staggered enemy: an automatic critical hit.","⚡"],
+  ["duelist","Unbroken Flow",9,0,"util","",0,0,"","Passive. Your first failed parry each fight keeps your Flow.","🌊"],
+  ["duelist","Feint",9,2,"util","",0,0,"","Bait the target into attacking you now; you parry it at +2.","🎭"],
+  ["duelist","Flow State",10,5,"util","",0,0,"","For 2 rounds, Flow can't drop and can go up to 5.","✨"],
+  ["duelist","Final Measure",10,5,"atk","6d8",1,0,"","The finisher: spend all your Flow for +2d8 per Flow spent.","🗡️","8d8",20]
 ]
 
 /** Abilities that take a round to charge (and their Golden versions). */
 export const CHARGED = ['Oathbreaker', 'Meteor Fall', 'Cataclysm']
+
+/** Classes whose stronger versions are Crimson (paid in blood) rather than Golden. */
+export const CRIMSON = ['hexblade']

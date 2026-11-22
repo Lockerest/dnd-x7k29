@@ -520,3 +520,5 @@ textarea {
 @keyframes btx{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
 @keyframes bln{to{transform:scaleX(1)}}
 .spl{background:#111;color:#111;border:1px solid #555;border-radius:3px;padding:0 3px;user-select:none;-webkit-user-select:none}
+.ref ul.rules{margin:6px 0 10px;padding-left:18px}.ref ul.rules li{margin:3px 0}
+.ref tr.crimson td{background:#c0303a12}.ref tr.crimson b{color:#e0606a}

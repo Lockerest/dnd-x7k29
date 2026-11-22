@@ -2,7 +2,7 @@
 // page has always used, so both apps can read the same tables; the comments say
 // what each one means.
 
-export type ClassId = 'fighter' | 'archer' | 'mage' | 'thief' | 'warrior' | 'sorcerer' | 'spearhand' | 'magickarcher' | 'trickster'
+export type ClassId = 'fighter' | 'archer' | 'mage' | 'thief' | 'warrior' | 'sorcerer' | 'spearhand' | 'magickarcher' | 'trickster' | 'hexblade' | 'duelist'
 export type Stat = 'str' | 'dex' | 'con' | 'int' | 'wis' | 'cha'
 export type EffectKind = 'slash' | 'heavy' | 'bash' | 'fire' | 'ice' | 'bolt' | 'arrow' | 'poison'
 

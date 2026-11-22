@@ -19,10 +19,10 @@ export const slug = (n: unknown) =>
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '')
 
-/** Ability sound and icon keys: like slug, and "(Golden)" versions share the base sound. */
+/** Ability sound and icon keys: like slug, and "(Golden)" and "(Crimson)" versions share the base sound. */
 export const abilitySlug = (n: unknown) =>
   String(n || '')
-    .replace(/ \(Golden\)$/i, '')
+    .replace(/ \((Golden|Crimson)\)$/i, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '')

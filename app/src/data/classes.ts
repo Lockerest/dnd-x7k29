@@ -1,9 +1,12 @@
 // Copied from the live page (index.html). The parity tests in e2e/parity check
-// this stays identical to the page until the page is retired.
+// the classes the page has stay identical; the Hexblade and Duelist are new.
 import type { ClassId } from '../logic/types'
 
 export type ClassAbility = { name: string; cost: number; text: string }
 export type ClassInfo = { name: string; description: string; hp: number; stamina: number; regen: number; abilities: ClassAbility[] }
+
+/** Classes added after the backup page: not on the old default board. */
+export const NEW_CLASSES: string[] = ['hexblade', 'duelist']
 
 /** Playable classes. hp, stamina and regen are table values (before x SC). */
 export const CLASSES: Record<ClassId, ClassInfo> = {
@@ -240,6 +243,54 @@ export const CLASSES: Record<ClassId, ClassInfo> = {
         "name": "Distract",
         "cost": 1,
         "text": "Dex check to pull attention"
+      }
+    ]
+  },
+  "hexblade": {
+    "name": "Hexblade",
+    "description": "A living bone blade that feeds on blood",
+    "hp": 120,
+    "stamina": 100,
+    "regen": 20,
+    "abilities": [
+      {
+        "name": "Hooked Slash",
+        "cost": 1,
+        "text": "A hooking cut"
+      },
+      {
+        "name": "Bloodletting",
+        "cost": 2,
+        "text": "The target bleeds for 2 rounds"
+      },
+      {
+        "name": "Blood Mark",
+        "cost": 1,
+        "text": "Mark an enemy: +1d4 damage, heal 2 per hit"
+      }
+    ]
+  },
+  "duelist": {
+    "name": "Duelist",
+    "description": "Parries and counters, punished for mistakes",
+    "hp": 110,
+    "stamina": 110,
+    "regen": 20,
+    "abilities": [
+      {
+        "name": "Riposte",
+        "cost": 1,
+        "text": "Strike back after a clean parry"
+      },
+      {
+        "name": "Lunge",
+        "cost": 2,
+        "text": "Close 2 squares and thrust"
+      },
+      {
+        "name": "Challenge",
+        "cost": 1,
+        "text": "Mark an enemy that must face you"
       }
     ]
   }

@@ -8,13 +8,16 @@ import { EFFECT_EMOJI, EFFECT_KEYWORDS } from './effects'
 import { ABILITY_DAMAGE, ABILITY_HEAL, CLASS_STAT, SC, WEAPON_REACH } from './rules'
 import { SKILL_ICONS } from './icons'
 import { SKILL_SETS } from './skillSets'
+import { CLASS_RULES } from './classRules'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 describe('classes and rules', () => {
   const ids = Object.keys(CLASSES)
-  it('has the nine classes, each with a stat and a reach', () => {
-    expect(ids).toHaveLength(9)
+  it('has the eleven classes, each with a stat, a reach and its class rules', () => {
+    expect(ids).toHaveLength(11)
+    expect(Object.keys(CLASS_RULES).sort()).toEqual([...ids].sort())
+    for (const r of Object.values(CLASS_RULES).flat()) expect(r.text.length, r.name).toBeGreaterThan(10)
     expect(Object.keys(CLASS_STAT).sort()).toEqual([...ids].sort())
     expect(Object.keys(WEAPON_REACH).sort()).toEqual([...ids].sort())
   })
@@ -51,7 +54,11 @@ describe('skill sets', () => {
     }
   })
   it('every built-in boss icon is for a boss skill', () => {
-    const slugs = new Set(Object.values(SKILL_SETS).flat().map((r) => abilitySlug(r.name)))
+    const slugs = new Set(
+      Object.values(SKILL_SETS)
+        .flat()
+        .map((r) => abilitySlug(r.name)),
+    )
     expect(Object.keys(SKILL_ICONS).filter((k) => !slugs.has(k))).toEqual([])
   })
   it('every boss skill has a sound', () => {

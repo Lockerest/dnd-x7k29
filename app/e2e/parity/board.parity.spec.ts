@@ -11,25 +11,32 @@ import { abilityCost } from '../../src/logic/stamina.ts'
 import { atRestSpot } from '../../src/state/boardActions.ts'
 import { createGameStore, emptyTables, type Tables } from '../../src/state/store.ts'
 import { CASES, clean, rng } from './random.ts'
+import { kept, keptList, oldClasses } from './kept.ts'
+import { NEW_CLASSES } from '../../src/data/classes.ts'
 import { CAPTURE, noTs, recDb, type W } from './store.ts'
 
 test('board data matches the page', async ({ legacy }) => {
-  const page = await legacy.run<Record<string, unknown>>(
-    `({V:VROWS,G:GLY,R:GKW.map(([r,g])=>[r.source,r.flags,g]),C:CCOL,K:KINDS,O:VOC,B:BON,voc:vocBoard()})`,
-  )
-  expect(VOCATION_ROWS).toEqual(page.V)
+  const page = await legacy.run<Record<string, unknown>>(`({V:VROWS,G:GLY,R:GKW.map(([r,g])=>[r.source,r.flags,g]),C:CCOL,K:KINDS,O:VOC,B:BON,voc:vocBoard()})`)
+  expect(VOCATION_ROWS.filter((r) => !NEW_CLASSES.includes(r[0]))).toEqual(page.V)
   expect(GLYPHS).toEqual(page.G)
   expect(GLYPH_RULES.map(([r, g]) => [r.source, r.flags, g])).toEqual(page.R)
-  expect(CLASS_COLORS).toEqual(page.C)
+  expect(kept(CLASS_COLORS, page.C as object)).toEqual(page.C)
   expect(KINDS).toEqual(page.K)
-  expect(VOCATIONS).toEqual(page.O)
+  expect(
+    keptList(
+      VOCATIONS,
+      page.O as unknown[],
+      (v) => v[0],
+      (v: [string]) => v[0],
+    ),
+  ).toEqual(page.O)
   expect(BONUSES).toEqual(page.B)
-  expect(vocationBoard()).toEqual(page.voc)
+  expect(oldClasses(vocationBoard())).toEqual(page.voc)
 })
 
 test('drawn icon shapes and colours (gKey)', async ({ legacy }) => {
   // The icon pictures themselves are compared with the page in src/ui/screens/AbilityIcon.parity.test.tsx.
-  const voc = vocationBoard()
+  const voc = oldClasses(vocationBoard())
   const custom: Board = { ...voc, z1: { n: 'Odd Thing', v: 'warrior2', k: 'util', ic: '🦊' }, z2: { n: 'Plain', v: 'nobody', k: 'heal' }, z3: { n: 'Hitter', v: 'any', k: 'atk' } }
   // The shape and colour choice itself, for every ability.
   const keys = Object.keys(custom)
@@ -72,13 +79,17 @@ test('the reference table (refHtml)', async ({ legacy }) => {
       on: info.name,
       note: `You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.${lv < 99 ? ' Abilities you have not unlocked yet are hidden.' : ''}`,
       rows: rows.length
-        ? rows.map((q) => [String(q.level), q.name, String(q.cost), q.effect + (q.golden ? `Golden: ${q.golden.dice ? `${q.golden.dice} damage, ` : ''}cost ${q.golden.cost}, ${q.golden.hc}% max HP` : '')])
+        ? rows.map((q) => [
+            String(q.level),
+            q.name,
+            String(q.cost),
+            q.effect + (q.golden ? `Golden: ${q.golden.dice ? `${q.golden.dice} damage, ` : ''}cost ${q.golden.cost}, ${q.golden.hc}% max HP` : ''),
+          ])
         : [['Nothing to show yet.']],
     }
   })
   expect(mine).toEqual(page)
 })
-
 
 /** A random hero for the player's board, sometimes standing at an altar, bonfire or guild. */
 function hero(r: ReturnType<typeof rng>, board: Board): Sheet {
@@ -109,7 +120,7 @@ const MAP = { w: 500, h: 500, cols: 10, v2: 1, al: { a: '0,0' }, bf: { a: '6,0' 
 
 test("a player's ability board (boardHtml)", async ({ legacy }) => {
   const r = rng(72)
-  const voc = vocationBoard()
+  const voc = oldClasses(vocationBoard())
   const xs = Array.from({ length: CASES }, () => ({ c: hero(r, voc), all: r.next() < 0.3, sp: r.pick([null, '-']) }))
   const page = await legacy.run<unknown[]>(
     `applyBoard(vocBoard());aicOn=false;dm=false;me="a";maps={m:${JSON.stringify(MAP)}};cur="m";IM={m:{}};gmMap=null;(${JSON.stringify(xs)}).map(x=>{abAll=x.all;SPS=x.sp;chars={a:x.c};
@@ -155,7 +166,15 @@ async function inStore(o: { dm: boolean; me: string; chars?: Tables['chars']; bo
   const w: W[] = []
   const s = createGameStore(() => recDb(w))
   s.getState().connect({ pin: 't', role: o.dm ? 'gm' : 'player', me: o.me })
-  s.getState().applySnapshot({ ...emptyTables(), chars: structuredClone(o.chars ?? {}), maps: { m: MAP }, cur: 'm', board: o.board ? structuredClone(o.board) : null, showAll: !!o.all, drawnIcons: o.aic !== false })
+  s.getState().applySnapshot({
+    ...emptyTables(),
+    chars: structuredClone(o.chars ?? {}),
+    maps: { m: MAP },
+    cur: 'm',
+    board: o.board ? structuredClone(o.board) : null,
+    showAll: !!o.all,
+    drawnIcons: o.aic !== false,
+  })
   await act(s)
   return { w, error: s.getState().error }
 }
@@ -239,7 +258,7 @@ test("the GM's board buttons: add, remove, load, icon and visibility settings", 
     const cases: [string, (s: ReturnType<typeof createGameStore>) => Promise<void>][] = [
       ['[data-a="bdel"][data-id="mage_firebolt"]', (s) => s.getState().removeAbility('mage_firebolt')],
       ['[data-a="bdef"]', (s) => s.getState().replaceBoard(defaultBoard())],
-      ['[data-a="bvoc"]', (s) => s.getState().replaceBoard(vocationBoard())],
+      ['[data-a="bvoc"]', (s) => s.getState().replaceBoard(oldClasses(vocationBoard()))],
       ['[data-a="aict"]', (s) => s.getState().setBoardSetting('drawnIcons', false)],
       ['[data-a="abvt"]', (s) => s.getState().setBoardSetting('showAll', true)],
     ]

@@ -301,10 +301,10 @@ test('the ability board: the GM edits it in the new app, a player equips at an a
   await gm.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"gm","me":"gm"}'))
   await pl.addInitScript(() => localStorage.setItem('st', '{"pin":"dragon42","role":"player","me":"p1"}'))
 
-  // The GM loads the 9-class board and renames an ability.
+  // The GM loads the class board and renames an ability.
   await gm.goto(base)
   await gm.getByRole('button', { name: 'Abilities' }).click()
-  await gm.getByRole('button', { name: 'Load 9-class abilities' }).click()
+  await gm.getByRole('button', { name: 'Load class abilities' }).click()
   await expect.poll(() => Object.keys((db.get('tables/dragon42/board') as object) || {}).length).toBeGreaterThan(100)
   await gm.getByRole('button', { name: /^Fighter \(/ }).click()
   const strike = gm.getByLabel('Ability: Power Strike')

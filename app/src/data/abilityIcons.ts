@@ -74,7 +74,9 @@ export const CLASS_COLORS: Record<string, string> = {
   "sorcerer": "#2fb3b3",
   "spearhand": "#9aa3b8",
   "magickarcher": "#3fbf9f",
-  "trickster": "#d45c9c"
+  "trickster": "#d45c9c",
+  "hexblade": "#a8323e",
+  "duelist": "#c0965a"
 }
 
 /** Ability board choices: kinds, vocations, bonuses. */
@@ -136,6 +138,14 @@ export const VOCATIONS: [string, string][] = [
   [
     "trickster",
     "Trickster"
+  ],
+  [
+    "hexblade",
+    "Hexblade"
+  ],
+  [
+    "duelist",
+    "Duelist"
   ]
 ]
 export const BONUSES: [string, string][] = [

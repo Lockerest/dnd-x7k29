@@ -74,7 +74,7 @@ export const SKILL_ICONS: Record<string, string> = {
   cloud_dragon_s_judgement: '696ddf8e-9c79-4f63-bf56-a8c7b2a23c37.jpg',
 }
 
-// Class ability icons (all 139), by ability name slug: the same import saves them on the
+// Class ability icons (all 169), by ability name slug: the same import saves them on the
 // ability board, Golden versions included, replacing the older pictures.
 export const CLASS_ICONS: Record<string, string> = {
   // Fighter.
@@ -225,9 +225,41 @@ export const CLASS_ICONS: Record<string, string> = {
   confusing_jab: 'a4c49236-6800-4352-ad29-41157bf6da00.jpg',
   echo_strike: 'eb52c0a7-ed7f-4d8c-81d8-4b47a126a9be.jpg',
   curtain_call: '2ae2ed0c-9115-4f1e-9d98-f2572b4ad8da.jpg',
+  // Hexblade.
+  hooked_slash: 'eebb8c0e-7aba-490a-bf0a-db7bf1aaaacf.jpg',
+  bloodletting: 'e21d956d-7b29-4a09-af59-c87211c4cefe.jpg',
+  blood_mark: '86b8594a-4754-4348-9710-27bfbfa20fc4.jpg',
+  sinew_lash: 'f5bf52a3-3a15-4018-9872-300de3ea584a.jpg',
+  blood_hex: '444660ce-09ab-4932-acd0-52a78b7f0ffa.jpg',
+  reaping_arc: '05a9a27d-0ed1-4f50-85f0-81224547e371.jpg',
+  drink_deep: 'e96a2d01-ab2c-481b-a532-696a11efe836.jpg',
+  thousand_cuts: '2b5315de-d56d-465e-b5ac-df8035a37006.jpg',
+  sanguine_pact: '3d7fe90f-e3f4-49e4-910c-b6a1a751f380.jpg',
+  hex_of_frailty: '8f92a4fb-2a36-4719-a152-ee2dd917472b.jpg',
+  coiling_snare: '3e6cf1e1-e10b-4b65-9a02-ee925b17c04c.jpg',
+  bloodbound: 'f50b4509-7883-4a73-9743-7081253cdbbe.jpg',
+  blade_guard: '9fbe486e-223c-4081-9fa3-2b32ae2a9f52.jpg',
+  exsanguinate: '0874d8ff-34eb-4374-bcf7-68fc30a44055.jpg',
+  red_eclipse: '309be85f-6127-4244-8874-ef0b2e512e90.jpg',
+  // Duelist.
+  riposte: 'c44149f6-0bf7-4783-abb7-b5f3ee0550b0.jpg',
+  lunge: '703b3258-b736-4b10-8f10-58f942643577.jpg',
+  challenge: '6ae08424-eee0-49a7-9f94-122eb1b1ab68.jpg',
+  sidestep_cut: 'c0cec37b-6566-4f4c-885b-e916a90adcf7.jpg',
+  twin_fang: '678cc325-89a3-4292-b1aa-24043906411e.jpg',
+  measured_guard: '226bd8a5-fe62-4e1f-b1a3-f68d1c2778b7.jpg',
+  disarming_bind: '23466a52-572d-4506-8921-b09cee6a2e93.jpg',
+  cartwheel_slash: '1e45349d-7ee9-4353-a006-2d3325d4c618.jpg',
+  cascade_of_steel: '25aa36f5-9af9-43a9-860b-97b3ed55f457.jpg',
+  read_the_blade: 'e3c6e00c-64cd-4c37-a84a-73b4d2ec949c.jpg',
+  punish: '0f036734-4e12-49df-abf8-0c4577492f7b.jpg',
+  unbroken_flow: 'b67f8226-0316-48a0-874d-470d8e29105f.jpg',
+  feint: 'ac2692f1-2a6d-45a9-835b-b0b274d9f60a.jpg',
+  flow_state: '35341b7d-2913-4bb6-a009-e30cc9d56a85.jpg',
+  final_measure: '1b0c973e-dca5-42fc-b426-41595a00be11.jpg',
 }
 
-// Golden versions: the same picture with the ability itself turned gold, by the
+// Golden (and the Hexblade's Crimson) versions: the same picture with the ability turned gold (or blood red), by the
 // base ability's name slug. Golden board abilities get these instead.
 export const GOLDEN_ICONS: Record<string, string> = {
   rending_combo: 'cdb7a7ec-7759-42de-9fac-f96c72b021a9.jpg',
@@ -257,4 +289,11 @@ export const GOLDEN_ICONS: Record<string, string> = {
   mirage_dance: 'e6448360-7977-4bd7-aaa7-e88076a55b4c.jpg',
   fool_s_gambit: '9085e245-97ed-46ee-b437-3d95ce5ae76b.jpg',
   grand_illusion: 'fd98fddf-4ff2-4eda-a4b3-47dd6e0633d4.jpg',
+  // Hexblade (Crimson) and Duelist.
+  sinew_lash: 'eae5a9c3-a610-4406-b43c-c3aeea410f27.jpg',
+  thousand_cuts: '7fa0b70c-fee4-4acd-8f2b-81f041261561.jpg',
+  exsanguinate: '494e220a-1950-452b-8f79-0e967b6116a8.jpg',
+  twin_fang: 'c0157403-ca0e-4bd3-a273-b3b9a9d4e333.jpg',
+  cascade_of_steel: '5ce2c80a-06af-4b22-bcb5-57d132e39c91.jpg',
+  final_measure: 'ac171376-a9ac-4fa9-8593-359de14a248f.jpg',
 }

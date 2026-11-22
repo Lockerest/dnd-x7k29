@@ -1,7 +1,7 @@
 // The ability board (what each class can equip) and what a sheet's abilities are,
 // as the live page works them out: defBoard, applyBoard, eqIds, ABS, parryMode.
 import { COMMON_ABILITIES, DEFAULT_BOARD_EXTRAS, PARRY, type SheetAbility } from '../data/abilities'
-import { CLASSES } from '../data/classes'
+import { CLASSES, NEW_CLASSES } from '../data/classes'
 import { ABILITY_DAMAGE, ABILITY_HEAL } from '../data/rules'
 import { slug } from './text'
 import type { Character } from './types'
@@ -35,7 +35,7 @@ export type Board = Record<string, BoardEntry>
 /** The board a table uses before the GM saves one: three class abilities each, plus a few extras. */
 export function defaultBoard(): Board {
   const b: Board = {}
-  for (const [cls, v] of Object.entries(CLASSES))
+  for (const [cls, v] of Object.entries(CLASSES).filter(([c]) => !NEW_CLASSES.includes(c)))
     for (const a of v.abilities) {
       const n = a.name
       const e: BoardEntry = { n, c: a.cost, l: 1, v: cls, k: 'util', d: '', r: 0, a: 0, b: '', t: a.text }
@@ -164,7 +164,7 @@ export function parryMode(c: (Character & { pw?: string; shield?: unknown }) | n
   if (c.shield) return 'n'
   if (c.pw === 'd') return 'd'
   if (c.pw === 'n') return 'n'
-  return ['fighter', 'warrior', 'spearhand', 'thief', 'trickster'].includes(c.cls as string) ? 'n' : ''
+  return ['fighter', 'warrior', 'spearhand', 'thief', 'trickster', 'hexblade', 'duelist'].includes(c.cls as string) ? 'n' : ''
 }
 
 /** The GM's parry setting, in the order the button cycles through. */

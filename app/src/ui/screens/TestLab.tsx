@@ -2,6 +2,7 @@
 // on this screen only (no dice, no damage), then the sound tools: clips for the
 // sound slots, ability sounds, reverb and boss themes. Same as the live page.
 import { useEffect, useRef, useState } from 'react'
+import { ABILITY_SOUNDS } from '../../data/audio'
 import type { Board } from '../../logic/board'
 import type { Sheet } from '../../logic/sheet'
 import { defaultTestPick, TEST_KINDS, TEST_OUTCOMES, testAbilities, testOptions, testScene, themeRows, type TestPick } from '../../logic/soundTools'
@@ -126,8 +127,8 @@ export function TestLab({ chars, enemies, board, tools, lab, reverb, onReverb, a
 
       <h3>Ability sounds</h3>
       <p className="note">
-        One sound per ability (166 ready, including Aethelric and Arachne). It replaces the hit sound when that ability is used; Golden versions share it. <b>Import from web</b> tries to fetch all of
-        them in one go; if your browser blocks it, use <b>Import files</b> with the downloaded mp3s (named by their ID or by ability name).
+        One sound per ability ({Object.keys(ABILITY_SOUNDS).length} ready, every class and boss). It replaces the hit sound when that ability is used; Golden and Crimson versions share it.{' '}
+        <b>Import from web</b> tries to fetch all of them in one go; if your browser blocks it, use <b>Import files</b> with the downloaded mp3s (named by their ID or by ability name).
       </p>
       <input ref={abFiles} type="file" accept="audio/*" multiple hidden aria-label="Ability sound files" onChange={(e) => void tools.importAbilityFiles([...(e.target.files ?? [])])} />
       <div className="row mini">

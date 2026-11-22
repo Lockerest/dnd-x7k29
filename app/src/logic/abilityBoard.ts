@@ -2,12 +2,12 @@
 // and attuning, the reference table, and drawn icons. Same rules as the live page's
 // vocBoard, boardHtml, refHtml, the learn/forget/attune buttons and autoIc.
 import { CLASS_COLORS, GLYPH_RULES } from '../data/abilityIcons'
-import { CHARGED, VOCATION_ROWS } from '../data/vocationBoard'
+import { CHARGED, CRIMSON, VOCATION_ROWS } from '../data/vocationBoard'
 import { attunedSet, defaultBoard, equippedIds, slotsOf, type Board, type BoardEntry } from './board'
 import { slug } from './text'
 import type { Character } from './types'
 
-/** The 9-class board: the old classes' level 1 abilities, then levels 1 to 10 with Golden versions. */
+/** The class board: the old classes' level 1 abilities, then levels 1 to 10 with Golden (or Crimson) versions. */
 export function vocationBoard(): Board {
   const b: Board = {}
   const keep = ['fighter', 'archer', 'mage', 'thief']
@@ -15,9 +15,10 @@ export function vocationBoard(): Board {
   for (const [v, n, l, c, k, d, r, a, bb, t, ic, g, hc, tg] of VOCATION_ROWS) {
     const key = `${v}_${slug(n)}`
     b[key] = { n, c, l, v, k, d, r, a, b: bb, t, ic }
+    const form = CRIMSON.includes(v) ? 'Crimson' : 'Golden'
     if (g)
       b[`${key}_g`] = {
-        n: `${n} (Golden)`,
+        n: `${n} (${form})`,
         c: Math.ceil(c * 3) / 2,
         l,
         v,
@@ -26,14 +27,21 @@ export function vocationBoard(): Board {
         r,
         a,
         b: bb,
-        t: `Golden form of ${n}. Needs ${n} equipped. ${tg || t} Costs ${hc}% of your max HP (never below 1).`,
-        ic: '✨',
+        t: `${form} form of ${n}. Needs ${n} equipped. ${tg || t} Costs ${hc}% of your max HP (never below 1).`,
+        ic: form === 'Crimson' ? '🩸' : '✨',
         hc,
         gb: key,
       }
   }
-  for (const k of Object.keys(b)) if (CHARGED.some((n) => b[k]!.n === n || b[k]!.n === `${n} (Golden)`)) b[k]!.ch = 1
+  for (const k of Object.keys(b)) if (CHARGED.some((n) => b[k]!.n === n || b[k]!.n === `${n} (Golden)` || b[k]!.n === `${n} (Crimson)`)) b[k]!.ch = 1
   return b
+}
+
+/** The class abilities a board does not have yet (for a board saved before new classes came), or null. */
+export function missingAbilities(board: Board): Board | null {
+  const all = vocationBoard()
+  const add = Object.fromEntries(Object.entries(all).filter(([k]) => !board[k]))
+  return Object.keys(add).length ? add : null
 }
 
 /** Board key by ability name (a later ability with the same name wins, like the page). */

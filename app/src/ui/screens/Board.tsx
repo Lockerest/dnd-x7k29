@@ -2,10 +2,11 @@
 // reference table. Same layout and rules as the live page.
 import { Fragment, useState, type ReactNode } from 'react'
 import { BONUSES, GLYPHS, KINDS, VOCATIONS } from '../../data/abilityIcons'
+import { CLASS_RULES } from '../../data/classRules'
 import { CLASSES } from '../../data/classes'
 import { ABILITY_SOUNDS } from '../../data/audio'
 import { ICON_BASE } from '../../data/icons'
-import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
+import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, missingAbilities, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
 import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, spoilerList, spoilerParts, type Board } from '../../logic/board'
 import { randomKey } from '../../logic/enemies'
 import { classIcon } from '../../logic/iconImport'
@@ -179,11 +180,19 @@ function Editor({ tables, actions, images, confirm, rand = Math.random }: BoardS
           <button onClick={() => confirm('Replace the whole board with the default abilities?') && void actions.replaceBoard(defaultBoard())}>Load default abilities</button>
           <button
             onClick={() =>
-              confirm('Replace the whole board with the 9-class abilities (levels 1 to 10, with Golden versions)? Characters keep their level, but their equipped abilities may change.') &&
+              confirm('Replace the whole board with the class abilities (levels 1 to 10, with Golden and Crimson versions)? Characters keep their level, but their equipped abilities may change.') &&
               void actions.replaceBoard(vocationBoard())
             }
           >
-            Load 9-class abilities
+            Load class abilities
+          </button>
+          <button
+            onClick={() => {
+              const add = missingAbilities(board)
+              if (add) void actions.replaceBoard({ ...board, ...add })
+            }}
+          >
+            Add new class abilities
           </button>
           <button onClick={() => void actions.setBoardSetting('drawnIcons', !tables.drawnIcons)}>Icons: {tables.drawnIcons ? 'drawn' : 'emoji'}</button>
           <button onClick={() => void actions.setBoardSetting('showAll', !tables.showAll)}>Players see: {tables.showAll ? 'all abilities' : 'unlocked only'}</button>
@@ -320,6 +329,15 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
               </button>
             ))}
           </div>
+          <ul className="rules" aria-label="Class rules">
+            {CLASS_RULES[cls as keyof typeof CLASS_RULES]
+              .filter((r) => dm || !r.gm)
+              .map((r) => (
+                <li key={r.name}>
+                  <b>{r.name}.</b> <Masked text={r.text} words={words} />
+                </li>
+              ))}
+          </ul>
           <p className="note">You can learn every ability here, but you can only equip 6 at a time. A cost of 1 is 10 stamina.</p>
           <table>
             <thead>
@@ -351,7 +369,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                       </td>
                     </tr>
                     {r.golden && (
-                      <tr className="gold">
+                      <tr className={r.golden.name.endsWith('(Crimson)') ? 'gold crimson' : 'gold'}>
                         <td>{r.level}</td>
                         <td>
                           <div className="abx">

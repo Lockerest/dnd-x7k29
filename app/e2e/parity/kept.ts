@@ -1,3 +1,4 @@
+import { NEW_CLASSES } from '../../src/data/classes.ts'
 // Since the cutover the app is where new content goes (bosses, skill sets, themes,
 // ability sounds). The parity checks compare what the backup page already had:
 // those entries must stay as they were, and new ones are left out of the comparison.
@@ -20,3 +21,6 @@ export const CHANGED = { abilitySounds: ['chain_pull'], skillSets: ['Kernunos: p
 
 /** `theirs` without the given keys. */
 export const without = <T>(theirs: Record<string, T>, keys: string[]): Record<string, T> => Object.fromEntries(Object.entries(theirs).filter(([k]) => !keys.includes(k)))
+
+/** The class board as the backup page has it: without the classes added since (Hexblade, Duelist). */
+export const oldClasses = <T extends { v?: unknown }>(b: Record<string, T>): Record<string, T> => Object.fromEntries(Object.entries(b).filter(([, e]) => !NEW_CLASSES.includes(e.v as string)))

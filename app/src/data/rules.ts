@@ -15,7 +15,9 @@ export const CLASS_STAT: Record<ClassId, Stat> = {
   "sorcerer": "int",
   "spearhand": "str",
   "magickarcher": "dex",
-  "trickster": "dex"
+  "trickster": "dex",
+  "hexblade": "str",
+  "duelist": "dex"
 }
 
 /** Reach of each class's basic weapon attacks, in squares. */
@@ -28,11 +30,29 @@ export const WEAPON_REACH: Record<ClassId, number> = {
   "sorcerer": 6,
   "spearhand": 2,
   "magickarcher": 8,
-  "trickster": 1
+  "trickster": 1,
+  "hexblade": 1,
+  "duelist": 1
 }
 
 /** Base damage of class abilities. autoHit: the target makes a save instead of being rolled against. */
 export const ABILITY_DAMAGE: Record<string, { range: number; dice: string; autoHit?: boolean }> = {
+  "Hooked Slash": {
+    "range": 1,
+    "dice": "2d6"
+  },
+  "Bloodletting": {
+    "range": 1,
+    "dice": "1d10"
+  },
+  "Riposte": {
+    "range": 1,
+    "dice": "2d6"
+  },
+  "Lunge": {
+    "range": 2,
+    "dice": "2d8"
+  },
   "Power Strike": {
     "range": 1,
     "dice": "2d8"

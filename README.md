@@ -121,6 +121,10 @@ npm run build
    The Reference shows players every ability of the class, whatever their level; while words
    are hidden, the hidden words show as black bars and, with "golden" hidden, Golden versions
    stay out (1.11.0). A hidden word hides its whole clause ("Once per altar rest") (1.11.1).
+   Two new classes, 11 in all: the Hexblade (a living bone khopesh that feeds on blood; her stronger
+   versions are Crimson) and the Duelist (parries, counters and Flow), each with 15 abilities, icons
+   and sounds. Every class has its own class rules at the top of its Reference page (the Hexblade's
+   Hunger is GM only). "Add new class abilities" adds them to a saved board without changing it (1.12.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
