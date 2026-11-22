@@ -1,6 +1,6 @@
 // The GM's Boss abilities list (on the Reference tab, folded until opened): every
-// boss's moves, phase by phase, with the icon, a button to hear its sound, damage,
-// reach and what each move does, plus the GM's own note per move (saved for the table).
+// boss's moves, phase by phase, with the icon, a button to hear its sound, damage
+// and reach, then what each move does across the full width, plus the GM's own note per move (saved for the table).
 import { useState } from 'react'
 import { ICON_BASE, SKILL_ICONS } from '../../data/icons'
 import { SKILL_SETS } from '../../data/skillSets'
@@ -53,14 +53,14 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
                     <th>Ability</th>
                     <th>Damage</th>
                     <th>Reach</th>
-                    <th>What it does</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {ph.rows.map((r) => {
-                    const src = icon(r.slug)
-                    return (
-                      <tr key={r.slug} aria-label={`Boss ability ${r.name}`}>
+                {ph.rows.map((r) => {
+                  const src = icon(r.slug)
+                  // Two lines per move: name, damage and reach, then the description and note across the full width.
+                  return (
+                    <tbody key={r.slug} aria-label={`Boss ability ${r.name}`}>
+                      <tr>
                         <td>
                           <div className="abx">
                             {src && <Zoom className="bai" src={src} full={builtIn(r.slug)} name={r.name} />}
@@ -72,7 +72,9 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
                         </td>
                         <td>{r.damage}</td>
                         <td>{r.reach}</td>
-                        <td>
+                      </tr>
+                      <tr className="bdesc">
+                        <td colSpan={3}>
                           <p>{r.text}</p>
                           <textarea
                             key={`${r.slug}-${notes[r.slug] ?? ''}`}
@@ -85,9 +87,9 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
                           />
                         </td>
                       </tr>
-                    )
-                  })}
-                </tbody>
+                    </tbody>
+                  )
+                })}
               </table>
             </div>
           ))}

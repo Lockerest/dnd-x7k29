@@ -135,6 +135,7 @@ npm run build
    icons and sounds. Every main boss now has a full sheet (1.15.0).
    Izat'al's phase 2 comes in four versions, one per outcome for Arachne and Odi'ram (both spared,
    one fell, both fell, which adds Cinder Web); Crowned Fang redone with all six heads (1.15.1).
+   Boss abilities list: each move's description and note now run across the full width under it (1.15.2).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
