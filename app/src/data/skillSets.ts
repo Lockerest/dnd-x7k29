@@ -1,5 +1,5 @@
 // Started from the live page (index.html). The parity tests check the sets the
-// backup page has stay unchanged; sets added since the cutover (Nameless King) are the app's own.
+// backup page has stay unchanged; sets added since the cutover (Nameless King, Odi'ram, Xibalba) are the app's own.
 /** One boss skill. dice "0", "-" or "none" is a utility skill (scene and sound, no damage). target s = one hero, a = area. */
 export type SkillRow = { name: string; dice: string; range: number; target: 's' | 'a'; /** What it does, for the GM's Boss abilities list. */ text?: string }
 
@@ -606,6 +606,424 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "range": 20,
       "target": "a",
       "text": "End of each of his turns: the cloud dragon marks 3 squares. Next turn lightning strikes them (DEX save for half)."
+    }
+  ],
+  "Odi'ram: phase 1 (titan)": [
+    {
+      "name": "Embers",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. Any fire damage, a parry's chip included, gives the hero 1 Ember. At 4 Embers they burst for 10% of max HP and reset. A round with no fire damage removes 1 Ember; standing in a safe spot (obsidian or water) removes 1 more."
+    },
+    {
+      "name": "Molten Cleave",
+      "dice": "4d10",
+      "range": 3,
+      "target": "a",
+      "text": "Telegraphed: he raises the sword the turn before. A vast arc in front of him. A parry takes half and 1 Ember. A dodge missed by exactly 1 takes half; worse takes it all."
+    },
+    {
+      "name": "Titan's Stride",
+      "dice": "3d8",
+      "range": 2,
+      "target": "a",
+      "text": "He steps forward; everyone in the 2 squares in front makes a STR save or is knocked prone."
+    },
+    {
+      "name": "Primordial Slam",
+      "dice": "5d10",
+      "range": 4,
+      "target": "a",
+      "text": "Telegraphed: he plants the sword; next turn the ground erupts in a ring around him. Dodge only. Safe spots are spared."
+    },
+    {
+      "name": "Burning Furrow",
+      "dice": "3d8",
+      "range": 8,
+      "target": "a",
+      "text": "He drags the blade through the floor: a line of fire that burns for 2 rounds. Standing in it gives 1 Ember per turn."
+    },
+    {
+      "name": "Brand of Wrath",
+      "dice": "2d10",
+      "range": 6,
+      "target": "s",
+      "text": "He hurls a chunk of burning fire at one hero, who takes 2 Embers. Dodge only."
+    },
+    {
+      "name": "Ash Fall",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Ash rains over the arena: every hero outside a safe spot gains 1 Ember."
+    }
+  ],
+  "Odi'ram: phase 2 (unbound)": [
+    {
+      "name": "Embers",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. Any fire damage, a parry's chip included, gives the hero 1 Ember. At 4 Embers they burst for 10% of max HP and reset. A round with no fire damage removes 1 Ember; standing in a safe spot (obsidian or water) removes 1 more."
+    },
+    {
+      "name": "Blazing Flurry",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Armour shed, he attacks twice a turn with no telegraph. A fast slash. Can be parried (plus 1 Ember)."
+    },
+    {
+      "name": "Wildfire Sweep",
+      "dice": "2d10",
+      "range": 3,
+      "target": "a",
+      "text": "A wide burning arc. DEX save for half."
+    },
+    {
+      "name": "Burning Lunge",
+      "dice": "3d8",
+      "range": 5,
+      "target": "s",
+      "text": "He closes the distance in one bound."
+    },
+    {
+      "name": "Inferno Gust",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "A beat of his burning wings: everyone in front is pushed 2 squares and gains 1 Ember."
+    },
+    {
+      "name": "Flame Burst",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "Fire erupts from every crack in his body: everyone within 3 gains 1 Ember."
+    },
+    {
+      "name": "Kindle",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "He roars: every hero gains 1 Ember. Once every 3 rounds."
+    },
+    {
+      "name": "Furnace Heart",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "Passive. Each time a hero's Embers burst, he heals 2d10."
+    }
+  ],
+  "Odi'ram: phase 3 (blue fire)": [
+    {
+      "name": "Embers",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. Blue fire: Embers now burst at 2 instead of 4, for 15% of max HP. A round with no fire damage still removes 1; a safe spot removes 1 more."
+    },
+    {
+      "name": "Boiling Ground",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Each round, one safe spot boils away: the arena shrinks."
+    },
+    {
+      "name": "Azure Cleave",
+      "dice": "6d10",
+      "range": 3,
+      "target": "a",
+      "text": "Telegraphed: his great blow returns in blue fire. Dodge only."
+    },
+    {
+      "name": "Sun's Collapse",
+      "dice": "8d8",
+      "range": 20,
+      "target": "a",
+      "text": "Once. Telegraphed for 2 turns, then the whole arena erupts. Heroes in a safe spot take half."
+    },
+    {
+      "name": "Blazing Flurry",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Armour shed, he attacks twice a turn with no telegraph. A fast slash. Can be parried (plus 1 Ember)."
+    },
+    {
+      "name": "Wildfire Sweep",
+      "dice": "2d10",
+      "range": 3,
+      "target": "a",
+      "text": "A wide burning arc. DEX save for half."
+    },
+    {
+      "name": "Burning Lunge",
+      "dice": "3d8",
+      "range": 5,
+      "target": "s",
+      "text": "He closes the distance in one bound."
+    },
+    {
+      "name": "Inferno Gust",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "A beat of his burning wings: everyone in front is pushed 2 squares and gains 1 Ember."
+    },
+    {
+      "name": "Flame Burst",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "Fire erupts from every crack in his body: everyone within 3 gains 1 Ember."
+    },
+    {
+      "name": "Kindle",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "He roars: every hero gains 1 Ember. Once every 3 rounds."
+    },
+    {
+      "name": "Furnace Heart",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "Passive. Each time a hero's Embers burst, he heals 2d10."
+    }
+  ],
+  "Xibalba: phase 1 (rift)": [
+    {
+      "name": "Gravity Field",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. At the start of each round, heroes more than 4 squares away are pulled 1 square toward her and heroes next to her are pushed out to 2 squares (STR save resists)."
+    },
+    {
+      "name": "Void Rend",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+    },
+    {
+      "name": "Wing Buffet",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+    },
+    {
+      "name": "Spiked Tail",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+    },
+    {
+      "name": "Gravity Lance",
+      "dice": "3d8",
+      "range": 8,
+      "target": "s",
+      "text": "A beam of compressed void at a distant hero, who is pulled 2 squares toward her."
+    },
+    {
+      "name": "Collapse Point",
+      "dice": "4d8",
+      "range": 6,
+      "target": "a",
+      "text": "Telegraphed: she marks a square; next turn a tiny black hole implodes there, pulling everyone nearby toward it first. Dodge only."
+    },
+    {
+      "name": "Null Veil",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "She half-fades into the void: attacks against her have disadvantage until her next turn."
+    }
+  ],
+  "Xibalba: phase 2 (brood)": [
+    {
+      "name": "Gravity Field",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. At the start of each round, heroes more than 4 squares away are pulled 1 square toward her and heroes next to her are pushed out to 2 squares (STR save resists). Phase 2: pulled heroes also get -10 ft speed. All her limbs can now strike whoever is in front of her."
+    },
+    {
+      "name": "Void Rend",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+    },
+    {
+      "name": "Wing Buffet",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+    },
+    {
+      "name": "Spiked Tail",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+    },
+    {
+      "name": "Void Spawn",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "Every 2 rounds, 2 voidlings appear (up to 4 at once): about 15 HP, 1d8 bite; when one dies it bursts, pulling heroes next to it 1 square."
+    },
+    {
+      "name": "Rift Step",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "She teleports through a rift; her next attack has advantage."
+    },
+    {
+      "name": "Crushing Orbit",
+      "dice": "3d10",
+      "range": 4,
+      "target": "a",
+      "text": "Everyone within 4 squares is swung 2 squares around her and takes damage."
+    },
+    {
+      "name": "Tail Launch",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail whips up under a hero and throws them into the air (STR save to stay grounded). Airborne, they fall at the end of her turn unless a follow-up hits first."
+    },
+    {
+      "name": "Wing Smash",
+      "dice": "3d8",
+      "range": 3,
+      "target": "s",
+      "text": "Follow-up, only against an airborne hero: she swats them out of the air; they land prone 2 squares away. They may dodge mid-air at disadvantage."
+    },
+    {
+      "name": "Void Fist",
+      "dice": "3d10",
+      "range": 3,
+      "target": "s",
+      "text": "Follow-up, only against an airborne hero: she slams them into the ground, prone on a hit. They may dodge mid-air at disadvantage."
+    },
+    {
+      "name": "Tail Impale",
+      "dice": "3d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail stabs forward over her shoulder and pins the target: restrained until a STR save at the start of their turn, 1d6 each turn pinned."
+    }
+  ],
+  "Xibalba: phase 3 (singularity)": [
+    {
+      "name": "Gravity Field",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "Passive. Singularity: the pull is 2 squares, heroes move at half speed, and the STR save is harder. She makes two limb attacks a turn, and Tail Launch's follow-up is free."
+    },
+    {
+      "name": "Abyssal Maw",
+      "dice": "6d8",
+      "range": 3,
+      "target": "a",
+      "text": "Telegraphed: she opens a black hole in her own chest. Anyone ending their turn within 3 squares takes damage, unless anchored to a pillar."
+    },
+    {
+      "name": "Starless Night",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "The light dies: everyone sees only 2 squares for 2 rounds, and voidlings get advantage."
+    },
+    {
+      "name": "Gravity Crush",
+      "dice": "4d10",
+      "range": 6,
+      "target": "s",
+      "text": "The target's own weight crushes them: STR save or prone and restrained for 1 round."
+    },
+    {
+      "name": "Void Rend",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+    },
+    {
+      "name": "Wing Buffet",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+    },
+    {
+      "name": "Spiked Tail",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+    },
+    {
+      "name": "Tail Launch",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail whips up under a hero and throws them into the air (STR save to stay grounded). Airborne, they fall at the end of her turn unless a follow-up hits first."
+    },
+    {
+      "name": "Wing Smash",
+      "dice": "3d8",
+      "range": 3,
+      "target": "s",
+      "text": "Follow-up, only against an airborne hero: she swats them out of the air; they land prone 2 squares away. They may dodge mid-air at disadvantage."
+    },
+    {
+      "name": "Void Fist",
+      "dice": "3d10",
+      "range": 3,
+      "target": "s",
+      "text": "Follow-up, only against an airborne hero: she slams them into the ground, prone on a hit. They may dodge mid-air at disadvantage."
+    },
+    {
+      "name": "Tail Impale",
+      "dice": "3d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her tail stabs forward over her shoulder and pins the target: restrained until a STR save at the start of their turn, 1d6 each turn pinned."
+    },
+    {
+      "name": "Void Spawn",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "Every 2 rounds, 2 voidlings appear (up to 4 at once): about 15 HP, 1d8 bite; when one dies it bursts, pulling heroes next to it 1 square."
+    },
+    {
+      "name": "Rift Step",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "She teleports through a rift; her next attack has advantage."
+    },
+    {
+      "name": "Crushing Orbit",
+      "dice": "3d10",
+      "range": 4,
+      "target": "a",
+      "text": "Everyone within 4 squares is swung 2 squares around her and takes damage."
     }
   ]
 }
