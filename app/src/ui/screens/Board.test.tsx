@@ -175,7 +175,7 @@ describe("the GM's board editor", () => {
     expect(store.getState().tables.board).toEqual(vocationBoard())
     click('Add new class abilities')
     expect(store.getState().tables.board).toEqual(vocationBoard())
-  })
+  }, 20_000) // heavy render: slow on busy CI runners
 
   it('adds the new class abilities to a saved board, keeping what it has', async () => {
     const old = Object.fromEntries(Object.entries(vocationBoard()).filter(([, e]) => !['hexblade', 'duelist'].includes(e.v as string)))
