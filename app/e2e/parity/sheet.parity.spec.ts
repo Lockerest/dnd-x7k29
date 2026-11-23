@@ -9,6 +9,7 @@ import { createGameStore, emptyTables, type Tables } from '../../src/state/store
 import type { Enemy } from '../../src/logic/types.ts'
 import { CASES, clean, rng } from './random.ts'
 import { CAPTURE, noTs, recDb, type W } from './store.ts'
+import { noRestFlag } from './kept.ts'
 
 const CLASSES_ = ['fighter', 'archer', 'mage', 'thief', 'warrior', 'sorcerer', 'spearhand', 'magickarcher', 'trickster']
 
@@ -95,7 +96,9 @@ function randomMap(r: ReturnType<typeof rng>): MapData {
     fg: r.maybe(r.str('01', 0, cols * rows), 0.5),
     walls: list(r.int(0, 12), sq),
     ew: list(r.int(0, 14), () => `${r.pick(['v', 'h'])},${r.int(0, cols)},${r.int(0, rows)}`),
-    dr: Object.fromEntries(Array.from({ length: r.int(0, 3) }, (_, i) => [`d${i}`, { c: r.maybe(sq()), o: r.maybe(1), e: list(r.int(0, 2), () => `${r.pick(['v', 'h'])},${r.int(0, cols)},${r.int(0, rows)}`) }])),
+    dr: Object.fromEntries(
+      Array.from({ length: r.int(0, 3) }, (_, i) => [`d${i}`, { c: r.maybe(sq()), o: r.maybe(1), e: list(r.int(0, 2), () => `${r.pick(['v', 'h'])},${r.int(0, cols)},${r.int(0, rows)}`) }]),
+    ),
     al: list(r.int(0, 3), sq),
     bf: list(r.int(0, 2), sq),
   })
@@ -176,7 +179,14 @@ async function inStore(c: Case, act: (s: ReturnType<typeof createGameStore>) => 
     (f) => void queued.push(f), // the world reset, run below after the press (the page waits 1.5 s)
   )
   s.getState().connect({ pin: 't', role: c.dm ? 'gm' : 'player', me: c.me })
-  s.getState().applySnapshot({ ...emptyTables(), chars: structuredClone(c.chars), enemies: structuredClone(c.enemies ?? {}), maps: c.map ? { m: { ...structuredClone(c.map), v2: 1 } } : {}, cur: c.map ? 'm' : null, ini: c.ini ?? null })
+  s.getState().applySnapshot({
+    ...emptyTables(),
+    chars: structuredClone(c.chars),
+    enemies: structuredClone(c.enemies ?? {}),
+    maps: c.map ? { m: { ...structuredClone(c.map), v2: 1 } } : {},
+    cur: c.map ? 'm' : null,
+    ini: c.ini ?? null,
+  })
   await act(s)
   for (const f of queued) await f()
   return w
@@ -241,7 +251,22 @@ test('sheet buttons save the same changes', async ({ legacy, page }) => {
   for (let k = 0; k < 150; k++) {
     const b = buttons[k % buttons.length]!
     const dm = b.a === 'regen' || b.a === 'st' || b.a === 'pw' || b.a === 'unmount' ? true : r.next() < 0.5
-    const c: Case = { dm, me: dm ? 'gm' : 'a', chars: { a: hero(r, b.a === 'mtd' || b.a === 'unmount' ? { mt: r.pick(['climb', 'down']), mon: 'w' } : b.a.startsWith('rest') ? { hp: r.int(1, 140), dth: r.pick([0, 1, 2, 3]), cb: r.pick(['1,1', '3,3', undefined]), mx: r.pick([0, 1, 2, 3, 4, undefined]), my: r.pick([1, 2, 3, 4]) } : {}) }, map: MAP, enemies: { w: { name: 'Wolf', x10: true, hp: 10, max: 10 } } }
+    const c: Case = {
+      dm,
+      me: dm ? 'gm' : 'a',
+      chars: {
+        a: hero(
+          r,
+          b.a === 'mtd' || b.a === 'unmount'
+            ? { mt: r.pick(['climb', 'down']), mon: 'w' }
+            : b.a.startsWith('rest')
+              ? { hp: r.int(1, 140), dth: r.pick([0, 1, 2, 3]), cb: r.pick(['1,1', '3,3', undefined]), mx: r.pick([0, 1, 2, 3, 4, undefined]), my: r.pick([1, 2, 3, 4]) }
+              : {},
+        ),
+      },
+      map: MAP,
+      enemies: { w: { name: 'Wolf', x10: true, hp: 10, max: 10 } },
+    }
     const sel = `[data-a="${b.a}"][data-id="a"]${b.n ? `[data-n="${b.n}"]` : ''}`
     await legacy.run(SETUP(c))
     const btn = page.locator(sel).first()
@@ -273,7 +298,12 @@ test('sheet buttons save the same changes', async ({ legacy, page }) => {
     expect(noTs(mine), `${b.a} ${JSON.stringify(c)}`).toEqual(noTs(theirs))
   }
   // Every kind of button was really pressed (most several times).
-  expect(Object.keys(pressed).sort()).toEqual(buttons.map((b) => b.a).filter((a, i, l) => l.indexOf(a) === i).sort())
+  expect(Object.keys(pressed).sort()).toEqual(
+    buttons
+      .map((b) => b.a)
+      .filter((a, i, l) => l.indexOf(a) === i)
+      .sort(),
+  )
   expect(Object.values(pressed).reduce((a, b) => a + b, 0)).toBeGreaterThan(100)
 })
 
@@ -333,7 +363,7 @@ test('using abilities: stamina, actions, turns, Golden HP costs and reactions', 
       s.getState().applySnapshot({ ...s.getState().tables, board })
       await s.getState().castAbility('a', ab[0], ab[1], ab[3] === 'r')
     })
-    expect(noTs(mine), JSON.stringify({ c, ab })).toEqual(noTs(theirs))
+    expect(noTs(noRestFlag(mine)), JSON.stringify({ c, ab })).toEqual(noTs(theirs))
   }
   expect(pressed).toBeGreaterThan(20)
 })
@@ -388,7 +418,12 @@ test('typed boxes, attunement release and removing a character', async ({ legacy
 })
 
 test('putting down a carried monster', async ({ legacy, page }) => {
-  const c: Case = { dm: false, me: 'a', chars: { a: { name: 'Hero', x10: true, hp: 50, maxHp: 50, st: 10, maxSt: 10, mx: 2, my: 2 } as Sheet }, enemies: { w: { name: 'Imp', x10: true, hp: 3, max: 3, hd: 'c:a' } } }
+  const c: Case = {
+    dm: false,
+    me: 'a',
+    chars: { a: { name: 'Hero', x10: true, hp: 50, maxHp: 50, st: 10, maxSt: 10, mx: 2, my: 2 } as Sheet },
+    enemies: { w: { name: 'Imp', x10: true, hp: 3, max: 3, hd: 'c:a' } },
+  }
   await legacy.run(SETUP(c))
   await page.locator('[data-a="putdown"][data-id="w"]').click()
   const theirs = (await legacy.run<W[]>('__w')).filter(([, p]) => p !== 'meta')
@@ -427,7 +462,7 @@ test('healing and check abilities roll their dice and apply the result', async (
     // The page shows its dice first, then applies the result.
     await expect.poll(async () => (await legacy.run<W[]>('__w')).filter(([, p]) => p !== 'meta').length, { timeout: 15000 }).toBe(mine.length)
     const theirs = (await legacy.run<W[]>('__w')).filter(([, p]) => p !== 'meta')
-    expect(noTs(mine), JSON.stringify({ c, ab })).toEqual(noTs(theirs))
+    expect(noTs(noRestFlag(mine)), JSON.stringify({ c, ab })).toEqual(noTs(theirs))
     done++
   }
   expect(done).toBeGreaterThan(9)

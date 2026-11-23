@@ -71,16 +71,13 @@ export function drinkFlask(c: Sheet): Change | null {
 }
 
 /** Stamina regained at the start of a turn (climbing a monster drains 4 x SC). */
-export const netRegen = (c: Sheet) => (c.rg as number) - (c.mt === 'climb' ? 4 * SC : 0)
+export const netRegen = (c: Sheet) => (c.ua ? 0 : (c.rg as number)) - (c.mt === 'climb' ? 4 * SC : 0)
 
 /** Bonfire rest: fatigue cleared, HP and stamina full (the curse stays). */
 export function bonfireRest(c: Sheet): Change {
   const base = (c.bmh || c.maxHp) as number
   const mx = effectiveMaxHp(base, c.dth || 0, 0)
-  return [
-    { fa: 0, ft: 0, bmh: c.dth ? base : c.bmh || null, maxHp: mx, hp: mx, st: c.maxSt, used: 0, mvd: 0, exh: false, pr: false, lh: 0 },
-    'Rested at a bonfire: fatigue cleared',
-  ]
+  return [{ fa: 0, ft: 0, bmh: c.dth ? base : c.bmh || null, maxHp: mx, hp: mx, st: c.maxSt, used: 0, mvd: 0, exh: false, pr: false, lh: 0 }, 'Rested at a bonfire: fatigue cleared']
 }
 
 /** True when resting at this altar lifts the curse: cursed, and not the altar they were revived at. */
@@ -164,6 +161,8 @@ export function payForAbility(c: Sheet, name: string, baseCost: number, reaction
     msg += ' - out of stamina: EXHAUSTED'
   }
   if (!reaction) p.used = (c.used || 0) + 1
+  // A real ability on your turn stops the next turn's stamina regen (Dodge and Parry don't).
+  if (!reaction && k > 0 && name !== 'Dodge Roll' && name !== 'Parry') p.ua = true
   if (name === 'Dodge Roll') p.ddg = true
   if (name === 'Parry') p.pry = true
   return [p, msg]

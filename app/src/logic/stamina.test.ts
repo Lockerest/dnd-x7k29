@@ -9,6 +9,12 @@ describe('startTurn', () => {
     expect(msg).toBe('New round')
     expect(p).toEqual({ used: 0, mvd: 0, exh: false, pr: false, lh: 0, stn: false, ddg: false, pry: false, ctr: false, st: 50 })
   })
+  it('no stamina back after a turn with an ability', () => {
+    const [p, msg] = startTurn({ ...base, ua: true })
+    expect(p.st).toBe(base.st)
+    expect(p.ua).toBe(false)
+    expect(msg).toBe('New round (no stamina back: used an ability last turn)')
+  })
   it('never goes past max', () => expect(startTurn({ ...base, st: 90 })[0].st).toBe(100))
   it('climbing drains 40', () => {
     const [p, msg] = startTurn({ ...base, mt: 'climb' })
@@ -47,6 +53,5 @@ describe('spend', () => {
   it('pays', () => expect(spend({ st: 50 }, 2, 'Power Strike')).toEqual([{ st: 30 }, 'Power Strike (-20 St)']))
   it('free actions', () => expect(spend({ st: 50 }, 0, 'Brace')).toEqual([{ st: 50 }, 'Brace']))
   it('exactly everything is fine', () => expect(spend({ st: 20 }, 2, 'X')[0]).toEqual({ st: 0 }))
-  it('overspending exhausts', () =>
-    expect(spend({ st: 10 }, 2, 'Power Strike')).toEqual([{ st: 0, exh: true, mt: '', mon: null }, 'Power Strike (-20 St) - out of stamina: EXHAUSTED']))
+  it('overspending exhausts', () => expect(spend({ st: 10 }, 2, 'Power Strike')).toEqual([{ st: 0, exh: true, mt: '', mon: null }, 'Power Strike (-20 St) - out of stamina: EXHAUSTED']))
 })

@@ -5,6 +5,7 @@ import { CLASSES } from '../../data/classes'
 import { boardIndex, boardOrDefault, goldenHidden, PARRY_LABELS, sheetAbilities, type Board } from '../../logic/board'
 import { approvedIds } from '../../logic/characters'
 import { isHeavy } from '../../logic/combat'
+import { levelChange } from '../../logic/levels'
 import { altarsOf, bonfiresOf, nearSpot } from '../../logic/geometry'
 import {
   abilityLocked,
@@ -242,7 +243,13 @@ export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portr
       <div className="stats">
         {STAT_FIELDS.map(([f, l]) =>
           dm ? (
-            <Field key={f} label={l} type="number" value={(c[f] as number) ?? 0} onSave={(v) => void actions.patchCharacter(id, { [f]: fieldValue(v, true) })} />
+            <Field
+              key={f}
+              label={l}
+              type="number"
+              value={(c[f] as number) ?? 0}
+              onSave={(v) => void actions.patchCharacter(id, f === 'level' ? levelChange(c, Number(fieldValue(v, true))) : { [f]: fieldValue(v, true) })}
+            />
           ) : (
             <span key={f}>
               {l}

@@ -24,3 +24,11 @@ export const without = <T>(theirs: Record<string, T>, keys: string[]): Record<st
 
 /** The class board as the backup page has it: without the classes added since (Hexblade, Duelist). */
 export const oldClasses = <T extends { v?: unknown }>(b: Record<string, T>): Record<string, T> => Object.fromEntries(Object.entries(b).filter(([, e]) => !NEW_CLASSES.includes(e.v as string)))
+
+/**
+ * Rule changed since the cutover (1.18.0): using an ability marks the hero (ua) so the
+ * next turn regains no stamina. The backup page never wrote that flag; this drops it
+ * from the app's writes so the rest of each write is still compared.
+ */
+export const noRestFlag = <T extends unknown[]>(writes: T[]): T[] =>
+  writes.map((w) => w.map((x) => (x && typeof x === 'object' && !Array.isArray(x) && 'ua' in x ? Object.fromEntries(Object.entries(x).filter(([k]) => k !== 'ua')) : x)) as T)

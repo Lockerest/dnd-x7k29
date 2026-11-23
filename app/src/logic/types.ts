@@ -27,6 +27,8 @@ export type Character = {
   /** Exhausted, and exhausted rounds left. */
   exh?: boolean
   exn?: number
+  /** Used an ability this turn: no stamina regen at the next turn's start. */
+  ua?: boolean
   /** Movement type ("climb" drains stamina) and the enemy being climbed. */
   mt?: string
   mon?: string | null

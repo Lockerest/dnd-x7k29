@@ -235,6 +235,7 @@ describe('sheet buttons', () => {
     expect(drinkFlask(hero({ fl: undefined }))).toBeNull()
     expect(netRegen(hero())).toBe(15)
     expect(netRegen(hero({ mt: 'climb' }))).toBe(-25)
+    expect(netRegen(hero({ ua: true }))).toBe(0)
   })
 
   it('bonfire rest clears fatigue but keeps the curse', () => {
@@ -320,12 +321,14 @@ describe('sheet buttons', () => {
   })
 
   it('using an ability pays stamina, counts the action and raises Dodge or Parry', () => {
-    expect(payForAbility(hero(), 'Smoke', 2, false, undefined)).toEqual([{ st: 30, used: 1 }, 'Used Smoke (-20 St)'])
-    expect(payForAbility(hero({ used: 1, dth: 1 }), 'Smoke', 2, false, undefined, 'Wolf')).toEqual([{ st: 27, used: 2 }, 'Used Smoke (-23 St) on Wolf'])
+    expect(payForAbility(hero(), 'Smoke', 2, false, undefined)).toEqual([{ st: 30, used: 1, ua: true }, 'Used Smoke (-20 St)'])
+    expect(payForAbility(hero({ used: 1, dth: 1 }), 'Smoke', 2, false, undefined, 'Wolf')).toEqual([{ st: 27, used: 2, ua: true }, 'Used Smoke (-23 St) on Wolf'])
     expect(payForAbility(hero(), 'Dodge Roll', 3, true, undefined)).toEqual([{ st: 20, ddg: true }, 'Used Dodge Roll (-30 St)'])
     expect(payForAbility(hero(), 'Parry', 2, true, undefined)).toEqual([{ st: 30, pry: true }, 'Used Parry (-20 St)'])
-    expect(payForAbility(hero({ st: 5 }), 'Smoke', 2, false, undefined)).toEqual([{ st: 0, exh: true, mt: '', mon: null, used: 1 }, 'Used Smoke (-20 St) - out of stamina: EXHAUSTED'])
-    expect(payForAbility(hero(), 'Big (Golden)', 1, false, 10)[0]).toEqual({ st: 40, hp: 50, fa: 10, ft: 1, bmh: 100, maxHp: 99, used: 1 })
+    expect(payForAbility(hero({ st: 5 }), 'Smoke', 2, false, undefined)).toEqual([{ st: 0, exh: true, mt: '', mon: null, used: 1, ua: true }, 'Used Smoke (-20 St) - out of stamina: EXHAUSTED'])
+    expect(payForAbility(hero(), 'Big (Golden)', 1, false, 10)[0]).toEqual({ st: 40, hp: 50, fa: 10, ft: 1, bmh: 100, maxHp: 99, used: 1, ua: true })
+    // A free ability (cost 0) keeps the regen.
+    expect(payForAbility(hero(), 'Unbroken', 0, false, undefined)[0]).toEqual({ st: 50, used: 1 })
   })
 
   it('heal amounts are dice plus bonus, x10', () => {

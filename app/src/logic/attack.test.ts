@@ -30,7 +30,12 @@ const board: Board = {
   b: { n: 'Long Shot', v: 'any', l: 1, c: 3, k: 'atk', d: '1d8', r: 6, a: 1 },
   u: { n: 'Smoke', v: 'any', l: 1, c: 1, k: 'util' },
 }
-const hero = (o: Partial<Sheet> = {}): U => ({ e: false, id: 'a', key: 'c:a', o: { name: 'Lyra', cls: 'fighter', level: 1, hp: 30, maxHp: 30, st: 50, maxSt: 100, str: 14, mx: 2, my: 2, ...o } as Sheet & Enemy })
+const hero = (o: Partial<Sheet> = {}): U => ({
+  e: false,
+  id: 'a',
+  key: 'c:a',
+  o: { name: 'Lyra', cls: 'fighter', level: 1, hp: 30, maxHp: 30, st: 50, maxSt: 100, str: 14, mx: 2, my: 2, ...o } as Sheet & Enemy,
+})
 const monster = (o: Partial<Enemy> = {}, id = 'w'): U => ({ e: true, id, key: `e:${id}`, o: { name: 'Wolf', hp: 20, max: 20, mx: 3, my: 2, ...o } as Sheet & Enemy })
 const ctx = (o: object = {}) => ({ dm: false, myTurn: true, board, hideGolden: false, enemies: {}, ...o })
 
@@ -80,7 +85,10 @@ describe('the action menu', () => {
       ['throw', true, false],
     ])
     expect(m.buttons.find((b) => b.k === 'throw')!.label).toBe('Throw Imp · 20 St')
-    expect(m.notes).toEqual(['It is not your turn: you can only use reactions (Dodge, Parry) or a counter-attack.', 'Melee, mount, push and pick up need you next to the target. Ranged attacks show their range.'])
+    expect(m.notes).toEqual([
+      'It is not your turn: you can only use reactions (Dodge, Parry) or a counter-attack.',
+      'Melee, mount, push and pick up need you next to the target. Ranged attacks show their range.',
+    ])
     const stunned = actionMenu(hero(), monster({ stun: true }), ctx({ dm: true, myTurn: false }))
     expect(stunned.buttons.find((b) => b.k === 'pick')).toMatchObject({ disabled: false, label: 'Pick up (20 St)' })
     const holding = actionMenu(hero(), monster(), ctx({ enemies: { w: { name: 'Wolf', hd: 'c:a' } } }))
@@ -126,12 +134,16 @@ describe('paying for an action', () => {
   it('pays stamina (with the extra change), or exhausts the hero', () => {
     expect(payForAction(hero(), 2, 'Push', { ctr: false }, false, true)).toEqual({ status: 1, patch: { used: 1, st: 30, ctr: false }, msg: 'Push (-20 St)' })
     expect(payForAction(hero({ used: 1 }), 0, 'Light', undefined, true, false)).toEqual({ status: 1, patch: { used: 2, st: 50 }, msg: 'Light' })
-    expect(payForAction(hero({ st: 5 }), 2, 'Push', { ctr: false }, true, false)).toEqual({ status: 2, patch: { used: 1, st: 0, exh: true, mt: '', mon: null }, msg: 'Push (-20 St) - out of stamina: EXHAUSTED' })
+    expect(payForAction(hero({ st: 5 }), 2, 'Push', { ctr: false }, true, false)).toEqual({
+      status: 2,
+      patch: { used: 1, st: 0, exh: true, mt: '', mon: null },
+      msg: 'Push (-20 St) - out of stamina: EXHAUSTED',
+    })
   })
   it('ability extras: charged ones stop charging, Golden ones cost HP', () => {
-    expect(abilityExtra(hero().o, 10, true)).toEqual({ chg: null })
+    expect(abilityExtra(hero().o, 10, true)).toEqual({ ua: true, chg: null })
     expect(abilityExtra(hero().o, 10, false)).toMatchObject({ hp: 27 })
-    expect(abilityExtra(hero().o, undefined, false)).toEqual({})
+    expect(abilityExtra(hero().o, undefined, false)).toEqual({ ua: true })
   })
 })
 
@@ -181,7 +193,18 @@ describe('hits', () => {
     expect(hitChanges(hero(), hero({ hp: undefined }), 3, false, {}, 1).hp).toBe(0)
   })
   it('the shared effect', () => {
-    expect(fxEvent(hero(), monster(), { label: 'Fireball', rng: 6 }, 'hit', 40, true)).toEqual({ a: 'c:a', t: 'e:w', k: 'fire', o: 'hit', d: 40, c: true, an: 'Lyra', tn: 'Wolf', l: 'Fireball', ha: false })
+    expect(fxEvent(hero(), monster(), { label: 'Fireball', rng: 6 }, 'hit', 40, true)).toEqual({
+      a: 'c:a',
+      t: 'e:w',
+      k: 'fire',
+      o: 'hit',
+      d: 40,
+      c: true,
+      an: 'Lyra',
+      tn: 'Wolf',
+      l: 'Fireball',
+      ha: false,
+    })
   })
 })
 

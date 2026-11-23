@@ -93,7 +93,12 @@ describe('resting', () => {
     expect(far.f.writes).toEqual([])
 
     const { s, f, runLater, tick } = setup(
-      { chars: { a: hero({ mx: 2, my: 2, dth: 1, cb: '5,5' }) }, maps: { m: MAP }, cur: 'm', enemies: { w: { name: 'Wolf', hp: 0, max: 30, mx: 4, my: 4 }, d: { name: 'Drake', hp: 0, max: 99, sz: 4 } } },
+      {
+        chars: { a: hero({ mx: 2, my: 2, dth: 1, cb: '5,5' }) },
+        maps: { m: MAP },
+        cur: 'm',
+        enemies: { w: { name: 'Wolf', hp: 0, max: 30, mx: 4, my: 4 }, d: { name: 'Drake', hp: 0, max: 99, sz: 4 } },
+      },
       { role: 'player', me: 'a' },
     )
     await s.getState().rest('a', 'al')
@@ -218,7 +223,7 @@ describe('using abilities', () => {
     await s.getState().castAbility('a', 'Smoke', 2, false)
     await s.getState().castAbility('b', 'Smoke', 2, false)
     await s.getState().castAbility('zz', 'Smoke', 2, false)
-    expect(f.writes).toEqual([['PATCH', 'chars/a', { st: 30, used: 1, log: ['Used Smoke (-20 St)'] }]])
+    expect(f.writes).toEqual([['PATCH', 'chars/a', { st: 30, used: 1, ua: true, log: ['Used Smoke (-20 St)'] }]])
     await s.getState().castAbility('a', 'Smoke (Golden)', 1, false)
     expect(f.writes[1]![2]).toMatchObject({ st: 20, hp: 50, used: 2 })
   })
@@ -233,8 +238,18 @@ describe('using abilities', () => {
     const { s, f } = setup({ chars: { a: hero({ hp: 20 }) }, board }, { role: 'player', me: 'a', rand: () => 0.5 })
     await s.getState().castAbility('a', 'Mend', 1, false)
     expect(f.writes.map((w) => w[2])).toEqual([
-      { st: 40, used: 1, log: ['Used Mend (-10 St)'] },
-      { n: 'Lyra', ds: [{ d: 6, r: 4 }, { d: 6, r: 4 }], m: 2, ts: 100_000, sk: 'classic', by: 'a' },
+      { st: 40, used: 1, ua: true, log: ['Used Mend (-10 St)'] },
+      {
+        n: 'Lyra',
+        ds: [
+          { d: 6, r: 4 },
+          { d: 6, r: 4 },
+        ],
+        m: 2,
+        ts: 100_000,
+        sk: 'classic',
+        by: 'a',
+      },
       { hp: 100, log: ['Used Mend (-10 St)', 'Healed 100'] },
       { ev: 'Lyra heals 100 with Mend', ts: 100_000 },
     ])
@@ -244,7 +259,7 @@ describe('using abilities', () => {
     const { s, f } = setup({ chars: { a: hero({ dex: 16 }) }, board }, { rand: () => 0 })
     await s.getState().castAbility('a', 'Sneak', 1, false)
     expect(f.writes.map((w) => w[2])).toEqual([
-      { st: 40, used: 1, log: ['Used Sneak (-10 St)'] },
+      { st: 40, used: 1, ua: true, log: ['Used Sneak (-10 St)'] },
       { ev: 'Lyra tries Sneak: 6', ts: 100_000 },
     ])
   })
@@ -258,7 +273,15 @@ describe('using abilities', () => {
   it('a roll from a player without a sheet is signed "?"', async () => {
     const { s, f } = setup({}, { role: 'player', me: 'nobody', rand: () => 0 })
     expect(await s.getState().roll([20, 4], 1)).toEqual([1, 1])
-    expect(f.writes[0]![2]).toMatchObject({ n: '?', ds: [{ d: 20, r: 1 }, { d: 4, r: 1 }], m: 1, by: 'nobody' })
+    expect(f.writes[0]![2]).toMatchObject({
+      n: '?',
+      ds: [
+        { d: 20, r: 1 },
+        { d: 4, r: 1 },
+      ],
+      m: 1,
+      by: 'nobody',
+    })
   })
 
   it('without a session a roll is signed by nobody', async () => {

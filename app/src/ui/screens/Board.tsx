@@ -322,6 +322,10 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
           <p className="note">
             <Masked text={info.description} words={words} />
           </p>
+          <p className="note" aria-label="Stamina and levels">
+            Stamina comes back at the start of your turn only if you used no ability on your last turn: light attacks, moving, dodging and drinking let you catch your breath. Each level adds 10% HP
+            and 5% stamina; levels 2, 4 and 8 also add 2 to your attack stat.
+          </p>
           <div className="row mini">
             {Object.entries(CLASSES).map(([k, v]) => (
               <button key={k} className={k === cls ? 'pri' : ''} onClick={() => setPicked(k)}>

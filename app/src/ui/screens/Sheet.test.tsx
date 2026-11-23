@@ -13,7 +13,19 @@ import { CharacterCard, SheetScreen } from './Sheet'
 
 afterEach(cleanup)
 
-function Harness({ store, portraits, confirm, onApprove, onClaim }: { store: GameStore; portraits: Record<string, string>; confirm: (q: string) => boolean; onApprove: () => void; onClaim: () => void }) {
+function Harness({
+  store,
+  portraits,
+  confirm,
+  onApprove,
+  onClaim,
+}: {
+  store: GameStore
+  portraits: Record<string, string>
+  confirm: (q: string) => boolean
+  onApprove: () => void
+  onClaim: () => void
+}) {
   const tables = useStore(store, (s) => s.tables)
   const dm = useStore(store, (s) => s.dm)
   const me = useStore(store, (s) => s.session?.me ?? '')
@@ -44,7 +56,12 @@ const board: Board = {
 
 function setup(t: Partial<Tables>, opts: { role?: 'gm' | 'player'; me?: string; portraits?: Record<string, string>; confirm?: boolean } = {}) {
   const f = fakeDb()
-  const store = createGameStore(() => f.db, () => 7, () => 0.5, () => {})
+  const store = createGameStore(
+    () => f.db,
+    () => 7,
+    () => 0.5,
+    () => {},
+  )
   store.getState().connect({ pin: 'p', role: opts.role ?? 'player', me: opts.me ?? 'a' })
   store.getState().applySnapshot({ ...emptyTables(), board, ...t })
   const confirm = vi.fn(() => opts.confirm ?? true)
@@ -72,13 +89,21 @@ describe('<SheetScreen /> for a player', () => {
     expect(within(s).getByText('Stunned')).toHaveClass('pill', 'bad')
     expect(within(s).getByText('Poisoned')).toHaveClass('pill')
     expect(within(s).getByText('Poisoned')).not.toHaveClass('bad')
-    expect(within(s).getAllByRole('meter').map((m) => m.getAttribute('aria-valuenow'))).toEqual(['60', '50'])
+    expect(
+      within(s)
+        .getAllByRole('meter')
+        .map((m) => m.getAttribute('aria-valuenow')),
+    ).toEqual(['60', '50'])
     expect(within(s).getByRole('heading', { name: 'Stamina · Actions used 0/2' })).toBeInTheDocument()
     // Players see stats but cannot change them.
     expect(within(s).getByText('STR').querySelector('b')).toHaveTextContent('15')
     expect(within(s).getByText('Level').querySelector('b')).toHaveTextContent('3')
     expect(within(s).queryByRole('spinbutton')).toBeNull()
-    expect(within(s).getAllByRole('listitem').map((l) => l.textContent)).toEqual(['6', '5', '4', '3', '2'])
+    expect(
+      within(s)
+        .getAllByRole('listitem')
+        .map((l) => l.textContent),
+    ).toEqual(['6', '5', '4', '3', '2'])
     // GM-only buttons are hidden.
     for (const n of [/Start of turn/, /Parry:/, '-10 St', 'Remove character']) expect(within(s).queryByRole('button', { name: n })).toBeNull()
   })
@@ -144,7 +169,7 @@ describe('<SheetScreen /> for a player', () => {
   it('using an ability saves the cost', () => {
     const { f } = setup({ chars: { a: hero() } })
     click('20 St')
-    expect(last(f)).toEqual(['PATCH', 'chars/a', { st: 30, used: 1, log: ['Used Smoke (-20 St)'] }])
+    expect(last(f)).toEqual(['PATCH', 'chars/a', { st: 30, used: 1, ua: true, log: ['Used Smoke (-20 St)'] }])
   })
 
   it('a dead hero can revive at an altar on the map, or is told there is none', () => {
@@ -188,7 +213,9 @@ describe('<SheetScreen /> for a player', () => {
   })
 
   it('a player without a sheet sees nothing', () => {
-    const { container } = render(<SheetScreen tables={emptyTables()} dm={false} me="x" actions={createGameStore().getState()} portraits={{}} confirm={() => true} onApprove={() => {}} onClaim={() => {}} />)
+    const { container } = render(
+      <SheetScreen tables={emptyTables()} dm={false} me="x" actions={createGameStore().getState()} portraits={{}} confirm={() => true} onApprove={() => {}} onClaim={() => {}} />,
+    )
     expect(container.querySelector('.solo')).toBeEmptyDOMElement()
   })
 
@@ -233,10 +260,7 @@ describe('<SheetScreen /> for the GM', () => {
     expect(last(f)![2]).toMatchObject({ pw: 'n' })
     expect(screen.getByRole('button', { name: 'Parry: normal' })).toBeInTheDocument()
     click('Drop rider')
-    expect(f.writes.slice(-2).map((w) => w[2])).toEqual([
-      expect.objectContaining({ mt: '', mon: null }),
-      { ev: 'Lyra is dropped from the monster. The GM decides where they land.', ts: 7 },
-    ])
+    expect(f.writes.slice(-2).map((w) => w[2])).toEqual([expect.objectContaining({ mt: '', mon: null }), { ev: 'Lyra is dropped from the monster. The GM decides where they land.', ts: 7 }])
   })
 
   it('the GM sees Golden abilities and can release attunements', () => {
@@ -262,6 +286,11 @@ describe('<SheetScreen /> for the GM', () => {
     fireEvent.change(str, { target: { value: '16' } })
     fireEvent.blur(str)
     expect(last(f)).toEqual(['PATCH', 'chars/a', { str: 16 }])
+    // A new level brings its HP, stamina and stat growth.
+    const lv = screen.getByLabelText('Level')
+    fireEvent.change(lv, { target: { value: '2' } })
+    fireEvent.blur(lv)
+    expect(last(f)![2]).toMatchObject({ level: 2, maxSt: expect.any(Number) })
   })
 
   it('removing a character asks first', () => {

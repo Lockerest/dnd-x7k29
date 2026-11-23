@@ -123,8 +123,8 @@ export function payForAction(
   return { status: p.exh ? 2 : 1, patch: p, msg: m }
 }
 
-/** Extra change when a hero uses an ability attack: charging ones stop charging; Golden ones cost HP. */
-export const abilityExtra = (c: Sheet, hpPct: number | undefined, charged: boolean) => (charged ? { chg: null } : hpCost(c as Sheet & { hp: number }, hpPct))
+/** Extra change when a hero uses an ability attack: charging ones stop charging; Golden ones cost HP; no stamina regen next turn (ua). */
+export const abilityExtra = (c: Sheet, hpPct: number | undefined, charged: boolean) => ({ ua: true, ...(charged ? { chg: null } : hpCost(c as Sheet & { hp: number }, hpPct)) })
 
 /** A save against an attack total: "full" avoids it, "half" takes half damage, "none" takes it all. */
 export function saveResult(sv: number, total: number): 'full' | 'half' | 'none' {
@@ -229,7 +229,12 @@ export function throwLanding(t: U, g: Grid | null, taken: (x: number, y: number)
 export const skillAttack = (e: Enemy, sk: EnemySkill, rng: number, auto: boolean): Attack => ({ label: sk.n, rng, dmg: sk.d || '1d8', tb: e.ab ?? 4, db: 0, cost: 0, po: 0, auto, heavy: true })
 
 /** A skill with no damage ("0", "-" or "none") is only announced. */
-export const harmlessSkill = (sk: EnemySkill) => ['0', '-', 'none'].includes(String(sk.d || '').trim().toLowerCase())
+export const harmlessSkill = (sk: EnemySkill) =>
+  ['0', '-', 'none'].includes(
+    String(sk.d || '')
+      .trim()
+      .toLowerCase(),
+  )
 
 /** The monster's area attack: its damage twice, on everyone within max(2, reach). */
 export const areaAttack = (e: Enemy): Attack => {
