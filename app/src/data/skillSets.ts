@@ -450,6 +450,94 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Halfway boss of Calden's Keep, for a level 2 party: HP 1,500, AC 15, size 2x2. Roll a d6 for his move (1-6 in this order; a 6 right after a 6 is a Spine Lash). He carries the Keep's keys: killing him opens the cells, and the captive heroes inside (Odrig, Yorik, Otto, Yerana) can be freed."
     }
   ],
+  "Remade Triumvirate (halfway)": [
+    {
+      "name": "Sickle Hook",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "His light attack: the ghoul fused to his chest hooks one adjacent hero with its sickle. Can be parried."
+    },
+    {
+      "name": "Leg Impale",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "A spiked spider leg stabs one hero up to 2 squares away like a spear. Can be parried."
+    },
+    {
+      "name": "Greatblade Cleave",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "His heavy attack: the greatsword sweeps an arc in front of him, hitting up to 2 heroes within 2 squares. Can be parried (a parry still takes half)."
+    },
+    {
+      "name": "Skitter Charge",
+      "dice": "1d8",
+      "range": 6,
+      "target": "a",
+      "text": "He charges up to 6 squares in a straight line through the party: every hero in the path takes the damage and makes a STR save or is knocked prone. Dodge to avoid it."
+    },
+    {
+      "name": "Stone Maul Crash",
+      "dice": "3d6",
+      "range": 3,
+      "target": "a",
+      "text": "Telegraphed: he raises the stone maul for a turn (announce it and mark the target square), then crashes it down: everyone within 1 square of the mark takes the damage, DEX save for half. Can't be parried. The squares become rubble (difficult terrain). Never twice in a row."
+    },
+    {
+      "name": "Three in One",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Halfway boss of Arachne's region, fought with the Dark Elf High Priestess, for a level 3-4 party: HP 1,500, AC 16, size 2x2. Roll a d6 (1-5 in this order; 6 = Sickle Hook). He gets one action per turn, two after her Webcrown Blessing. If the Priestess dies first, Widowed Fury: +1d6 on all his hits and +2 squares of movement for the rest of the fight."
+    }
+  ],
+  "Dark Elf High Priestess (halfway)": [
+    {
+      "name": "Venom Dagger",
+      "dice": "1d6",
+      "range": 1,
+      "target": "s",
+      "text": "Her light attack: a poisoned slash at one adjacent hero. CON save or poisoned until the end of their next turn (disadvantage on attacks). Can be parried."
+    },
+    {
+      "name": "Blinding Silk",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "Her staff sprays silk at one hero up to 6 squares away: DEX save or restrained until the end of their next turn (STR check as an action to tear free). Can't be parried."
+    },
+    {
+      "name": "Webcrown Blessing",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "She empowers the Triumvirate: on his next turn he takes two actions instead of one (roll twice)."
+    },
+    {
+      "name": "Mend the Remade",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "Silk stitches his wounds: the Triumvirate regains 3d8 x10 HP (about 135). Only if he's below max HP; otherwise she uses Webcrown Blessing."
+    },
+    {
+      "name": "Silk Step",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "She melts into the webs and reappears up to 6 squares away, out of reach. She uses it whenever a hero ends their turn next to her; otherwise treat this roll as Venom Dagger."
+    },
+    {
+      "name": "Bound by Silk",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Fights beside the Remade Triumvirate: HP 500, AC 13, size 1x1, her own turn in initiative. She stays behind him. Roll a d6: 1 Venom Dagger, 2 Blinding Silk, 3-4 Webcrown Blessing, 5 Mend the Remade, 6 Silk Step. If the Triumvirate dies first, she flees into the tunnels: catch her within 3 rounds or she escapes to warn Arachne."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",

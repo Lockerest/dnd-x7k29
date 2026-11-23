@@ -3,6 +3,19 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // Remade Triumvirate and Dark Elf High Priestess (halfway duo, Arachne).
+  sickle_hook: '632332f0-3915-4cf5-b767-e99e67a70fd2.jpg',
+  greatblade_cleave: '1f419abd-3fa7-4514-8d3a-1bb0e11bc272.jpg',
+  leg_impale: 'e8a3757c-99d0-4fda-8fb6-67a964b9efe5.jpg',
+  skitter_charge: 'fd1dc427-e8ce-4657-8e80-f34c44fcb835.jpg',
+  stone_maul_crash: 'fbb7928c-8be9-458f-b7c8-2118be29264d.jpg',
+  three_in_one: '6fd77fa5-0e59-4efa-b4a9-e4052e9cd3c3.jpg',
+  venom_dagger: '5e7b01ad-ba52-4d0d-936c-a151fe0507a7.jpg',
+  blinding_silk: '6665dbea-8f71-46ac-9d82-c98dd0d60646.jpg',
+  webcrown_blessing: '911ac536-a91c-4451-9b86-51bbd757b722.jpg',
+  mend_the_remade: '1bbecf28-0cc0-4d99-abec-981a7e749a08.jpg',
+  silk_step: '13b5106c-13ae-4ff4-8d51-a38acc695e97.jpg',
+  bound_by_silk: '51b697ae-70ae-44ea-b74e-86007f6be627.jpg',
   // The Jailer (halfway boss, Calden's Keep).
   spine_lash: 'a03265fa-2ed7-4ba4-b7e0-c97e5bfa537a.jpg',
   iron_knuckle: '9fcd2588-3db8-4b27-b8e1-91fa2ca8507d.jpg',

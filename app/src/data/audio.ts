@@ -119,6 +119,18 @@ export const THEME_GROUPS: Record<string, string[]> = {
 
 /** Ability sound files, by ability slug (see abilitySlug). */
 export const ABILITY_SOUNDS: Record<string, string> = {
+  "sickle_hook": "35e85aef-55c4-4e5c-88cb-fcd57bb42482",
+  "greatblade_cleave": "4577d323-9ad0-42a3-8535-67d2726690f5",
+  "leg_impale": "22d7e17a-d38f-4fc0-bcb0-2f3e9716a953",
+  "skitter_charge": "c36af9e3-2157-4c36-8f88-2dc38d880f85",
+  "stone_maul_crash": "11e63cd2-0030-4ce7-97e9-18c146933b04",
+  "three_in_one": "52100c40-aeb2-4a52-b04d-3416e47bd5cf",
+  "venom_dagger": "a55b145f-63f9-423f-8ce0-e9989b53b56f",
+  "blinding_silk": "636d4679-e25c-4fee-9e33-81f28c9bccc1",
+  "webcrown_blessing": "9dc240d2-17d4-415a-980c-bf0f5b54ff75",
+  "mend_the_remade": "ba67d941-8336-47fd-9723-e85f7b222529",
+  "silk_step": "a725a338-55c5-4b21-85e3-5b0d2670b6d2",
+  "bound_by_silk": "480de0d3-6c31-4131-8164-094bbf30670d",
   "spine_lash": "dab2399f-cb6a-4b11-a390-aa25dc72cf95",
   "iron_knuckle": "3e0b3e67-9f6f-451b-a1db-773336db6dd2",
   "shackle_snare": "54e9ce03-ed41-4497-883a-430c298cdc97",
