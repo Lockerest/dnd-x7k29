@@ -9,16 +9,20 @@
 
 /** How to read every ability: shown once above the class abilities. */
 export const ABILITY_GLOSSARY = [
-  'Every ability uses 1 of your 2 actions on your turn unless it says Reaction, Passive or charge (a whole turn). Its stamina is paid when you use it, even if it misses.',
-  'Attack: roll d20 + your attack bonus against the target’s AC. No attack roll: it always reaches its target(s), who may get a save instead. A natural 20 is a critical hit (damage dice doubled).',
-  'Damage and healing are the dice + your class stat modifier (STR, DEX or INT, shown on each ability) unless it says otherwise. Dice results are x10 on the table, like your HP; flat numbers written in an ability (50 temporary HP, 20 stamina, 40 absorbed) are already table numbers.',
-  '1 square = 5 ft. "For 2 rounds" lasts until the start of your second turn from now. "Until your next turn" ends at the start of your next turn.',
-  'Unless an ability says so: effects end early if you drop to 0 HP, the same ability doesn’t stack with itself (using it again restarts its duration), and only enemies are affected.',
+  'Actions: every ability uses 1 of your 2 actions on your turn unless it says Reaction (no action, used on anyone’s turn), Passive (always on, but it still takes an equip slot) or Charge (your whole turn now, released for free on your next turn, so you still have both actions then). Its stamina is paid when you use it, even if it misses or is cancelled.',
+  'Attack: roll d20 + your attack bonus against the target’s AC. A natural 20 always hits and is a critical hit (the damage dice are doubled, your stat is not). A natural 1 always misses. No attack roll: it always reaches its target(s); anyone it allows a save rolls against 10 + your attack bonus.',
+  'Damage and healing: the dice + your class stat modifier (STR, DEX or INT, as written), or + your level when it says level. The whole total is x10 on the table, like your HP: 2d8 rolling 9 with STR +3 = 120. Flat numbers written in an ability (50 temporary HP, 20 stamina, 40 absorbed) are already table numbers. A hit never deals less than 10.',
+  'Monsters never Dodge Roll or Parry your attacks. Notes like "can be dodged" or "can’t be parried" on your abilities only matter if one is ever used on a hero. You can Dodge Roll or Parry every attack that would hit you, as often as your stamina allows, but only one reaction per attack.',
+  'Moving: 1 square = 5 ft. Leaving an enemy’s reach on foot gives it one free attack at you, unless the ability says it doesn’t provoke. Movement that an ability gives you (dash, leap, teleport) costs no movement stamina.',
+  'Time: "until your next turn" ends at the start of your next turn. "For 2 rounds" lasts until the start of your second turn from now. Effects you put on an enemy count your turns, not its turns.',
+  'Stacking: the same ability doesn’t stack with itself (using it again restarts it). Two slows don’t add up: the strongest applies. If two effects force an enemy to attack someone (Taunting Roar, Distract, Challenge, Decoy Double, Feint), the most recent one wins.',
+  'Conditions: prone (standing up costs half your movement; melee attacks against you have advantage), restrained (speed 0, attacks against you have advantage, yours have disadvantage), slowed (half speed), poisoned (disadvantage on attacks), blinded (disadvantage on attacks, attacks against it have advantage), charmed (can’t attack the one who charmed it), confused (see Hex Trap), hidden (can’t be targeted by single-target attacks).',
+  'Unless an ability says so: effects end early if you drop to 0 HP, they only affect enemies, and size 3+ enemies can’t be pushed, pulled or knocked prone (they still take the damage).',
 ]
 
 /** How to read every boss move: shown once above the Boss abilities. */
 export const BOSS_GLOSSARY = [
-  'Attack roll: d20 + the boss’s attack bonus against one hero’s AC. No attack roll: it always reaches everyone in the area, who make the save it names. Every save (and every Dodge Roll or Parry) is rolled against that move’s attack total. "For half": a beaten save halves the damage; anything else in the move happens only on a failed save.',
+  'Attack roll: d20 + the boss’s attack bonus against one hero’s AC. A natural 20 always hits (critical: dice doubled), a natural 1 always misses. No attack roll: it always reaches everyone in the area, who make the save it names against 10 + the boss’s attack bonus. Dodge Roll and Parry are rolled against the attack total (or 10 + attack bonus when there is no roll). Dodge Roll can replace a DEX save: same roll, but beating it means no damage at all. "For half": a beaten save halves the damage; anything else in the move happens only on a failed save.',
   'Parry works only on a single-target weapon, claw, bite, tail, chain or thrown attack, and only where the move says "Can be parried". Area moves, spells, beams, breath, fire, frost, lightning, poison and sound: dodge only. "A parry still takes half": even a beaten Parry halves the damage instead of stopping it. "Can’t be dodged": Dodge Roll does nothing against it.',
   'Telegraphed: announcing it uses the boss’s action; it lands on his next turn, exactly where it was marked, so heroes get their turns to move out. Leaving the marked area avoids it completely. It fizzles if the boss is stunned, killed or changes phase before it lands. A telegraphed move is never used twice in a row.',
   'Prone: standing up costs half your movement; melee attacks against you have advantage. Restrained: speed 0, attacks against you have advantage, yours have disadvantage. Slowed: half movement. Frightened: disadvantage on attacks against the source, can’t move closer to it. Poisoned: disadvantage on attacks. "Until the end of their next turn" includes that whole turn.',
@@ -31,10 +35,10 @@ export const ABILITY_TEXTS: Record<string, string> = {
   'Power Strike': 'Attack: one heavy blow at an adjacent enemy. On a hit: 2d8 + STR damage, instead of your weapon’s damage (it doesn’t add to a light or heavy attack). On a miss: nothing.',
   'Multi-Slash': 'Attack, adjacent: a fast follow-up slash, 2d6 + STR on a hit. Cheap filler between your bigger moves.',
   'Shield Bash':
-    'No attack roll, needs a shield: bash an adjacent enemy for 1d4 + STR. It makes a STR save (DC 8 + your attack bonus) or falls prone until it stands up on its turn. Huge enemies (size 3 or more) can’t be knocked prone, only damaged.',
+    'No attack roll, needs a shield: bash an adjacent enemy for 1d4 + STR. It makes a STR save (against 10 + your attack bonus) or falls prone until it stands up on its turn. Huge enemies (size 3 or more) can’t be knocked prone, only damaged.',
   'Second Wind': 'Heal yourself 1d10 + your level. Only yourself. Can’t raise you from 0 HP (you’re down and can’t act). Doesn’t cure fatigue or the revival curse.',
   'Rending Combo':
-    'Attack: three rapid swings at one adjacent enemy. Roll each swing to hit separately; each hit deals 1d8 + STR (so up to 3d8 + 3x STR). Each swing can be dodged or parried on its own. If the target dies, the remaining swings stop. Versus Power Strike: three chances that each add STR, against one sure big hit.',
+    'Attack: three rapid swings at one adjacent enemy. Roll each swing to hit separately; each hit deals 1d8 + STR (so up to 3d8 + 3x STR). A natural 1 misses only that swing. If the target dies, the remaining swings stop. Versus Power Strike: three chances that each add STR, against one sure big hit.',
   'Rending Combo (Golden)':
     'Golden form of Rending Combo. Needs Rending Combo equipped. Attack: four swings at one adjacent enemy, each rolled to hit separately; each hit deals 1d8 + 1d6 + STR. Each swing can be dodged or parried on its own; the rest stop if the target dies. Costs 10% of your max HP when used (never drops you below 1 HP).',
   'Shield Wall':
@@ -145,7 +149,7 @@ export const ABILITY_TEXTS: Record<string, string> = {
   'Ghost Step':
     'Reaction (no action), once per round: right after you take a hit, vanish and reappear in a free square within 3 squares you can see. You still take that hit’s damage. Doesn’t provoke free attacks.',
   Heartseeker:
-    'Attack, adjacent: 8d6 + DEX on a hit. If you are behind the target (opposite side from the creature it last attacked) or an ally is next to it, the hit is automatically a critical (dice doubled). You still need to hit.',
+    'Attack, adjacent: 8d6 + DEX on a hit. If you are behind the target (on the opposite side of it from the hero it last attacked, or it can’t see you) or an ally is next to it, the hit is automatically a critical (dice doubled). You still need to hit.',
   'Heartseeker (Golden)':
     'Golden form of Heartseeker. Needs Heartseeker equipped. Attack, adjacent: 10d6 + DEX on a hit; automatic critical from behind or with an ally next to the target. Costs 20% of your max HP (never below 1 HP).',
   'Pocket Sand':
@@ -276,11 +280,11 @@ export const ABILITY_TEXTS: Record<string, string> = {
   "Fool's Gambit": 'No attack roll, adjacent: a cheap trick (sand, a feint, a trip) that always lands for 3d6 + DEX. It can be dodged, not parried.',
   "Fool's Gambit (Golden)": 'Golden form of Fool’s Gambit. Needs Fool’s Gambit equipped. No attack roll, adjacent: 7d6 + DEX, can be dodged. Costs 15% of your max HP (never below 1 HP).',
   'Phantom Veil':
-    'You turn invisible for 2 rounds: enemies can’t target you with single-target attacks unless they guess your square, and your attacks have advantage. Ends early the moment you attack or use an ability on an enemy (that attack still has advantage), or drop to 0 HP. Area attacks still hit you.',
+    'You turn invisible for 2 rounds: enemies can’t target you with single-target attacks unless they guess your square (a right guess still attacks at disadvantage), and your attacks have advantage. Ends early the moment you attack or use an ability on an enemy (that attack still has advantage), or drop to 0 HP. Area attacks still hit you.',
   'Hex Trap':
     'Place a hidden trap on a free square within 2 squares. The first enemy that enters it is confused for 2 rounds: at the start of each of its turns roll a d6: 1-2 it attacks the nearest creature (ally or foe), 3-4 it wanders 2 squares randomly, 5-6 it acts normally. One trap at a time; it lasts until triggered or the fight ends.',
   'Grand Illusion':
-    'Every enemy within 6 squares makes a WIS save. Each one that fails, on its next turn, attacks the nearest other enemy instead of you (if none is in reach, it does nothing). Bosses get advantage on the save. Mindless creatures are immune.',
+    'Every enemy within 6 squares makes a WIS save. Each one that fails, on its next turn, attacks the nearest other enemy instead of a hero (if none is in reach, it does nothing). Bosses get advantage on the save. Mindless creatures are immune.',
   'Grand Illusion (Golden)': 'Golden form of Grand Illusion. Needs Grand Illusion equipped. Same effect, but bosses get no advantage on the save. Costs 20% of your max HP (never below 1 HP).',
   'Swap Places': 'Swap places with a willing ally or a size 1 enemy within 2 squares (an enemy makes a DEX save to refuse). Nobody provokes free attacks from the swap.',
   'Sleight Trick': 'DEX check against the GM’s DC: take a small item from, or plant one on, an adjacent creature without it noticing. Can’t take something held in a hand or worn as armour.',
@@ -294,7 +298,7 @@ export const ABILITY_TEXTS: Record<string, string> = {
   // ---- Hexblade (STR) ----
   'Hooked Slash': 'Attack, adjacent (2 squares while the blade is Fed): 2d6 + STR on a hit. A hit feeds the blade, a miss costs the blood price (see Fed and Blood Price).',
   Bloodletting:
-    'Attack, adjacent: 1d10 + STR on a hit, and the target bleeds: 1d4 at the start of each of its turns for 2 rounds. Undead and constructs don’t bleed. Using it again refreshes the bleed, it doesn’t stack.',
+    'Attack, adjacent: 1d10 + STR on a hit, and the target bleeds: 1d4 at the start of each of its turns for 2 rounds. Undead and constructs don’t bleed. Using Bloodletting again refreshes its own bleed instead of adding a second one (Thousand Cuts stacks are separate and do add up).',
   'Blood Mark': 'Mark one enemy within 6 squares for 3 rounds: your hits on it deal +1d4 and heal you 20 each. One mark at a time. Ends early if it dies.',
   'Sinew Lash': 'Attack, reach 3 squares: the blade uncoils, 3d8 + STR on a hit, and the target is pulled 1 square toward you (size 3+ isn’t pulled).',
   'Sinew Lash (Crimson)': 'Crimson form of Sinew Lash. Needs Sinew Lash equipped. Attack, reach 3: 5d8 + STR on a hit and a 1-square pull (not size 3+). Costs 10% of your max HP (never below 1 HP).',
@@ -302,8 +306,9 @@ export const ABILITY_TEXTS: Record<string, string> = {
   'Reaping Arc': 'One attack roll compared to each adjacent enemy’s AC: each one beaten takes 3d6 + STR, and each hit feeds the blade. If it misses all of them, you pay the blood price once.',
   'Drink Deep': 'Your next hit before the end of this turn heals you for half the damage it deals. If you don’t hit this turn, it’s wasted.',
   'Thousand Cuts':
-    'Attack, reach 2: a flurry of whip cuts, 4d8 + STR on a hit, and the target gains 1 bleed per 2 damage dice rolled at 5 or more (each bleed: 1d4 at the start of its turn, for 2 rounds).',
-  'Thousand Cuts (Crimson)': 'Crimson form of Thousand Cuts. Needs Thousand Cuts equipped. Attack, reach 2: 6d8 + STR on a hit, bleed as above. Costs 15% of your max HP (never below 1 HP).',
+    'Attack, reach 2: a flurry of whip cuts, 4d8 + STR on a hit. Each d8 that rolls 5 or more is a cut that lands and adds 1 bleed stack (so 0 to 4). Each stack deals 1d4 at the start of the target’s turns for 2 rounds; stacks add up with each other and with Bloodletting’s bleed. On a miss: no bleed.',
+  'Thousand Cuts (Crimson)':
+    'Crimson form of Thousand Cuts. Needs Thousand Cuts equipped. Attack, reach 2: 6d8 + STR on a hit; each d8 of 5+ adds 1 bleed stack (0 to 6), as above. Costs 15% of your max HP (never below 1 HP).',
   'Sanguine Pact': 'Free (0 stamina, but still 1 action): pay 10% of your max HP to gain 20 stamina right away. Can’t take you below 1 HP; can’t go above your max stamina.',
   'Hex of Frailty': 'Every enemy within 3 squares makes a CON save or takes +1d6 damage from every hit (from anyone) for 2 rounds. Doesn’t stack with itself.',
   'Coiling Snare':
@@ -335,7 +340,7 @@ export const ABILITY_TEXTS: Record<string, string> = {
     'Golden form of Cascade of Steel. Needs Cascade of Steel equipped. One attack roll, adjacent: 6d8 + DEX on a hit, +1 Flow (+2 on a crit). Costs 15% of your max HP (never below 1 HP).',
   'Read the Blade': 'Study one enemy within 6 squares: +1 on your parry rolls against its attacks for the rest of the fight. Only one enemy at a time.',
   Punish:
-    'Attack, adjacent, only against an enemy that is off-balance or staggered: if it hits, it’s an automatic critical hit (3d10 doubled + DEX). Can’t be used on a target that isn’t off-balance or staggered.',
+    'Attack, adjacent, only against an enemy that is staggered or off-balance. Monsters never parry, so an enemy counts as off-balance after you cleanly parry its attack (beat the roll completely), until the end of your next turn. If Punish hits, it’s an automatic critical hit (3d10 doubled + DEX). It can’t be used on any other target.',
   'Unbroken Flow': 'Passive (still takes an equip slot): the first time in each fight that you fail a parry, you keep your Flow (you still take the hit and are still off-balance).',
   Feint: 'Bait one adjacent enemy: it makes a WIS save or immediately attacks you (out of turn, using its next attack), and you parry it at +2. If it passes, nothing happens.',
   'Flow State': 'For 2 rounds your Flow can’t drop (not even from a failed parry) and can go up to 5 instead of 3. When it ends, Flow above 3 is lost.',
@@ -345,9 +350,9 @@ export const ABILITY_TEXTS: Record<string, string> = {
 
   // ---- Everyone ----
   'Dodge Roll':
-    'Reaction (no action), any time an attack would hit you: roll a DEX save (d20 + DEX) against its attack roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs 30 stamina either way. Works against everything, area attacks included.',
+    'Reaction (no action), any time an attack would hit you: roll a DEX save (d20 + DEX) against its attack roll. Beat it: no damage. Miss by 1-2: half damage. Miss by more: full damage. Costs 30 stamina either way. Works against everything, area attacks included, unless a move says it can’t be dodged. Against an area move it replaces your DEX save (beating it means no damage instead of half).',
   Parry:
-    'Reaction (no action), needs a shield or melee weapon: against a weapon, claw, tail, bite or projectile attack that would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs 20 stamina either way. Can’t parry spells, fire, frost, lightning, poison, beams, breath or area attacks: those can only be dodged.',
+    'Reaction (no action), needs a shield or melee weapon: against a weapon, claw, tail, bite or projectile attack that would hit you, roll a STR save (d20 + STR) against its roll. Beat it: no damage, and you may counter-attack once. Miss by 1-2: half damage. Miss by more: full damage. Costs 20 stamina either way. Can’t parry spells, fire, frost, lightning, poison, beams, breath or area attacks: those can only be dodged. When a boss move says a parry still takes half, even a beaten Parry takes half damage. A Duelist who fails a Parry (misses by 3+) is off-balance.',
 }
 
 /**
