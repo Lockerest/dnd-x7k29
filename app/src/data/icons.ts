@@ -3,6 +3,14 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // The Jailer (halfway boss, Calden's Keep).
+  spine_lash: 'a03265fa-2ed7-4ba4-b7e0-c97e5bfa537a.jpg',
+  iron_knuckle: '9fcd2588-3db8-4b27-b8e1-91fa2ca8507d.jpg',
+  shackle_snare: 'aa649e73-6abb-43b6-82d9-f8cd292b5a6c.jpg',
+  into_the_cage: '4ac52809-7714-4ae3-9a2a-be26efb55b49.jpg',
+  choir_of_the_caged: 'b2c0c0f9-3e29-4763-9b90-a801c70eb432.jpg',
+  execution_sweep: '541581ed-c9ee-4d3b-a135-40137660b54c.jpg',
+  warden_s_keys: '6db51528-b8eb-489f-b45d-a97075d4b2c7.jpg',
   // Aethelric: phase 1.
   warden_s_cut: '45e02ac1-0076-4c65-957f-138720a111ea.jpg',
   rime_guard: 'b074d623-c63b-4d83-ac29-16d0e9a8b743.jpg',

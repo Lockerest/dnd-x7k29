@@ -139,6 +139,7 @@ npm run build
    Encounters (GM, under Enemies): save placed enemies as a ready-made group in a region folder, with their phase sheets and pictures; Deploy puts a copy on the map on screen in the same formation (spawn points set), Clear removes it. Saved encounters are never loaded until the list is opened (1.16.0).
    Table view (projector): "Miniatures on the table" draws every standing token as a plain black square so no light lands on painted minis, and "Turn the picture" (90°, 180°, 270°) lays the map along the table; real size keeps its millimetres when turned (1.17.0).
    Hero balance: stamina comes back only after a turn without abilities (light attacks, moving, dodging and drinking let you catch your breath); changing a hero's level applies growth automatically (+10% base HP and +5% base stamina per level, +2 attack stat at levels 2, 4 and 8, keeping the revival curse's share) (1.18.0).
+   The Jailer (Calden's Keep halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

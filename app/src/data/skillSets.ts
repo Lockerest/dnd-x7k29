@@ -399,6 +399,57 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "His ultimate: thousands of spore pods burst and poison gas fills the arena."
     }
   ],
+  "The Jailer (halfway)": [
+    {
+      "name": "Spine Lash",
+      "dice": "1d6",
+      "range": 3,
+      "target": "s",
+      "text": "His light attack: the spine whip cracks at one hero up to 3 squares away. Can be parried."
+    },
+    {
+      "name": "Iron Knuckle",
+      "dice": "2d6",
+      "range": 1,
+      "target": "s",
+      "text": "His heavy attack: a shackled fist hammers one adjacent hero. STR save or knocked prone. Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Shackle Snare",
+      "dice": "1d6",
+      "range": 4,
+      "target": "s",
+      "text": "The whip coils around a hero up to 4 squares away: DEX save or pulled to a square next to him and restrained until the end of their next turn (STR check to break free as an action). Sets up Into the Cage."
+    },
+    {
+      "name": "Into the Cage",
+      "dice": "1d6",
+      "range": 1,
+      "target": "s",
+      "text": "He stuffs a restrained or prone hero next to him into his belly cage (STR save to resist). Caged: 1d6 at the start of each of their turns, can't act except a STR check to escape; allies free them by dealing 150 damage to him in one round. One prisoner at a time. If he doesn't have a target, roll again."
+    },
+    {
+      "name": "Choir of the Caged",
+      "dice": "1d6",
+      "range": 3,
+      "target": "a",
+      "text": "The skulls in his cage scream: every hero within 3 squares takes the damage and makes a WIS save or is frightened of him until the end of their next turn (disadvantage on attacks against him, can't move closer). Can't be parried."
+    },
+    {
+      "name": "Execution Sweep",
+      "dice": "2d8",
+      "range": 3,
+      "target": "a",
+      "text": "Telegraphed: he spends his turn winding the whip back (announce it), then next turn sweeps a full circle 3 squares around him. DEX save for half, or Dodge. Can't be parried. He never uses it twice in a row."
+    },
+    {
+      "name": "Warden's Keys",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Halfway boss of Calden's Keep, for a level 2 party: HP 1,500, AC 15, size 2x2. Roll a d6 for his move (1-6 in this order; a 6 right after a 6 is a Spine Lash). He carries the Keep's keys: killing him opens the cells, and the captive heroes inside (Odrig, Yorik, Otto, Yerana) can be freed."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",

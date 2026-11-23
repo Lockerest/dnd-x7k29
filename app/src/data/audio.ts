@@ -119,6 +119,13 @@ export const THEME_GROUPS: Record<string, string[]> = {
 
 /** Ability sound files, by ability slug (see abilitySlug). */
 export const ABILITY_SOUNDS: Record<string, string> = {
+  "spine_lash": "dab2399f-cb6a-4b11-a390-aa25dc72cf95",
+  "iron_knuckle": "3e0b3e67-9f6f-451b-a1db-773336db6dd2",
+  "shackle_snare": "54e9ce03-ed41-4497-883a-430c298cdc97",
+  "into_the_cage": "3ca71244-7a6a-47d3-9077-de426d6921c7",
+  "choir_of_the_caged": "07dac62e-d870-4ee4-b4ad-7fa7ffa50681",
+  "execution_sweep": "cc25c724-bd92-47e4-a906-06e9eb4964e7",
+  "warden_s_keys": "745d1d3d-c9c1-42a1-85be-b9c65ba4ceb6",
   "antler_gore": "b899dfec-3fb5-4d3f-b080-227e234c9065",
   "thorn_whip": "03ae183f-313b-4fc1-b552-9d501cc35f1c",
   "spore_burst": "f589af60-6912-48e7-85aa-ee8551746993",
