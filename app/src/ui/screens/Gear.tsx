@@ -1,5 +1,5 @@
 // The sheet's Weapon & accessories section: the hero's one signature weapon (a name
-// the player picks, a tier the GM raises after the big falls) and the rings and
+// the GM gives as a reward at its first reforge, a tier the GM raises after the big falls) and the rings and
 // amulets the GM gives out, any two of them worn.
 import { ACCESSORIES, idList, WEAPON_TIERS, weaponTier } from '../../data/gear'
 import { CLASS_STAT } from '../../data/rules'
@@ -11,7 +11,7 @@ export type GearProps = {
   c: Sheet
   /** The GM (sets the tier, gives and takes accessories). */
   dm: boolean
-  /** The GM or the hero's player (names the weapon, puts accessories on and off). */
+  /** The GM or the hero's player (puts accessories on and off). */
   own: boolean
   upd: (p: Change) => void
   patch: (p: Record<string, unknown>) => void
@@ -28,7 +28,13 @@ export function Gear({ c, dm, own, upd, patch }: GearProps) {
     <section aria-label="Weapon and accessories">
       <h3>Weapon & accessories</h3>
       <div className="row mini">
-        <Field label="Weapon" value={c.wn as string | undefined} placeholder="Name your weapon" disabled={!own} onSave={(v) => patch({ wn: v.trim() || null })} />
+        <Field
+          label="Weapon"
+          value={c.wn as string | undefined}
+          placeholder={dm ? 'Name it at its first reforge' : 'Unnamed until its first reforge'}
+          disabled={!dm}
+          onSave={(v) => patch({ wn: v.trim() || null })}
+        />
         {dm ? (
           <label>
             Tier{' '}

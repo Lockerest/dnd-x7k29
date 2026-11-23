@@ -43,6 +43,8 @@ describe('Weapon & accessories', () => {
     expect(screen.getByText(/Light attack 1d10 \+ STR/)).toBeInTheDocument()
     expect(screen.queryByLabelText('Weapon tier')).toBeNull()
     expect(screen.queryByLabelText('Give an accessory')).toBeNull()
+    expect(screen.getByLabelText('Weapon')).toBeDisabled() // only the GM names weapons
+    expect(screen.getByLabelText('Weapon')).toHaveValue('Old Fang')
     expect(screen.getByText('+1 to every Parry roll.')).toBeInTheDocument()
     const two = screen.getByLabelText('Accessory slot 2')
     expect(two.querySelector('option[value="ring_parry"]')).toBeDisabled()

@@ -153,10 +153,10 @@ describe('<SheetScreen /> for a player', () => {
     expect(screen.getByRole('button', { name: 'Armor: heavy' })).toBeInTheDocument()
   })
 
-  it('names the weapon and wears a ring from the sheet', () => {
+  it("wears a ring from the sheet; the weapon name is the GM's to give", () => {
     const { f } = setup({ chars: { a: hero({ ao: 'ring_iron', ac: 14 }) } })
-    fireEvent.blur(screen.getByLabelText('Weapon'), { target: { value: 'Dawnpiercer' } })
-    expect(last(f)![2]).toEqual({ wn: 'Dawnpiercer' })
+    expect(screen.getByLabelText('Weapon')).toBeDisabled()
+    expect(screen.getByLabelText('Weapon')).toHaveAttribute('placeholder', 'Unnamed until its first reforge')
     fireEvent.change(screen.getByLabelText('Accessory slot 1'), { target: { value: 'ring_iron' } })
     expect(last(f)![2]).toMatchObject({ a1: 'ring_iron', ac: 15 })
   })
@@ -284,6 +284,12 @@ describe('<SheetScreen /> for the GM', () => {
     cleanup()
     setup({ chars: { a: hero({ eq: { s: 1, g: 1 } }) }, sp: '-' })
     expect(screen.getByText('Smoke (Golden)')).toBeInTheDocument()
+  })
+
+  it('the GM names a weapon (a reward at its first reforge)', () => {
+    const { f } = gm({ chars: { a: hero() } })
+    fireEvent.blur(screen.getByLabelText('Weapon'), { target: { value: 'Dawnpiercer' } })
+    expect(last(f)).toEqual(['PATCH', 'chars/a', { wn: 'Dawnpiercer' }])
   })
 
   it('stats are number boxes for the GM', () => {
