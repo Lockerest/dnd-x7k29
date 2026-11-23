@@ -3,6 +3,26 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // Azael (halfway boss, Odi'ram's lands, two phases).
+  reaper_s_arc: 'e3c42079-7ab2-4b50-87de-dd9633f01a81.jpg',
+  skull_hook: '4278fbd4-facc-4495-9178-44da55378bda.jpg',
+  wing_dash: '4cd564ed-4ca9-439d-a363-c4678917733b.jpg',
+  hellchain_bind: '8fd26d4e-4d00-4ab9-a9b0-3b0db19f7f8f.jpg',
+  harvest_cleave: '9ab06f62-7b6c-4d4b-b5ac-21c41572093f.jpg',
+  black_candles: 'dffc566b-56c6-434b-8972-7988a219d140.jpg',
+  demon_s_pace: '67de9552-8c0d-4b2a-838c-436581423939.jpg',
+  infernal_reap: '43fd6f97-e746-46f1-9924-92fbb5495ba1.jpg',
+  ruin_wings: '679ab70d-e7f5-4372-87a4-dce557810fc8.jpg',
+  hellfire_dive: '7d32c495-e254-43e2-9154-54a9162555d8.jpg',
+  unchained_azael: 'abfd7f37-e382-4ae0-8ca3-79e99695458e.jpg',
+  // The Great Yokai (halfway boss, Izat'al's kingdom).
+  fan_of_bones: '915236ed-050b-4996-8f0d-022f7b3c6c34.jpg',
+  lantern_sweep: 'f20bf10e-ef01-490e-b17e-108241f42251.jpg',
+  soul_harvest: 'dd95f5e5-d825-408c-a2e8-dbcb852f4d76.jpg',
+  funeral_bell: '10d03009-cc5a-45d1-93c1-b8f417f2957c.jpg',
+  wandering_wisps: '04e6fbc3-eb2c-46c3-b03d-583d05d639bb.jpg',
+  final_toll: 'b63d19ae-d190-4039-993d-f8a4663fbf95.jpg',
+  collector_of_souls: '59ce8ede-3e08-4129-89cd-ac0e2420015c.jpg',
   // Alithrax (halfway boss, Sky region).
   rending_claw: 'bcf04c07-bd68-4380-87ed-93bbafe4401d.jpg',
   tendril_maw: '01755f59-ec08-438e-ac95-8027aa895693.jpg',

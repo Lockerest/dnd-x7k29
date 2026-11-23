@@ -640,6 +640,159 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Halfway boss of the Sky region, for a level 6-7 party: HP 2,600, AC 17, size 3x3. Once a dragon, now something the rot in these mountains (Aldrich's) has eaten; black tendrils trail wherever he lands. Roll a d6 (1-6 in this order; a 4 right after a 4 is Rending Claw). At half HP his wings tear through: he can't fly any more, so Storm Dive becomes Tattered Gale, and he gets +1d6 on Rending Claw and Tendril Maw."
     }
   ],
+  "The Great Yokai (halfway)": [
+    {
+      "name": "Fan of Bones",
+      "dice": "2d6",
+      "range": 1,
+      "target": "s",
+      "text": "His light attack: a bone fan snaps open and slashes one adjacent hero. With six arms he strikes again at another adjacent hero if there is one (roll damage twice). Can be parried."
+    },
+    {
+      "name": "Lantern Sweep",
+      "dice": "3d8",
+      "range": 2,
+      "target": "a",
+      "text": "His heavy attack: the lantern pole sweeps everyone within 2 squares in front of him. STR save or knocked prone. A parry still takes half."
+    },
+    {
+      "name": "Soul Harvest",
+      "dice": "0",
+      "range": 4,
+      "target": "s",
+      "text": "He pulls the soul of one hero within 4 squares into a lantern: WIS save or lose 20% of their max HP until that lantern is broken. He has 4 lanterns on his pole (AC 12, 100 HP each; hitting one is a normal attack). Breaking a lantern returns that soul. Each full lantern heals him 50 HP at the start of his turn."
+    },
+    {
+      "name": "Funeral Bell",
+      "dice": "2d6",
+      "range": 6,
+      "target": "a",
+      "text": "He rings the bell: every hero within 6 squares takes the damage (psychic) and makes a WIS save or loses their reaction and can't drink a flask until the end of their next turn. Can't be parried or dodged."
+    },
+    {
+      "name": "Wandering Wisps",
+      "dice": "2d6",
+      "range": 8,
+      "target": "a",
+      "text": "He lets three trapped souls loose: up to 3 different heroes within 8 squares are each hit (DEX save for half). If a lantern holds a hero's soul, that hero is hit first and takes the full damage."
+    },
+    {
+      "name": "Final Toll",
+      "dice": "5d6",
+      "range": 6,
+      "target": "a",
+      "text": "Telegraphed: he sheathes the red katana and goes still for a turn (announce it). Next turn he dashes up to 6 squares in a straight line, cutting everyone in the path: DEX save for half. Can't be parried. Never twice in a row."
+    },
+    {
+      "name": "Collector of Souls",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Izat'al's right hand, halfway boss of her kingdom, for a level 9-10 party: HP 3,400, AC 18, size 2x2. He collects the souls the Golden Wave drains for her. Roll a d6 (1-6 in this order; a 6 right after a 6 is Fan of Bones). When he dies, every lantern breaks: stolen souls return and each hero heals 10% of their max HP."
+    }
+  ],
+  "Azael: phase 1 (halfway)": [
+    {
+      "name": "Reaper's Arc",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack: a fast crescent of the bone scythe at one hero up to 2 squares away. Can be parried."
+    },
+    {
+      "name": "Skull Hook",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "The scythe's hook catches a hero up to 3 squares away: STR save or pulled next to him (his next attack on them this turn has advantage). Can be parried."
+    },
+    {
+      "name": "Wing Dash",
+      "dice": "1d8",
+      "range": 8,
+      "target": "s",
+      "text": "One wing beat and he's across the field: moves up to 8 squares without provoking, then strikes the hero he lands next to. Can be parried. He loves to dash onto the backline."
+    },
+    {
+      "name": "Hellchain Bind",
+      "dice": "1d6",
+      "range": 2,
+      "target": "a",
+      "text": "The chains on his armour lash everyone within 2 squares: DEX save or restrained until the end of their next turn (STR check as an action to break free)."
+    },
+    {
+      "name": "Harvest Cleave",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "His heavy attack: a full horizontal cleave hitting every hero within 2 squares in front of him. Can be parried (a parry still takes half). Uses both his actions this turn."
+    },
+    {
+      "name": "Black Candles",
+      "dice": "1d6",
+      "range": 4,
+      "target": "a",
+      "text": "The black candles of his altar flare: a 2x2 area up to 4 squares away bursts into hellfire for 2 rounds. Anyone starting their turn in it takes the damage (DEX save for half)."
+    },
+    {
+      "name": "Demon's Pace",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Halfway boss of Odi'ram's lands, for a level 8 party: phase 1 HP 1,600, AC 18, size 1x1 (barely bigger than the heroes, but devastating). Two actions per turn like the players: roll a d6 twice (1-6 in this order; Harvest Cleave takes both). He never stays still: after every action he may move up to 3 squares. At 0 HP he tears off his chains: phase 2 (Unchained Azael)."
+    }
+  ],
+  "Azael: phase 2 (unchained)": [
+    {
+      "name": "Reaper's Arc",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack, now trailing embers: one hero up to 2 squares away. Can be parried."
+    },
+    {
+      "name": "Skull Hook",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "The hook pulls a hero up to 3 squares away next to him: STR save. Can be parried."
+    },
+    {
+      "name": "Wing Dash",
+      "dice": "1d8",
+      "range": 10,
+      "target": "s",
+      "text": "Now up to 10 squares without provoking, leaving a line of fire on the squares he crossed (1d6 to anyone who enters it this round)."
+    },
+    {
+      "name": "Infernal Reap",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "His heavy attack: the scythe wreathed in hellfire. The hero hit burns for 1d6 at the start of their next 2 turns. A parry still takes half and still burns."
+    },
+    {
+      "name": "Ruin Wings",
+      "dice": "2d6",
+      "range": 2,
+      "target": "a",
+      "text": "His wings snap open: every hero within 2 squares takes fire damage and is pushed 2 squares away (STR save: no push, half damage)."
+    },
+    {
+      "name": "Hellfire Dive",
+      "dice": "4d6",
+      "range": 8,
+      "target": "a",
+      "text": "Telegraphed: he takes off (out of melee reach) and a burning circle marks a square up to 8 squares away; next turn he dives onto it: everyone within 2 squares of it takes the damage, DEX save for half. Can't be parried. Uses both his actions. Never twice in a row."
+    },
+    {
+      "name": "Unchained Azael",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 1,200, AC 17. Still two actions per turn (roll a d6 twice: 1-6 in this order; Hellfire Dive takes both). His body cracks with hellfire: any hero who hits him in melee takes 1d6 fire (once per hero per round). Still moves up to 3 squares after every action."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",

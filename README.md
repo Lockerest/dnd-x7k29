@@ -143,6 +143,8 @@ npm run build
    Remade Triumvirate and Dark Elf High Priestess (Arachne's halfway duo): two skill sets with GM rules, icons and sounds (1.18.2).
    The Corrupted Idol (Kernunos's halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.3).
    Alithrax, the Corrupted Dragon (Sky halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.4).
+   The Great Yokai (Izat'al's right hand, halfway boss of her kingdom): skill set with 6 moves and GM rules, icons and sounds (1.18.5).
+   Azael (Odi'ram's halfway boss): two phases, two actions per turn, with GM rules, icons and sounds (1.18.6).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
