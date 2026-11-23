@@ -4,6 +4,7 @@ import { CLASS_FRAMES, STAT_FIELDS } from '../../data/abilities'
 import { CLASSES } from '../../data/classes'
 import { boardIndex, boardOrDefault, goldenHidden, PARRY_LABELS, sheetAbilities, type Board } from '../../logic/board'
 import { approvedIds } from '../../logic/characters'
+import { abilityText } from '../../data/abilityTexts'
 import { isHeavy } from '../../logic/combat'
 import { levelChange } from '../../logic/levels'
 import { altarsOf, bonfiresOf, nearSpot } from '../../logic/geometry'
@@ -207,7 +208,8 @@ export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portr
         </>
       )}
       <h3>Abilities (basic attacks are free)</h3>
-      {sheetAbilities(c, board, goldenHidden(dm, tables.sp)).map(([name, cost, text, r], i) => {
+      {sheetAbilities(c, board, goldenHidden(dm, tables.sp)).map(([name, cost, text0, r], i) => {
+        const text = abilityText(name, text0)
         const reaction = r === 'r'
         const st = abilityCost(c, cost)
         return (

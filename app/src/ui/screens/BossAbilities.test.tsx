@@ -34,7 +34,8 @@ describe("the GM's Boss abilities list", () => {
     expect(cut.querySelector('img')).toHaveAttribute('src', 'data:mine') // the table's own icon first
     expect(cut).toHaveTextContent('2d8')
     expect(cut).toHaveTextContent('1 sq, single')
-    expect(cut).toHaveTextContent('A fast frostbitten slash at one hero.')
+    expect(cut).toHaveTextContent('Attack roll vs one adjacent hero: a fast frostbitten slash.')
+    expect(within(list).getByLabelText('How boss moves work')).toHaveTextContent('Telegraphed: announcing it')
     fireEvent.click(within(cut).getByRole('button', { name: "Play the sound of Warden's Cut" }))
     expect(p.onPlay).toHaveBeenCalledWith("Warden's Cut")
     expect(within(list).getAllByLabelText('Notes: Rime Guard')[0]).toHaveValue('Blocks once.')
@@ -46,7 +47,7 @@ describe("the GM's Boss abilities list", () => {
 
     fireEvent.click(within(list).getByRole('button', { name: 'Nameless King' }))
     const wager = within(list).getAllByLabelText("Boss ability Storm's Wager")[0]!
-    expect(wager).toHaveTextContent('Roll a d4 in the open')
+    expect(wager).toHaveTextContent('roll a d4 in the open')
     expect(wager).toHaveTextContent('—')
     expect(wager.querySelector('img')).toHaveAttribute('src', ICON_BASE + SKILL_ICONS.storm_s_wager)
     // A move with no icon anywhere shows none.

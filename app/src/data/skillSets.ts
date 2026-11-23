@@ -11,21 +11,21 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d8",
       "range": 1,
       "target": "s",
-      "text": "A fast frostbitten slash at one hero. Can be parried."
+      "text": "Attack roll vs one adjacent hero: a fast frostbitten slash. Can be parried (it is a sword, not a frost spell). On a miss: nothing."
     },
     {
       "name": "Rime Guard",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "He raises a frost-covered guard against the next melee blow; frost creeps up the attacker's weapon."
+      "text": "No damage, no roll. Until the start of his next turn, the next melee hit against him deals half damage and frost creeps up that weapon: the attacker can’t parry until the end of their next turn. Ends after that one hit. Ranged attacks and spells ignore it."
     },
     {
       "name": "Chain Pull",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "A frozen chain lashes out up to 3 squares, catches one hero and drags them next to him."
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and the hero is dragged to a free square next to him (no save). Can be parried (the chain is a weapon): a beaten parry means no damage and no pull. If no square next to him is free, the hero is not pulled but still takes the damage."
     }
   ],
   "Aethelric: phase 1 (all)": [
@@ -34,49 +34,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d8",
       "range": 1,
       "target": "s",
-      "text": "A fast frostbitten slash at one hero. Can be parried."
+      "text": "Attack roll vs one adjacent hero: a fast frostbitten slash. Can be parried (it is a sword, not a frost spell). On a miss: nothing."
     },
     {
       "name": "Rime Guard",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "He raises a frost-covered guard against the next melee blow; frost creeps up the attacker's weapon."
+      "text": "No damage, no roll. Until the start of his next turn, the next melee hit against him deals half damage and frost creeps up that weapon: the attacker can’t parry until the end of their next turn. Ends after that one hit. Ranged attacks and spells ignore it."
     },
     {
       "name": "Chain Pull",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "A frozen chain lashes out up to 3 squares, catches one hero and drags them next to him."
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and the hero is dragged to a free square next to him (no save). Can be parried (the chain is a weapon): a beaten parry means no damage and no pull. If no square next to him is free, the hero is not pulled but still takes the damage."
     },
     {
       "name": "Prison Bars",
       "dice": "3d8",
       "range": 3,
       "target": "a",
-      "text": "Bars of ice burst from the floor and cage the heroes caught in the area."
+      "text": "No attack roll: ice bars burst from the floor in a 2x2 area up to 3 squares away. Each hero in it makes a DEX save against the attack total: beat it = half damage and not caged; fail = full damage and restrained until the end of their next turn (bars have AC 10, 50 HP; breaking them frees everyone inside). Dodge only."
     },
     {
       "name": "Frostbite Cleave",
       "dice": "4d10",
       "range": 2,
       "target": "a",
-      "text": "A huge crescent swing of his greatsword that hits everyone within 2 squares."
+      "text": "No attack roll: a full circle hitting every hero within 2 squares of him. DEX save for half. Frost: dodge only, can’t be parried. Allies of his are not hit."
     },
     {
       "name": "Cold Snap",
       "dice": "0",
       "range": 3,
       "target": "s",
-      "text": "The floor freezes under one hero (often one who just dodged); ice creeps up their boots and slows them."
+      "text": "No damage. One hero up to 3 squares away (he prefers the one who just dodged) makes a CON save: fail = slowed (half movement, can’t Dodge Roll) until the end of their next turn. Ends early if the hero takes fire damage."
     },
     {
       "name": "Warden's Toll",
       "dice": "0",
       "range": 8,
       "target": "a",
-      "text": "His halo tolls like a great bell: a shockwave across the arena that leaves heroes staggered."
+      "text": "No damage. Every hero within 8 squares makes a WIS save: fail = staggered until the end of their next turn (only 1 action instead of 2, no reactions). Can’t be dodged or parried (it is sound). Heroes behind full cover (an ice pillar between them and him) are unaffected."
     }
   ],
   "Aethelric: phase 2 (golden)": [
@@ -85,42 +85,42 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d10",
       "range": 1,
       "target": "s",
-      "text": "A fast slash trailing golden frost at one hero."
+      "text": "Attack roll vs one adjacent hero: a fast slash trailing golden frost. Can be parried. On a hit the hero also can’t regain stamina at the start of their next turn."
     },
     {
       "name": "Shattering Wave",
       "dice": "5d8",
       "range": 4,
       "target": "a",
-      "text": "A ring of golden ice erupts from him and hits everyone within 4 squares."
+      "text": "No attack roll: a ring of golden ice hits every hero within 4 squares. DEX save for half. Dodge only. Heroes behind an ice pillar (full cover) are spared."
     },
     {
       "name": "Frozen Verdict",
       "dice": "6d8",
       "range": 6,
       "target": "s",
-      "text": "Telegraphed: a gold glyph marks one hero, then a white-gold beam strikes that spot. Move out of it."
+      "text": "Telegraphed (uses his action, announce it): a gold glyph marks the square of one hero up to 6 squares away. At the start of his next turn a beam strikes that exact square: whoever stands on it takes the damage, no save. Moving off the square avoids it completely; Dodge Roll halves it as usual. Can’t be parried. If he is stunned or changes phase before it lands, it fizzles."
     },
     {
       "name": "Jailer's Embrace",
       "dice": "2d8",
       "range": 1,
       "target": "s",
-      "text": "He grabs one hero and seals them in a cage of golden ice."
+      "text": "Attack roll vs one adjacent hero. On a hit: damage and sealed in golden ice: restrained, can’t act except a STR check (action) to break out, takes no other damage while sealed. Breaks after 2 rounds, on that STR check, or when allies deal 100 damage to the ice (AC 10). Can be parried (it is his grab): a beaten parry means no damage and no cage."
     },
     {
       "name": "Absolute Zero",
       "dice": "8d8",
       "range": 8,
       "target": "a",
-      "text": "His ultimate: the whole arena freezes in golden frost. Heroes need cover, such as ice pillars, to survive it."
+      "text": "His ultimate, once per fight. Telegraphed: he announces it and the arena starts to freeze; it lands at the start of his next turn. Every hero not in full cover (behind an ice pillar, out of his line of sight) takes the damage, CON save for half. Heroes in cover take nothing. Can’t be parried; Dodge Roll only halves it (there is nowhere to roll to). Fizzles if he is stunned or killed first."
     },
     {
       "name": "Last Gasp",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Near death he drops to one knee and every crack flares gold: one last burst before he falls."
+      "text": "Once, when he first drops below 10% HP (out of turn, no action): every crack flares gold and every hero within 1 square is knocked prone (STR save resists). No damage. Then he fights on normally. If a single hit takes him from above 10% straight to 0, it never happens."
     }
   ],
   "Arachne: phase 1 (all)": [
@@ -129,49 +129,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d6",
       "range": 3,
       "target": "s",
-      "text": "A needle on a gold thread pierces one hero up to 3 squares away and pulls them a few steps toward her."
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and the hero is pulled 2 squares toward her (STR save: not pulled, damage stays). Can be parried (a needle): a beaten parry means no damage and no pull."
     },
     {
       "name": "Silent Contract",
       "dice": "3d8",
       "range": 6,
       "target": "s",
-      "text": "She offers a deal: the target hands over a potion, or takes a psychic blow."
+      "text": "No attack roll. One hero up to 6 squares away chooses at once: hand her one potion or flask (it is gone, she drinks it and heals by its amount), or take the damage as psychic (WIS save for half). A hero with no potion must take the damage. Can’t be dodged or parried: it is a choice, not an attack."
     },
     {
       "name": "Web Snare",
       "dice": "0",
       "range": 4,
       "target": "a",
-      "text": "A sheet of gold thread falls on an area; heroes inside are stuck in place."
+      "text": "No damage. A 2x2 sheet of gold thread falls up to 4 squares away. Each hero in it makes a DEX save: fail = restrained until the end of their next turn (a STR check as an action, or 30 fire damage to the web, frees them). Dodge Roll beaten = not caught. Can’t be parried."
     },
     {
       "name": "Quiet Venom",
       "dice": "1d6",
       "range": 1,
       "target": "s",
-      "text": "A painless prick of pale venom: little damage, but the target is numbed and slowed."
+      "text": "Attack roll vs one adjacent hero: a painless prick. On a hit: damage, and CON save or slowed (half movement) until the end of their next turn. Can be parried (beaten parry = no damage, no venom)."
     },
     {
       "name": "Whisper Step",
       "dice": "0",
       "range": 6,
       "target": "s",
-      "text": "She vanishes into a web strand and reappears behind a hero up to 6 squares away."
+      "text": "No damage. She vanishes and reappears on a free square behind any hero up to 6 squares away. Doesn’t provoke opportunity attacks. Her next attack this turn or next has advantage against that hero. Not possible if she is restrained."
     },
     {
       "name": "Seen It Coming",
       "dice": "0",
       "range": 20,
       "target": "s",
-      "text": "When a hero uses a golden ability, she collects a toll and heals from it."
+      "text": "Passive, her reaction: when a hero uses a Golden ability she can see, she collects a toll: she heals 100 HP and the hero loses 20 stamina. Once per round. Only Golden abilities, not normal or Crimson ones."
     },
     {
       "name": "The Bill Comes Due",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Her robe tears open and the giant spider body unfolds: the change to her spider form."
+      "text": "GM rule, no damage: the change to her spider form (phase 2) at 0 HP in phase 1. Every web, snare and slow from phase 1 stays. She acts at once with phase 2 moves on her next turn."
     }
   ],
   "Arachne: phase 2 (all)": [
@@ -180,49 +180,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d10",
       "range": 1,
       "target": "s",
-      "text": "Her fangs strike one hero with pale, paralysing venom: painless, but it slows them."
+      "text": "Attack roll vs one adjacent hero. On a hit: damage, and CON save or slowed (half movement, no Dodge Roll) until the end of their next turn. Can be parried."
     },
     {
       "name": "Leg Skewer",
       "dice": "3d10",
       "range": 2,
       "target": "s",
-      "text": "She rears a spider leg and spikes it down at one hero up to 2 squares away."
+      "text": "Attack roll vs one hero up to 2 squares away: a spider leg spikes down. On a hit: damage. Can be parried (a parry beaten by 1-2 still takes half)."
     },
     {
       "name": "Web Cocoon",
       "dice": "0",
       "range": 2,
       "target": "s",
-      "text": "She wraps one hero in silk; they are held until cut free."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: wrapped: restrained, can’t act, can’t be targeted by her other attacks. Freed when an ally deals 50 slashing or fire damage to the cocoon (AC 10) or after 2 rounds. Can be dodged, not parried (it is silk, not a blow)."
     },
     {
       "name": "Venom Mist",
       "dice": "0",
       "range": 3,
       "target": "a",
-      "text": "A cone of pale venom mist; heroes caught in it are slowed."
+      "text": "No attack roll: a 3-square cone in front of her. Each hero in it makes a CON save: fail = slowed and can’t drink flasks until the end of their next turn. No damage. Dodge only; holding your breath doesn’t help."
     },
     {
       "name": "Ceiling Drop",
       "dice": "4d8",
       "range": 2,
       "target": "a",
-      "text": "She climbs out of sight, then drops from the ceiling on everyone under her shadow. Watch for the shadow."
+      "text": "Telegraphed: she climbs out of reach (can’t be targeted by melee, ranged at disadvantage) and her shadow marks a 2-square radius. At the start of her next turn she drops: everyone in the shadow takes the damage, DEX save for half, and is knocked prone on a fail. Leaving the shadow avoids it completely."
     },
     {
       "name": "Silk Net",
       "dice": "0",
       "range": 4,
       "target": "a",
-      "text": "Webbing spreads over the floor around her; heroes move slowly through it."
+      "text": "No damage. The floor within 4 squares of her becomes webbed for the rest of the fight: difficult terrain (each square costs 2). Fire burns a 2x2 patch of it away. She and her spiders move through it freely."
     },
     {
       "name": "Final Offer",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Wounded, she makes one last offer: hand over a potion, or take the blow."
+      "text": "Once, below 25% HP. Every hero within 6 squares chooses: hand over one potion (she heals by its amount) or take the damage, DEX save for half. A hero without a potion must take it. Can’t be parried."
     }
   ],
   "Kernunos: phase 1 (all)": [
@@ -231,56 +231,56 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d8",
       "range": 1,
       "target": "s",
-      "text": "A lunging antler stab at one hero."
+      "text": "Attack roll vs one adjacent hero: a lunging antler stab. Can be parried. On a hit: damage."
     },
     {
       "name": "Thorn Whip",
       "dice": "2d6",
       "range": 2,
       "target": "s",
-      "text": "A thorny vine lashes one hero up to 2 squares away."
+      "text": "Attack roll vs one hero up to 2 squares away: a thorny vine lash. Can be parried. On a hit: damage."
     },
     {
       "name": "Spore Burst",
       "dice": "1d6",
       "range": 3,
       "target": "a",
-      "text": "A cloud of poison pollen bursts around him."
+      "text": "No attack roll: poison pollen bursts within 3 squares of him. Each hero makes a CON save: fail = full damage and poisoned (disadvantage on attacks) until the end of their next turn; save = half, not poisoned. Dodge only."
     },
     {
       "name": "Entangling Roots",
       "dice": "2d6",
       "range": 3,
       "target": "a",
-      "text": "Roots burst from the ground and grip the heroes in the area."
+      "text": "No attack roll: roots burst in a 2x2 area up to 3 squares away. DEX save: fail = full damage and restrained until the end of their next turn (STR check as an action to break free); save = half, not held. Dodge only."
     },
     {
       "name": "Stag Charge",
       "dice": "4d10",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: he lowers his antlers and charges up to 6 squares, trampling everything in his path."
+      "text": "Telegraphed: he lowers his antlers and points a straight 6-square line (announce it). Next turn he charges along it: every hero in the line takes the damage and is knocked prone, DEX save for half and not prone. He stops at the end of the line or at a wall. Stepping out of the line avoids it. Can’t be parried."
     },
     {
       "name": "Heartwood Bloom",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "A great flower blooms on him and heals him."
+      "text": "No damage: he heals 3d8 (x10). Fire damage of 50+ on him before his next turn destroys the bloom and cancels the heal (it heals at the start of his next turn)."
     },
     {
       "name": "Thorned Hide",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Thorns burst from his bark-like skin: anyone who hits him in melee is pricked."
+      "text": "Until the start of his next turn, any hero who hits him with a melee attack takes 1d6 piercing (no roll, no save). Ranged attacks and spells are safe."
     },
     {
       "name": "The Bloom Withers",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "His chest splits open and the garden rots: the change to his rotten phase."
+      "text": "GM rule, no damage: the change to his rotten phase (phase 2) at 0 HP. Roots and spore clouds already on the field stay."
     }
   ],
   "Kernunos: phase 2 (all)": [
@@ -289,49 +289,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "A rotten claw slash at one hero, with poison."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage, and CON save or poisoned (disadvantage on attacks) until the end of their next turn. Can be parried."
     },
     {
       "name": "Maggot Swarm",
       "dice": "5d6",
       "range": 3,
       "target": "a",
-      "text": "A swarm of maggots and flies pours over an area."
+      "text": "No attack roll: a 2x2 area up to 3 squares away. DEX save for half. The swarm stays 1 round: anyone who starts their turn in it takes 1d6 more. Dodge only."
     },
     {
       "name": "Bursting Pods",
       "dice": "5d8",
       "range": 4,
       "target": "a",
-      "text": "Fleshy pods swell and burst one after another, spraying poison gas."
+      "text": "No attack roll: pods burst one after another within 4 squares of him. CON save for half. Dodge only. Allies of his are spared."
     },
     {
       "name": "Rotting Embrace",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "His decayed ribcage closes around one hero and holds them."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage and held in his ribcage: restrained, 1d8 at the start of each of their turns, until a STR check (action) or allies deal 100 damage to him. Can be dodged, not parried."
     },
     {
       "name": "Grave Roots",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Dead root ribs erupt in a line from the ground."
+      "text": "No attack roll: dead roots erupt in a straight 6-square line from him. DEX save for half; fail also knocks prone. Dodge only. Stepping out of the line before his turn doesn’t help: it is not telegraphed."
     },
     {
       "name": "Vomit of Decay",
       "dice": "6d6",
       "range": 3,
       "target": "a",
-      "text": "A cone of rotten sludge and poison."
+      "text": "No attack roll: a 3-square cone of rotten sludge. CON save for half; fail also means no healing (flasks and abilities) until the end of their next turn. Dodge only."
     },
     {
       "name": "Plague Bloom",
       "dice": "8d6",
       "range": 10,
       "target": "a",
-      "text": "His ultimate: thousands of spore pods burst and poison gas fills the arena."
+      "text": "His ultimate, once per fight. Telegraphed: pods swell across the arena (announce it); next turn they burst. Every hero within 10 squares takes the damage, CON save for half. Can’t be parried. Fire damage of 150+ on him before it lands burns the pods and cancels it."
     }
   ],
   "Kernunos: phase 3 (rooted)": [
@@ -340,63 +340,63 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "At about 10% HP he roots himself and drains the forest and the heroes' life to heal back to about 20-25% HP."
+      "text": "Phase 3 rule. At about 10% HP he roots himself in place (can’t move, can’t be pushed) and drains the forest: he heals back to about 20-25% HP over his next turns using Withering Drain. Destroying the roots (or the forest’s heart) stops it."
     },
     {
       "name": "Withering Drain",
       "dice": "2d8",
       "range": 20,
       "target": "a",
-      "text": "Roots drain life from every hero and heal him."
+      "text": "No attack roll: roots drain every hero on the field. CON save for half. He heals by the total damage dealt. Heroes standing on stone, or not touching the ground, are untouched."
     },
     {
       "name": "Rot Claw",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "A rotten claw slash at one hero, with poison."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage, and CON save or poisoned (disadvantage on attacks) until the end of their next turn. Can be parried."
     },
     {
       "name": "Maggot Swarm",
       "dice": "5d6",
       "range": 3,
       "target": "a",
-      "text": "A swarm of maggots and flies pours over an area."
+      "text": "No attack roll: a 2x2 area up to 3 squares away. DEX save for half. The swarm stays 1 round: anyone who starts their turn in it takes 1d6 more. Dodge only."
     },
     {
       "name": "Bursting Pods",
       "dice": "5d8",
       "range": 4,
       "target": "a",
-      "text": "Fleshy pods swell and burst one after another, spraying poison gas."
+      "text": "No attack roll: pods burst one after another within 4 squares of him. CON save for half. Dodge only. Allies of his are spared."
     },
     {
       "name": "Rotting Embrace",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "His decayed ribcage closes around one hero and holds them."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage and held in his ribcage: restrained, 1d8 at the start of each of their turns, until a STR check (action) or allies deal 100 damage to him. Can be dodged, not parried."
     },
     {
       "name": "Grave Roots",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Dead root ribs erupt in a line from the ground."
+      "text": "No attack roll: dead roots erupt in a straight 6-square line from him. DEX save for half; fail also knocks prone. Dodge only. Stepping out of the line before his turn doesn’t help: it is not telegraphed."
     },
     {
       "name": "Vomit of Decay",
       "dice": "6d6",
       "range": 3,
       "target": "a",
-      "text": "A cone of rotten sludge and poison."
+      "text": "No attack roll: a 3-square cone of rotten sludge. CON save for half; fail also means no healing (flasks and abilities) until the end of their next turn. Dodge only."
     },
     {
       "name": "Plague Bloom",
       "dice": "8d6",
       "range": 10,
       "target": "a",
-      "text": "His ultimate: thousands of spore pods burst and poison gas fills the arena."
+      "text": "His ultimate, once per fight. Telegraphed: pods swell across the arena (announce it); next turn they burst. Every hero within 10 squares takes the damage, CON save for half. Can’t be parried. Fire damage of 150+ on him before it lands burns the pods and cancels it."
     }
   ],
   "The Jailer (halfway)": [
@@ -793,41 +793,245 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Phase 2: HP 1,200, AC 17. Still two actions per turn (roll a d6 twice: 1-6 in this order; Hellfire Dive takes both). His body cracks with hellfire: any hero who hits him in melee takes 1d6 fire (once per hero per round). Still moves up to 3 squares after every action."
     }
   ],
+  "Yesod, the Infinite Witness (void 1)": [
+    {
+      "name": "Witness Gaze",
+      "dice": "2d6",
+      "range": 10,
+      "target": "s",
+      "text": "His light attack: one of his floating eyes fires a thin beam at a hero up to 10 squares away. Fired from an eye, so every living eye is a possible source; can't be parried."
+    },
+    {
+      "name": "Tendril Grasp",
+      "dice": "2d10",
+      "range": 3,
+      "target": "s",
+      "text": "His heavy attack: tendrils burst from the floor under a hero within 3 squares: STR save or restrained until the end of their next turn. Dodge to avoid it."
+    },
+    {
+      "name": "Thousand Eyes Open",
+      "dice": "1d8",
+      "range": 10,
+      "target": "a",
+      "text": "Every living eye fires at once: roll 1d8 for each living eye and spread the hits across the party as he likes (DEX save for half each). The more eyes the party has broken, the weaker this gets."
+    },
+    {
+      "name": "Unblinking Mark",
+      "dice": "0",
+      "range": 10,
+      "target": "s",
+      "text": "He brands one hero with an eye sigil: until an eye is broken, all his attacks against that hero have advantage, and the mark can't be hidden or dodged out of."
+    },
+    {
+      "name": "Monolith Stare",
+      "dice": "2d8",
+      "range": 5,
+      "target": "a",
+      "text": "The eye-covered slabs behind him glare in a 5-square cone: WIS save or frightened until the end of their next turn (can't move closer, disadvantage on attacks), half damage on a save."
+    },
+    {
+      "name": "All-Seeing Judgement",
+      "dice": "5d6",
+      "range": 20,
+      "target": "a",
+      "text": "Telegraphed: he raises every arm and the eyes start to glow (announce it). Next turn, blinding light hits every hero that any living eye can see: WIS save for half. Breaking line of sight (behind pillars, or the eyes that see you broken) avoids it completely. Never twice in a row."
+    },
+    {
+      "name": "Infinite Witness",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. First of the void's three experiments, for a level 9 party: HP 2,400, AC 16, size 3x3, never moves. Izat'al's first attempt: a thing that sees and remembers everything. Nothing can hide from him (no stealth, invisibility or hiding in his room). 6 eyes float around the arena (AC 14, 120 HP each): while any eye lives, his body takes half damage. One action per turn: roll a d6 (1-6 in this order; a 6 right after a 6 is Witness Gaze)."
+    }
+  ],
+  "Tiferet, the Perfect Balance (void 2)": [
+    {
+      "name": "Reaching Hands",
+      "dice": "2d6",
+      "range": 12,
+      "target": "s",
+      "text": "Its light attack: one long arm reaches across the room to strike any hero within 12 squares. Can be parried."
+    },
+    {
+      "name": "Weighing Grasp",
+      "dice": "2d10",
+      "range": 12,
+      "target": "s",
+      "text": "Its heavy attack: several arms seize a hero anywhere in the room and lift them: STR save or restrained in the air until the end of their next turn (they can still attack the arms holding them). A parry still takes half."
+    },
+    {
+      "name": "Equalize",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "It balances the party: the hero with the highest HP percentage and the one with the lowest both go to the average of the two percentages. Generous to the weak, cruel to the strong. Can't be resisted."
+    },
+    {
+      "name": "Rebalance",
+      "dice": "2d8",
+      "range": 20,
+      "target": "a",
+      "text": "Its two halves even out: the half with less HP heals up to match the other, and a shockwave hits every hero (CON save for half). If its halves are already within 200 HP of each other, it does nothing but the shockwave."
+    },
+    {
+      "name": "Eyestalk Volley",
+      "dice": "1d10",
+      "range": 8,
+      "target": "a",
+      "text": "Dozens of eyestalks fire in every direction: every hero within 8 squares takes the damage, DEX save for half."
+    },
+    {
+      "name": "Perfect Judgement",
+      "dice": "5d6",
+      "range": 20,
+      "target": "a",
+      "text": "Telegraphed: its two banners rise (announce it). Next turn they crash down on the left and right halves of the room: everyone outside the narrow center line (the 1-square-wide line through its body) takes the damage, DEX save for half. Standing in the center line is completely safe. Never twice in a row."
+    },
+    {
+      "name": "Perfect Balance",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Second of the void's experiments, for a level 9 party: HP 3,200 as two halves of 1,600 (make two enemy sheets, Left and Right, on the same 3x3 mini). Damage goes to the half on the attacker's side of its center line (attackers on the line choose). It dies when both halves reach 0. Rooted, but its arms reach the whole room. AC 17. Counterweight: once per round, when a single hit deals 150+ damage, it strikes that hero back for 2d6. If one half is 400+ HP lower at the start of its turn, it uses Rebalance instead of rolling. Otherwise roll a d6 (1-6 in this order)."
+    }
+  ],
+  "Zarael: phase 1 (masked, void 3)": [
+    {
+      "name": "Crescent Axe",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: a heavy arc of the huge axe at one hero up to 2 squares away. Can be parried (a parry still takes half; it's a huge axe)."
+    },
+    {
+      "name": "Regal Sweep",
+      "dice": "3d8",
+      "range": 2,
+      "target": "a",
+      "text": "Her heavy attack: the axe spins in a full circle, hitting every hero within 2 squares: STR save or knocked prone. A parry still takes half."
+    },
+    {
+      "name": "Wingbeat",
+      "dice": "1d10",
+      "range": 8,
+      "target": "a",
+      "text": "Her wings beat once: everyone within 2 squares takes the damage and is pushed 2 squares, then she lands anywhere up to 8 squares away without provoking."
+    },
+    {
+      "name": "Tendril Thorns",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "Clawed tendrils lash up to 2 heroes within 3 squares. Can be dodged, not parried."
+    },
+    {
+      "name": "Queen's Decree",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "She commands: every hero within 6 squares makes a WIS save or must use their next movement to move away from her. A queen is not approached without leave."
+    },
+    {
+      "name": "Executioner's Fall",
+      "dice": "5d6",
+      "range": 4,
+      "target": "a",
+      "text": "Telegraphed: she raises the axe and marks a 4-square line in front of her (announce it). Next turn it falls on everyone in the line: DEX save for half. Can't be parried. Never twice in a row."
+    },
+    {
+      "name": "The Masked Queen",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Last of the void's experiments, closest to Xibalba, for a level 9 party. Phase 1 (masked): HP 2,200, AC 18, size 3x3, flies. Izat'al's attempt at a queen to rule the void; she lost her face, and herself. One action per turn: roll a d6 (1-6 in this order). At 0 HP the mask breaks: phase 2 (The Faceless Queen)."
+    }
+  ],
+  "Zarael: phase 2 (faceless)": [
+    {
+      "name": "Crescent Axe",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack, now wild and fast: one hero up to 2 squares away. A parry still takes half."
+    },
+    {
+      "name": "Regal Sweep",
+      "dice": "3d8",
+      "range": 2,
+      "target": "a",
+      "text": "Her heavy attack: a full-circle sweep on every hero within 2 squares, STR save or prone. A parry still takes half."
+    },
+    {
+      "name": "Tendril Thorns",
+      "dice": "2d6",
+      "range": 4,
+      "target": "a",
+      "text": "The tendrils go frenzied: up to 3 heroes within 4 squares. Can be dodged, not parried."
+    },
+    {
+      "name": "Hollow Scream",
+      "dice": "2d8",
+      "range": 4,
+      "target": "a",
+      "text": "The hole where her face was screams: every hero within 4 squares takes psychic damage and makes a WIS save or is frightened until the end of their next turn. Can't be parried or dodged."
+    },
+    {
+      "name": "Void Hunger",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "The void opens behind her: every hero within 6 squares is pulled 2 squares toward her (STR save to resist). The first taste of what waits beyond her."
+    },
+    {
+      "name": "Faceless Maw",
+      "dice": "5d6",
+      "range": 1,
+      "target": "s",
+      "text": "Telegraphed: her tendrils seize one adjacent hero (STR save; on a fail they're restrained, announce it). On her next turn, if they haven't broken free (STR check as an action, or allies deal 200 damage to her), the maw devours them for the damage and she heals half of it. Uses both her actions. Never twice in a row."
+    },
+    {
+      "name": "The Faceless Queen",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2 (faceless): HP 1,800, AC 17. Two actions per turn: roll a d6 twice (1-6 in this order; Faceless Maw takes both). She can still fly. The party should leave this fight knowing something worse is ahead."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "Spear thrust from the dragon's back. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: a spear thrust from the dragon’s back. Can be parried."
     },
     {
       "name": "Tail Sweep",
       "dice": "2d8",
       "range": 2,
       "target": "a",
-      "text": "The dragon's tail sweeps everyone near it. DEX save or knocked prone."
+      "text": "No attack roll: the dragon’s tail sweeps every hero within 2 squares. DEX save for half; fail also knocks prone. Dodge only."
     },
     {
       "name": "Storm Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: the dragon inhales the turn before. A line of lightning breath. Dodge only."
+      "text": "Telegraphed: the dragon inhales the turn before (announce the line). Next turn: a 6-square line of lightning, DEX save for half. Leaving the line avoids it; Dodge Roll works; can’t be parried. Fizzles if the dragon is stunned first."
     },
     {
       "name": "Coiling Gale",
       "dice": "0",
       "range": 3,
       "target": "a",
-      "text": "The dragon whips its body around: everyone in range is pushed 2 squares away. Sets up the breath."
+      "text": "No damage. Every hero within 3 squares is pushed 2 squares away from him (STR save resists). A pushed hero into a wall stops. Sets up the breath: he usually breathes next."
     },
     {
       "name": "Thunder Dive",
       "dice": "5d8",
       "range": 4,
       "target": "a",
-      "text": "They fly up and leave the board for a turn (mark their shadow), then crash down on it. Dodge only."
+      "text": "Telegraphed: they fly up and leave the board for a turn (no one can target them; mark their shadow). Start of their next turn: they crash down. Everyone within 4 squares of the shadow takes the damage, DEX save for half. Dodge only. Leaving the area avoids it."
     }
   ],
   "Nameless King: phase 2 (on foot)": [
@@ -836,77 +1040,77 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "His bread-and-butter duelist thrust. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: his bread-and-butter duelist thrust. Can be parried."
     },
     {
       "name": "Storm's Wager",
       "dice": "0",
       "range": 2,
       "target": "s",
-      "text": "He spins the spear overhead. Roll a d4 in the open: 1 Thunder Lance, 2 Spear Hurl, 3 Storm Vault, 4 Crowned in Lightning. The roll is the tell."
+      "text": "No damage now. He spins the spear; roll a d4 in the open so the players see it: 1 Thunder Lance, 2 Spear Hurl, 3 Storm Vault, 4 Crowned in Lightning. The chosen move happens on his next action. The roll is the tell: heroes get their turns to react."
     },
     {
       "name": "Wager: Thunder Lance",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Wager 1: a 6-square line of lightning. Dodge only."
+      "text": "Wager 1: a straight 6-square line of lightning from him. DEX save for half. Dodge only, can’t be parried."
     },
     {
       "name": "Wager: Spear Hurl",
       "dice": "2d10",
       "range": 8,
       "target": "s",
-      "text": "Wager 2: thrown at one target up to 8 squares away. Can be parried; the spear returns at the end of his turn."
+      "text": "Wager 2: attack roll vs one hero up to 8 squares away. Can be parried. The spear returns to his hand at the end of his turn; until then he has no King’s Thrust."
     },
     {
       "name": "Wager: Storm Vault",
       "dice": "3d8",
       "range": 4,
       "target": "a",
-      "text": "Wager 3: he leaps up to 4 squares and hits everyone within 2 squares of where he lands. Dodge only."
+      "text": "Wager 3: he leaps up to 4 squares (doesn’t provoke) and lands; every hero within 2 squares of the landing takes the damage, DEX save for half. Dodge only."
     },
     {
       "name": "Wager: Crowned in Lightning",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Wager 4: no damage now. His next attack deals +2d6 lightning and his Lightning Reprisal hits twice until then."
+      "text": "Wager 4: no damage now. His next attack that hits deals +2d6 lightning, and until it hits his Lightning Reprisal strikes twice. Ends when that attack hits, or when he changes phase."
     },
     {
       "name": "Twin Thrust",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "Two quick hits of 2d8; each is parried or dodged separately."
+      "text": "Two attack rolls, one after the other, vs the same hero up to 2 squares away (or a second hero if the first falls). Each hit is 2d8. Each is parried or dodged separately (two reactions, two stamina costs)."
     },
     {
       "name": "Sweeping Arc",
       "dice": "2d10",
       "range": 2,
       "target": "a",
-      "text": "A full circle around him. Punishes players crowding him."
+      "text": "No attack roll: a full circle hitting every hero within 2 squares. DEX save for half. A parry can’t stop it (area). Punishes heroes crowding him."
     },
     {
       "name": "Lunging Pierce",
       "dice": "3d10",
       "range": 4,
       "target": "s",
-      "text": "Telegraphed by a low stance. He dashes 3 squares first, then pierces."
+      "text": "Telegraphed by a low stance (announce it). Next turn he dashes 3 squares in a straight line (doesn’t provoke), then makes an attack roll vs the hero at the end. Can be parried. Moving out of his line in between makes it miss."
     },
     {
       "name": "Sovereign's Theft",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "If it hits, he steals the target's main element (fire, ice, poison...) for 2 rounds: his spear attacks deal +1d6 of it. A target with no element loses nothing."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage, and he steals the hero’s main element (fire, ice, poison...) for 2 rounds: the hero’s abilities lose that element’s extra effect, and his spear attacks deal +1d6 of it. A hero with no element just takes the damage. Can be parried (no damage, nothing stolen)."
     },
     {
       "name": "Lightning Reprisal",
       "dice": "2d8",
       "range": 12,
       "target": "s",
-      "text": "Reaction, once per round, free: when hit from more than 2 squares away (arrow or spell), he hurls a bolt back at that attacker. Dodge only."
+      "text": "Reaction, once per round, costs him nothing: when a hero more than 2 squares away hits him (arrow, bolt or spell), he hurls a bolt back at that hero: attack roll, 2d8 on a hit. Dodge only. Melee hits never trigger it."
     }
   ],
   "Nameless King: phase 3 (cloud dragon)": [
@@ -915,91 +1119,91 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "His bread-and-butter duelist thrust. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: his bread-and-butter duelist thrust. Can be parried."
     },
     {
       "name": "Storm's Wager",
       "dice": "0",
       "range": 2,
       "target": "s",
-      "text": "He spins the spear overhead. Roll a d4 in the open: 1 Thunder Lance, 2 Spear Hurl, 3 Storm Vault, 4 Crowned in Lightning. The roll is the tell."
+      "text": "No damage now. He spins the spear; roll a d4 in the open so the players see it: 1 Thunder Lance, 2 Spear Hurl, 3 Storm Vault, 4 Crowned in Lightning. The chosen move happens on his next action. The roll is the tell: heroes get their turns to react."
     },
     {
       "name": "Wager: Thunder Lance",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Wager 1: a 6-square line of lightning. Dodge only."
+      "text": "Wager 1: a straight 6-square line of lightning from him. DEX save for half. Dodge only, can’t be parried."
     },
     {
       "name": "Wager: Spear Hurl",
       "dice": "2d10",
       "range": 8,
       "target": "s",
-      "text": "Wager 2: thrown at one target up to 8 squares away. Can be parried; the spear returns at the end of his turn."
+      "text": "Wager 2: attack roll vs one hero up to 8 squares away. Can be parried. The spear returns to his hand at the end of his turn; until then he has no King’s Thrust."
     },
     {
       "name": "Wager: Storm Vault",
       "dice": "3d8",
       "range": 4,
       "target": "a",
-      "text": "Wager 3: he leaps up to 4 squares and hits everyone within 2 squares of where he lands. Dodge only."
+      "text": "Wager 3: he leaps up to 4 squares (doesn’t provoke) and lands; every hero within 2 squares of the landing takes the damage, DEX save for half. Dodge only."
     },
     {
       "name": "Wager: Crowned in Lightning",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Wager 4: no damage now. His next attack deals +2d6 lightning and his Lightning Reprisal hits twice until then."
+      "text": "Wager 4: no damage now. His next attack that hits deals +2d6 lightning, and until it hits his Lightning Reprisal strikes twice. Ends when that attack hits, or when he changes phase."
     },
     {
       "name": "Twin Thrust",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "Two quick hits of 2d8; each is parried or dodged separately."
+      "text": "Two attack rolls, one after the other, vs the same hero up to 2 squares away (or a second hero if the first falls). Each hit is 2d8. Each is parried or dodged separately (two reactions, two stamina costs)."
     },
     {
       "name": "Sweeping Arc",
       "dice": "2d10",
       "range": 2,
       "target": "a",
-      "text": "A full circle around him. Punishes players crowding him."
+      "text": "No attack roll: a full circle hitting every hero within 2 squares. DEX save for half. A parry can’t stop it (area). Punishes heroes crowding him."
     },
     {
       "name": "Lunging Pierce",
       "dice": "3d10",
       "range": 4,
       "target": "s",
-      "text": "Telegraphed by a low stance. He dashes 3 squares first, then pierces."
+      "text": "Telegraphed by a low stance (announce it). Next turn he dashes 3 squares in a straight line (doesn’t provoke), then makes an attack roll vs the hero at the end. Can be parried. Moving out of his line in between makes it miss."
     },
     {
       "name": "Sovereign's Theft",
       "dice": "2d8",
       "range": 2,
       "target": "s",
-      "text": "If it hits, he steals the target's main element (fire, ice, poison...) for 2 rounds: his spear attacks deal +1d6 of it. A target with no element loses nothing."
+      "text": "Attack roll vs one hero up to 2 squares away. On a hit: damage, and he steals the hero’s main element (fire, ice, poison...) for 2 rounds: the hero’s abilities lose that element’s extra effect, and his spear attacks deal +1d6 of it. A hero with no element just takes the damage. Can be parried (no damage, nothing stolen)."
     },
     {
       "name": "Lightning Reprisal",
       "dice": "2d8",
       "range": 12,
       "target": "s",
-      "text": "Reaction, once per round, free: when hit from more than 2 squares away (arrow or spell), he hurls a bolt back at that attacker. Dodge only."
+      "text": "Reaction, once per round, costs him nothing: when a hero more than 2 squares away hits him (arrow, bolt or spell), he hurls a bolt back at that hero: attack roll, 2d8 on a hit. Dodge only. Melee hits never trigger it."
     },
     {
       "name": "Shape the Storm",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Phase 3 opener (his action): he raises the spear and shapes Shōryū out of the storm clouds. The cloud dragon can't be destroyed."
+      "text": "Phase 3 opener (his action, no damage): he shapes Shōryū, a cloud dragon, out of the storm. It can’t be targeted or destroyed; it only acts through Cloud Dragon’s Judgement."
     },
     {
       "name": "Cloud Dragon's Judgement",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "End of each of his turns: the cloud dragon marks 3 squares. Next turn lightning strikes them (DEX save for half)."
+      "text": "At the end of each of his turns, the cloud dragon marks 3 squares (show them). At the end of his next turn lightning strikes them: anyone on a marked square takes the damage, DEX save for half. Leaving the square avoids it completely."
     }
   ],
   "Odi'ram: phase 1 (titan)": [
@@ -1008,49 +1212,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. Any fire damage, a parry's chip included, gives the hero 1 Ember. At 4 Embers they burst for 10% of max HP and reset. A round with no fire damage removes 1 Ember; standing in a safe spot (obsidian or water) removes 1 more."
+      "text": "Passive. Every time a hero takes fire damage (a parry’s chip damage included), they gain 1 Ember. At 4 Embers they burst: they take 10% of their max HP (no save) and drop to 0 Embers. At the end of each round, a hero who took no fire damage that round loses 1 Ember; standing in a safe spot (obsidian or water) at the end of the round removes 1 more."
     },
     {
       "name": "Molten Cleave",
       "dice": "4d10",
       "range": 3,
       "target": "a",
-      "text": "Telegraphed: he raises the sword the turn before. A vast arc in front of him. A parry takes half and 1 Ember. A dodge missed by exactly 1 takes half; worse takes it all."
+      "text": "Telegraphed: he raises the sword the turn before (announce the arc: everything within 3 squares in front of him). Next turn it falls: full damage to every hero in the arc. Parry: half damage and 1 Ember. Dodge Roll missed by exactly 1: half damage; missed by more: full. Leaving the arc avoids it."
     },
     {
       "name": "Titan's Stride",
       "dice": "3d8",
       "range": 2,
       "target": "a",
-      "text": "He steps forward; everyone in the 2 squares in front makes a STR save or is knocked prone."
+      "text": "No attack roll: he steps forward 1 square; every hero in the 2 squares in front of him takes the damage and makes a STR save: fail = knocked prone. Fire: 1 Ember. Dodge only."
     },
     {
       "name": "Primordial Slam",
       "dice": "5d10",
       "range": 4,
       "target": "a",
-      "text": "Telegraphed: he plants the sword; next turn the ground erupts in a ring around him. Dodge only. Safe spots are spared."
+      "text": "Telegraphed: he plants the sword (announce it). Next turn the ground erupts in a ring 4 squares around him: every hero in it takes the damage, no save. Dodge only. Heroes on a safe spot are spared completely."
     },
     {
       "name": "Burning Furrow",
       "dice": "3d8",
       "range": 8,
       "target": "a",
-      "text": "He drags the blade through the floor: a line of fire that burns for 2 rounds. Standing in it gives 1 Ember per turn."
+      "text": "No attack roll: a straight 8-square line of fire from him. DEX save for half. The line keeps burning for 2 rounds: anyone who starts their turn on it gains 1 Ember. Dodge only."
     },
     {
       "name": "Brand of Wrath",
       "dice": "2d10",
       "range": 6,
       "target": "s",
-      "text": "He hurls a chunk of burning fire at one hero, who takes 2 Embers. Dodge only."
+      "text": "Attack roll vs one hero up to 6 squares away: a hurled chunk of burning rock. On a hit: damage and 2 Embers. Dodge only (fire can’t be parried)."
     },
     {
       "name": "Ash Fall",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Ash rains over the arena: every hero outside a safe spot gains 1 Ember."
+      "text": "No damage. Ash rains over the whole arena: every hero not on a safe spot gains 1 Ember."
     }
   ],
   "Odi'ram: phase 2 (unbound)": [
@@ -1059,56 +1263,56 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. Any fire damage, a parry's chip included, gives the hero 1 Ember. At 4 Embers they burst for 10% of max HP and reset. A round with no fire damage removes 1 Ember; standing in a safe spot (obsidian or water) removes 1 more."
+      "text": "Passive. Every time a hero takes fire damage (a parry’s chip damage included), they gain 1 Ember. At 4 Embers they burst: they take 10% of their max HP (no save) and drop to 0 Embers. At the end of each round, a hero who took no fire damage that round loses 1 Ember; standing in a safe spot (obsidian or water) at the end of the round removes 1 more."
     },
     {
       "name": "Blazing Flurry",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Armour shed, he attacks twice a turn with no telegraph. A fast slash. Can be parried (plus 1 Ember)."
+      "text": "Armour shed, he attacks twice a turn with no telegraph. Attack roll vs one hero up to 3 squares away: a fast slash. Can be parried (the parry still gives 1 Ember)."
     },
     {
       "name": "Wildfire Sweep",
       "dice": "2d10",
       "range": 3,
       "target": "a",
-      "text": "A wide burning arc. DEX save for half."
+      "text": "No attack roll: a wide burning arc, everything within 3 squares in front of him. DEX save for half. 1 Ember on a fail. Dodge only."
     },
     {
       "name": "Burning Lunge",
       "dice": "3d8",
       "range": 5,
       "target": "s",
-      "text": "He closes the distance in one bound."
+      "text": "He bounds up to 5 squares (doesn’t provoke), then makes an attack roll vs the hero he lands next to. Can be parried (1 Ember on the parry)."
     },
     {
       "name": "Inferno Gust",
       "dice": "2d6",
       "range": 3,
       "target": "a",
-      "text": "A beat of his burning wings: everyone in front is pushed 2 squares and gains 1 Ember."
+      "text": "No attack roll: a beat of his wings hits everyone within 3 squares in front of him: damage, pushed 2 squares, and 1 Ember. STR save: half damage, not pushed (Ember stays)."
     },
     {
       "name": "Flame Burst",
       "dice": "0",
       "range": 3,
       "target": "a",
-      "text": "Fire erupts from every crack in his body: everyone within 3 gains 1 Ember."
+      "text": "No damage. Fire erupts from his body: every hero within 3 squares gains 1 Ember. Can’t be dodged or parried."
     },
     {
       "name": "Kindle",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "He roars: every hero gains 1 Ember. Once every 3 rounds."
+      "text": "No damage. He roars: every hero gains 1 Ember, wherever they are. Once every 3 rounds; reroll if used in the last 2 rounds."
     },
     {
       "name": "Furnace Heart",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Passive. Each time a hero's Embers burst, he heals 2d10."
+      "text": "Passive. Each time a hero’s Embers burst, he heals 2d10 (x10)."
     }
   ],
   "Odi'ram: phase 3 (blue fire)": [
@@ -1117,77 +1321,77 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. Blue fire: Embers now burst at 2 instead of 4, for 15% of max HP. A round with no fire damage still removes 1; a safe spot removes 1 more."
+      "text": "Passive, blue fire. Embers now burst at 2 instead of 4, for 15% of max HP (no save), then reset to 0. Removal unchanged: no fire damage this round = -1, safe spot at the end of the round = -1 more."
     },
     {
       "name": "Boiling Ground",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Each round, one safe spot boils away: the arena shrinks."
+      "text": "Phase 3 rule: at the start of each round, the GM picks one safe spot and it boils away for the rest of the fight. A hero standing on it is not hurt but loses the spot."
     },
     {
       "name": "Azure Cleave",
       "dice": "6d10",
       "range": 3,
       "target": "a",
-      "text": "Telegraphed: his great blow returns in blue fire. Dodge only."
+      "text": "Telegraphed: his great blow returns in blue fire (announce the arc, within 3 squares in front of him). Next turn: full damage and 1 Ember to everyone in it. Dodge only, no parry. Leaving the arc avoids it."
     },
     {
       "name": "Sun's Collapse",
       "dice": "8d8",
       "range": 20,
       "target": "a",
-      "text": "Once. Telegraphed for 2 turns, then the whole arena erupts. Heroes in a safe spot take half."
+      "text": "Once per fight. Telegraphed for 2 turns (announce it twice), then the whole arena erupts: every hero takes the damage, no save. Heroes on a safe spot take half. Dodge Roll can’t help (there is nowhere to roll). Fizzles if he is killed first."
     },
     {
       "name": "Blazing Flurry",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Armour shed, he attacks twice a turn with no telegraph. A fast slash. Can be parried (plus 1 Ember)."
+      "text": "Armour shed, he attacks twice a turn with no telegraph. Attack roll vs one hero up to 3 squares away: a fast slash. Can be parried (the parry still gives 1 Ember)."
     },
     {
       "name": "Wildfire Sweep",
       "dice": "2d10",
       "range": 3,
       "target": "a",
-      "text": "A wide burning arc. DEX save for half."
+      "text": "No attack roll: a wide burning arc, everything within 3 squares in front of him. DEX save for half. 1 Ember on a fail. Dodge only."
     },
     {
       "name": "Burning Lunge",
       "dice": "3d8",
       "range": 5,
       "target": "s",
-      "text": "He closes the distance in one bound."
+      "text": "He bounds up to 5 squares (doesn’t provoke), then makes an attack roll vs the hero he lands next to. Can be parried (1 Ember on the parry)."
     },
     {
       "name": "Inferno Gust",
       "dice": "2d6",
       "range": 3,
       "target": "a",
-      "text": "A beat of his burning wings: everyone in front is pushed 2 squares and gains 1 Ember."
+      "text": "No attack roll: a beat of his wings hits everyone within 3 squares in front of him: damage, pushed 2 squares, and 1 Ember. STR save: half damage, not pushed (Ember stays)."
     },
     {
       "name": "Flame Burst",
       "dice": "0",
       "range": 3,
       "target": "a",
-      "text": "Fire erupts from every crack in his body: everyone within 3 gains 1 Ember."
+      "text": "No damage. Fire erupts from his body: every hero within 3 squares gains 1 Ember. Can’t be dodged or parried."
     },
     {
       "name": "Kindle",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "He roars: every hero gains 1 Ember. Once every 3 rounds."
+      "text": "No damage. He roars: every hero gains 1 Ember, wherever they are. Once every 3 rounds; reroll if used in the last 2 rounds."
     },
     {
       "name": "Furnace Heart",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "Passive. Each time a hero's Embers burst, he heals 2d10."
+      "text": "Passive. Each time a hero’s Embers burst, he heals 2d10 (x10)."
     }
   ],
   "Xibalba: phase 1 (rift)": [
@@ -1196,49 +1400,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. At the start of each round, heroes more than 4 squares away are pulled 1 square toward her and heroes next to her are pushed out to 2 squares (STR save resists)."
+      "text": "Passive, at the start of each round: heroes more than 4 squares away are pulled 1 square toward her; heroes next to her are pushed out to 2 squares away. A STR save resists each move. Flying or anchored (holding a pillar) heroes are unaffected."
     },
     {
       "name": "Void Rend",
       "dice": "2d10",
       "range": 1,
       "target": "s",
-      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+      "text": "Attack roll vs one adjacent hero in front of her: a claw that tears space. Can be parried."
     },
     {
       "name": "Wing Buffet",
       "dice": "2d8",
       "range": 2,
       "target": "a",
-      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+      "text": "No attack roll: her wings strike every hero beside her (within 2 squares, to her sides). Damage, and STR save or pushed 2 squares. A save = half damage, no push. Dodge only."
     },
     {
       "name": "Spiked Tail",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+      "text": "Attack roll vs one hero behind her, up to 3 squares away. +2d6 if the hero is exactly 3 squares away (the spiked tip). Can be parried."
     },
     {
       "name": "Gravity Lance",
       "dice": "3d8",
       "range": 8,
       "target": "s",
-      "text": "A beam of compressed void at a distant hero, who is pulled 2 squares toward her."
+      "text": "Attack roll vs one hero up to 8 squares away: a beam of compressed void. On a hit: damage and pulled 2 squares toward her (no save). Dodge only (a beam)."
     },
     {
       "name": "Collapse Point",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she marks a square; next turn a tiny black hole implodes there, pulling everyone nearby toward it first. Dodge only."
+      "text": "Telegraphed: she marks a square up to 6 squares away. At the start of her next turn a tiny black hole implodes there: everyone within 2 squares is first pulled 1 square toward it, then takes the damage, DEX save for half. Dodge only."
     },
     {
       "name": "Null Veil",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "She half-fades into the void: attacks against her have disadvantage until her next turn."
+      "text": "No damage. She half-fades: every attack against her has disadvantage until the start of her next turn. Area effects and saves are not affected."
     }
   ],
   "Xibalba: phase 2 (brood)": [
@@ -1247,77 +1451,77 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. At the start of each round, heroes more than 4 squares away are pulled 1 square toward her and heroes next to her are pushed out to 2 squares (STR save resists). Phase 2: pulled heroes also get -10 ft speed. All her limbs can now strike whoever is in front of her."
+      "text": "Passive, at the start of each round: heroes more than 4 squares away are pulled 1 square toward her; heroes next to her are pushed out to 2 squares (STR save resists). Phase 2: a hero who was pulled also has -10 ft (2 squares) speed this round. All her limbs can now strike whoever is in front of her."
     },
     {
       "name": "Void Rend",
       "dice": "2d10",
       "range": 1,
       "target": "s",
-      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+      "text": "Attack roll vs one adjacent hero in front of her: a claw that tears space. Can be parried."
     },
     {
       "name": "Wing Buffet",
       "dice": "2d8",
       "range": 2,
       "target": "a",
-      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+      "text": "No attack roll: her wings strike every hero beside her (within 2 squares, to her sides). Damage, and STR save or pushed 2 squares. A save = half damage, no push. Dodge only."
     },
     {
       "name": "Spiked Tail",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+      "text": "Attack roll vs one hero behind her, up to 3 squares away. +2d6 if the hero is exactly 3 squares away (the spiked tip). Can be parried."
     },
     {
       "name": "Void Spawn",
       "dice": "0",
       "range": 6,
       "target": "a",
-      "text": "Every 2 rounds, 2 voidlings appear (up to 4 at once): about 15 HP, 1d8 bite; when one dies it bursts, pulling heroes next to it 1 square."
+      "text": "Every 2 rounds, 2 voidlings appear next to her (never more than 4 on the field). Each: 15 HP (x10 = 150), AC 12, 1d8 bite. When one dies it bursts: heroes next to it are pulled 1 square toward where it died."
     },
     {
       "name": "Rift Step",
       "dice": "0",
       "range": 8,
       "target": "s",
-      "text": "She teleports through a rift; her next attack has advantage."
+      "text": "No damage. She teleports up to 8 squares through a rift (doesn’t provoke). Her next attack, before the end of her next turn, has advantage."
     },
     {
       "name": "Crushing Orbit",
       "dice": "3d10",
       "range": 4,
       "target": "a",
-      "text": "Everyone within 4 squares is swung 2 squares around her and takes damage."
+      "text": "No attack roll: every hero within 4 squares is swung 2 squares around her (her choice of direction) and takes the damage. STR save for half, not moved. Dodge only."
     },
     {
       "name": "Tail Launch",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail whips up under a hero and throws them into the air (STR save to stay grounded). Airborne, they fall at the end of her turn unless a follow-up hits first."
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and STR save or thrown into the air. Airborne: they can’t move or attack, only Dodge Roll (at disadvantage). They fall at the end of her turn unless Wing Smash or Void Fist hits them first. Can be parried (no launch)."
     },
     {
       "name": "Wing Smash",
       "dice": "3d8",
       "range": 3,
       "target": "s",
-      "text": "Follow-up, only against an airborne hero: she swats them out of the air; they land prone 2 squares away. They may dodge mid-air at disadvantage."
+      "text": "Follow-up, only against an airborne hero: attack roll. On a hit: damage, they land prone 2 squares away. They may Dodge Roll mid-air at disadvantage; no parry in the air."
     },
     {
       "name": "Void Fist",
       "dice": "3d10",
       "range": 3,
       "target": "s",
-      "text": "Follow-up, only against an airborne hero: she slams them into the ground, prone on a hit. They may dodge mid-air at disadvantage."
+      "text": "Follow-up, only against an airborne hero: attack roll. On a hit: slammed into the ground, damage and prone. They may Dodge Roll mid-air at disadvantage; no parry in the air."
     },
     {
       "name": "Tail Impale",
       "dice": "3d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail stabs forward over her shoulder and pins the target: restrained until a STR save at the start of their turn, 1d6 each turn pinned."
+      "text": "Attack roll vs one hero up to 3 squares away, over her shoulder. On a hit: damage and pinned: restrained, 1d6 at the start of each of their turns, until a STR save at the start of their turn succeeds. Can be parried (no pin)."
     }
   ],
   "Xibalba: phase 3 (singularity)": [
@@ -1326,98 +1530,98 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Passive. Singularity: the pull is 2 squares, heroes move at half speed, and the STR save is harder. She makes two limb attacks a turn, and Tail Launch's follow-up is free."
+      "text": "Passive, singularity: the pull is 2 squares, heroes move at half speed while within 6 squares of her, and the STR save has disadvantage. Anchored heroes (holding a pillar) are unaffected. She makes two limb attacks a turn, and Tail Launch’s follow-up is free (no extra action)."
     },
     {
       "name": "Abyssal Maw",
       "dice": "6d8",
       "range": 3,
       "target": "a",
-      "text": "Telegraphed: she opens a black hole in her own chest. Anyone ending their turn within 3 squares takes damage, unless anchored to a pillar."
+      "text": "Telegraphed: she opens a black hole in her chest (announce it). From then on, at the end of each hero’s turn, a hero within 3 squares takes the damage unless anchored to a pillar. Lasts until the start of her next turn."
     },
     {
       "name": "Starless Night",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "The light dies: everyone sees only 2 squares for 2 rounds, and voidlings get advantage."
+      "text": "No damage. The light dies for 2 rounds: every hero sees only 2 squares (can’t target anything further), and voidlings have advantage on their bites."
     },
     {
       "name": "Gravity Crush",
       "dice": "4d10",
       "range": 6,
       "target": "s",
-      "text": "The target's own weight crushes them: STR save or prone and restrained for 1 round."
+      "text": "No attack roll: one hero up to 6 squares away is crushed by their own weight. STR save: fail = full damage, prone and restrained for 1 round; save = half, no conditions. Can’t be parried or dodged."
     },
     {
       "name": "Void Rend",
       "dice": "2d10",
       "range": 1,
       "target": "s",
-      "text": "A claw swipe that tears space, at a hero in front of her. Can be parried."
+      "text": "Attack roll vs one adjacent hero in front of her: a claw that tears space. Can be parried."
     },
     {
       "name": "Wing Buffet",
       "dice": "2d8",
       "range": 2,
       "target": "a",
-      "text": "Her wings strike to the sides: STR save or pushed 2 squares."
+      "text": "No attack roll: her wings strike every hero beside her (within 2 squares, to her sides). Damage, and STR save or pushed 2 squares. A save = half damage, no push. Dodge only."
     },
     {
       "name": "Spiked Tail",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail strikes behind her: +2d6 if the target is exactly 3 squares away, at the spiked tip."
+      "text": "Attack roll vs one hero behind her, up to 3 squares away. +2d6 if the hero is exactly 3 squares away (the spiked tip). Can be parried."
     },
     {
       "name": "Tail Launch",
       "dice": "2d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail whips up under a hero and throws them into the air (STR save to stay grounded). Airborne, they fall at the end of her turn unless a follow-up hits first."
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and STR save or thrown into the air. Airborne: they can’t move or attack, only Dodge Roll (at disadvantage). They fall at the end of her turn unless Wing Smash or Void Fist hits them first. Can be parried (no launch)."
     },
     {
       "name": "Wing Smash",
       "dice": "3d8",
       "range": 3,
       "target": "s",
-      "text": "Follow-up, only against an airborne hero: she swats them out of the air; they land prone 2 squares away. They may dodge mid-air at disadvantage."
+      "text": "Follow-up, only against an airborne hero: attack roll. On a hit: damage, they land prone 2 squares away. They may Dodge Roll mid-air at disadvantage; no parry in the air."
     },
     {
       "name": "Void Fist",
       "dice": "3d10",
       "range": 3,
       "target": "s",
-      "text": "Follow-up, only against an airborne hero: she slams them into the ground, prone on a hit. They may dodge mid-air at disadvantage."
+      "text": "Follow-up, only against an airborne hero: attack roll. On a hit: slammed into the ground, damage and prone. They may Dodge Roll mid-air at disadvantage; no parry in the air."
     },
     {
       "name": "Tail Impale",
       "dice": "3d8",
       "range": 3,
       "target": "s",
-      "text": "Her tail stabs forward over her shoulder and pins the target: restrained until a STR save at the start of their turn, 1d6 each turn pinned."
+      "text": "Attack roll vs one hero up to 3 squares away, over her shoulder. On a hit: damage and pinned: restrained, 1d6 at the start of each of their turns, until a STR save at the start of their turn succeeds. Can be parried (no pin)."
     },
     {
       "name": "Void Spawn",
       "dice": "0",
       "range": 6,
       "target": "a",
-      "text": "Every 2 rounds, 2 voidlings appear (up to 4 at once): about 15 HP, 1d8 bite; when one dies it bursts, pulling heroes next to it 1 square."
+      "text": "Every 2 rounds, 2 voidlings appear next to her (never more than 4 on the field). Each: 15 HP (x10 = 150), AC 12, 1d8 bite. When one dies it bursts: heroes next to it are pulled 1 square toward where it died."
     },
     {
       "name": "Rift Step",
       "dice": "0",
       "range": 8,
       "target": "s",
-      "text": "She teleports through a rift; her next attack has advantage."
+      "text": "No damage. She teleports up to 8 squares through a rift (doesn’t provoke). Her next attack, before the end of her next turn, has advantage."
     },
     {
       "name": "Crushing Orbit",
       "dice": "3d10",
       "range": 4,
       "target": "a",
-      "text": "Everyone within 4 squares is swung 2 squares around her and takes damage."
+      "text": "No attack roll: every hero within 4 squares is swung 2 squares around her (her choice of direction) and takes the damage. STR save for half, not moved. Dodge only."
     }
   ],
   "Izat'al: phase 1 (sorceress)": [
@@ -1426,63 +1630,63 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Gilded Talon",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "A strike of golden claws. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: golden claws. Can be parried."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     },
     {
       "name": "Soul Tithe",
       "dice": "2d8",
       "range": 8,
       "target": "s",
-      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+      "text": "Attack roll vs one hero up to 8 squares away. On a hit: damage, and she heals by the damage dealt. Dodge only (it is a soul, not a blow)."
     },
     {
       "name": "Forgetting",
       "dice": "0",
       "range": 6,
       "target": "s",
-      "text": "WIS save or the target forgets one equipped ability until the end of their next turn."
+      "text": "No damage. One hero up to 6 squares away makes a WIS save: fail = they pick one of their equipped abilities they can’t use until the end of their next turn. Dodge Roll and Parry can’t be forgotten."
     },
     {
       "name": "Echo: Absolute Zero",
       "dice": "6d8",
       "range": 8,
       "target": "a",
-      "text": "Aethelric's frozen finisher, cast as a spell (toned down from 8d8)."
+      "text": "Aethelric’s finisher, cast as a spell (toned down from 8d8). Telegraphed for 1 turn; every hero not behind full cover takes the damage, CON save for half. Dodge only halves."
     },
     {
       "name": "Echo: Plague Bloom",
       "dice": "6d6",
       "range": 10,
       "target": "a",
-      "text": "Kernunos's rot finisher, cast as a spell (toned down from 8d6)."
+      "text": "Kernunos’s finisher, cast as a spell (toned down from 8d6). Every hero within 10 squares, CON save for half. Dodge only."
     },
     {
       "name": "Rime and Rot",
       "dice": "5d8",
       "range": 4,
       "target": "a",
-      "text": "Aethelric's frost and Kernunos's rot together: frozen roots burst up. DEX save or restrained, and 1d8 rot for 2 rounds."
+      "text": "No attack roll: frozen roots burst within 4 squares of her. DEX save: fail = full damage, restrained until the end of their next turn and 1d8 rot at the start of each of their next 2 turns; save = half, nothing else. Dodge only."
     }
   ],
   "Izat'al: phase 2 (both spared)": [
@@ -1491,49 +1695,49 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Crowned Fang",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "The crowned head bites. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: the crowned head bites. Can be parried."
     },
     {
       "name": "Dominion Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+      "text": "Roll a d6 in the open (the tell); that head breathes a 6-square cone. Everyone in it takes the damage, DEX save for half, plus on a failed save: 1 fire (1 Ember if Odi’ram died, else burning 1d6 for 1 round), 2 ice (slowed until the end of their next turn), 3 lightning (no reaction until their next turn), 4 poison (no healing for 1 round), 5 rot (1d8 at the start of their next 2 turns), 6 void (pulled 2 squares toward her). Dodge only."
     },
     {
       "name": "Sky-Fall",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+      "text": "Telegraphed: she rises (out of reach) and marks a spot up to 6 squares away. Next turn she dives: everyone within 2 squares of the spot takes the damage, DEX save for half. Dodge only; leaving the area avoids it."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     },
     {
       "name": "Soul Tithe",
       "dice": "2d8",
       "range": 8,
       "target": "s",
-      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+      "text": "Attack roll vs one hero up to 8 squares away. On a hit: damage, and she heals by the damage dealt. Dodge only (it is a soul, not a blow)."
     }
   ],
   "Izat'al: phase 2 (Arachne fell)": [
@@ -1542,63 +1746,63 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Crowned Fang",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "The crowned head bites. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: the crowned head bites. Can be parried."
     },
     {
       "name": "Dominion Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+      "text": "Roll a d6 in the open (the tell); that head breathes a 6-square cone. Everyone in it takes the damage, DEX save for half, plus on a failed save: 1 fire (1 Ember if Odi’ram died, else burning 1d6 for 1 round), 2 ice (slowed until the end of their next turn), 3 lightning (no reaction until their next turn), 4 poison (no healing for 1 round), 5 rot (1d8 at the start of their next 2 turns), 6 void (pulled 2 squares toward her). Dodge only."
     },
     {
       "name": "Sky-Fall",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+      "text": "Telegraphed: she rises (out of reach) and marks a spot up to 6 squares away. Next turn she dives: everyone within 2 squares of the spot takes the damage, DEX save for half. Dodge only; leaving the area avoids it."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     },
     {
       "name": "Soul Tithe",
       "dice": "2d8",
       "range": 8,
       "target": "s",
-      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+      "text": "Attack roll vs one hero up to 8 squares away. On a hit: damage, and she heals by the damage dealt. Dodge only (it is a soul, not a blow)."
     },
     {
       "name": "Echo: The Bill Comes Due",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Arachne's collecting finisher. Every hero bound by a contract thread pays its price."
+      "text": "Arachne’s collecting finisher. Every hero bound by a contract thread (they made a deal with Arachne or failed a Silent Contract) loses one potion or takes 4d8, their choice. Can’t be dodged."
     },
     {
       "name": "Echo: Final Offer",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Arachne's venom and webs in a cone (toned down from 4d8)."
+      "text": "Arachne’s venom and webs in a 6-square cone (toned down from 4d8): DEX save for half; fail also slowed until the end of their next turn. Dodge only."
     }
   ],
   "Izat'al: phase 2 (Odi'ram fell)": [
@@ -1607,56 +1811,56 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Crowned Fang",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "The crowned head bites. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: the crowned head bites. Can be parried."
     },
     {
       "name": "Dominion Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+      "text": "Roll a d6 in the open (the tell); that head breathes a 6-square cone. Everyone in it takes the damage, DEX save for half, plus on a failed save: 1 fire (1 Ember if Odi’ram died, else burning 1d6 for 1 round), 2 ice (slowed until the end of their next turn), 3 lightning (no reaction until their next turn), 4 poison (no healing for 1 round), 5 rot (1d8 at the start of their next 2 turns), 6 void (pulled 2 squares toward her). Dodge only."
     },
     {
       "name": "Sky-Fall",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+      "text": "Telegraphed: she rises (out of reach) and marks a spot up to 6 squares away. Next turn she dives: everyone within 2 squares of the spot takes the damage, DEX save for half. Dodge only; leaving the area avoids it."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     },
     {
       "name": "Soul Tithe",
       "dice": "2d8",
       "range": 8,
       "target": "s",
-      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+      "text": "Attack roll vs one hero up to 8 squares away. On a hit: damage, and she heals by the damage dealt. Dodge only (it is a soul, not a blow)."
     },
     {
       "name": "Echo: Sun's Collapse",
       "dice": "6d8",
       "range": 20,
       "target": "a",
-      "text": "Odi'ram's finisher: telegraphed for 2 turns, then the arena erupts (toned down from 8d8). His Embers rule returns for this fight (burst at 4). Safe spots take half."
+      "text": "Odi’ram’s finisher (toned down from 8d8): telegraphed for 2 turns, then the arena erupts for everyone, no save. Safe spots take half. His Embers rule returns for this fight (burst at 4)."
     }
   ],
   "Izat'al: phase 2 (both fell)": [
@@ -1665,77 +1869,77 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Crowned Fang",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "The crowned head bites. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: the crowned head bites. Can be parried."
     },
     {
       "name": "Dominion Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+      "text": "Roll a d6 in the open (the tell); that head breathes a 6-square cone. Everyone in it takes the damage, DEX save for half, plus on a failed save: 1 fire (1 Ember if Odi’ram died, else burning 1d6 for 1 round), 2 ice (slowed until the end of their next turn), 3 lightning (no reaction until their next turn), 4 poison (no healing for 1 round), 5 rot (1d8 at the start of their next 2 turns), 6 void (pulled 2 squares toward her). Dodge only."
     },
     {
       "name": "Sky-Fall",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+      "text": "Telegraphed: she rises (out of reach) and marks a spot up to 6 squares away. Next turn she dives: everyone within 2 squares of the spot takes the damage, DEX save for half. Dodge only; leaving the area avoids it."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     },
     {
       "name": "Soul Tithe",
       "dice": "2d8",
       "range": 8,
       "target": "s",
-      "text": "She draws a thread of soul from one hero and heals for the damage dealt."
+      "text": "Attack roll vs one hero up to 8 squares away. On a hit: damage, and she heals by the damage dealt. Dodge only (it is a soul, not a blow)."
     },
     {
       "name": "Echo: The Bill Comes Due",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "Arachne's collecting finisher. Every hero bound by a contract thread pays its price."
+      "text": "Arachne’s collecting finisher. Every hero bound by a contract thread (they made a deal with Arachne or failed a Silent Contract) loses one potion or takes 4d8, their choice. Can’t be dodged."
     },
     {
       "name": "Echo: Final Offer",
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Arachne's venom and webs in a cone (toned down from 4d8)."
+      "text": "Arachne’s venom and webs in a 6-square cone (toned down from 4d8): DEX save for half; fail also slowed until the end of their next turn. Dodge only."
     },
     {
       "name": "Echo: Sun's Collapse",
       "dice": "6d8",
       "range": 20,
       "target": "a",
-      "text": "Odi'ram's finisher: telegraphed for 2 turns, then the arena erupts (toned down from 8d8). His Embers rule returns for this fight (burst at 4). Safe spots take half."
+      "text": "Odi’ram’s finisher (toned down from 8d8): telegraphed for 2 turns, then the arena erupts for everyone, no save. Safe spots take half. His Embers rule returns for this fight (burst at 4)."
     },
     {
       "name": "Cinder Web",
       "dice": "5d8",
       "range": 6,
       "target": "a",
-      "text": "Both fell: Arachne's threads set alight by Odi'ram's fire. Burning webs span the area: DEX save or bound (restrained) and 1 Ember at the start of each turn bound; a STR save breaks free. The fire spreads along the threads to any hero next to a bound one."
+      "text": "Both fell: burning webs span a 6-square area. DEX save: fail = full damage and bound (restrained), 1 Ember at the start of each turn bound, until a STR save (action) breaks free; save = half, not bound. The fire spreads along the threads: a hero next to a bound one also gains 1 Ember at the start of their turn."
     }
   ],
   "Izat'al: phase 3 (the monster)": [
@@ -1744,21 +1948,21 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Every boss that died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi'ram exist only if the party killed them. A spared boss's token works once in this fight: Arachne's silk restrains her 1 round; Odi'ram's ember cancels one of her big attacks."
+      "text": "GM rules. Every boss who died gave her their power: Aethelric, Kernunos, the Nameless King and Xibalba always do. The Echo moves of Arachne and Odi’ram exist only if the party killed them. A spared boss’s token works once in this fight (a hero uses it as an action): Arachne’s silk restrains her for 1 round, no save; Odi’ram’s ember cancels one of her big attacks as it is announced."
     },
     {
       "name": "Crystals",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Each region crystal the party destroys weakens her for the whole fight. Fire: no more regeneration (30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (spells of 6th level or lower can target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba's): legendary actions 5 to 3."
+      "text": "GM rules. Each region crystal the party destroyed weakens her for the whole fight. Fire: no regeneration (otherwise 30 HP at the start of each of her turns). Blue: AC 25 to 23. Green: loses limited magic immunity (otherwise spells of 6th level or lower can’t target her). Dark grey: loses immunity to poisoned and stunned. White: legendary resistances 5 to 2. Black (Xibalba’s): legendary actions 5 to 3."
     },
     {
       "name": "Echo: Cloud Dragon's Judgement",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "Her son's finisher: she summons a twisted copy of his cloud dragon to strike the arena."
+      "text": "Her son’s finisher: a twisted cloud dragon marks 3 squares at the end of her turn; at the end of her next turn lightning strikes them, DEX save for half. Leaving the squares avoids it."
     },
     {
       "name": "Echo: Abyssal Maw",
@@ -1772,42 +1976,42 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "3d8",
       "range": 6,
       "target": "a",
-      "text": "Both children's powers together: everyone is pulled 2 squares, then lightning strikes each hero pulled."
+      "text": "No attack roll: every hero within 6 squares is pulled 2 squares toward her (STR save resists the pull), then lightning strikes each hero who was pulled for the damage, DEX save for half. Heroes who resisted the pull take nothing."
     },
     {
       "name": "The Last Breath",
       "dice": "0",
       "range": 1,
       "target": "s",
-      "text": "At 0 HP she does not fall: she begins to re-form. Only a strike from the Hexblade's blade finishes her; it devours her soul."
+      "text": "At 0 HP she does not fall: she begins to re-form at the start of her next turn (back to 10% HP). Only a hit from the Hexblade’s blade while she is at 0 finishes her for good: it devours her soul. Other damage does nothing while she is at 0."
     },
     {
       "name": "Crowned Fang",
       "dice": "2d10",
       "range": 2,
       "target": "s",
-      "text": "The crowned head bites. Can be parried."
+      "text": "Attack roll vs one hero up to 2 squares away: the crowned head bites. Can be parried."
     },
     {
       "name": "Dominion Breath",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Roll a d6 in the open; that head breathes a cone. 1 fire (1 Ember if Odi'ram died, else burning 1d6), 2 ice (slowed), 3 lightning (no reaction), 4 poison (no healing 1 round), 5 rot (1d8 for 2 rounds), 6 void (pulled 2 squares). The roll is the tell."
+      "text": "Roll a d6 in the open (the tell); that head breathes a 6-square cone. Everyone in it takes the damage, DEX save for half, plus on a failed save: 1 fire (1 Ember if Odi’ram died, else burning 1d6 for 1 round), 2 ice (slowed until the end of their next turn), 3 lightning (no reaction until their next turn), 4 poison (no healing for 1 round), 5 rot (1d8 at the start of their next 2 turns), 6 void (pulled 2 squares toward her). Dodge only."
     },
     {
       "name": "Sky-Fall",
       "dice": "4d8",
       "range": 6,
       "target": "a",
-      "text": "Telegraphed: she rises and dives on a spot. Dodge only."
+      "text": "Telegraphed: she rises (out of reach) and marks a spot up to 6 squares away. Next turn she dives: everyone within 2 squares of the spot takes the damage, DEX save for half. Dodge only; leaving the area avoids it."
     },
     {
       "name": "Golden Wave",
       "dice": "3d8",
       "range": 20,
       "target": "a",
-      "text": "A wave of gold over the arena: WIS save or lose your next reaction as a memory slips away. The Hexblade is immune."
+      "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     }
   ]
 }

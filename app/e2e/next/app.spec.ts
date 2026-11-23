@@ -206,7 +206,7 @@ test("the GM's Boss abilities list: every boss move with its icon, and notes kep
   await page.getByRole('button', { name: 'Show or hide the Boss abilities' }).click()
   await list.getByRole('button', { name: 'Nameless King' }).click()
   const wager = list.getByLabel("Boss ability Storm's Wager").first()
-  await expect(wager).toContainText('Roll a d4 in the open')
+  await expect(wager).toContainText('roll a d4 in the open')
   await expect(wager.locator('img')).toHaveJSProperty('naturalWidth', 1)
   // Its picture opens big, and closes with a click.
   await wager.getByRole('button', { name: "View Storm's Wager larger" }).click()

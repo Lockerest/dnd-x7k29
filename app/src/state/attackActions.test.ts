@@ -165,6 +165,32 @@ describe('a hero attacks a monster', () => {
     expect(no.f.writes).toEqual([])
   })
 
+  it('multi-hit abilities roll each hit on their own and stop when the target falls; Arrowstorm rolls at -2', async () => {
+    const board: Board = {
+      r: { n: 'Rending Combo', v: 'any', l: 1, c: 1, k: 'atk', d: '3d8', r: 1 },
+      a: { n: 'Arrowstorm', v: 'any', l: 1, c: 1, k: 'atk', d: '3d6', r: 8 },
+    }
+    const big = setup({ board, chars: { a: hero() }, enemies: { w: wolf({ hp: 3000, max: 3000 }) } }, { rand: 0.5 })
+    big.s.getState().openMenu('c:a', 'e:w')
+    await big.s.getState().act('ab', 2)
+    expect(evs(big.f).filter((e) => e.includes('hit ') && e.includes(' of 3'))).toEqual(['Lyra: Rending Combo, hit 1 of 3', 'Lyra: Rending Combo, hit 2 of 3', 'Lyra: Rending Combo, hit 3 of 3'])
+    // A target that falls stops the rest.
+    const small = setup({ board, chars: { a: hero() }, enemies: { w: wolf({ hp: 5, max: 30 }) } }, { rand: 0.5 })
+    small.s.getState().openMenu('c:a', 'e:w')
+    await small.s.getState().act('ab', 2)
+    expect(evs(small.f).filter((e) => e.includes(' of 3'))).toEqual(['Lyra: Rending Combo, hit 1 of 3'])
+    // A refused action rolls nothing.
+    const tired = setup({ board, chars: { a: hero({ used: 2 }) }, enemies: { w: wolf() } }, { rand: 0.5 })
+    tired.s.getState().openMenu('c:a', 'e:w')
+    await tired.s.getState().act('ab', 2)
+    expect(evs(tired.f)).toEqual([])
+    // Arrowstorm: the attack bonus drops by 2 (+4 -> +2).
+    const bow = setup({ board, chars: { a: hero() }, enemies: { w: wolf({ hp: 3000, max: 3000 }) } }, { rand: 0.5 })
+    bow.s.getState().openMenu('c:a', 'e:w')
+    await bow.s.getState().act('ab', 3)
+    expect(evs(bow.f).some((e) => / \+2 = .*Arrowstorm/.test(e))).toBe(true)
+  })
+
   it('a counter-attack is free and clears the counter', async () => {
     const { s, f } = setup({ chars: { a: hero({ ctr: true, used: 2 }) }, enemies: { w: wolf({ hp: 300, max: 300 }) } }, { rand: 0.6 })
     s.getState().openMenu('c:a', 'e:w')

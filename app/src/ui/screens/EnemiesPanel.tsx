@@ -2,6 +2,7 @@
 // boss), HP buttons, and the editor for each enemy.
 import { useState } from 'react'
 import { AETHELRIC_75, AETHELRIC_SLAM_VIDEO } from '../../data/cinematics'
+import { BOSS_STATS, bossStatsPatch } from '../../data/bossStats'
 import { SKILL_SETS } from '../../data/skillSets'
 import { enemyFieldChange, enemyPills, hpStep, NEW_SKILL, newEnemy, randomKey, rankOf, RANKS, skillFieldValue, type NewEnemyForm } from '../../logic/enemies'
 import { enemyListOrder, waitingPhases } from '../../logic/phases'
@@ -153,6 +154,24 @@ export function EnemiesPanel({
               )}
               {isOpen && (
                 <div className="eedit">
+                  <div className="row mini">
+                    <label>
+                      Stats
+                      <select
+                        aria-label="Stats"
+                        value=""
+                        onChange={(x) => {
+                          const st = BOSS_STATS[x.target.value]
+                          if (st) void actions.updateEnemy(id, bossStatsPatch(st))
+                        }}
+                      >
+                        <option value="">Fill from a boss...</option>
+                        {Object.keys(BOSS_STATS).map((n) => (
+                          <option key={n}>{n}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   <div className="efld">
                     <Field key={k('name')} label="Name" value={e.name ?? ''} width={140} onSave={(v) => field(id, e, 'name', v)} />
                     <Field key={k('type')} label="Type" value={e.type ?? ''} width={120} onSave={(v) => field(id, e, 'type', v)} />

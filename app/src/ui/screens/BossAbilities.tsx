@@ -2,6 +2,7 @@
 // boss's moves, phase by phase, with the icon, a button to hear its sound, damage
 // and reach, then what each move does across the full width, plus the GM's own note per move (saved for the table).
 import { useState } from 'react'
+import { BOSS_GLOSSARY } from '../../data/abilityTexts'
 import { ICON_BASE, SKILL_ICONS } from '../../data/icons'
 import { SKILL_SETS } from '../../data/skillSets'
 import { bossSections } from '../../logic/bossRef'
@@ -37,6 +38,11 @@ export function BossAbilities({ open, onOpen, icons = {}, notes, onNote, onPlay 
       {open && (
         <>
           <p className="note">Only you see this. Every boss move by phase. ▶ plays its sound; write your own notes under any move.</p>
+          <ul className="rules" aria-label="How boss moves work">
+            {BOSS_GLOSSARY.map((g) => (
+              <li key={g}>{g}</li>
+            ))}
+          </ul>
           <div className="row mini">
             {bosses.map((x) => (
               <button key={x.boss} className={x.boss === b.boss ? 'pri' : ''} onClick={() => setPicked(x.boss)}>

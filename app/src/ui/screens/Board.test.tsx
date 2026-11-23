@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { ABILITY_TEXTS } from '../../data/abilityTexts'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { useState } from 'react'
@@ -195,7 +196,7 @@ describe('the reference', () => {
     expect(screen.queryByText(/not unlocked yet/)).toBeNull()
     const rows = [...document.querySelectorAll('tbody tr')].map((r) => [...r.children].map((td) => td.textContent))
     expect(rows).toEqual([
-      ['1', 'Rally', '1', ''],
+      ['1', 'Rally', '1', ABILITY_TEXTS.Rally!],
       ['1', 'Cleave', '2', '2d6 damage. A wide swing.'],
       ['1', 'Cleave (Golden)', '3', '4d6 damage. Costs 10% max HP.'],
       ['5', 'Doom', '6', '8d6 damage. '],

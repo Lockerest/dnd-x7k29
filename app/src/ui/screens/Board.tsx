@@ -7,6 +7,7 @@ import { CLASSES } from '../../data/classes'
 import { ABILITY_SOUNDS } from '../../data/audio'
 import { ICON_BASE } from '../../data/icons'
 import { availableAbilities, editorOrder, equipRow, glyphOf, keyByName, missingAbilities, referenceRows, usedSlots, vocationBoard } from '../../logic/abilityBoard'
+import { ABILITY_GLOSSARY, ABILITY_TEXTS, abilityText } from '../../data/abilityTexts'
 import { attunedSet, boardOrDefault, defaultBoard, equippedIds, goldenHidden, slotsOf, spoilerList, spoilerParts, type Board } from '../../logic/board'
 import { randomKey } from '../../logic/enemies'
 import { classIcon } from '../../logic/iconImport'
@@ -281,7 +282,7 @@ function Equip({ tables, dm, me, actions, images }: BoardScreenProps) {
                     <span className="sub">
                       Lv {e.l || 1} · {abilityCost(c, Number(e.c) || 0)} St{e.hc ? ` + ${e.hc}% HP` : ''}
                     </span>
-                    <small>{r.text}</small>
+                    <small>{ABILITY_TEXTS[e.n] ? ABILITY_TEXTS[e.n] + r.text.slice((e.t || '').length) : r.text}</small>
                   </div>
                 </div>
                 {r.attune === 'attuned' && <span className="sub">Attuned</span>}
@@ -322,6 +323,11 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
           <p className="note">
             <Masked text={info.description} words={words} />
           </p>
+          <ul className="rules" aria-label="How abilities work">
+            {ABILITY_GLOSSARY.map((g) => (
+              <li key={g}>{g}</li>
+            ))}
+          </ul>
           <p className="note" aria-label="Stamina and levels">
             Stamina comes back at the start of your turn only if you used no ability on your last turn: light attacks, moving, dodging and drinking let you catch your breath. Each level adds 10% HP
             and 5% stamina; levels 2, 4 and 8 also add 2 to your attack stat.
@@ -369,7 +375,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                       </td>
                       <td>{r.cost}</td>
                       <td>
-                        <Masked text={r.effect} words={words} />
+                        <Masked text={abilityText(r.name, r.effect)} words={words} />
                       </td>
                     </tr>
                     {r.golden && (
@@ -383,9 +389,7 @@ function Reference({ tables, dm, me, images, refShut = false, onRefShut = () => 
                           </div>
                         </td>
                         <td>{r.golden.cost}</td>
-                        <td>
-                          {r.golden.dice ? `${r.golden.dice} damage. ` : ''}Costs {r.golden.hc}% max HP.
-                        </td>
+                        <td>{ABILITY_TEXTS[r.golden.name] ?? `${r.golden.dice ? `${r.golden.dice} damage. ` : ''}Costs ${r.golden.hc}% max HP.`}</td>
                       </tr>
                     )}
                   </Fragment>

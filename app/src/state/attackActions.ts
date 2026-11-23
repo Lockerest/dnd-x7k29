@@ -3,6 +3,7 @@
 // phase swaps), and the defender answering the prompt. The rules are in
 // logic/attack.ts; this is the live page's doAct, resolveAttack, applyDmg,
 // poiseHit and its prompt handlers, in the same order.
+import { ATTACK_RULES } from '../data/abilityTexts'
 import { SC } from '../data/rules'
 import type { Db } from '../db/client'
 import {
@@ -119,7 +120,14 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
       if (pl) {
         const res = await get().roll(list, inf.db)
         dmg = damageTotal(res, inf.db, SC, fac)
-      } else dmg = Math.max(1, list.reduce((x, d) => x + 1 + Math.floor(rand() * d), 0)) * SC * fac
+      } else
+        dmg =
+          Math.max(
+            1,
+            list.reduce((x, d) => x + 1 + Math.floor(rand() * d), 0),
+          ) *
+          SC *
+          fac
       await applyDamage(a, t, dmg, { ...inf, crit })
     }
 
@@ -257,7 +265,11 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
       }
       const b = board()
       const ix = boardIndex(b)
-      const charged = new Set(Object.values(b).filter((e) => e && e.ch).map((e) => e.n))
+      const charged = new Set(
+        Object.values(b)
+          .filter((e) => e && e.ch)
+          .map((e) => e.n),
+      )
 
       if (k === 'l' || k === 'h' || k === 'ab' || k === 'ctr') {
         const inf = attackFor(A, k === 'ctr' ? 'l' : (k as 'l' | 'h' | 'ab'), i as number, b, goldenHidden(dm, tables.sp))
@@ -277,7 +289,17 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
           go = !!(await act(isCh ? 0 : inf.cost, `${inf.label} on ${tn}`, k === 'ab' ? abilityExtra(c, ix.hpCost[inf.label], isCh) : {}))
         }
         set({ menu: null })
-        if (go) await resolve(A, T, inf)
+        if (!go) return
+        // Some abilities roll each hit on its own (Rending Combo) or change the roll (Arrowstorm -2).
+        const rule = k === 'ab' ? ATTACK_RULES[inf.label] : undefined
+        const one = rule?.tb ? { ...inf, tb: inf.tb + rule.tb } : inf
+        if (!rule?.hits) return resolve(A, T, one)
+        for (const [n, dice] of rule.hits.entries()) {
+          const tgt = ent(T.key)
+          if (!tgt || (tgt.o.hp as number) <= 0) break
+          await say(`${an}: ${inf.label}, hit ${n + 1} of ${rule.hits.length}`)
+          await resolve(A, tgt, { ...one, dmg: dice })
+        }
         return
       } else if (k === 'sk' && A.e) {
         const sk = sk0

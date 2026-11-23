@@ -3,6 +3,32 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // The void's three experiments: Yesod, Tiferet, Zarael.
+  witness_gaze: '1639e577-1039-4802-b334-7bd3acabbbc7.jpg',
+  tendril_grasp: '033705b6-3cdd-4beb-ba4d-759d2348306c.jpg',
+  thousand_eyes_open: '21d326b9-499a-4d02-8855-0d91e3519f1a.jpg',
+  unblinking_mark: '2a5d23d5-ff21-4a49-b9a2-3791c955f1d1.jpg',
+  monolith_stare: '033acf1d-9e8d-473f-8526-79599f4d1b1a.jpg',
+  all_seeing_judgement: '7daaa8c6-d89e-42b7-a34d-7e5da5e2c220.jpg',
+  infinite_witness: '84285245-2071-42fe-b212-0f3edcb24ed6.jpg',
+  reaching_hands: '4b7a9530-7ac3-4272-b0e1-75479451bd96.jpg',
+  weighing_grasp: 'ef6153e5-e238-4af9-833a-9e025e91a459.jpg',
+  equalize: 'ee1ea86e-dc37-4049-98f6-19861671652f.jpg',
+  rebalance: 'f460071f-8857-4969-948b-ea66f71173f6.jpg',
+  eyestalk_volley: 'f2ea0d0a-d300-4eb6-8a14-f07eb336dd59.jpg',
+  perfect_judgement: 'bca07873-3901-440c-8021-513e5a35674c.jpg',
+  perfect_balance: 'cba5f1d5-135b-467d-8086-4eab77223b24.jpg',
+  crescent_axe: 'e033b723-0510-418c-94fe-81f7de05af5e.jpg',
+  regal_sweep: '29fa09d3-7598-41c9-bbc2-3af006243a0d.jpg',
+  wingbeat: '5d0cc3e0-5ec3-41e2-ad0e-93da0e01ca98.jpg',
+  tendril_thorns: 'bf42cb05-424c-4865-ab3f-c6f447434975.jpg',
+  queen_s_decree: '5c0866bf-73b9-4516-9f62-c89a1c0542ff.jpg',
+  executioner_s_fall: '3a9cdb7f-00e3-45ed-bdb1-8b5f0f80fc52.jpg',
+  the_masked_queen: 'b87c7217-474d-4569-800c-c9677ad8d272.jpg',
+  hollow_scream: 'f0f0ccbb-ccc1-489f-84a3-70e2963fbeb3.jpg',
+  void_hunger: '6d00fc3f-9cef-4450-9b51-4eed5f496b31.jpg',
+  faceless_maw: 'bf8513e4-308a-46ee-abb2-050b5028e1c9.jpg',
+  the_faceless_queen: '1601e265-ea8c-4b99-bb63-ae787efede54.jpg',
   // Azael (halfway boss, Odi'ram's lands, two phases).
   reaper_s_arc: 'e3c42079-7ab2-4b50-87de-dd9633f01a81.jpg',
   skull_hook: '4278fbd4-facc-4495-9178-44da55378bda.jpg',

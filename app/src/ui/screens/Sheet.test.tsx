@@ -157,7 +157,7 @@ describe('<SheetScreen /> for a player', () => {
     setup({ chars: { a: hero({ st: 25, level: 1 }) } })
     const s = sheet('Lyra')
     const rows = [...s.querySelectorAll('.ab')].map((r) => r.textContent)
-    expect(rows[0]).toMatch(/^Dodge Roll \(reaction\)Reaction: when an attack.*30 St$/)
+    expect(rows[0]).toMatch(/^Dodge Roll \(reaction\)Reaction \(no action\), any time an attack.*30 St$/)
     expect(rows.slice(1)).toEqual(['SmokeA cloud20 St', 'Arrow StormMany arrowsattack: tap a target'])
     expect(within(s).getByRole('button', { name: '30 St' })).toHaveClass('warn')
     expect(within(s).getByRole('button', { name: '20 St' })).not.toHaveClass('warn')

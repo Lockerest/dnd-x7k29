@@ -2,6 +2,7 @@
 // the defender's prompt timing out, readied reactions, damage, stagger, phase gates,
 // fatigue, knock-downs, push, mount, pick up, throw, monster skills and area attacks)
 // must save exactly what the live page saves, in the same order.
+import { ATTACK_RULES } from '../../src/data/abilityTexts.ts'
 import { expect, test } from '../harness.ts'
 import { actionMenu, type U } from '../../src/logic/attack.ts'
 import { defaultBoard, goldenHidden, type Board } from '../../src/logic/board.ts'
@@ -153,6 +154,9 @@ async function press(legacy: { run: <T>(e: string) => Promise<T> }, page: import
   const sel = `[data-a="mact"][data-k="${k}"]${i != null ? `[data-i="${i}"]` : ''}`
   const btn = page.locator(sel)
   if (!(await btn.count()) || (await btn.isDisabled())) return null
+  // Changed since the cutover (1.20.0): these abilities roll each hit on its own, or at -2.
+  const label = (await btn.textContent()) ?? ''
+  if (k === 'ab' && Object.keys(ATTACK_RULES).some((n) => label.includes(n))) return null
   await btn.click()
   const mine = await inStore(c, rand, (s) => s.getState().act(k, k === 'sp' ? 'Tail Swipe' : i))
   // The page shows its dice and waits for the defender: wait until it has saved as much.

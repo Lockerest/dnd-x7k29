@@ -237,6 +237,12 @@ describe('<EnemiesPanel /> editor', () => {
     expect(Object.keys(store.getState().tables.enemies.a!.sk!)).toHaveLength(names.length)
     fireEvent.change(within(card('Arachne')).getByLabelText('Load a skill set'), { target: { value: '' } })
     expect(f.writes.at(-1)).toBe(saved)
+    // A stat preset fills the sheet at full HP; the placeholder does nothing.
+    fireEvent.change(within(card('Arachne')).getByLabelText('Stats'), { target: { value: 'The Jailer (Calden, level 2)' } })
+    expect(f.writes.at(-1)).toEqual(['PATCH', 'enemies/a', { name: 'The Jailer', max: 1500, hp: 1500, ac: 15, sz: 2, ab: 5, spd: 5, rk: 'm' }])
+    const n = f.writes.length
+    fireEvent.change(within(card('The Jailer')).getByLabelText('Stats'), { target: { value: '' } })
+    expect(f.writes).toHaveLength(n)
   })
 
   it('next phase, gate reached, start phase 2, stun, remove', () => {

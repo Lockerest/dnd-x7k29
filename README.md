@@ -145,6 +145,8 @@ npm run build
    Alithrax, the Corrupted Dragon (Sky halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.4).
    The Great Yokai (Izat'al's right hand, halfway boss of her kingdom): skill set with 6 moves and GM rules, icons and sounds (1.18.5).
    Azael (Odi'ram's halfway boss): two phases, two actions per turn, with GM rules, icons and sounds (1.18.6).
+   The void's gauntlet: Yesod, the Infinite Witness, Tiferet, the Perfect Balance, and Zarael, the Faceless Queen (two phases), escalating toward Xibalba, with GM rules, icons and sounds. All halfway bosses done. Enemy sheets get a Stats menu that fills name, HP, AC, size, attack bonus, speed and rank from a boss preset (1.19.0).
+   Every ability rewritten with exact rules (what it does, what it can't do, when it ends), with a How abilities work and a How boss moves work guide; Rending Combo, Triple Volley, Cutting Flurry, Tempest Lances, Sigil Volley and Twin Fang roll each hit on its own; Iron Stance ends when you move (1.20.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
