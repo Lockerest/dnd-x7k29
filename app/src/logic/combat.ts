@@ -1,5 +1,6 @@
 // Attack effects, attack numbers, grid distance and poise.
 import { EFFECT_KEYWORDS } from '../data/effects'
+import { weaponTier } from '../data/gear'
 import { CLASS_STAT, WEAPON_REACH } from '../data/rules'
 import { abilityCost } from './stamina'
 import { mod, proficiency } from './stats'
@@ -32,17 +33,16 @@ export function attackInfo(u: Unit, kind: 'l' | 'h'): AttackInfo {
     const d = e.dm || '1d8'
     const rng = e.er || 1
     const tb = e.ab ?? 4
-    return kind === 'h'
-      ? { label: 'Heavy attack', rng, dmg: `${d}+${d}`, tb, db: 0, cost: 0, po: 3, heavy: true }
-      : { label: 'Light attack', rng, dmg: d, tb, db: 0, cost: 0, po: 1 }
+    return kind === 'h' ? { label: 'Heavy attack', rng, dmg: `${d}+${d}`, tb, db: 0, cost: 0, po: 3, heavy: true } : { label: 'Light attack', rng, dmg: d, tb, db: 0, cost: 0, po: 1 }
   }
   const c = u.o as Character
   const tb = proficiency(c) + classStat(c)
   const db = classStat(c)
   const rng = WEAPON_REACH[c.cls as keyof typeof WEAPON_REACH] || 1
+  const w = weaponTier(c)
   return kind === 'l'
-    ? { label: 'Light attack', rng, dmg: '1d6', tb, db, cost: 0, cs: 0, po: 1 }
-    : { label: 'Heavy attack', rng, dmg: '1d10', tb, db, cost: 1, cs: abilityCost(c, 1), po: 3, heavy: true }
+    ? { label: 'Light attack', rng, dmg: w.light, tb, db, cost: 0, cs: 0, po: 1 }
+    : { label: 'Heavy attack', rng, dmg: w.heavy, tb, db, cost: 1, cs: abilityCost(c, 1), po: 3, heavy: true }
 }
 
 export type Placed = { e: boolean; o: { mx?: number | null; my?: number | null; sz?: number } }

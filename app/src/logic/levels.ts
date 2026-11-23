@@ -19,6 +19,25 @@ export function growth(cls: string | undefined, level: number) {
   return { hp: Math.round(k.hp * 0.1 * (l - 1)), st: Math.round(k.stamina * 0.05 * (l - 1)), stat: STAT_LEVELS.filter((s) => s <= l).length * 2 }
 }
 
+type HpSheet = { hp?: number; maxHp?: number; bmh?: number | null }
+
+/**
+ * Raises (or lowers) base max HP by d, keeping the revival curse's share: the new
+ * max HP, base max HP and current HP (which moves with it; a standing hero keeps at least 1).
+ */
+export function maxHpShift(c: HpSheet, d: number): Record<string, number> {
+  const p: Record<string, number> = {}
+  const max = c.maxHp ?? 0
+  const base = c.bmh || max
+  const nb = Math.max(1, base + d)
+  const nm = c.bmh ? Math.max(1, Math.round((nb * max) / base)) : nb
+  if (c.bmh) p.bmh = nb
+  p.maxHp = nm
+  const hp = c.hp ?? 0
+  p.hp = hp > 0 ? Math.max(1, clamp(hp + nm - max, nm)) : 0
+  return p
+}
+
 type Leveled = { cls?: string; level?: number; hp?: number; maxHp?: number; bmh?: number | null; st?: number; maxSt?: number } & Record<string, unknown>
 
 /**
@@ -32,15 +51,7 @@ export function levelChange(c: Leveled, level: number): Record<string, unknown> 
   const b = growth(c.cls, to)
   const dHp = b.hp - a.hp
   const dSt = b.st - a.st
-  const p: Record<string, unknown> = { level: to }
-  const max = c.maxHp ?? 0
-  const base = c.bmh || max
-  const nb = Math.max(1, base + dHp)
-  const nm = c.bmh ? Math.max(1, Math.round((nb * max) / base)) : nb
-  if (c.bmh) p.bmh = nb
-  p.maxHp = nm
-  const hp = c.hp ?? 0
-  p.hp = hp > 0 ? Math.max(1, clamp(hp + nm - max, nm)) : 0
+  const p: Record<string, unknown> = { level: to, ...maxHpShift(c, dHp) }
   const ms = Math.max(0, (c.maxSt ?? 0) + dSt)
   p.maxSt = ms
   p.st = clamp((c.st ?? 0) + dSt, ms)

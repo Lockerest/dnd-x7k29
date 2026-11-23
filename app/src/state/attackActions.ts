@@ -4,6 +4,7 @@
 // logic/attack.ts; this is the live page's doAct, resolveAttack, applyDmg,
 // poiseHit and its prompt handlers, in the same order.
 import { ATTACK_RULES } from '../data/abilityTexts'
+import { gearBonus } from '../data/gear'
 import { SC } from '../data/rules'
 import type { Db } from '../db/client'
 import {
@@ -144,7 +145,7 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
       if (sv == null) {
         let r = d20()
         if (!useD && parryMode(tt) === 'd') r = Math.min(r, d20())
-        sv = r + mod((useD ? tt.dex : tt.str) as number | undefined)
+        sv = r + saveBonus(tt, kind)
       }
       const res = saveResult(sv, total)
       if (res === 'full') {
@@ -234,9 +235,9 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
     const c = get().tables.chars[get().session?.me ?? '']
     if (!c) return
     const dis = kind === 'parry' && parryMode(c) === 'd'
-    const res = await get().roll(dis ? [20, 20] : [20], mod((kind === 'dodge' ? c.dex : c.str) as number | undefined))
+    const res = await get().roll(dis ? [20, 20] : [20], saveBonus(c, kind))
     const r = dis ? Math.min(res[0]!, res[1]!) : res[0]!
-    await save((d) => d.put('qte/sv', { r, t: r + mod((kind === 'dodge' ? c.dex : c.str) as number | undefined) }))
+    await save((d) => d.put('qte/sv', { r, t: r + saveBonus(c, kind) }))
   }
 
   return {
@@ -417,6 +418,10 @@ export function attackActions(get: Get, set: Set_, save: Save, db: () => Db | nu
     },
   }
 }
+
+/** A Dodge Roll (DEX) or Parry (STR) save bonus: the stat modifier plus worn rings and amulets. */
+export const saveBonus = (c: Record<string, unknown>, kind: string) =>
+  kind === 'dodge' ? mod(c.dex as number | undefined) + gearBonus(c, 'ddg') : mod(c.str as number | undefined) + gearBonus(c, 'pry')
 
 /** The 3-second prompt's buttons for this hero: whether they can react, and the prices. */
 export function promptButtons(c: Sheet, q: Qte) {

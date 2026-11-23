@@ -148,6 +148,7 @@ npm run build
    The void's gauntlet: Yesod, the Infinite Witness, Tiferet, the Perfect Balance, and Zarael, the Faceless Queen (two phases), escalating toward Xibalba, with GM rules, icons and sounds. All halfway bosses done. Enemy sheets get a Stats menu that fills name, HP, AC, size, attack bonus, speed and rank from a boss preset (1.19.0).
    Every ability rewritten with exact rules (what it does, what it can't do, when it ends), with a How abilities work and a How boss moves work guide; Rending Combo, Triple Volley, Cutting Flurry, Tempest Lances, Sigil Volley and Twin Fang roll each hit on its own; Iron Stance ends when you move (1.20.0).
    A GM's pass on the ability rules: natural 1s, area saves (10 + attack bonus), damage x10 on the whole total, reactions, free attacks, stacking and conditions in the How abilities work guide; Thousand Cuts bleed stacks, Punish's off-balance, Dodge Roll vs saves, and parries that still take half spelled out (1.20.1).
+   Signature weapons and accessories: each hero keeps one weapon (named by the player) whose light and heavy attacks grow by tier as the GM reforges it after Arachne, the Nameless King and Xibalba; rings and amulets the GM gives out, any two worn, with their effects applied to the sheet and the rolls (1.21.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

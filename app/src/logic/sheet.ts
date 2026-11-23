@@ -1,6 +1,7 @@
 // What the character sheet's buttons and boxes do: each returns the change to save
 // and the log line, exactly like the live page's handlers for the sheet.
 import { SC } from '../data/rules'
+import { gearBonus } from '../data/gear'
 import { attunedSet, PARRY_LABELS, PARRY_SETTINGS, type Board } from './board'
 import { isHeavy } from './combat'
 import { effectiveMaxHp, hpCost } from './health'
@@ -63,10 +64,10 @@ export const hpChange = (c: Sheet, n: number): Change => [{ hp: clamp((c.hp as n
 /** The GM's -10 / +10 stamina buttons (no log line; empty stamina still exhausts). */
 export const staminaChange = (c: Sheet, n: number): Change => [{ st: clamp((c.st as number) + n, c.maxSt as number) }]
 
-/** A flask heals 40% of max HP (rounded down). Null with none left. */
+/** A flask heals 40% of max HP (rounded down; 50% with the Pilgrim’s Pendant). Null with none left. */
 export function drinkFlask(c: Sheet): Change | null {
   if (!((c.fl as number) > 0)) return null
-  const h = Math.floor((c.maxHp as number) * 0.4)
+  const h = Math.floor(((c.maxHp as number) * (40 + gearBonus(c, 'flask'))) / 100)
   return [{ fl: (c.fl as number) - 1, hp: clamp((c.hp as number) + h, c.maxHp as number) }, `Drank a flask (+${h} HP)`]
 }
 

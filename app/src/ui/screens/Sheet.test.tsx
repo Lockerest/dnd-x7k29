@@ -153,6 +153,14 @@ describe('<SheetScreen /> for a player', () => {
     expect(screen.getByRole('button', { name: 'Armor: heavy' })).toBeInTheDocument()
   })
 
+  it('names the weapon and wears a ring from the sheet', () => {
+    const { f } = setup({ chars: { a: hero({ ao: 'ring_iron', ac: 14 }) } })
+    fireEvent.blur(screen.getByLabelText('Weapon'), { target: { value: 'Dawnpiercer' } })
+    expect(last(f)![2]).toEqual({ wn: 'Dawnpiercer' })
+    fireEvent.change(screen.getByLabelText('Accessory slot 1'), { target: { value: 'ring_iron' } })
+    expect(last(f)![2]).toMatchObject({ a1: 'ring_iron', ac: 15 })
+  })
+
   it('abilities: stamina price, warnings, attacks from the map, and greyed out when exhausted', () => {
     setup({ chars: { a: hero({ st: 25, level: 1 }) } })
     const s = sheet('Lyra')

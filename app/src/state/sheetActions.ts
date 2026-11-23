@@ -7,6 +7,7 @@ import { altarsOf, bonfiresOf, nearSpot, revealAround, waveCenter, type MapData 
 import { abilityLocked, altarRest, bonfireRest, healAmount, isMyTurn, payForAbility, respawnPatches, revive, type Sheet } from '../logic/sheet'
 import { approvedIds } from '../logic/characters'
 import { parseDice } from '../logic/text'
+import { gearBonus } from '../data/gear'
 import { bonusOf, clamp, proficiency } from '../logic/stats'
 import type { GameState, Tables } from './store'
 import { shownMapId, type Maps } from '../logic/table'
@@ -147,7 +148,7 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
       if (heal) {
         const bb = bonusOf(c, heal.b)
         const rs = await get().roll(parseDice(heal.d), bb)
-        const amt = healAmount(rs, bb)
+        const amt = healAmount(rs, bb) + gearBonus(c, 'heal')
         const cc = get().tables.chars[id]!
         await get().updateCharacter(id, { hp: clamp((cc.hp as number) + amt, cc.maxHp as number) }, `Healed ${amt}`)
         await get().log(`${c.name} heals ${amt} with ${name}`)
@@ -157,6 +158,5 @@ export function sheetActions(get: Get, set: Set_, save: Save, now: () => number,
         await get().log(`${c.name} tries ${name}: ${r! + bb}`)
       }
     },
-
   }
 }

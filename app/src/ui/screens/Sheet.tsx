@@ -32,6 +32,7 @@ import { abilityCost, startTurn } from '../../logic/stamina'
 import { currentMap } from '../../state/sheetActions'
 import type { GameState, Tables } from '../../state/store'
 import { Field, Meter } from '../parts'
+import { Gear } from './Gear'
 import { RequestPanels } from './RequestPanels'
 import { PictureButton } from '../PictureButton'
 import { portraitImage, tokenIcon } from '../images'
@@ -241,6 +242,7 @@ export function CharacterCard({ id, tables, dm, me, gmMap = null, actions, portr
           ))}
         </div>
       )}
+      <Gear c={c} dm={dm} own={own} upd={upd} patch={(p) => void actions.patchCharacter(id, p)} />
       <h3>Stats</h3>
       <div className="stats">
         {STAT_FIELDS.map(([f, l]) =>

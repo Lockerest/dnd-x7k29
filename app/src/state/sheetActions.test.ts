@@ -255,6 +255,12 @@ describe('using abilities', () => {
     ])
   })
 
+  it("the Saint's Medal adds 10 to a heal", async () => {
+    const { s, f } = setup({ chars: { a: hero({ hp: 20, a1: 'am_medal' }) }, board }, { role: 'player', me: 'a', rand: () => 0.5 })
+    await s.getState().castAbility('a', 'Mend', 1, false)
+    expect(f.writes.map((w) => (w[2] as { ev?: string }).ev).filter(Boolean)).toEqual(['Lyra heals 110 with Mend'])
+  })
+
   it("a check rolls d20 + bonus + proficiency; the GM's rolls stay secret", async () => {
     const { s, f } = setup({ chars: { a: hero({ dex: 16 }) }, board }, { rand: () => 0 })
     await s.getState().castAbility('a', 'Sneak', 1, false)
