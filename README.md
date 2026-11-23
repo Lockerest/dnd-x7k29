@@ -141,6 +141,8 @@ npm run build
    Hero balance: stamina comes back only after a turn without abilities (light attacks, moving, dodging and drinking let you catch your breath); changing a hero's level applies growth automatically (+10% base HP and +5% base stamina per level, +2 attack stat at levels 2, 4 and 8, keeping the revival curse's share) (1.18.0).
    The Jailer (Calden's Keep halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.1).
    Remade Triumvirate and Dark Elf High Priestess (Arachne's halfway duo): two skill sets with GM rules, icons and sounds (1.18.2).
+   The Corrupted Idol (Kernunos's halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.3).
+   Alithrax, the Corrupted Dragon (Sky halfway boss): skill set with 6 moves and GM rules, icons and sounds (1.18.4).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

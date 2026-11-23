@@ -3,6 +3,22 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // Alithrax (halfway boss, Sky region).
+  rending_claw: 'bcf04c07-bd68-4380-87ed-93bbafe4401d.jpg',
+  tendril_maw: '01755f59-ec08-438e-ac95-8027aa895693.jpg',
+  tattered_gale: '500d4f5d-6836-4205-9edc-97ad1f71dac1.jpg',
+  rot_breath: '2fdd9fa3-d6ae-4834-a011-b693740bd40f.jpg',
+  storm_dive: 'eafb3489-10b5-4a48-bd40-0e6c3b3b7768.jpg',
+  writhing_mane: '8bc0d95c-69f1-4f07-bb70-7770e933a7d2.jpg',
+  rotting_wings: '1a59bf8a-6e35-4967-b662-9b2b23d99f23.jpg',
+  // The Corrupted Idol (halfway boss, Kernunos's forest).
+  bone_scythe: 'a3d06840-01af-4df0-8473-6b7e50ec1807.jpg',
+  marrow_trample: '14ce9f88-02f1-44a6-957d-07c6440a981b.jpg',
+  mudra_of_rot: '190ca3a8-3cee-49dd-8d6a-a9683f9dd660.jpg',
+  flesh_tendrils: '25d78ee2-df13-4ebc-9e80-bd0dc2a53cb7.jpg',
+  threefold_gaze: 'db589838-7aa6-4582-92d4-5e803da16c04.jpg',
+  idol_s_communion: 'f152141b-5e42-4cef-b36e-fe6b2b24d454.jpg',
+  false_goddess: '26443155-15ac-4dbc-a604-0658e792da1d.jpg',
   // Remade Triumvirate and Dark Elf High Priestess (halfway duo, Arachne).
   sickle_hook: '632332f0-3915-4cf5-b767-e99e67a70fd2.jpg',
   greatblade_cleave: '1f419abd-3fa7-4514-8d3a-1bb0e11bc272.jpg',

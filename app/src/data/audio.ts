@@ -119,6 +119,20 @@ export const THEME_GROUPS: Record<string, string[]> = {
 
 /** Ability sound files, by ability slug (see abilitySlug). */
 export const ABILITY_SOUNDS: Record<string, string> = {
+  "rending_claw": "9a646930-86fd-4d01-b9e1-0355f7236f97",
+  "tendril_maw": "d089359e-44e4-4f23-ad17-55356ac768f9",
+  "tattered_gale": "cd57fd10-6f5e-4f33-92d7-59b6b13f6c22",
+  "rot_breath": "3970aaea-6e79-493f-911c-6814d7b4380a",
+  "storm_dive": "f97b7eac-355a-4fb4-88b5-01ffa05dbebc",
+  "writhing_mane": "334906ba-bc4a-428b-819b-62659d4ffee8",
+  "rotting_wings": "fc34fb75-26c4-4f17-ac39-aabe91ace19c",
+  "bone_scythe": "868d2888-3c18-40b6-bef8-c5a79a348e08",
+  "marrow_trample": "c1b1bed1-0214-445b-93b6-3519768d8350",
+  "mudra_of_rot": "8c4dd9db-e560-47f4-813d-076e97e42351",
+  "flesh_tendrils": "404af0a3-e31f-4aa3-9799-45a0bcc1616b",
+  "threefold_gaze": "84071747-5e7f-4d19-809d-73e72de20647",
+  "idol_s_communion": "f2c01d63-a308-4196-8c16-a3eb77a67035",
+  "false_goddess": "2ff13bbd-694e-4f45-a17f-1a3257a7ba3d",
   "sickle_hook": "35e85aef-55c4-4e5c-88cb-fcd57bb42482",
   "greatblade_cleave": "4577d323-9ad0-42a3-8535-67d2726690f5",
   "leg_impale": "22d7e17a-d38f-4fc0-bcb0-2f3e9716a953",

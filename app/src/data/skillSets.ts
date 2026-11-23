@@ -538,6 +538,108 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Fights beside the Remade Triumvirate: HP 500, AC 13, size 1x1, her own turn in initiative. She stays behind him. Roll a d6: 1 Venom Dagger, 2 Blinding Silk, 3-4 Webcrown Blessing, 5 Mend the Remade, 6 Silk Step. If the Triumvirate dies first, she flees into the tunnels: catch her within 3 rounds or she escapes to warn Arachne."
     }
   ],
+  "The Corrupted Idol (halfway)": [
+    {
+      "name": "Bone Scythe",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: the beast's bone blade slashes one hero up to 2 squares away. Can be parried."
+    },
+    {
+      "name": "Marrow Trample",
+      "dice": "2d8",
+      "range": 1,
+      "target": "s",
+      "text": "Her heavy attack: the skeletal beast stamps on one adjacent hero. STR save or knocked prone. Can't be parried (it's a whole leg), dodge only."
+    },
+    {
+      "name": "Mudra of Rot",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "The statue's hands form sacred gestures and vivid green rot spills out: every hero within 3 squares takes the damage, CON save or Rotting until the end of their next turn (healing and flasks do nothing). Can't be parried."
+    },
+    {
+      "name": "Flesh Tendrils",
+      "dice": "1d10",
+      "range": 3,
+      "target": "a",
+      "text": "Red tendrils lash out at up to 2 heroes within 3 squares: STR save or pulled next to her and restrained until the end of their next turn. Can be dodged, not parried."
+    },
+    {
+      "name": "Threefold Gaze",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "Her three faces turn on the party: every hero who can see her within 6 squares makes a WIS save or kneels in worship, losing their movement and reaction until the end of their next turn. Looking away (disadvantage on attacks against her) avoids it."
+    },
+    {
+      "name": "Idol's Communion",
+      "dice": "3d8",
+      "range": 4,
+      "target": "a",
+      "text": "Telegraphed: the statue raises all four arms for a turn (announce it), then rot-light bursts 4 squares around her: CON save for half. She regains 100 HP for each hero who failed. Can't be parried. Never twice in a row."
+    },
+    {
+      "name": "False Goddess",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Halfway boss of Kernunos's forest, for a level 5 party: HP 2,200, AC 16, size 3x3. Roll a d6 (1-6 in this order; a 6 right after a 6 is Bone Scythe). She is one creature: a headless beast with the idol statue grown where its head should be. Three faces: she can't be flanked or surprised, and Sneak Attack never gets its extra dice on her. At half HP, 2 Awakened Blood crawl out of her flesh (elites, HP 300 each). Her shrine is the first sign of the forest's rot."
+    }
+  ],
+  "Alithrax (halfway)": [
+    {
+      "name": "Rending Claw",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "His light attack: a bony claw rakes one adjacent hero. Can be parried."
+    },
+    {
+      "name": "Tendril Maw",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "His heavy attack: the lion-like jaws bite one hero up to 2 squares away and the tendril beard holds on: STR save or grappled, taking 1d10 at the start of each of their turns until they break free (STR check as an action) or he takes 200 damage. Can be parried (a parry still takes half)."
+    },
+    {
+      "name": "Tattered Gale",
+      "dice": "1d10",
+      "range": 4,
+      "target": "a",
+      "text": "His wings beat a gust in a 4-square cone: everyone in it takes the damage and makes a STR save or is pushed 3 squares away. Pushed off a ledge on the peak = fall damage. Can't be parried or dodged, only resisted."
+    },
+    {
+      "name": "Rot Breath",
+      "dice": "4d6",
+      "range": 5,
+      "target": "a",
+      "text": "Telegraphed: he rears back with a wet rattling breath for a turn (announce it), then spews black bile in a 5-square cone: CON save for half. Anyone who failed is Corroded: -1 AC for the rest of the fight (stacks up to -2). Can't be parried. Never twice in a row."
+    },
+    {
+      "name": "Storm Dive",
+      "dice": "2d10",
+      "range": 8,
+      "target": "a",
+      "text": "He takes off into the storm (melee can't reach him; his shadow marks a square up to 8 squares away), then dives onto it at the start of his next turn: everyone within 1 square of the mark takes the damage, DEX save for half, and is knocked prone on a fail. Only while he can still fly."
+    },
+    {
+      "name": "Writhing Mane",
+      "dice": "1d8",
+      "range": 1,
+      "target": "a",
+      "text": "The tendrils along his spine lash every hero next to him. Also a reaction once per round when a hero hits him in melee: that hero takes the damage (no roll on his turn)."
+    },
+    {
+      "name": "Rotting Wings",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Halfway boss of the Sky region, for a level 6-7 party: HP 2,600, AC 17, size 3x3. Once a dragon, now something the rot in these mountains (Aldrich's) has eaten; black tendrils trail wherever he lands. Roll a d6 (1-6 in this order; a 4 right after a 4 is Rending Claw). At half HP his wings tear through: he can't fly any more, so Storm Dive becomes Tattered Gale, and he gets +1d6 on Rending Claw and Tendril Maw."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",
