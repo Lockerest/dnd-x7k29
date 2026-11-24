@@ -1089,14 +1089,14 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "0",
       "range": 3,
       "target": "a",
-      "text": "No damage. A nightmare crawls out of the smoke on a free square within 3 squares of her. Roll a d8: 1 Dream Eater, 2 Shackled Horror, 3 Insomnia Beast, 4 Bogeyman, 5 Lullaby Gent, 6 Timekeeper Hag, 7 Flickering Knight, 8 Nightmare Aberration. Never more than 3 nightmares at once (reroll this move if 3 are up). Nightmares attack sleeping heroes first."
+      "text": "No damage. In her panic she drags one of her strongest nightmares out of the dream: an ELITE nightmare crawls out of the smoke on a free square within 3 squares of her. Roll a d8: 1 Dream Eater, 2 Shackled Horror, 3 Insomnia Beast, 4 Bogeyman, 5 Lullaby Gent, 6 Timekeeper Hag, 7 Flickering Knight, 8 Nightmare Aberration. Elite = that nightmare's normal stats with +50% HP, +1 AC and +1 to attack (their own elite sheets come with the minions). Never more than 3 nightmares at once (reroll this move if 3 are up). Nightmares attack sleeping heroes first."
     },
     {
       "name": "The Nightmare Wakes",
       "dice": "0",
       "range": 20,
       "target": "a",
-      "text": "GM rules. Phase 2: HP 1,400, AC 16, size 2x2. She rises from the throne and moves 6 squares a turn. Roll a d6 (1-6 in this order). Slumber rules from phase 1 carry over, and a sleeping hero now also takes 1d8 psychic at the start of each of their skipped turns (that damage doesn't wake them). Every 2 rounds she also uses Summon Nightmare for free. When she dies, every nightmare fades and every hero wakes."
+      "text": "GM rules. Phase 2: HP 1,400, AC 16, size 2x2. Nobody is supposed to resist her dreaming: when the heroes break her, she panics for the first time in ages, rises from the throne and moves 6 squares a turn. The nightmares the party fought as normal enemies in the frozen region now come as elites. Roll a d6 (1-6 in this order). Slumber rules from phase 1 carry over, and a sleeping hero now also takes 1d8 psychic at the start of each of their skipped turns (that damage doesn't wake them). Every 2 rounds she also uses Summon Nightmare for free. When she dies, every nightmare fades and every hero wakes."
     }
   ],
   "Nameless King: phase 1 (storm rider)": [

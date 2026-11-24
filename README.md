@@ -151,6 +151,7 @@ npm run build
    Signature weapons and accessories: each hero keeps one weapon (named by the player) whose light and heavy attacks grow by tier as the GM reforges it after Arachne, the Nameless King and Xibalba; rings and amulets the GM gives out, any two worn, with their effects applied to the sheet and the rolls (1.21.0).
    Weapon names are the GM's to give, as a reward at the first reforge; players see their weapon as unnamed until then (1.21.1).
    First secret boss: Desidia, Lady of Slumber (frozen region, level 3), two phases with a Slumber mechanic (drowsiness lowers stamina regen, three stacks and you fall asleep; torches help), shackled sleepers to free, and phase 2 summoning the nightmares; her own icons, sounds and Stats entries (1.22.0).
+   Desidia's phase 2 is her panic: the nightmares met as normal enemies in the frozen region return as elites (+50% HP, +1 AC, +1 to attack until their own sheets exist) (1.22.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
