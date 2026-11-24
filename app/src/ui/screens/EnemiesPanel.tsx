@@ -2,7 +2,7 @@
 // boss), HP buttons, and the editor for each enemy.
 import { useState } from 'react'
 import { AETHELRIC_75, AETHELRIC_SLAM_VIDEO } from '../../data/cinematics'
-import { BOSS_STATS, bossStatsPatch } from '../../data/bossStats'
+import { bossStatsPatch, STAT_GROUPS, statPreset } from '../../data/bossStats'
 import { SKILL_SETS } from '../../data/skillSets'
 import { enemyFieldChange, enemyPills, hpStep, NEW_SKILL, newEnemy, randomKey, rankOf, RANKS, skillFieldValue, type NewEnemyForm } from '../../logic/enemies'
 import { enemyListOrder, waitingPhases } from '../../logic/phases'
@@ -161,13 +161,19 @@ export function EnemiesPanel({
                         aria-label="Stats"
                         value=""
                         onChange={(x) => {
-                          const st = BOSS_STATS[x.target.value]
+                          const st = statPreset(x.target.value)
                           if (st) void actions.updateEnemy(id, bossStatsPatch(st))
                         }}
                       >
-                        <option value="">Fill from a boss...</option>
-                        {Object.keys(BOSS_STATS).map((n) => (
-                          <option key={n}>{n}</option>
+                        <option value="">Fill from a preset...</option>
+                        {STAT_GROUPS.map((g) => (
+                          <optgroup key={g.label} label={g.label}>
+                            {Object.keys(g.items).map((n) => (
+                              <option key={n} value={`${g.label}|${n}`}>
+                                {n}
+                              </option>
+                            ))}
+                          </optgroup>
                         ))}
                       </select>
                     </label>

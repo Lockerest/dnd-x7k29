@@ -2516,5 +2516,208 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a",
       "text": "No attack roll: a wave of gold over the whole arena. Every hero makes a WIS save: fail = damage and loses their next reaction (no Dodge or Parry until it is spent) as a memory slips away; save = half damage, reaction kept. The Hexblade is immune (no damage, no save). Dodge only halves it."
     }
+  ],
+  "Frozen North: Revenant Phalanx": [
+    {
+      "name": "Phalanx Thrust",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one hero up to 2 squares away (the spear reaches over an ally in front of it). Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Shield Lock",
+      "dice": "0",
+      "range": 1,
+      "target": "a",
+      "text": "Passive, no action (if rolled, it uses Phalanx Thrust instead). While another Revenant Phalanx stands next to it, both get +2 AC and can't be pushed or knocked prone. A hero attacking from behind the line (the side away from the shields) ignores the +2. Split them up and they are ordinary soldiers. GM applies it."
+    },
+    {
+      "name": "Phalanx Push",
+      "dice": "1d6",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero with the coffin shield. On a hit: damage, and the hero is pushed 1 square straight back (no save). If a wall or another creature blocks the push, they fall prone instead. Can be parried (beaten parry: no damage, no push)."
+    }
+  ],
+  "Frozen North: Revenant Courtier": [
+    {
+      "name": "Courtly Stab",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Her light attack: attack roll vs one adjacent hero with a dagger or rapier. Can be parried."
+    },
+    {
+      "name": "Danse Macabre",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "She whirls up to 3 squares (this movement never gives free attacks) and stabs one hero she ends next to: attack roll. If another Revenant Courtier is next to the same hero, the stab has advantage. Can be parried."
+    },
+    {
+      "name": "Mourning Wail",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 3 squares makes a WIS save against 10 + her attack bonus, or is frightened of her until the end of their next turn (disadvantage on attacks against her, can't move closer to her). Can't be dodged or parried (it's sound). Never twice in a row: roll again."
+    }
+  ],
+  "Frozen North: Accursed Servant": [
+    {
+      "name": "Frenzied Claws",
+      "dice": "1d6",
+      "range": 1,
+      "target": "s",
+      "text": "Two claw attacks vs one adjacent hero, each with its own attack roll and damage. Each can be parried on its own. Servants come in numbers: three of them on one hero is six attacks."
+    },
+    {
+      "name": "Cursed Wail",
+      "dice": "0",
+      "range": 2,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 2 squares makes a WIS save against 10 + its attack bonus, or is frightened of it until the end of their next turn. A hero who already saved against a Cursed Wail this fight has advantage. Can't be dodged or parried."
+    }
+  ],
+  "Frozen North: Necrolyte": [
+    {
+      "name": "Grave Bolt",
+      "dice": "1d10",
+      "range": 6,
+      "target": "s",
+      "text": "Its light attack, a spell: attack roll vs one hero up to 6 squares away. A screaming skull of green ghostfire. Can't be parried (a spell): dodge only."
+    },
+    {
+      "name": "Raise the Fallen",
+      "dice": "0",
+      "range": 4,
+      "target": "s",
+      "text": "No damage. One destroyed undead within 4 squares (not a mini-boss) stands back up at half its max HP, on its square. Each body can only be raised once. If no body is in reach, it uses Grave Bolt instead. The reason to kill the Necrolyte first."
+    },
+    {
+      "name": "Rot Ward",
+      "dice": "0",
+      "range": 4,
+      "target": "s",
+      "text": "No damage. One undead within 4 squares (or itself) gains 30 temporary HP, lost first. They don't stack: a second Rot Ward on the same target only tops it back up to 30."
+    }
+  ],
+  "Frozen North: Revenant Hound": [
+    {
+      "name": "Rending Bite",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one adjacent hero, with advantage against a prone hero. Can be parried."
+    },
+    {
+      "name": "Spine Burst",
+      "dice": "1d6",
+      "range": 1,
+      "target": "a",
+      "text": "No attack roll: it shakes its bone spines out in every direction. Every hero next to it makes a DEX save against 10 + its attack bonus for half. Dodge only."
+    },
+    {
+      "name": "Pack Leap",
+      "dice": "1d8",
+      "range": 4,
+      "target": "s",
+      "text": "It leaps up to 4 squares (this movement never gives free attacks) and bites one hero it lands next to: attack roll, with advantage if another Revenant Hound is already next to that hero. Can be parried."
+    }
+  ],
+  "Frozen North: Morwen, the Shadow of Calden": [
+    {
+      "name": "Crescent Reap",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: attack roll vs one hero up to 2 squares away with a crescent sickle. Can be parried."
+    },
+    {
+      "name": "Twin Moons",
+      "dice": "2d6",
+      "range": 1,
+      "target": "s",
+      "text": "Her heavy attack: two sickle cuts at one adjacent hero, each with its own attack roll and damage. A parry still takes half."
+    },
+    {
+      "name": "Shadowstep",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "No damage. She vanishes and reappears on a free square next to any hero within 8 squares who isn't in bright light (a lit torch or a fire within 2 squares of them counts as bright light). Her next attack has advantage. If every hero is in bright light, she uses Crescent Reap instead."
+    },
+    {
+      "name": "Harvest Hook",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "Attack roll vs one hero up to 3 squares away. On a hit: damage, and a STR save against 10 + her attack bonus or pulled to a free square next to her. Can be parried (beaten parry: no damage, no pull)."
+    },
+    {
+      "name": "Eclipse Veil",
+      "dice": "0",
+      "range": 5,
+      "target": "a",
+      "text": "No damage. A 3x3 zone of darkness up to 5 squares away for 2 rounds (mark it as a Void danger zone). Heroes inside are blinded (disadvantage on attacks, attacks against them have advantage); she sees through it. A lit torch carried in, or fire cast into it (an action), ends it."
+    },
+    {
+      "name": "Mark of the Shadow",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "No damage. She marks one hero she can see. Until that hero drops to 0 HP or lands a critical hit on her, every single-target move she rolls goes after them. Using it again moves the mark."
+    },
+    {
+      "name": "The Shadow of Calden",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Mini-boss of Calden's Keep, for a level 2-3 party: HP 900, AC 16, size 2x2, speed 7. Roll a d6 (1-6 in this order). She commands the Knights of the Gravid Moon and stalks the party. FIRST MEETING (an ambush anywhere in the Keep): when she drops to 450 HP she vanishes into the shadows and the fight ends; keep her sheet as it is. SECOND MEETING (the Inner Court, two Revenant Hounds at her side): she comes back with the HP she had left and fights to the end."
+    }
+  ],
+  "Frozen North: Knight of the Gravid Moon": [
+    {
+      "name": "Broken Oath",
+      "dice": "1d12",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack: attack roll vs one hero up to 2 squares away, a chop of the cracked greatsword. Can be parried."
+    },
+    {
+      "name": "Moonlit Cleave",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "His heavy attack: a sweeping arc through every hero in front of him within 2 squares, one attack roll per hero. A parry still takes half."
+    },
+    {
+      "name": "Crescent Pounce",
+      "dice": "2d6",
+      "range": 6,
+      "target": "s",
+      "text": "He leaps up to 6 squares (this movement never gives free attacks) and slams one hero he lands next to: attack roll. On a hit: damage and a STR save against 10 + his attack bonus or knocked prone. Dodge only (too heavy to parry)."
+    },
+    {
+      "name": "Howl of the Gravid Moon",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage. A Revenant Hound bursts in from the dark on a free square within 6 squares of him, and every undead within 6 squares heals 30 HP. Never two turns in a row: roll again."
+    },
+    {
+      "name": "Savage Maul",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "Claws and fangs vs one adjacent prone hero: attack roll with advantage. Can't be parried. If no adjacent hero is prone, he uses Broken Oath instead."
+    },
+    {
+      "name": "Under the Gravid Moon",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Mini-boss guarding the gate of Calden's Inner Court, for a level 2-3 party: HP 1,000, AC 17, size 3x3, speed 6 (can't be pushed, pulled or knocked prone). Roll a d6: 1 Broken Oath, 2 Moonlit Cleave, 3 Crescent Pounce, 4 Howl of the Gravid Moon, 5 Savage Maul, 6 Broken Oath. At 500 HP his armour cracks and he goes feral: from then on he rolls twice each turn, but his AC drops to 15."
+    }
   ]
 }

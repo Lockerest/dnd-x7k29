@@ -4,7 +4,7 @@
 import type { Enemy } from '../logic/types'
 
 /** Preset: what it sets on the sheet (hp is set to max). */
-export type BossStats = { name: string; max: number; ac: number; sz: number; ab: number; spd: number; rk: 'n' | 'm' | 'u' }
+export type BossStats = { name: string; max: number; ac: number; sz: number; ab: number; spd: number; rk: 'n' | 'l' | 'm' | 'u' }
 
 /** Main, secret and halfway bosses for the enemy sheet's Stats menu. Every boss is Unique: it stays dead after an altar rest. */
 export const BOSS_STATS: Record<string, BossStats> = {
@@ -53,6 +53,28 @@ export const BOSS_STATS: Record<string, BossStats> = {
   'Zarael phase 1 (void 3, level 9)': { name: 'Zarael, the Masked Queen', max: 2200, ac: 18, sz: 3, ab: 10, spd: 8, rk: 'u' },
   'Zarael phase 2 (faceless)': { name: 'Zarael, the Faceless Queen', max: 1800, ac: 17, sz: 3, ab: 10, spd: 8, rk: 'u' },
   'The Great Yokai (Izat’al, level 9-10)': { name: 'The Great Yokai', max: 3400, ac: 18, sz: 2, ab: 10, spd: 6, rk: 'u' },
+}
+
+/** Each region's enemies, grouped in the Stats menu under the bosses. Normal enemies come back after an altar rest; mini-bosses are Unique and stay dead. */
+export const REGION_STATS: Record<string, Record<string, BossStats>> = {
+  'Frozen North (Calden, level 1-3)': {
+    'Revenant Phalanx': { name: 'Revenant Phalanx', max: 200, ac: 15, sz: 1, ab: 4, spd: 5, rk: 'n' },
+    'Revenant Courtier': { name: 'Revenant Courtier', max: 140, ac: 13, sz: 1, ab: 4, spd: 7, rk: 'n' },
+    'Accursed Servant': { name: 'Accursed Servant', max: 120, ac: 11, sz: 1, ab: 3, spd: 6, rk: 'n' },
+    Necrolyte: { name: 'Necrolyte', max: 150, ac: 12, sz: 1, ab: 4, spd: 6, rk: 'n' },
+    'Revenant Hound': { name: 'Revenant Hound', max: 160, ac: 13, sz: 1, ab: 4, spd: 8, rk: 'n' },
+    'Morwen, the Shadow of Calden (mini-boss)': { name: 'Morwen, the Shadow of Calden', max: 900, ac: 16, sz: 2, ab: 5, spd: 7, rk: 'u' },
+    'Knight of the Gravid Moon (mini-boss)': { name: 'Knight of the Gravid Moon', max: 1000, ac: 17, sz: 3, ab: 5, spd: 6, rk: 'u' },
+  },
+}
+
+/** The Stats menu: bosses first, then each region. Option values are "group|label". */
+export const STAT_GROUPS: { label: string; items: Record<string, BossStats> }[] = [{ label: 'Bosses', items: BOSS_STATS }, ...Object.entries(REGION_STATS).map(([label, items]) => ({ label, items }))]
+
+/** A Stats menu value ("group|label") to its preset. */
+export const statPreset = (v: string): BossStats | undefined => {
+  const i = v.indexOf('|')
+  return STAT_GROUPS.find((g) => g.label === v.slice(0, i))?.items[v.slice(i + 1)]
 }
 
 /** The sheet change a preset makes: full HP at the new max. */

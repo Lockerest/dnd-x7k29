@@ -548,7 +548,35 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "storm_singularity": "35635e92-72e9-4c52-bea8-f9ce40c0ba8c",
   "the_last_breath": "77f5a561-2544-491e-b1af-2c42073bf6e6",
   "the_contract": "1b1f4dcd-1fd7-4ce2-8301-5c8b2320b0b6",
-  "cinder_web": "1a33fd8d-547e-4d91-8dac-eb58777a4100"
+  "cinder_web": "1a33fd8d-547e-4d91-8dac-eb58777a4100",
+  // Frozen North enemies (1.25.0).
+  "phalanx_thrust": "edaefa89-fd59-48d7-bea6-12ed392d1877",
+  "shield_lock": "781113ac-0ef7-4e97-acb0-200ee2803ace",
+  "phalanx_push": "2b96f25c-9ce9-4020-972d-d5dfab49def2",
+  "courtly_stab": "aa0681b5-131f-4d72-8bbb-cfcc8b7b23bc",
+  "danse_macabre": "6f64fa99-0fba-4bbb-ad9e-cd210614fdf3",
+  "mourning_wail": "409f3915-76ab-423d-8253-de48b380e319",
+  "frenzied_claws": "4d75ca7f-5b66-40d1-b1e9-540f55c44759",
+  "cursed_wail": "f15f6a24-fc83-4a99-9b1e-1acc7a36cc10",
+  "grave_bolt": "b650a5ec-0961-40a4-9b8c-ca6e504b4e96",
+  "raise_the_fallen": "e58f34ea-5d4b-45f2-8b89-f2e155fdcb7a",
+  "rot_ward": "210396b3-8be0-417b-be69-b521c80ac2ac",
+  "rending_bite": "05cf0022-2ada-4d46-87a8-678e7f3aac67",
+  "spine_burst": "fc183cda-46eb-4d11-bf90-bf2ba0dfb61d",
+  "pack_leap": "327a1578-8c46-4426-ae6f-9d7f2af83689",
+  "crescent_reap": "f421599b-f5f6-4051-b0b6-a6cc6c35ef28",
+  "twin_moons": "ecde43e3-f077-431f-82a7-563757eefd2f",
+  "shadowstep": "b725bbcb-7ab8-43dc-bfef-55bbf4cd16c0",
+  "harvest_hook": "17ae9e20-8f4f-47bd-8fab-b35f723f7548",
+  "eclipse_veil": "83ef075c-3490-4a50-b42a-4919e2785c56",
+  "mark_of_the_shadow": "1f49a16e-bc9d-4559-bd2b-19810f2af5d7",
+  "moonlit_cleave": "726197e5-e423-4215-887c-b4262f14f2cd",
+  "broken_oath": "4f891663-4780-450a-b202-586e8626dde8",
+  "crescent_pounce": "93c2c696-a47b-4922-97f2-ec768774b2e6",
+  "howl_of_the_gravid_moon": "341592e5-44e4-4dd6-a2e4-d54c972991e4",
+  "savage_maul": "6aa64a22-4a84-4b72-87f0-14a38c508ad4",
+  "the_shadow_of_calden": "e01a4fb5-8430-4db1-b431-19f483732ac9",
+  "under_the_gravid_moon": "c2d5b316-f857-4661-b100-2d1454116764"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`
