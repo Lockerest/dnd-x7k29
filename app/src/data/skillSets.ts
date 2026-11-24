@@ -1099,6 +1099,407 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Phase 2: HP 1,200, AC 16, size 2x2. Nobody is supposed to stay awake in her dream: when the heroes break her, she panics for the first time in ages, rises from the throne and moves 6 squares a turn. Roll a d6 (1-6 in this order). Slumber rules from phase 1 carry over, and a sleeping hero now also takes 1d8 psychic at the start of each of their skipped turns (that damage doesn't wake them). Her three horrors arrive at 75%, 50% and 25% HP (Summon Nightmare): killing each one before the next arrives keeps the fight under control. When she dies, every horror fades and every hero wakes."
     }
   ],
+  "Iniha Yunvra: phase 1 (drow queen, secret)": [
+    {
+      "name": "Venom Lash",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her light attack: a whip of poisoned silk cracks at one hero up to 3 squares away. Attack roll; on a hit, damage and CON save or poisoned (disadvantage on attacks) until the end of their next turn. Can be parried (beaten parry: no damage, no poison)."
+    },
+    {
+      "name": "Spider Spines",
+      "dice": "2d8",
+      "range": 1,
+      "target": "s",
+      "text": "Her heavy attack: the spider legs on her back stab one adjacent hero. Attack roll. Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Silk Puppet",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "No damage. Invisible threads seize one hero up to 6 squares away: DEX save against 10 + her attack bonus or strung. At the start of their next turn she moves them up to 3 squares (no free attacks against them) and they make one light attack against an ally of her choice in reach (if none, they just move). Then the strings fall. A STR check as an action, or an ally cutting the threads (an action, adjacent), frees them before that. Can't be parried."
+    },
+    {
+      "name": "Drow Darkness",
+      "dice": "0",
+      "range": 8,
+      "target": "a",
+      "text": "No damage. A 3x3 cloud of magical darkness up to 8 squares away, for 2 rounds. Heroes inside are blinded (disadvantage on attacks, attacks against them have advantage) and can't see out; torches and fire don't light it. She and her spiders see through it normally and have advantage attacking anyone inside. Only one cloud at a time: a new one replaces the old."
+    },
+    {
+      "name": "Brood Call",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage. 3 spiderlings scuttle out within 4 squares of her (AC 12, 60 HP each, speed 6, climb walls, bite 1d4 + CON save or poisoned). They act right after her. Never more than 6 at once: with 6 up, she uses Queen's Venom Bolt instead."
+    },
+    {
+      "name": "Queen's Venom Bolt",
+      "dice": "2d6",
+      "range": 10,
+      "target": "s",
+      "text": "Attack roll vs one hero up to 10 squares away: a bolt of green-black venom. On a hit, damage and the hero can't regain HP (flasks or abilities) until the end of their next turn. Dodge only (a spell, it can't be parried)."
+    },
+    {
+      "name": "Court of the Drow",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Secret boss of Arachne's caves, for a level 4 party: HP 2,000, AC 16, size 1x1, speed 6. She climbs walls and ceilings at full speed and can fight from them (melee heroes can't reach her up there unless they climb or she comes down). Roll a d6 (1-6 in this order). Her guardian, the Bulette, waits in the tunnel before her throne cavern. At 0 HP she tears herself open and becomes the Brood Mother: phase 2."
+    }
+  ],
+  "Iniha Yunvra: phase 2 (brood mother)": [
+    {
+      "name": "Brood Fangs",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Her light attack: the giant spider bites one adjacent hero. Attack roll; on a hit, damage and CON save or poisoned until the end of their next turn. Can be parried."
+    },
+    {
+      "name": "Brood Impale",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her heavy attack: a leg spikes down on one hero up to 2 squares away. Attack roll. Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Web Spray",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage, no attack roll: a 4-square cone of web. Each hero in it makes a DEX save against 10 + her attack bonus or is restrained until they break free (STR check as an action, or 30 fire or slashing damage to the web from an ally). Dodge Roll beaten = not caught. Can't be parried."
+    },
+    {
+      "name": "Pounce",
+      "dice": "2d8",
+      "range": 6,
+      "target": "s",
+      "text": "No attack roll: she leaps up to 6 squares onto one hero (doesn't provoke free attacks). DEX save: fail = full damage and knocked prone; save = half, not prone. Dodge only. Size 3+ enemies she can't pounce on."
+    },
+    {
+      "name": "Feeding Frenzy",
+      "dice": "3d8",
+      "range": 1,
+      "target": "s",
+      "text": "Only against an adjacent hero who is restrained or prone: attack roll with advantage. On a hit, damage and she heals half of it. A restrained hero can't Dodge Roll; a prone one can only parry. If no adjacent hero is restrained or prone, she uses Brood Fangs instead."
+    },
+    {
+      "name": "Hatch",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "No damage. 4 spiderlings burst from the egg clutch (same stats as in phase 1), on free squares next to the clutch. Never more than 6 at once. If the clutch is destroyed, she uses Web Spray instead."
+    },
+    {
+      "name": "The Egg Clutch",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 1,800, AC 15, size 3x3, speed 8, climbs walls. Roll a d6 (1-6 in this order). Her egg clutch sits beside her (AC 10, 300 HP, doesn't move): while it stands, Hatch makes spiderlings. Destroying it ends Hatch, but she is enraged for the rest of the fight: +1 to attack and her speed becomes 10. Spiderlings still alive stay. When she dies, every spiderling flees into the dark."
+    }
+  ],
+  "Cadmus the Exhumed: phase 1 (secret)": [
+    {
+      "name": "Royal Blade",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack: the king's sword slashes one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Headsman's Axe",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "His heavy attack: the axe falls on one hero up to 2 squares away. Attack roll. Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Kneel Before Me",
+      "dice": "2d6",
+      "range": 6,
+      "target": "a",
+      "text": "No attack roll: he roars his command at every hero within 6 squares. Each hero chooses first: kneel willingly (they drop prone, take no damage, and their turn's movement is spent standing up), or defy him and make a WIS save against 10 + his attack bonus: fail = psychic damage and knocked prone; save = half damage, still standing. Can't be dodged or parried (it's his voice)."
+    },
+    {
+      "name": "Call the Guard",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage. 2 Gravebound soldiers claw up from the floor on free squares within 6 squares of him (AC 13, 150 HP each, speed 5, spear 1d8 with reach 2). They act right after him. Never more than 4 at once: with 4 up, he uses Royal Blade instead."
+    },
+    {
+      "name": "Royal Levy",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage. He demands his tax: every hero within 6 squares makes a CON save against 10 + his attack bonus or loses 20 stamina. He heals 30 for each hero who failed. A hero with less than 20 stamina loses what they have (and still counts). Can't be dodged or parried."
+    },
+    {
+      "name": "Wall of Shields",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "No damage. The shields of his dead close around the throne until the start of his next turn: ranged attacks and spells against him have disadvantage, and the first hit he takes in that time deals half damage. Area damage still lands normally."
+    },
+    {
+      "name": "The Forgotten Court",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Secret boss of the forgotten kingdom in Kernunos's forest, for a level 5 party: HP 2,400, AC 16, size 3x3, never moves (can't be pushed, pulled or knocked prone). Roll a d6 (1-6 in this order). He still believes he rules: a hero who addresses him as king (\"Your Majesty\") before the fight starts earns the party one free round while he monologues about his kingdom. At 0 HP the throne wakes: phase 2."
+    }
+  ],
+  "Cadmus the Exhumed: phase 2 (the throne wakes)": [
+    {
+      "name": "Greatsword Sweep",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "Greatsword Arm. No attack roll: the giant hand sweeps the greatsword in a full circle, hitting every hero within 3 squares. DEX save for half. Dodge only. Gone once the Greatsword Arm is destroyed (reroll)."
+    },
+    {
+      "name": "Greatsword Cleave",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Greatsword Arm. Attack roll vs one hero up to 3 squares away: the greatsword comes down. Can be parried, but a parry still takes half. Gone once the Greatsword Arm is destroyed (reroll)."
+    },
+    {
+      "name": "Grasping Hand",
+      "dice": "0",
+      "range": 3,
+      "target": "s",
+      "text": "Great Hand. No damage: the huge clawed hand grabs one hero up to 3 squares away. STR save against 10 + his attack bonus or grabbed: restrained, 1d6 at the start of each of their turns, until a STR check (action) frees them or the Great Hand is destroyed. Only one hero at a time. Dodge Roll beaten = not grabbed. Gone once the Great Hand is destroyed (reroll)."
+    },
+    {
+      "name": "Crush",
+      "dice": "3d6",
+      "range": 3,
+      "target": "s",
+      "text": "Great Hand. The hand squeezes the hero it holds: damage, no attack roll, no save, no reaction possible. If nobody is grabbed, he uses Grasping Hand instead. Gone once the Great Hand is destroyed (reroll)."
+    },
+    {
+      "name": "Spears of the Host",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "Corpse Host. The dead soldiers fused into the throne stab: one attack roll each against up to two different heroes within 2 squares (the same hero if only one is in reach, twice). Each can be parried or dodged separately. Gone once the Corpse Host is destroyed (reroll)."
+    },
+    {
+      "name": "Mutiny of the Dead",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "The throne turns on its own king: Cadmus takes the damage (x10, no roll, no save) as his own dead claw at him, and nothing else happens this action. His tragedy, decided by the dice. Can't happen once all three parts are destroyed (he's alone then: reroll)."
+    },
+    {
+      "name": "The Throne Wakes",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 2,000, AC 15, still never moves. Three actions per turn: roll a d6 for each, one after the other (1-6 in this order). Three breakable parts, each targeted on its own: the Greatsword Arm (AC 15, 300 HP), the Great Hand (AC 14, 250 HP) and the Corpse Host (AC 13, 300 HP). Damage to a part doesn't hurt Cadmus. A destroyed part's moves are rerolled, and each destroyed part costs him one action per turn (all three gone: 1 action, and his only move is Royal Blade from phase 1). Killing Cadmus ends everything: the throne falls still."
+    }
+  ],
+  "Aldrich: phase 1 (devourer, secret)": [
+    {
+      "name": "Gilded Spear",
+      "dice": "1d10",
+      "range": 3,
+      "target": "s",
+      "text": "His light attack: the golden spear thrusts at one hero up to 3 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Spear of the Devourer",
+      "dice": "2d10",
+      "range": 8,
+      "target": "a",
+      "text": "His heavy attack, no attack roll: he hurls a spear of golden light along a straight 8-square line from him. Every hero in the line makes a DEX save: half on a success. Dodge only. It returns to his hand."
+    },
+    {
+      "name": "Rain of Gold",
+      "dice": "2d8",
+      "range": 10,
+      "target": "a",
+      "text": "Telegraphed: he raises the spear and marks three 2x2 areas within 10 squares (show them). At the start of his next turn golden arrows rain on each: everyone inside takes the damage, no save; Dodge Roll halves it. Leaving the marked areas avoids it completely. Fizzles if he is stunned or killed first. Never twice in a row."
+    },
+    {
+      "name": "Engulf",
+      "dice": "2d6",
+      "range": 1,
+      "target": "s",
+      "text": "The ooze surges over one adjacent hero: STR save against 10 + his attack bonus or swallowed: inside him, restrained, can't be targeted, and takes the damage as acid at the start of each of their turns. They escape with a STR check (action), or are spat out when allies deal 200 damage to him in one round. Only one hero at a time. Dodge Roll beaten = not swallowed. Can't be parried."
+    },
+    {
+      "name": "Hymn of the Choir",
+      "dice": "1d8",
+      "range": 20,
+      "target": "a",
+      "text": "No damage. His four hooded choir members sing: he heals the dice x10 for each choir member still alive. Killing the choir stops it; with none left, he uses Devour instead."
+    },
+    {
+      "name": "Devour",
+      "dice": "2d6",
+      "range": 4,
+      "target": "a",
+      "text": "No attack roll: his hunger pulls at every hero within 4 squares. CON save for half. He heals half of the total damage dealt. Can't be dodged or parried."
+    },
+    {
+      "name": "The Devourer's Feast",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Secret boss beneath the golden palace in the Sky mountains, for a level 7 party: HP 2,800, AC 17, size 3x3, slides 4 squares a turn (can't be pushed or pulled). Roll a d6 (1-6 in this order). Four hooded choir members stand around the arena (AC 12, 150 HP each, they don't attack): while they live, Hymn of the Choir heals him. At 0 HP the gods he devoured break through: phase 2."
+    }
+  ],
+  "Aldrich: phase 2 (the gods break through)": [
+    {
+      "name": "Godflesh Lash",
+      "dice": "1d10",
+      "range": 3,
+      "target": "s",
+      "text": "His light attack: an ooze tendril full of golden hands lashes one hero up to 3 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Molten Gold",
+      "dice": "3d6",
+      "range": 4,
+      "target": "a",
+      "text": "His heavy attack, no attack roll: he vomits molten gold in a 4-square cone. DEX save: fail = full damage and slowed (half speed) until the end of their next turn; save = half damage, not slowed. Dodge only."
+    },
+    {
+      "name": "Stolen Miracle",
+      "dice": "2d8",
+      "range": 20,
+      "target": "a",
+      "text": "He calls on a god he swallowed: roll a d3. 1 Sun: every hero he can see takes the damage as radiant, DEX save for half. 2 Storm: lightning jumps across 3 heroes of his choice, 2d6 each, DEX save for half each. 3 Moon: no damage, he heals 300. Dodge only."
+    },
+    {
+      "name": "Gorge",
+      "dice": "3d8",
+      "range": 1,
+      "target": "s",
+      "text": "Only against an adjacent hero who is prone or swallowed: attack roll with advantage (a swallowed hero is hit automatically). On a hit, damage and he heals all of it. If nobody adjacent is prone or swallowed, he uses Godflesh Lash instead."
+    },
+    {
+      "name": "Golden Deluge",
+      "dice": "3d8",
+      "range": 20,
+      "target": "a",
+      "text": "Telegraphed: the gods inside him start to shine (announce it). At the start of his next turn, every hero more than 3 squares from him takes the damage as radiant, no save; Dodge Roll halves it. Heroes within 3 squares are safe: the only shelter is next to him. Fizzles if he is stunned or killed first. Never twice in a row."
+    },
+    {
+      "name": "Escaping Gods",
+      "dice": "1d8",
+      "range": 20,
+      "target": "s",
+      "text": "Passive, at the start of each of his turns: a golden god-hand tears out of him and strikes a random hero (roll among the living), no attack roll, no save; Dodge Roll can halve it. It's the gods fighting their way out, not him."
+    },
+    {
+      "name": "Hunger Unending",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 2,200, AC 16, slides 4 squares. Roll a d6: 1 Godflesh Lash, 2 Molten Gold, 3 Stolen Miracle, 4 Gorge, 5 Golden Deluge, 6 Godflesh Lash. Weakness: every Golden ability deals +50% damage to him (the Golden power is stolen divinity, the thing he is choking on). Crimson abilities don't. Any swallowed hero is spat out when phase 2 begins."
+    }
+  ],
+  "Tenjin: phase 1 (shard warden, secret)": [
+    {
+      "name": "Cleaver Cut",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack: the great cleaver slashes one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Oni Cleave",
+      "dice": "2d10",
+      "range": 2,
+      "target": "s",
+      "text": "His heavy attack: an overhead cleave on one hero up to 2 squares away. Attack roll. Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Iai Stance",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "No damage now: he sheathes and waits. Until the start of his next turn, the first hero who attacks him in melee is cut first: they take the damage (DEX save for half) before their attack, and that attack has disadvantage. Ends after that one counter. Ranged attacks and spells don't trigger it."
+    },
+    {
+      "name": "Thunderclap",
+      "dice": "2d6",
+      "range": 2,
+      "target": "a",
+      "text": "No attack roll: he stamps and thunder bursts around him, hitting every hero within 2 squares. CON save: fail = damage and no reaction (no Dodge Roll or Parry) until the start of their next turn; save = half damage, reaction kept. Can't be parried."
+    },
+    {
+      "name": "Shard Bolt",
+      "dice": "2d8",
+      "range": 10,
+      "target": "s",
+      "text": "Attack roll vs one hero up to 10 squares away: red lightning from the crystal shard in his hand. On a hit, damage and the hero is marked: his next attack against them has advantage. Dodge only."
+    },
+    {
+      "name": "Crystal Oath",
+      "dice": "2d10",
+      "range": 20,
+      "target": "s",
+      "text": "Passive reaction, once per round: when a hero touches or attacks the great red crystal, he dashes to them at once (doesn't provoke) and makes an Oni Cleave (attack roll, a parry still takes half). The crystal can't be harmed while he stands."
+    },
+    {
+      "name": "Warden of the Shard",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Secret boss of Odi'ram's lands, guarding the red crystal, for a level 8 party: HP 2,600, AC 18, size 2x2, speed 6. Roll a d6: 1 Cleaver Cut, 2 Oni Cleave, 3 Iai Stance, 4 Thunderclap, 5 Shard Bolt, 6 Cleaver Cut. At 0 HP he crushes the shard in his hand and takes its power: phase 2."
+    }
+  ],
+  "Tenjin: phase 2 (red thunder)": [
+    {
+      "name": "Thunder Cleaver",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "His light attack: the cleaver crackling with red lightning, at one hero up to 2 squares away. Attack roll; on a hit, damage plus 1d6 lightning. A parry stops the steel but not the lightning: a beaten parry still takes the 1d6."
+    },
+    {
+      "name": "Raijin Leap",
+      "dice": "2d10",
+      "range": 6,
+      "target": "s",
+      "text": "His heavy attack, no attack roll: he leaps up to 6 squares onto one hero (doesn't provoke). DEX save: fail = full damage and knocked prone; save = half, not prone. Dodge only."
+    },
+    {
+      "name": "Crimson Chain",
+      "dice": "2d6",
+      "range": 6,
+      "target": "a",
+      "text": "No attack roll: red lightning strikes one hero up to 6 squares away, then jumps to every other hero within 2 squares of the last one hit, and on (each hero at most once). Each makes a DEX save for half. Dodge only. Spread out to stop the chain."
+    },
+    {
+      "name": "Shard Storm",
+      "dice": "1d10",
+      "range": 20,
+      "target": "a",
+      "text": "No attack roll: the shards orbiting him fly out at 3 random heroes (the same hero can be picked more than once). Each hit is the damage, no save; Dodge Roll avoids one shard (beaten) or halves it. Can't be parried."
+    },
+    {
+      "name": "Final Draw",
+      "dice": "4d10",
+      "range": 8,
+      "target": "s",
+      "text": "Telegraphed: he sheathes and goes completely still (announce it, and the hero it's aimed at: the one who dealt him the most damage). At the start of his next turn he draws and strikes that hero if they are within 8 squares: no attack roll, no save. Only a Dodge Roll (beaten = no damage) or a Parry (beaten = half) helps, or an ally standing in the straight line between them takes the cut instead. Fizzles if he is stunned or killed first. Never twice in a row."
+    },
+    {
+      "name": "Red Thunder",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 2,000, AC 17, size 2x2, speed 6. Red lightning crackles over him and the crystal's fragments orbit him. Roll a d6: 1 Thunder Cleaver, 2 Raijin Leap, 3 Crimson Chain, 4 Shard Storm, 5 Final Draw, 6 Thunder Cleaver. Crystal Oath ends (the crystal is broken). His lightning is red, not gold: it is not the Golden power."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",
