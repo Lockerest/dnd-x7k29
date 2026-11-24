@@ -154,6 +154,7 @@ npm run build
    Desidia's phase 2 is her panic: the nightmares met as normal enemies in the frozen region return as elites (+50% HP, +1 AC, +1 to attack until their own sheets exist) (1.22.1).
    Desidia's phase 2 calls three fixed horrors as mini-bosses at 75%, 50% and 25% HP (Dream Eater, Bogeyman, Nightmare Aberration) instead of random elites; her phase 2 HP drops to 1,200 to make room for them (1.22.2).
    The other four secret bosses, each with two phases, their own icons, sounds and Stats entries: Iniha Yunvra the Drow Queen (Arachne's caves, level 4; puppet strings and magical darkness, then the Brood Mother with her egg clutch), Cadmus the Exhumed (Kernunos's forgotten kingdom, level 5; then the throne wakes with three breakable parts and three actions a turn), Aldrich, Devourer of Gods (the Sky mountains, level 7; a healing choir, then the devoured gods break through and Golden abilities hurt him more) and Tenjin (Odi'ram's lands, level 8; guards the red crystal, then red thunder) (1.23.0).
+   Aldrich's Gorge now bites heroes slowed by Molten Gold or knocked prone (no one is swallowed in his phase 2) (1.23.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

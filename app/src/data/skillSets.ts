@@ -1381,7 +1381,7 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "dice": "3d8",
       "range": 1,
       "target": "s",
-      "text": "Only against an adjacent hero who is prone or swallowed: attack roll with advantage (a swallowed hero is hit automatically). On a hit, damage and he heals all of it. If nobody adjacent is prone or swallowed, he uses Godflesh Lash instead."
+      "text": "Only against an adjacent hero who is slowed (Molten Gold slows) or prone: attack roll with advantage. On a hit, damage and he heals all of it. If nobody adjacent is slowed or prone, he uses Godflesh Lash instead."
     },
     {
       "name": "Golden Deluge",
