@@ -156,6 +156,7 @@ npm run build
    The other four secret bosses, each with two phases, their own icons, sounds and Stats entries: Iniha Yunvra the Drow Queen (Arachne's caves, level 4; puppet strings and magical darkness, then the Brood Mother with her egg clutch), Cadmus the Exhumed (Kernunos's forgotten kingdom, level 5; then the throne wakes with three breakable parts and three actions a turn), Aldrich, Devourer of Gods (the Sky mountains, level 7; a healing choir, then the devoured gods break through and Golden abilities hurt him more) and Tenjin (Odi'ram's lands, level 8; guards the red crystal, then red thunder) (1.23.0).
    Aldrich's Gorge now bites heroes slowed by Molten Gold or knocked prone (no one is swallowed in his phase 2) (1.23.1).
    Danger zones: a new GM map tool paints pulsing squares (1x1 to 6x6) in a ready colour (gold, fire, blood, frost, poison, void) or any colour, seen by everyone on the map and the projector, to show where telegraphed and lingering boss moves land; tap a zone to remove it, or clear them all (1.24.0).
+   The Stats menu now has every main boss phase too (Aethelric to Izat'al, tuned to each region's level), and every boss preset is Unique so bosses stay dead after an altar rest (1.24.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
