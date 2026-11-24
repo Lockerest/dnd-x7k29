@@ -27,9 +27,24 @@ export type MapEntry = MapData & {
   al?: unknown
   bf?: unknown
   iv?: number
+  /** Danger zones the GM paints for telegraphed and lingering boss moves. */
+  dz?: Record<string, DangerZone>
 }
 
-export type Tool = 'move' | 'wall' | 'rev' | 'hid' | 'al' | 'bf' | 'gd' | 'dr' | 'nd' | 'pin' | 'en'
+/** A square danger zone: its top-left square, size in squares and colour. */
+export type DangerZone = { x: number; y: number; s: number; c: string }
+
+/** Ready-made danger zone colours (the GM can also pick any colour). */
+export const DANGER_COLORS: [string, string][] = [
+  ['Gold', '#f5c542'],
+  ['Fire', '#ff6a1a'],
+  ['Blood', '#d32f2f'],
+  ['Frost', '#6ecbff'],
+  ['Poison', '#6fd35a'],
+  ['Void', '#9a5cff'],
+]
+
+export type Tool = 'move' | 'wall' | 'rev' | 'hid' | 'al' | 'bf' | 'gd' | 'dr' | 'nd' | 'pin' | 'en' | 'dz'
 
 const K = (x: number, y: number) => `${x},${y}`
 const values = <T>(v: unknown): T[] => Object.values((v as Record<string, T>) || {})
@@ -45,6 +60,21 @@ export function toggleSpot(m: MapEntry, kind: 'al' | 'bf' | 'gd', x: number, y: 
   if (i >= 0) list.splice(i, 1)
   else list.push(key)
   return { [kind]: list }
+}
+
+/**
+ * Danger zone tool: a tap inside a zone removes it; anywhere else adds a zone of this
+ * size and colour with the tapped square as its top-left corner.
+ */
+export function toggleDanger(m: MapEntry, x: number, y: number, s: number, c: string, rand: () => number): Partial<MapEntry> {
+  const zs = { ...(m.dz || {}) }
+  const hit = Object.keys(zs).find((k) => {
+    const z = zs[k]!
+    return x >= z.x && x < z.x + z.s && y >= z.y && y < z.y + z.s
+  })
+  if (hit) delete zs[hit]
+  else zs[`z${rand().toString(36).slice(2, 8)}`] = { x, y, s, c }
+  return { dz: zs }
 }
 
 /** Place door: a door on this square (replacing a wall there), or remove the door placed here. */

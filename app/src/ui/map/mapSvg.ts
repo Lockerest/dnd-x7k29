@@ -151,6 +151,10 @@ export function mapSvg(p: MapPicture): string {
     for (let j = 0; j <= rows; j++) d += `M0 ${j * cs}H${cols * cs}`
     v += `<path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2, (m.w as number) / 450)};fill:none"/>`
   }
+  for (const z of Object.values((m.dz as Record<string, { x: number; y: number; s: number; c: string }>) || {})) {
+    const c = /^#[0-9a-f]{3,8}$/i.test(z.c) ? z.c : '#f5c542'
+    v += `<rect class="dz" x="${z.x * cs}" y="${z.y * cs}" width="${z.s * cs}" height="${z.s * cs}" style="fill:${c};fill-opacity:.38;stroke:${c};stroke-width:${cs * 0.08}px"><animate attributeName="fill-opacity" values=".25;.5;.25" dur="1.6s" repeatCount="indefinite"/></rect>`
+  }
   const spots = (o: unknown) => Object.values((o as Record<string, string>) || {}).map((k) => k.split(',').map(Number) as [number, number])
   v += spots(m.al)
     .map(([ax, ay]) => {

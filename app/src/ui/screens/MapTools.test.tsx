@@ -23,6 +23,9 @@ const actions = () => ({
   showMap: vi.fn(async () => {}),
   setGmMap: vi.fn(),
   notice: vi.fn(),
+  dzs: 2,
+  dzc: '#f5c542',
+  setDanger: vi.fn(),
 })
 const images = (o: { fail?: boolean } = {}): ImageKit => ({
   load: async () => {
@@ -43,6 +46,26 @@ const file = (label: string, f: File) => fireEvent.change(screen.getByLabelText(
 const flush = () => act(async () => void (await new Promise((r) => setTimeout(r, 50))))
 
 describe('the map list', () => {
+  it('danger zone tool: size, ready colours, any colour, and clearing the zones', () => {
+    const t = tables()
+    const { a } = show({ tool: 'dz', t: { ...t, maps: { ...t.maps, m: { ...t.maps.m!, dz: { z: { x: 0, y: 0, s: 1, c: '#000' } } } } } })
+    fireEvent.change(screen.getByLabelText('Danger zone size'), { target: { value: '4' } })
+    expect(a.setDanger).toHaveBeenCalledWith({ dzs: 4 })
+    expect(screen.getByLabelText('Gold zone')).toHaveAttribute('aria-pressed', 'true')
+    fireEvent.click(screen.getByLabelText('Fire zone'))
+    expect(a.setDanger).toHaveBeenCalledWith({ dzc: '#ff6a1a' })
+    fireEvent.change(screen.getByLabelText('Any colour'), { target: { value: '#123456' } })
+    expect(a.setDanger).toHaveBeenCalledWith({ dzc: '#123456' })
+    fireEvent.click(screen.getByText('Clear danger zones'))
+    expect(a.setMap).toHaveBeenCalledWith({ dz: {} })
+    cleanup()
+    show({ tool: 'dz' })
+    expect(screen.queryByText('Clear danger zones')).toBeNull()
+    cleanup()
+    show({ tool: 'move' })
+    expect(screen.queryByLabelText('Danger zone size')).toBeNull()
+  })
+
   it('picks a map (the live one marked), shows it to players, renames and deletes it', () => {
     const { a, ask } = show({ ask: () => 'Deep Crypt' })
     const sel = screen.getByLabelText('Map')
@@ -103,7 +126,16 @@ describe('adding maps', () => {
     const clickSpy = vi.spyOn(input, 'click')
     click('Import Dungeondraft')
     expect(clickSpy).toHaveBeenCalled()
-    const dd = { resolution: { map_size: { x: 4, y: 3 } }, image: 'iVBO', line_of_sight: [[{ x: 0, y: 1 }, { x: 1, y: 1 }]] }
+    const dd = {
+      resolution: { map_size: { x: 4, y: 3 } },
+      image: 'iVBO',
+      line_of_sight: [
+        [
+          { x: 0, y: 1 },
+          { x: 1, y: 1 },
+        ],
+      ],
+    }
     file('Dungeondraft file', new File([JSON.stringify(dd)], 'Vault.dd2vtt'))
     await flush()
     expect(a.notice.mock.calls.map((c) => c[0])).toEqual(['Importing Vault.dd2vtt...', ''])
@@ -251,7 +283,10 @@ describe('notes and pin prompts', () => {
   it('a new pin: which map (numbered), its label (the map name by default, 24 letters)', () => {
     const maps = { m: M(), n: M({ name: 'Cave' }), o: M({ name: 'Tower' }) }
     const a = { travel: vi.fn(), renamePin: vi.fn(), deletePin: vi.fn(), addPin: vi.fn(), notice: vi.fn() }
-    const ask = vi.fn((_q: string, _d?: string): string | null => null).mockReturnValueOnce('2').mockReturnValueOnce('')
+    const ask = vi
+      .fn((_q: string, _d?: string): string | null => null)
+      .mockReturnValueOnce('2')
+      .mockReturnValueOnce('')
     pinPrompts(maps, 'm', { newPin: { x: 1.5, y: 2.5 } }, ask, a)
     expect(ask.mock.calls[0]![0]).toBe('Link this pin to which map? Type a number:\n1. Cave\n2. Tower')
     expect(ask.mock.calls[1]).toEqual(['Pin label (shown on the map):', 'Tower'])

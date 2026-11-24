@@ -15,6 +15,7 @@ import {
   pinNear,
   placeDoor,
   renamePin,
+  toggleDanger,
   toggleDoorNear,
   toggleSpot,
   travelPlan,
@@ -32,6 +33,10 @@ export type MapActions = {
   /** The GM's current map tool (Move tokens by default). */
   tool: Tool
   setTool: (t: Tool) => void
+  /** The next danger zone's size (squares) and colour. */
+  dzs: number
+  dzc: string
+  setDanger: (p: { dzs?: number; dzc?: string }) => void
   /** Changes the map on screen and saves all of it. */
   setMap: (p: Partial<MapEntry>) => Promise<void>
   /** A tap with the current tool (other than moving tokens and painting). */
@@ -77,6 +82,9 @@ export function mapActions(get: Get, set: Set_, save: Save, now: () => number, r
   return {
     tool: 'move',
     setTool: (tool) => set({ tool }),
+    dzs: 2,
+    dzc: '#f5c542',
+    setDanger: (p) => set(p),
     setMap,
 
     toolTap: async (x, y) => {
@@ -88,6 +96,7 @@ export function mapActions(get: Get, set: Set_, save: Save, now: () => number, r
         return k ? { pin: k } : { newPin: { x: x + 0.5, y: y + 0.5 } }
       }
       if (tool === 'en') await setMap({ en: [x + 0.5, y + 0.5] })
+      else if (tool === 'dz') await setMap(toggleDanger(m, x, y, get().dzs, get().dzc, rand))
       else if (tool === 'nd') await setMap(placeDoor(m, x, y, rand))
       else if (tool === 'dr') {
         const p = toggleDoorNear(m, x, y)

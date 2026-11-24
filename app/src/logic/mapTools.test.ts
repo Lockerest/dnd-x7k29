@@ -17,6 +17,7 @@ import {
   revealAll,
   rowsOf,
   toggleDoorNear,
+  toggleDanger,
   toggleSpot,
   travelPlan,
   type MapEntry,
@@ -25,6 +26,14 @@ import {
 const M = (o: Partial<MapEntry> = {}): MapEntry => ({ name: 'Crypt', w: 500, h: 400, cols: 10, ...o })
 
 describe('drawing tools', () => {
+  it('danger zones: a tap adds a zone there, a tap inside one removes it', () => {
+    const r = () => 0.123456789
+    const a = toggleDanger(M(), 2, 3, 2, '#f5c542', r).dz!
+    expect(Object.values(a)).toEqual([{ x: 2, y: 3, s: 2, c: '#f5c542' }])
+    expect(toggleDanger(M({ dz: a }), 3, 4, 2, '#000', r)).toEqual({ dz: {} })
+    expect(Object.keys(toggleDanger(M({ dz: a }), 4, 3, 1, '#ff6a1a', () => 0.5).dz!)).toHaveLength(2)
+  })
+
   it('altars, bonfires and guilds toggle on a square', () => {
     expect(toggleSpot(M({ al: { a: '1,1' } }), 'al', 2, 3)).toEqual({ al: ['1,1', '2,3'] })
     expect(toggleSpot(M({ al: ['1,1', '2,3'] }), 'al', 1, 1)).toEqual({ al: ['2,3'] })
@@ -71,8 +80,19 @@ describe('drawing tools', () => {
     expect(paintFog(M({ fg: '1' }), [[1, 0]], true).slice(0, 3)).toBe('110')
     expect(paintFog(M({ fg: '111' }), [[0, 0]], false).slice(0, 3)).toBe('011')
     expect(paintFog({ w: 240, h: 100 }, [], true)).toHaveLength(240)
-    expect(paintWalls(M({ walls: ['1,1'] }), [[2, 2], [1, 1]])).toEqual(['1,1', '2,2'])
-    expect(paintWalls(M({ walls: ['1,1', '2,2'] }), [[1, 1], [3, 3], [2, 2]])).toEqual([])
+    expect(
+      paintWalls(M({ walls: ['1,1'] }), [
+        [2, 2],
+        [1, 1],
+      ]),
+    ).toEqual(['1,1', '2,2'])
+    expect(
+      paintWalls(M({ walls: ['1,1', '2,2'] }), [
+        [1, 1],
+        [3, 3],
+        [2, 2],
+      ]),
+    ).toEqual([])
     expect(paintWalls(M({ walls: { a: '1,1' } }), [])).toEqual(['1,1'])
   })
 })
@@ -95,7 +115,12 @@ describe('maps', () => {
 describe('party travel', () => {
   it('pins unplaced units to the old map, lands the living heroes round the entry, lifts the fog', () => {
     const maps = { m: M(), n: M({ en: [2.5, 2.5], walls: ['3,2'], fog: true }) }
-    const chars = { a: { name: 'A', hp: 5, mx: 0, my: 0 }, b: { name: 'B', hp: 5, mp: 'm', mx: 1, my: 1 }, c: { name: 'C', hp: 0, mp: 'n', mx: 9, my: 7 }, d: { name: 'D', hp: 0, mp: 'm', mx: 5, my: 5 } }
+    const chars = {
+      a: { name: 'A', hp: 5, mx: 0, my: 0 },
+      b: { name: 'B', hp: 5, mp: 'm', mx: 1, my: 1 },
+      c: { name: 'C', hp: 0, mp: 'n', mx: 9, my: 7 },
+      d: { name: 'D', hp: 0, mp: 'm', mx: 5, my: 5 },
+    }
     const enemies = { w: { name: 'Wolf' }, o: { name: 'Ogre', mp: 'n' } }
     const r = travelPlan(maps, chars, enemies, ['a', 'b', 'c', 'd'], 'm', 'n')
     expect(r.pin).toEqual({ chars: { a: { mp: 'm' } }, enemies: { w: { mp: 'm' } } })
@@ -128,16 +153,53 @@ describe('Dungeondraft exports', () => {
     const j = {
       resolution: { map_size: { x: 4, y: 3 }, pixels_per_grid: 100, map_origin: { x: 0, y: 0 } },
       image: img,
-      line_of_sight: [[{ x: 0, y: 1 }, { x: 2, y: 1 }]],
-      objects_line_of_sight: [[{ x: 3, y: 0 }, { x: 3, y: 2 }]],
-      portals: [{ bounds: [{ x: 2, y: 1 }, { x: 3, y: 1 }], closed: false }, { bounds: [{ x: 1, y: 1 }] }, {}],
+      line_of_sight: [
+        [
+          { x: 0, y: 1 },
+          { x: 2, y: 1 },
+        ],
+      ],
+      objects_line_of_sight: [
+        [
+          { x: 3, y: 0 },
+          { x: 3, y: 2 },
+        ],
+      ],
+      portals: [
+        {
+          bounds: [
+            { x: 2, y: 1 },
+            { x: 3, y: 1 },
+          ],
+          closed: false,
+        },
+        { bounds: [{ x: 1, y: 1 }] },
+        {},
+      ],
     }
     const q = parseDungeondraft(j)!
     expect([q.cols, q.rows]).toEqual([4, 3])
     expect(q.ew.sort()).toEqual(['h,0,1', 'h,1,1', 'v,3,0', 'v,3,1'])
     expect(q.dr).toEqual({ d0: { a: [2, 1], b: [3, 1], p: [2.5, 1], e: ['h,2,1'], o: 1 } })
     expect(q.src).toBe(`data:image/png;base64,${img}`)
-    const px = parseDungeondraft({ ...j, line_of_sight: [[{ x: 0, y: 100 }, { x: 200, y: 100 }]], objects_line_of_sight: undefined, portals: [{ bounds: [{ x: 0, y: 0 }, { x: 0, y: 100 }] }] })!
+    const px = parseDungeondraft({
+      ...j,
+      line_of_sight: [
+        [
+          { x: 0, y: 100 },
+          { x: 200, y: 100 },
+        ],
+      ],
+      objects_line_of_sight: undefined,
+      portals: [
+        {
+          bounds: [
+            { x: 0, y: 0 },
+            { x: 0, y: 100 },
+          ],
+        },
+      ],
+    })!
     expect(px.ew.sort()).toEqual(['h,0,1', 'h,1,1'])
     expect(px.dr.d0!.o).toBe(0)
     expect(parseDungeondraft({ ...j, image: '/9jabc' })!.src).toBe('data:image/jpeg;base64,/9jabc')
@@ -168,7 +230,16 @@ describe('Dungeondraft exports', () => {
     edgesFromSegments([[2.5, 0.5, 0.5, 2.5]], back, 4, 4)
     expect(back.size).toBeGreaterThan(0)
     const off = new Set<string>()
-    edgesFromSegments([[-2, -1, 9, -1], [-1, -2, -1, 9], [0.5, 0.5, 0.5, 9.5]], off, 4, 4)
+    edgesFromSegments(
+      [
+        [-2, -1, 9, -1],
+        [-1, -2, -1, 9],
+        [0.5, 0.5, 0.5, 9.5],
+      ],
+      off,
+      4,
+      4,
+    )
     expect([...off].every((k) => !k.includes('-'))).toBe(true)
   })
 })

@@ -1,12 +1,15 @@
 // The GM's map tools under the map, and the "you are here" overview. Same
 // buttons, prompts and wording as the live page.
 import { useRef } from 'react'
-import { parentOf, parseDungeondraft, revealAll, rowsOf, type DdExport, type MapEntry, type Tool } from '../../logic/mapTools'
+import { DANGER_COLORS, parentOf, parseDungeondraft, revealAll, rowsOf, type DdExport, type MapEntry, type Tool } from '../../logic/mapTools'
 import { liveMapId, type Maps } from '../../logic/table'
 import type { GameState, Tables } from '../../state/store'
 import { readFile, shrinkImage, squareIcon, type ImageKit } from '../images'
 
-export type MapToolActions = Pick<GameState, 'setTool' | 'setMap' | 'setCols' | 'addMap' | 'renameMap' | 'deleteMap' | 'setMarkerIcon' | 'showMap' | 'setGmMap' | 'notice'>
+export type MapToolActions = Pick<
+  GameState,
+  'setTool' | 'dzs' | 'dzc' | 'setDanger' | 'setMap' | 'setCols' | 'addMap' | 'renameMap' | 'deleteMap' | 'setMarkerIcon' | 'showMap' | 'setGmMap' | 'notice'
+>
 
 export type MapToolsProps = {
   tables: Tables
@@ -33,6 +36,7 @@ const FOG_TOOLS: [Tool, string][] = [
   ['nd', 'Place door'],
   ['pin', 'Pins'],
   ['en', 'Entry'],
+  ['dz', 'Danger zone'],
 ]
 
 function FileInput({ inputRef, accept, label, onFile }: { inputRef: React.RefObject<HTMLInputElement | null>; accept: string; label: string; onFile: (f: File) => unknown }) {
@@ -180,6 +184,29 @@ export function MapTools({ tables, id, tool, actions, images, ask, confirm }: Ma
           ))}
           <button onClick={() => confirm('Go back to the default altar, bonfire and guild icons?') && void actions.setMarkerIcon(null)}>Default icons</button>
           <FileInput inputRef={iconFile} accept="image/*" label="Icon picture" onFile={markerIcon} />
+        </div>
+      )}
+      {m && tool === 'dz' && (
+        <div className="row" aria-label="Danger zone">
+          <span className="sub">Tap the top-left square to paint a zone; tap a zone to remove it.</span>
+          <label className="sub">
+            Size{' '}
+            <select aria-label="Danger zone size" value={actions.dzs} onChange={(e) => actions.setDanger({ dzs: Number(e.target.value) })} style={{ width: 'auto' }}>
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <option key={n} value={n}>
+                  {n}x{n}
+                </option>
+              ))}
+            </select>
+          </label>
+          {DANGER_COLORS.map(([n, c]) => (
+            <button key={c} aria-label={`${n} zone`} aria-pressed={actions.dzc === c} className={actions.dzc === c ? 'pri' : ''} onClick={() => actions.setDanger({ dzc: c })}>
+              <span style={{ display: 'inline-block', width: 12, height: 12, borderRadius: 3, background: c, marginRight: 4, verticalAlign: 'middle' }} />
+              {n}
+            </button>
+          ))}
+          <input type="color" aria-label="Any colour" value={actions.dzc} onChange={(e) => actions.setDanger({ dzc: e.target.value })} style={{ width: 40, padding: 0 }} />
+          {Object.keys(m.dz || {}).length > 0 && <button onClick={() => void actions.setMap({ dz: {} })}>Clear danger zones</button>}
         </div>
       )}
     </>

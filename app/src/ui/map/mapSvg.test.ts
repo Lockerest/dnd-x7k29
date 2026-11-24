@@ -27,8 +27,18 @@ describe('the map', () => {
     expect(pic({ map: { ...M, grid: false } })).not.toContain('M0 0V400')
   })
 
+  it('danger zones: pulsing squares in their colour (an odd colour falls back to gold)', () => {
+    const s = pic({ map: { ...M, dz: { a: { x: 1, y: 2, s: 2, c: '#ff6a1a' }, b: { x: 0, y: 0, s: 1, c: 'red;x' } } } as MapData })
+    expect(count(s, 'class="dz"')).toBe(2)
+    expect(s).toContain('x="50" y="100" width="100" height="100" style="fill:#ff6a1a')
+    expect(s).toContain('fill:#f5c542')
+    expect(pic()).not.toContain('class="dz"')
+  })
+
   it('walls, wall edges, and doors (square or line, open or closed)', () => {
-    const s = pic({ map: { ...M, walls: ['1,1'], ew: ['h,2,2', 'v,3,3'], dr: { a: { c: '4,4' }, b: { c: '5,5', o: 1 }, c: { a: [1, 1], b: [2, 1] }, d: { a: [1, 2], b: [2, 2], o: 1 } } as MapData['dr'] } })
+    const s = pic({
+      map: { ...M, walls: ['1,1'], ew: ['h,2,2', 'v,3,3'], dr: { a: { c: '4,4' }, b: { c: '5,5', o: 1 }, c: { a: [1, 1], b: [2, 1] }, d: { a: [1, 2], b: [2, 2], o: 1 } } as MapData['dr'] },
+    })
     expect(s).toContain('<rect x="50" y="50" width="50" height="50" style="fill:url(#hatch)')
     expect(s).toContain('M100 100H150M150 150V200')
     expect(s).toContain('fill:#e8c26a') // closed door handle

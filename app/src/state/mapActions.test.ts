@@ -7,7 +7,11 @@ const M = (o: Partial<MapEntry> = {}): MapEntry => ({ name: 'Crypt', w: 500, h: 
 
 function setup(t: Partial<Tables> = {}, role: 'gm' | 'player' = 'gm') {
   const f = fakeDb()
-  const s = createGameStore(() => f.db, () => 36, () => 0.5)
+  const s = createGameStore(
+    () => f.db,
+    () => 36,
+    () => 0.5,
+  )
   s.getState().connect({ pin: 'p', role, me: role === 'gm' ? 'gm' : 'a' })
   s.getState().applySnapshot({ ...emptyTables(), maps: { m: M(), n: M({ name: 'Cave' }) }, cur: 'm', ...t })
   return { s, f }
@@ -49,8 +53,11 @@ describe('changing the map on screen', () => {
     await tap('dr')
     expect(map(s).dr!.di!.o).toBe(1)
     await tap('dr', 9, 7) // no door near
+    s.getState().setDanger({ dzs: 3, dzc: '#9a5cff' })
+    await tap('dz', 4, 4)
+    expect(Object.values(map(s).dz!)).toEqual([{ x: 4, y: 4, s: 3, c: '#9a5cff' }])
     await tap('move')
-    expect(f.writes).toHaveLength(6)
+    expect(f.writes).toHaveLength(7)
     expect(s.getState().tool).toBe('move')
   })
 
