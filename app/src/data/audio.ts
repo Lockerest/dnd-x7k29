@@ -119,6 +119,20 @@ export const THEME_GROUPS: Record<string, string[]> = {
 
 /** Ability sound files, by ability slug (see abilitySlug). */
 export const ABILITY_SOUNDS: Record<string, string> = {
+  "sleeper_s_grasp": "216920cf-bbae-48cf-8689-2ff02b99b519",
+  "shackle_chains": "e5df59c9-2728-4336-b139-d76d6601ac1e",
+  "lullaby": "fcb78781-9912-47e4-963e-44c79b3a1a7e",
+  "velvet_smoke": "92bd16b1-aaa2-4d9a-b1da-850a83f435d3",
+  "sweet_dreams": "b2297969-f4d6-4c29-8e5f-1b3b08950cf3",
+  "feast_of_dreams": "dcbe8a69-8c6c-43a6-9584-0c2461e4934b",
+  "throne_of_sleepers": "dfe058ee-e606-44ca-b2c6-244eae34a78b",
+  "rude_awakening": "4a7b3b65-1b55-4384-8062-ba39e54461b5",
+  "chain_flail": "87dc310f-7696-4468-a01e-ba724fca563a",
+  "night_terror": "18c9fc60-e075-43d0-a54b-7fdd4aec5cbe",
+  "dream_eater_s_kiss": "52854341-deb1-4a48-8e0d-0d285529fd2f",
+  "endless_night": "2d4bfe65-53bf-4d49-9728-00770691c98a",
+  "summon_nightmare": "e547cd34-bb72-47f5-9c1e-71141a47a115",
+  "the_nightmare_wakes": "cce180b1-dfa6-45dd-a9cb-d379f026d925",
   "witness_gaze": "75f4adab-f789-4da7-92be-25f5d8a08fb1",
   "tendril_grasp": "29d044d7-c6f9-4185-8544-50e483e6709c",
   "thousand_eyes_open": "b40b85fa-1d1c-47fe-9f23-57f9e5281dae",

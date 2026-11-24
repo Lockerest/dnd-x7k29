@@ -997,6 +997,108 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "text": "GM rules. Phase 2 (faceless): HP 1,800, AC 17. Two actions per turn: roll a d6 twice (1-6 in this order; Faceless Maw takes both). She can still fly. The party should leave this fight knowing something worse is ahead."
     }
   ],
+  "Desidia: phase 1 (slumber, secret)": [
+    {
+      "name": "Sleeper's Grasp",
+      "dice": "1d8",
+      "range": 4,
+      "target": "s",
+      "text": "Her light attack: pale hands reach out of the purple smoke for one hero up to 4 squares away. Attack roll; on a hit, damage and +1 Slumber. Can be parried (beaten parry: no damage, no Slumber)."
+    },
+    {
+      "name": "Shackle Chains",
+      "dice": "2d8",
+      "range": 3,
+      "target": "s",
+      "text": "Her heavy attack: the throne's chains lash out at one hero up to 3 squares away. Attack roll; on a hit, damage and DEX save or pulled 2 squares toward her and restrained until the end of their next turn (STR check as an action to break free). Can be parried, but a parry still takes half."
+    },
+    {
+      "name": "Lullaby",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage, no attack roll. She hums: every hero within 6 squares makes a WIS save against 10 + her attack bonus, or gains +1 Slumber. A hero who moved 2 or more squares on their last turn, or holds a lit torch, has advantage. Can't be dodged or parried (it's sound); covering your ears doesn't help."
+    },
+    {
+      "name": "Velvet Smoke",
+      "dice": "2d6",
+      "range": 5,
+      "target": "a",
+      "text": "No attack roll: a 2x2 cloud of purple smoke up to 5 squares away. CON save for half. The cloud stays 2 rounds: a hero who starts their turn in it gains +1 Slumber (no save). Fire damage on the cloud or a lit torch waved through it (an action) clears it. Dodge only."
+    },
+    {
+      "name": "Sweet Dreams",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "No damage. She blows a kiss at the hero with the most Slumber within 6 squares (at least 1). WIS save against 10 + her attack bonus: fail = they fall asleep now, whatever their Slumber count. Can't be dodged or parried. If no hero has Slumber, roll again."
+    },
+    {
+      "name": "Feast of Dreams",
+      "dice": "2d8",
+      "range": 20,
+      "target": "a",
+      "text": "No attack roll, no save: every hero who is asleep takes the damage as psychic and she heals by the total. They stay asleep. If no hero is asleep, she uses Sleeper's Grasp instead."
+    },
+    {
+      "name": "Throne of Sleepers",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Secret boss of the frozen region, for a level 3 party: HP 1,800, AC 15, size 3x3, never leaves her throne (can't be pushed, pulled or knocked prone). Roll a d6 (1-6 in this order). SLUMBER: each stack lowers that hero's stamina regen by 5. At 3 stacks they fall asleep: prone, lose their turns, can't dodge or parry, and attacks against them have advantage. A sleeper wakes (Slumber back to 0) when they take damage, or when an adjacent ally spends an action to shake them. A flask or a lit torch held at the start of their turn removes 1 stack. Holding a torch takes a hand (no shield, no two-handed weapon). FOUR SHACKLED SLEEPERS are chained to her throne (AC 12, 50 HP each): breaking one's chain wakes it screaming, and every hero within 3 squares loses all Slumber. At 0 HP she wakes: phase 2."
+    }
+  ],
+  "Desidia: phase 2 (nightmare)": [
+    {
+      "name": "Rude Awakening",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: claws rake one hero up to 2 squares away. Attack roll. Against a sleeping hero it always hits and is a critical hit (dice doubled), and wakes them. Can be parried by an awake hero."
+    },
+    {
+      "name": "Chain Flail",
+      "dice": "2d10",
+      "range": 2,
+      "target": "a",
+      "text": "Her heavy attack, no attack roll: she whirls her broken shackles around her, hitting every hero within 2 squares. DEX save for half; fail also knocks prone. Dodge only. Sleeping heroes get no save."
+    },
+    {
+      "name": "Night Terror",
+      "dice": "2d6",
+      "range": 6,
+      "target": "s",
+      "text": "No attack roll: one hero up to 6 squares away sees their worst dream. WIS save against 10 + her attack bonus: fail = psychic damage, frightened of her until the end of their next turn (disadvantage on attacks against her, can't move closer) and +1 Slumber; save = half damage, nothing else. A lit torch gives advantage. Can't be dodged or parried."
+    },
+    {
+      "name": "Dream Eater's Kiss",
+      "dice": "2d8",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero. On a hit, damage and she heals half of it; against a sleeping hero she heals all of it (they still wake from the damage). Can be parried by an awake hero."
+    },
+    {
+      "name": "Endless Night",
+      "dice": "2d6",
+      "range": 20,
+      "target": "a",
+      "text": "Telegraphed: she raises her arms and the light dims (announce it). At the start of her next turn every hero who isn't holding a lit torch or standing next to one takes the damage as cold and gains +2 Slumber, CON save for half damage (the Slumber stays). Heroes in the light are untouched. Fizzles if she is stunned or killed first. Never twice in a row."
+    },
+    {
+      "name": "Summon Nightmare",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "No damage. A nightmare crawls out of the smoke on a free square within 3 squares of her. Roll a d8: 1 Dream Eater, 2 Shackled Horror, 3 Insomnia Beast, 4 Bogeyman, 5 Lullaby Gent, 6 Timekeeper Hag, 7 Flickering Knight, 8 Nightmare Aberration. Never more than 3 nightmares at once (reroll this move if 3 are up). Nightmares attack sleeping heroes first."
+    },
+    {
+      "name": "The Nightmare Wakes",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Phase 2: HP 1,400, AC 16, size 2x2. She rises from the throne and moves 6 squares a turn. Roll a d6 (1-6 in this order). Slumber rules from phase 1 carry over, and a sleeping hero now also takes 1d8 psychic at the start of each of their skipped turns (that damage doesn't wake them). Every 2 rounds she also uses Summon Nightmare for free. When she dies, every nightmare fades and every hero wakes."
+    }
+  ],
   "Nameless King: phase 1 (storm rider)": [
     {
       "name": "Skyward Lance",

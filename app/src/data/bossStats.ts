@@ -8,6 +8,8 @@ export type BossStats = { name: string; max: number; ac: number; sz: number; ab:
 
 /** Halfway bosses, in story order. */
 export const BOSS_STATS: Record<string, BossStats> = {
+  'Desidia: phase 1 (secret, level 3)': { name: 'Desidia, Lady of Slumber', max: 1800, ac: 15, sz: 3, ab: 6, spd: 0, rk: 'm' },
+  'Desidia: phase 2 (nightmare)': { name: 'Desidia, the Nightmare', max: 1400, ac: 16, sz: 2, ab: 6, spd: 6, rk: 'm' },
   'The Jailer (Calden, level 2)': { name: 'The Jailer', max: 1500, ac: 15, sz: 2, ab: 5, spd: 5, rk: 'm' },
   'Remade Triumvirate (Arachne, level 3-4)': { name: 'Remade Triumvirate', max: 1500, ac: 16, sz: 2, ab: 6, spd: 6, rk: 'm' },
   'Dark Elf High Priestess (Arachne, level 3-4)': { name: 'Dark Elf High Priestess', max: 500, ac: 13, sz: 1, ab: 6, spd: 6, rk: 'm' },

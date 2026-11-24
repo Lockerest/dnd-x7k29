@@ -3,6 +3,21 @@
 export const ICON_BASE = 'https://cdn.creativeclaw.co/u/59c4c4dc/images/'
 
 export const SKILL_ICONS: Record<string, string> = {
+  // Desidia, Lady of Slumber (secret boss, frozen region).
+  sleeper_s_grasp: '0ad08cfd-9699-4424-880e-1ae1787eba98.jpg',
+  shackle_chains: 'dff3bce3-f28e-4e8f-acba-e86ebe4af4a9.jpg',
+  lullaby: '8f505692-7081-4fea-b4d2-d79722dd77ad.jpg',
+  velvet_smoke: '959687ba-246a-4293-8e1c-aa6d6136f9ae.jpg',
+  sweet_dreams: '2a8c5611-a557-48ec-bdc3-1d0f5a7fdc1b.jpg',
+  feast_of_dreams: 'd52f741d-d944-422a-a1f4-e87aed18c94e.jpg',
+  throne_of_sleepers: '1f6a30a1-c159-4013-bf63-7a6c5dd75673.jpg',
+  rude_awakening: 'd2095c07-3aac-4ae1-b816-72e4215eb651.jpg',
+  chain_flail: '4c8bc683-03ac-4877-bad9-1f3332806bbe.jpg',
+  night_terror: '71e9e183-cbc7-4fc5-a481-26ad3033b31a.jpg',
+  dream_eater_s_kiss: '471c430b-3f50-4eae-b39a-05695097d811.jpg',
+  endless_night: '25b29a87-4ed9-4484-8936-402d90eb2859.jpg',
+  summon_nightmare: 'd675bec5-255d-40c0-8352-72964a72bda4.jpg',
+  the_nightmare_wakes: 'afd55215-3355-4fe9-86d5-6f06e8da16c7.jpg',
   // The void's three experiments: Yesod, Tiferet, Zarael.
   witness_gaze: '1639e577-1039-4802-b334-7bd3acabbbc7.jpg',
   tendril_grasp: '033705b6-3cdd-4beb-ba4d-759d2348306c.jpg',
