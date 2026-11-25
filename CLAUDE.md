@@ -32,6 +32,11 @@ the game's identity, art style and working habits the same from one chat to the 
   Desidia's things: violet mist), and "Mood: … Painterly dark fantasy illustration, muted colours,
   strong contrast, full body visible, centred, no base, no text, no border."
   Tell him to crop multi-view photos to the front view (two views make Gemini draw two creatures).
+- Caves of Ifstrid portraits: dark cave stone in charcoal and slate grey, pale white silk webs everywhere,
+  dim cold light, faint pale-teal bioluminescence. Arachne's venom is dull and pale (milky grey-green, almost
+  bone), never vivid green (that's Kernunos). Remade/Fleshsmith creatures: raw stitched flesh, dried blood,
+  rusted iron. Drow: match the Drow Queen's portrait, natural skin tones (not purple); where a sculpt is
+  bare-chested, add a chainmail top in a tone that blends with the skin (not extra armour).
 - Sounds: Creative Claw `generate_sound_effect` (ElevenLabs), 1.5–4 s, 1–2 credits; "No voice, no music".
 - If his upload fails, his PC is linked: read the file from his Downloads folder instead.
 
@@ -62,7 +67,7 @@ the game's identity, art style and working habits the same from one chat to the 
   background, and keep talking with him while they run; push as soon as they pass. Don't wait
   for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
-## Status (late Nov 2026, version 1.29.0)
+## Status (late Nov 2026, version 1.30.0)
 - All bosses done: 7 main, 9 halfway, 5 secret (Desidia, Iniha Yunvra, Cadmus, Aldrich, Tenjin).
 - Frozen North enemies done: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte,
   Revenant Hound; mini-bosses Morwen, the Shadow of Calden (stalker, two meetings) and the Knight of the
@@ -72,7 +77,9 @@ the game's identity, art style and working habits the same from one chat to the 
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
 - Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common),
   Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere, Cursed Drider (elite, 2x2),
-  Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite) done. Spider
+  Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite), Dark Elf Arachneborn
+  (elite squad), the Fleshsmith's Daughter (mini-boss) done. Arachne's main region is complete; still to do: the
+  Drow Queen's area (drow warriors, Arachnomancer or Bulette, maybe the Giant Spider) and a caves guardian. Spider
   venom slows, and a failed save while already slowed paralyses (pale, milky venom; never vivid green).
 - Next: the rest of the Caves of Ifstrid (Web of Tyranny, the Remade / Cult of the Fleshsmith, the Drow bundle),
   then the other regions, story, encounters, balance, cutscenes (one per main-boss phase change), French

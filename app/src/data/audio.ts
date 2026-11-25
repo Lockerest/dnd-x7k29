@@ -663,7 +663,19 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "reaping_sweep": "7b3d5ca0-fb7b-4696-a711-379224423bf7",
   "mandible_bite": "bc60c9b0-41ee-4d92-a95f-699cb8939345",
   "leaping_strike": "c9b3ff4f-6ecf-4db5-a19f-101226fed653",
-  "myrmidon_s_discipline": "e91ee63c-d11e-4390-8014-3d4435bf5380"
+  "myrmidon_s_discipline": "e91ee63c-d11e-4390-8014-3d4435bf5380",
+  "web_spear": "3cc92824-bcc3-4143-b9e7-d6da4a994c0c",
+  "pincer_strike": "1dba22a4-6fb7-4681-bba4-43c576fafb42",
+  "scything_legs": "fb7c52e0-bcc9-497e-95ec-2206c02aba37",
+  "herding_bash": "b98478d0-8095-4f63-970a-a48c0fa16ccc",
+  "sightless_sisters": "e3f1bdd8-e223-4224-b7ec-a4e6e2a48367",
+  "spear_lunge": "43ccb79b-0f91-47cf-abd1-a7c05a1fee30",
+  "many_arms": "da633495-5a8e-492d-b7ae-5854a5aa3667",
+  "twin_shield_guard": "1a022ab8-dd97-4ea7-a362-4d042b505560",
+  "flesh_mending": "06916855-a490-468d-ba5d-7304700b5e01",
+  "bile_burst": "f93b256d-89ba-4ca7-9446-43393dddf04c",
+  "scream_of_the_remade": "a487dd91-2f5e-4152-9f7b-2eb1d480fda9",
+  "her_father_s_masterpiece": "cf02026a-a125-4a88-b20c-e01ab7ac8a1a"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`

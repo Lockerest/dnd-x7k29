@@ -3361,5 +3361,93 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a",
       "text": "GM rules. Elite of Arachne's caves, a disciplined arthropod warrior, for a level 3-4 party: HP 450, AC 16, size 1x1, speed 7. Roll a d4: 1 Twin-Blade Slash, 2 Reaping Sweep, 3 Mandible Bite, 4 Leaping Strike. COUNTER-STANCE: once per round, when a hero's melee attack misses it, it answers at once with a free Twin-Blade Slash against that hero (normal attack roll, can be parried)."
     }
+  ],
+  "Caves of Ifstrid: Dark Elf Arachneborn (elite)": [
+    {
+      "name": "Web Spear",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: attack roll vs one hero up to 2 squares away. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Pincer Strike",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "Her heavy attack, only vs a hero who is next to another Arachneborn: attack roll with advantage. A parry still takes half. On a miss: nothing. If no hero is flanked, she moves to flank one (normal movement) and uses Web Spear instead."
+    },
+    {
+      "name": "Scything Legs",
+      "dice": "1d8",
+      "range": 1,
+      "target": "a",
+      "text": "No attack roll: her bladed spider legs sweep up to 2 adjacent heroes. Each makes a DEX save against 10 + her attack bonus: full damage on a fail, half on a success. Dodge only."
+    },
+    {
+      "name": "Herding Bash",
+      "dice": "1d6",
+      "range": 1,
+      "target": "s",
+      "text": "Shield bash: attack roll vs one adjacent hero. Can be parried (beaten parry: no damage, no push). On a hit: damage, and the hero is pushed 2 squares toward another Arachneborn (no save), setting up the next Pincer Strike. If a wall or creature blocks the push, they fall prone instead. On a miss: nothing."
+    },
+    {
+      "name": "Sightless Sisters",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite squad of Arachne's caves, drow who traded their eyes to her for the webs' hearing; always 2 or 3 together, for a level 3-4 party: HP 400 each, AC 16, size 2x2, speed 7, climb walls. Roll a d4 for each: 1 Web Spear, 2 Pincer Strike, 3 Scything Legs, 4 Herding Bash. BLIND: darkness, blinding and invisibility don't affect them (not even the Drow Queen's darkness). STILLNESS: they hear movement, not stillness: attacks against a hero who didn't move on their last turn have disadvantage."
+    }
+  ],
+  "Caves of Ifstrid: The Fleshsmith's Daughter (mini-boss)": [
+    {
+      "name": "Spear Lunge",
+      "dice": "1d10",
+      "range": 3,
+      "target": "s",
+      "text": "Her light attack: attack roll vs one hero up to 3 squares away with the long spear. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Many Arms",
+      "dice": "1d8",
+      "range": 1,
+      "target": "a",
+      "text": "Her heavy attack: spear, sword and sickle at once. Three attack rolls (1d8 each), split as you like between adjacent heroes. Each can be parried on its own. On a miss: nothing for that strike."
+    },
+    {
+      "name": "Twin Shield Guard",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "No damage. She raises both shields: +3 AC until the start of her next turn, and ranged attacks against her have disadvantage. Never two turns in a row: roll again. After her seams burst (475 HP) she uses Many Arms instead."
+    },
+    {
+      "name": "Flesh Mending",
+      "dice": "0",
+      "range": 2,
+      "target": "s",
+      "text": "No damage. She tears flesh from a corpse within 2 squares (any creature, her own minions too) and stitches it into herself: she regains 2d8 x10 HP. Each body can only be used once. If no corpse is in reach, she uses Many Arms instead. Killing her minions near her feeds her."
+    },
+    {
+      "name": "Bile Burst",
+      "dice": "2d6",
+      "range": 3,
+      "target": "a",
+      "text": "No attack roll: her torn seams spray old blood in a 3-square cone. Every hero in it makes a DEX save against 10 + her attack bonus: fail, full damage and disadvantage on their next attack; success, half damage. Dodge only."
+    },
+    {
+      "name": "Scream of the Remade",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 6 squares makes a WIS save against 10 + her attack bonus or is frightened until the end of their next turn (can't move closer to her). Every Remade creature within 6 squares has advantage on its next attack. Can't be dodged or parried."
+    },
+    {
+      "name": "Her Father's Masterpiece",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Mini-boss guarding the Fleshsmith's workshop (before the Remade Triumvirate), for a level 3-4 party: HP 950, AC 16, size 3x3, speed 6, can't be knocked prone. His first work: sewn onto a spider's body to save her life, screaming ever since. Roll a d6: 1 Spear Lunge, 2 Many Arms, 3 Twin Shield Guard, 4 Flesh Mending, 5 Bile Burst, 6 Scream of the Remade. At 475 HP her seams burst: she drops both shields, her AC drops to 14 and she rolls twice each turn."
+    }
   ]
 }

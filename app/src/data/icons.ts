@@ -407,6 +407,20 @@ export const SKILL_ICONS: Record<string, string> = {
   mandible_bite: 'e8e0b369-e426-4fca-b61e-ebacbc6ff0d2.jpg',
   leaping_strike: '0e404e8a-c104-44c0-b5fb-aa793c9b4cf8.jpg',
   myrmidon_s_discipline: '6bf02ae1-32ac-4a5b-9d58-ac4b60c3c1cd.jpg',
+  // Caves of Ifstrid: Dark Elf Arachneborn (elite).
+  web_spear: '03edcd04-1f40-43b4-ac27-72cf658529f7.jpg',
+  pincer_strike: 'c9e22569-2e1e-4d2a-b24d-312f11343e1b.jpg',
+  scything_legs: '2070d01b-4a46-49b8-8df8-69d605672a25.jpg',
+  herding_bash: '43b3ab9c-a66d-445b-91a4-d81710a737d0.jpg',
+  sightless_sisters: 'ae1d768c-17b4-4b43-96dd-b36b4aa7c88e.jpg',
+  // Caves of Ifstrid: The Fleshsmith's Daughter (mini-boss).
+  spear_lunge: '73a9f33b-10e3-4e89-afa5-a49ac44c44bb.jpg',
+  many_arms: 'ba834d14-f5fe-4726-a23e-389c51a45f9a.jpg',
+  twin_shield_guard: 'b3d4ca7d-8e23-41c2-854b-9b9f546ff715.jpg',
+  flesh_mending: '19304473-9b20-4ce1-b983-255f9355dc96.jpg',
+  bile_burst: 'd747d2a2-9443-46c9-9afb-b4238206806a.jpg',
+  scream_of_the_remade: '2da7a9f8-62e1-4db9-ae95-421c9878ee70.jpg',
+  her_father_s_masterpiece: '11fe067c-1a5c-4000-a29b-c61e8f1a970a.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

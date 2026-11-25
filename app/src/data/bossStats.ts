@@ -87,6 +87,8 @@ export const REGION_STATS: Record<string, Record<string, BossStats>> = {
     'Arachnophobic Horror (mini-boss)': { name: 'Arachnophobic Horror', max: 850, ac: 15, sz: 2, ab: 5, spd: 8, rk: 'u' },
     'Ghostweb Specter': { name: 'Ghostweb Specter', max: 180, ac: 13, sz: 1, ab: 5, spd: 6, rk: 'n' },
     'Arthropod Myrmidon (elite)': { name: 'Arthropod Myrmidon', max: 450, ac: 16, sz: 1, ab: 5, spd: 7, rk: 'n' },
+    'Dark Elf Arachneborn (elite, groups of 2-3)': { name: 'Dark Elf Arachneborn', max: 400, ac: 16, sz: 2, ab: 5, spd: 7, rk: 'n' },
+    "The Fleshsmith's Daughter (mini-boss)": { name: "The Fleshsmith's Daughter", max: 950, ac: 16, sz: 3, ab: 5, spd: 6, rk: 'u' },
   },
 }
 
