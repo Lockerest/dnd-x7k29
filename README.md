@@ -160,6 +160,7 @@ npm run build
    The Frozen North's enemies: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte and Revenant Hound, plus two mini-bosses (Morwen, the Shadow of Calden, who stalks the party across two meetings, and the Knight of the Gravid Moon at the Inner Court gate), each with its own move icons and sounds. The Stats menu is now grouped: bosses, then each region's enemies (1.25.0).
    Desidia's nightmares join the Frozen North: Lullaby Gent, Priest of Slumber, Flickering Knight, Horror Summoner (its wraith breaks free as a Shackled Horror when it dies), Shackled Horror, Sleeping Deceit and the Timekeeper Hag, plus her three horrors (Bogeyman, Dream Eater, Nightmare Aberration) and her guardian, the Insomnia Beast, each built from its miniature with its own move icons and sounds (1.26.0).
    Alithrax's Tendril Maw has a new icon drawn from his portrait (three eyes, tendril beard) (1.26.1).
+   The Caves of Ifstrid's first enemy: the All-seeing Ooze, an elite that is Arachne's living eye (marks heroes for its allies, swallows one hero at a time, and no one can hide near it), with its own move icons and sounds (1.27.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

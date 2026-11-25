@@ -3084,5 +3084,42 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a",
       "text": "GM rules. Desidia's guardian, before her sealed door, for a level 3 party: HP 1,100, AC 14, size 3x3, speed 6 (can't be pushed, pulled or knocked prone). Roll a d6: 1 Serpent Blade, 2 Sleepless Fury, 3 Thrash, 4 Bloodshot Roar, 5 Tendril Beard, 6 Serpent Blade. It starts ASLEEP and doesn't act. It wakes when it takes damage, at a loud noise, or when a hero within 6 squares fails a stealth check (DEX, 13). On waking: an immediate free turn, then +2 to attack for 2 rounds. Sneaking past it all the way to Desidia's door is possible."
     }
+  ],
+  "Caves of Ifstrid: All-seeing Ooze (elite)": [
+    {
+      "name": "Lashing Tendril",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one hero up to 2 squares away with a slick, bulb-tipped tendril. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Gaze of Ifstrid",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "No damage. Its blank orb fixes on one hero it can see within 8 squares: WIS save against 10 + its attack bonus or Seen until the end of the Ooze's next turn. Every enemy attacking a Seen hero has advantage. Can't be dodged or parried; breaking line of sight (a wall, a pillar, a thick web) ends it. On a success: nothing."
+    },
+    {
+      "name": "Drowning Embrace",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero. Dodge only. On a hit: damage, and the hero is pulled inside its body, restrained, and takes 1d6 (x10) at the start of each of their turns. They get out with a STR check against 10 + its attack bonus (an action), or when an ally hits the Ooze for 60 or more in one blow and it spits them out next to it. It holds one hero at a time: if it already holds one, it uses Lashing Tendril instead. On a miss: nothing."
+    },
+    {
+      "name": "Nothing Hides",
+      "dice": "0",
+      "range": 8,
+      "target": "a",
+      "text": "Passive, no action (if rolled, it uses Lashing Tendril instead). While it lives, no hero within 8 squares can be hidden or invisible, and enemies within 8 squares can't be surprised. Darkness doesn't block its sight: it has no eyes to blind. Kill it first if the party wants to sneak. GM applies it."
+    },
+    {
+      "name": "Eye of Ifstrid",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite of Arachne's caves, her living eye where her webs can't hear, for a level 3-4 party: HP 450, AC 13, size 1x1, speed 4 (squeezes through cracks one square wide). Roll a d4: 1-2 Lashing Tendril, 3 Gaze of Ifstrid, 4 Drowning Embrace. When it dies, heroes can hide again at once."
+    }
   ]
 }

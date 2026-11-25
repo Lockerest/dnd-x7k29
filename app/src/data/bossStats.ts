@@ -77,6 +77,9 @@ export const REGION_STATS: Record<string, Record<string, BossStats>> = {
     'Nightmare Aberration (horror, Desidia phase 2)': { name: 'Nightmare Aberration', max: 850, ac: 14, sz: 3, ab: 5, spd: 6, rk: 'u' },
     'Insomnia Beast (guardian)': { name: 'Insomnia Beast', max: 1100, ac: 14, sz: 3, ab: 5, spd: 6, rk: 'u' },
   },
+  'Caves of Ifstrid (Arachne, level 3-4)': {
+    'All-seeing Ooze (elite)': { name: 'All-seeing Ooze', max: 450, ac: 13, sz: 1, ab: 5, spd: 4, rk: 'n' },
+  },
 }
 
 /** The Stats menu: bosses first, then each region. Option values are "group|label". */

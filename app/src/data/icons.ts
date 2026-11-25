@@ -361,6 +361,12 @@ export const SKILL_ICONS: Record<string, string> = {
   chain_swing: 'a89d36cc-c812-449b-8a88-a223594a1a34.jpg',
   shackle_grab: 'efd2a9c2-4bd5-4c69-b2d0-2ccac63a2c78.jpg',
   rampage: '2e32bcda-5565-457e-b7da-352f98c262ce.jpg',
+  // Caves of Ifstrid: All-seeing Ooze.
+  lashing_tendril: '65b843b9-2bb3-4e36-b68d-84318f632153.jpg',
+  gaze_of_ifstrid: 'f0aa8d7b-8c72-4bfb-b5df-214a64ac2439.jpg',
+  drowning_embrace: 'e0fbc20a-c289-4d42-b882-93ceac2021aa.jpg',
+  nothing_hides: '79749ebf-e675-41d3-a9e6-8aa9a456ad34.jpg',
+  eye_of_ifstrid: '2124ac8f-bc56-4858-af55-25cbf11b3c70.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

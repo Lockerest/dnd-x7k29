@@ -1,0 +1,252 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/data/gear.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../theme.js"></script>
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/data</a> gear.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>13/13</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>10/10</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>7/7</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>6/6</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">195x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">108x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">124x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">41x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Signature weapons and accessories (1.21.0). Every hero keeps one weapon for the
+// whole story; the Golden power reforges it after the big falls (tiers), and only
+// the light and heavy attacks use it (abilities already count the weapon in their
+// own dice). Accessories are rings and amulets the GM gives out: a hero wears any
+// two (two rings, two amulets, or one of each).
+import { clamp } from '../logic/stats'
+&nbsp;
+export type WeaponTier = { t: number; label: string; light: string; heavy: string }
+&nbsp;
+/** Weapon tiers: the light and heavy attack dice (+ the class stat, x10 like all damage). */
+export const WEAPON_TIERS: WeaponTier[] = [
+  { t: 1, label: 'Tier 1 (start)', light: '1d6', heavy: '1d10' },
+  { t: 2, label: 'Tier 2 (Arachne has fallen)', light: '1d8', heavy: '2d6' },
+  { t: 3, label: 'Tier 3 (the Nameless King has fallen)', light: '1d10', heavy: '2d8' },
+  { t: 4, label: 'Tier 4 (Xibalba has fallen)', light: '1d12', heavy: '2d10' },
+]
+&nbsp;
+/** A hero's weapon tier (1 to 4; 1 when unset). */
+export const weaponTier = (c: object): WeaponTier =&gt; WEAPON_TIERS[(clamp(Math.round(Number((c as { wt?: unknown }).wt) || 1), 4) || 1) - 1]!
+&nbsp;
+/** What an accessory changes on the sheet (applied when worn, taken back when removed) or in a roll. */
+export type GearFx = { hp?: number; st?: number; rg?: number; ac?: number; fl?: number; pry?: number; ddg?: number; flask?: number; heal?: number }
+&nbsp;
+export type Accessory = { n: string; kind: 'ring' | 'amulet'; text: string; fx?: GearFx }
+&nbsp;
+/** Every ring and amulet. Numbers are table numbers (already x10). */
+export const ACCESSORIES: Record&lt;string, Accessory&gt; = {
+  ring_breath: { n: 'Ring of Steady Breath', kind: 'ring', text: '+5 stamina at the start of each of your turns (still none after a turn you used an ability).', fx: { rg: 5 } },
+  ring_parry: { n: 'Duelist’s Signet', kind: 'ring', text: '+1 to every Parry roll.', fx: { pry: 1 } },
+  ring_dodge: { n: 'Featherstep Ring', kind: 'ring', text: '+1 to every Dodge Roll.', fx: { ddg: 1 } },
+  ring_blood: { n: 'Bloodstone Band', kind: 'ring', text: '+20 max HP.', fx: { hp: 20 } },
+  ring_lung: { n: 'Ring of the Deep Lung', kind: 'ring', text: '+20 max stamina.', fx: { st: 20 } },
+  ring_iron: { n: 'Iron Oath Ring', kind: 'ring', text: '+1 AC.', fx: { ac: 1 } },
+  ring_ember: { n: 'Ember-Eater Ring', kind: 'ring', text: 'Odi’ram’s Embers burst at 5 instead of 4 on you (at 3 instead of 2 in blue fire). GM applies it.' },
+  ring_rime: { n: 'Rime Ward Ring', kind: 'ring', text: 'Every frost or cold hit you take deals 20 less (after halving, never below 10). GM applies it.' },
+  am_hearth: { n: 'Hearthstone Amulet', kind: 'amulet', text: '+1 flask, refilled at rests like the others.', fx: { fl: 1 } },
+  am_pilgrim: { n: 'Pilgrim’s Pendant', kind: 'amulet', text: 'Your flasks heal 50% of your max HP instead of 40%.', fx: { flask: 10 } },
+  am_medal: { n: 'Saint’s Medal', kind: 'amulet', text: 'Your healing abilities heal 10 more (on yourself or an ally).', fx: { heal: 10 } },
+  am_unbroken: { n: 'Amulet of the Unbroken', kind: 'amulet', text: '+10 max HP, and +2 on saves against being pushed, pulled or knocked prone (GM applies the +2).', fx: { hp: 10 } },
+  am_watcher: { n: 'Watcher’s Eye', kind: 'amulet', text: 'You can’t be surprised, and hidden or invisible creatures within 2 squares of you are seen. GM applies it.' },
+  am_quiet: { n: 'Charm of the Quiet Step', kind: 'amulet', text: 'Once per turn you can leave one enemy’s reach without giving it a free attack. GM applies it.' },
+}
+&nbsp;
+/** Accessory ids from a comma list ("ring_parry,am_hearth"), unknown ones left out. */
+export const idList = (s: unknown): string[] =&gt; (typeof s === 'string' ? s.split(',').filter((x) =&gt; x in ACCESSORIES) : [])
+&nbsp;
+/** The worn accessories (slots a1 and a2). */
+type Slots = { a1?: unknown; a2?: unknown }
+export const worn = (c: object): string[] =&gt; [(c as Slots).a1, (c as Slots).a2].filter((x): x is string =&gt; typeof x === 'string' &amp;&amp; x in ACCESSORIES)
+&nbsp;
+/** The sum of one effect over the worn accessories. */
+export const gearBonus = (c: object, k: keyof GearFx): number =&gt; worn(c).reduce((n, id) =&gt; n + (ACCESSORIES[id]!.fx?.[k] ?? 0), 0)
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
+                at 2026-11-25T01:53:41.948Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

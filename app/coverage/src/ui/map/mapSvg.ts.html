@@ -1,0 +1,747 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/ui/map/mapSvg.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../../theme.js"></script>
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        
+        <label class="theme-select quiet">
+            Theme
+            <select id="themeSelect" autocomplete="off">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="legacy">Legacy</option>
+            </select>
+        </label>
+
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/ui/map</a> mapSvg.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>136/136</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>148/148</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>22/22</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>112/112</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">177x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">527x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">104x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">164x</span>
+<span class="cline-any cline-yes">22x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">66x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">142x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">45x</span>
+<span class="cline-any cline-yes">101x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">3677x</span>
+<span class="cline-any cline-yes">3616x</span>
+<span class="cline-any cline-yes">3616x</span>
+<span class="cline-any cline-yes">3677x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">159x</span>
+<span class="cline-any cline-yes">1749x</span>
+<span class="cline-any cline-yes">1431x</span>
+<span class="cline-any cline-yes">159x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">480x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">111x</span>
+<span class="cline-any cline-yes">111x</span>
+<span class="cline-any cline-yes">111x</span>
+<span class="cline-any cline-yes">108x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">320x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">106x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">6x</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">191x</span>
+<span class="cline-any cline-yes">185x</span>
+<span class="cline-any cline-yes">185x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">173x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-yes">249x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-yes">213x</span>
+<span class="cline-any cline-yes">160x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// The map picture, drawn exactly like the live page's mapHtml(): the uploaded image,
+// reach squares, walls, wall edges and doors, the grid, altars, bonfires, guilds,
+// pins, the entry flag, fog and tokens. Built as SVG text so it can be compared
+// with the live page's own drawing.
+import type { Sheet } from '../../logic/sheet'
+import { abilityCost } from '../../logic/stamina'
+import { enemyHidden, enemyReach, fogHidden, fogPath, heroReach, onMap, type Grid, type Seer } from '../../logic/table'
+import type { Enemy } from '../../logic/types'
+&nbsp;
+/** The live page's HTML escaping. */
+export const esc = (s: unknown) =&gt; String(s ?? '').replace(/[&amp;&lt;&gt;"]/g, (c) =&gt; ({ '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;', '"': '&amp;quot;' })[c]!)
+&nbsp;
+export type MapPicture = {
+  g: Grid
+  /** The map's uploaded picture. */
+  image: string
+  chars: Record&lt;string, Sheet&gt;
+  enemies: Record&lt;string, Enemy&gt;
+  dm: boolean
+  /** The selected unit ("c:id" or "e:id"): the GM's pick, or the player's own hero. */
+  selected: string | null
+  combat: boolean
+  /** Token pictures by sheet id (used when the sheet has an icon version, iv). */
+  icons: Record&lt;string, string&gt;
+  /** Custom altar (al), bonfire (bf) and guild (gd) pictures. */
+  markers: Record&lt;string, string&gt;
+  /** For the hit flash, which lasts 4.5 s after a hit (ht). */
+  now: number
+  /** Projector with miniatures on the table: every standing token is a plain black square, so no light lands on the painted minis. */
+  minis?: boolean
+}
+&nbsp;
+const approved = (c: { ap?: unknown }) =&gt; c.ap !== false &amp;&amp; c.ap !== 'no'
+&nbsp;
+function wallsSvg(W: Set&lt;string&gt;, cs: number) {
+  return [...W]
+    .map((k) =&gt; {
+      const [x, y] = k.split(',') as [string, string]
+      return `&lt;rect x="${Number(x) * cs}" y="${Number(y) * cs}" width="${cs}" height="${cs}" style="fill:url(#hatch);stroke:#000;stroke-opacity:.7;stroke-width:${cs / 30}"/&gt;`
+    })
+    .join('')
+}
+&nbsp;
+function edgesSvg(g: Grid) {
+  const cs = g.cs
+  let d = ''
+  g.edges.forEach((k) =&gt; {
+    const [t, a, b] = k.split(',')
+    const x = Number(a)
+    const y = Number(b)
+    d += t === 'h' ? `M${x * cs} ${y * cs}H${(x + 1) * cs}` : `M${x * cs} ${y * cs}V${(y + 1) * cs}`
+  })
+  let h = d
+    ? `&lt;path d="${d}" style="stroke:#fff;stroke-opacity:.55;stroke-width:${cs * 0.2};stroke-linecap:round;fill:none"/&gt;&lt;path d="${d}" style="stroke:#14110e;stroke-width:${cs * 0.11};stroke-linecap:round;fill:none"/&gt;`
+    : ''
+  for (const q of Object.values(g.m.dr || {}) as { c?: string; o?: unknown; a?: number[]; b?: number[] }[]) {
+    if (q.c) {
+      const [cx, cy] = q.c.split(',').map(Number) as [number, number]
+      const x = cx * cs
+      const y = cy * cs
+      h += q.o
+        ? `&lt;rect x="${x + cs * 0.04}" y="${y + cs * 0.04}" width="${cs * 0.92}" height="${cs * 0.92}" style="fill:none;stroke:#8a5a2b;stroke-width:${cs * 0.06};stroke-dasharray:${cs * 0.12} ${cs * 0.12}"/&gt;`
+        : `&lt;rect x="${x + cs * 0.05}" y="${y + cs * 0.05}" width="${cs * 0.9}" height="${cs * 0.9}" rx="${cs * 0.08}" style="fill:#8a5a2b;stroke:#2a1a0a;stroke-width:${cs * 0.05}"/&gt;&lt;path d="M${x + cs * 0.5} ${y + cs * 0.1}V${y + cs * 0.9}" style="stroke:#2a1a0a;stroke-width:${cs * 0.03}"/&gt;&lt;circle cx="${x + cs * 0.72}" cy="${y + cs * 0.5}" r="${cs * 0.06}" style="fill:#e8c26a"/&gt;`
+      continue
+    }
+    const dl = `M${q.a![0]! * cs} ${q.a![1]! * cs}L${q.b![0]! * cs} ${q.b![1]! * cs}`
+    h += q.o
+      ? `&lt;path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs * 0.06};stroke-dasharray:${cs * 0.12} ${cs * 0.12};fill:none"/&gt;`
+      : `&lt;path d="${dl}" style="stroke:#fff;stroke-opacity:.6;stroke-width:${cs * 0.22};stroke-linecap:round;fill:none"/&gt;&lt;path d="${dl}" style="stroke:#8a5a2b;stroke-width:${cs * 0.13};stroke-linecap:round;fill:none"/&gt;`
+  }
+  return h
+}
+&nbsp;
+const markerImg = (src: string, x: number, y: number, sz: number) =&gt; `&lt;image href="${src}" x="${x - sz / 2}" y="${y - sz / 2}" width="${sz}" height="${sz}" preserveAspectRatio="xMidYMid meet"/&gt;`
+&nbsp;
+function tomb(o: { mx?: number | null; my?: number | null; sz?: number; name?: string }, en: boolean, cs: number) {
+  const z = en ? o.sz || 1 : 1
+  const x = ((o.mx as number) + z / 2) * cs
+  const y = ((o.my as number) + z / 2) * cs
+  const w = cs * 0.62 * Math.max(1, z * 0.8)
+  const h = cs * 0.74 * Math.max(1, z * 0.8)
+  return `&lt;g&gt;&lt;path d="M${x - w / 2} ${y + h / 2}V${y - h * 0.1}A${w / 2} ${w / 2} 0 0 1 ${x + w / 2} ${y - h * 0.1}V${y + h / 2}Z" style="fill:#8a8d94;stroke:#2b2d33;stroke-width:${cs * 0.05}px"/&gt;&lt;text x="${x}" y="${y}" text-anchor="middle" style="font:700 ${cs * 0.26}px sans-serif;fill:#2b2d33"&gt;✝&lt;/text&gt;&lt;text x="${x}" y="${y + h / 2 + cs * 0.28}" text-anchor="middle" style="font:700 ${cs * 0.26}px sans-serif;fill:#fff;stroke:#000;stroke-width:${cs * 0.06}px;paint-order:stroke"&gt;${esc((o.name || '').slice(0, 14))}&lt;/text&gt;&lt;/g&gt;`
+}
+&nbsp;
+/** Spinning stars over a stunned token, falling arrows over an exhausted hero. */
+function effects(o: { stun?: unknown; stn?: unknown; exh?: unknown }, en: boolean, x: number, y: number, r: number, cs: number) {
+  const stun = en ? o.stun : o.stn
+  const t = `stroke:#000;stroke-width:${cs * 0.03}px;paint-order:stroke`
+  if (stun) {
+    const cy = y - r * 0.95
+    return `&lt;g&gt;&lt;animateTransform attributeName="transform" type="rotate" from="0 ${x} ${cy}" to="360 ${x} ${cy}" dur="1.4s" repeatCount="indefinite"/&gt;${[0, 1, 2]
+      .map((i) =&gt; {
+        const a = i * 2.094
+        return `&lt;text x="${x + Math.cos(a) * r * 0.62}" y="${cy + Math.sin(a) * r * 0.62}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.34}px;fill:#ffd84d;${t}"&gt;★&lt;/text&gt;`
+      })
+      .join('')}&lt;/g&gt;`
+  }
+  if (!en &amp;&amp; o.exh)
+    return [-1, 0, 1]
+      .map(
+        (k, i) =&gt;
+          `&lt;text x="${x + k * r * 0.6}" y="${y - r}" text-anchor="middle" style="font-size:${cs * 0.3}px;fill:#e0533f;${t}"&gt;&lt;animate attributeName="y" values="${y - r * 1.3};${y - r * 0.55}" dur="1s" begin="${i * 0.25}s" repeatCount="indefinite"/&gt;&lt;animate attributeName="opacity" values="0;1;0" dur="1s" begin="${i * 0.25}s" repeatCount="indefinite"/&gt;▼&lt;/text&gt;`,
+      )
+      .join('')
+  return ''
+}
+&nbsp;
+/** Up to 3 small badges for the heroes climbing a monster. */
+function riders(p: MapPicture, id: string, x: number, y: number, r: number, cs: number) {
+  return Object.keys(p.chars)
+    .filter((i) =&gt; approved(p.chars[i]!) &amp;&amp; p.chars[i]!.mon === id &amp;&amp; p.chars[i]!.mt)
+    .slice(0, 3)
+    .map((i, k, a) =&gt; {
+      const c = p.chars[i]!
+      const bx = x + (k - (a.length - 1) / 2) * cs * 0.42
+      const by = y - r * 0.82
+      const rr = cs * 0.2
+      const img = c.iv &amp;&amp; p.icons[i]
+      return (
+        `&lt;circle cx="${bx}" cy="${by}" r="${rr}" style="fill:var(--ac);stroke:#fff;stroke-width:${cs / 14}"/&gt;` +
+        (img
+          ? `&lt;clipPath id="rb${i}"&gt;&lt;circle cx="${bx}" cy="${by}" r="${rr}"/&gt;&lt;/clipPath&gt;&lt;image href="${img}" x="${bx - rr}" y="${by - rr}" width="${rr * 2}" height="${rr * 2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#rb${i})"/&gt;`
+          : `&lt;text x="${bx}" y="${by}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs * 0.26}px sans-serif"&gt;${esc((c.name || '?')[0])}&lt;/text&gt;`)
+      )
+    })
+    .join('')
+}
+&nbsp;
+/** The whole map picture (the inside of the live page's &lt;svg id="map"&gt;). */
+export function mapSvg(p: MapPicture): string {
+  const { g, dm, chars, enemies } = p
+  const { m, cs, cols, rows } = g
+  const seers: Seer[] = Object.values(chars).filter(approved)
+  const sid = p.selected?.slice(2) ?? ''
+  const sEnemy = p.selected?.[0] === 'e'
+  const so = p.selected ? (sEnemy ? enemies[sid] : chars[sid]) : undefined
+  const c = so &amp;&amp; !sEnemy ? (so as Sheet) : null
+  const R: Record&lt;string, number&gt; = c &amp;&amp; c.mx != null ? heroReach(c, g, p.combat) : so &amp;&amp; sEnemy &amp;&amp; so.mx != null ? enemyReach(so as Enemy, g) : {}
+  let v = `&lt;defs&gt;&lt;pattern id="hatch" width="${cs / 4}" height="${cs / 4}" patternUnits="userSpaceOnUse"&gt;&lt;path d="M0 0L${cs / 4} ${cs / 4}M${cs / 4} 0L0 ${cs / 4}" style="stroke:#000;stroke-width:${cs / 22}"/&gt;&lt;/pattern&gt;&lt;/defs&gt;&lt;image href="${p.image}" width="${m.w}" height="${m.h}"/&gt;`
+  for (const k in R) {
+    if (!R[k]) continue
+    const [x, y] = k.split(',') as [string, string]
+    const fill = sEnemy ? 'var(--hp)' : p.combat &amp;&amp; !c!.exh &amp;&amp; abilityCost(c!, R[k]) &gt; (c!.st as number) ? 'var(--ac)' : 'var(--st)'
+    v += `&lt;rect x="${Number(x) * cs}" y="${Number(y) * cs}" width="${cs}" height="${cs}" style="fill:${fill};fill-opacity:.35"/&gt;`
+  }
+  v += `&lt;g id="wl"&gt;${wallsSvg(g.walls, cs)}&lt;/g&gt;`
+  v += edgesSvg(g)
+  if (m.grid !== false) {
+    let d = ''
+    for (let i = 0; i &lt;= cols; i++) d += `M${i * cs} 0V${rows * cs}`
+    for (let j = 0; j &lt;= rows; j++) d += `M0 ${j * cs}H${cols * cs}`
+    v += `&lt;path d="${d}" style="stroke:#000;stroke-opacity:.9;stroke-width:${Math.max(2, (m.w as number) / 450)};fill:none"/&gt;`
+  }
+  for (const z of Object.values((m.dz as Record&lt;string, { x: number; y: number; s: number; c: string }&gt;) || {})) {
+    const c = /^#[0-9a-f]{3,8}$/i.test(z.c) ? z.c : '#f5c542'
+    v += `&lt;rect class="dz" x="${z.x * cs}" y="${z.y * cs}" width="${z.s * cs}" height="${z.s * cs}" style="fill:${c};fill-opacity:.38;stroke:${c};stroke-width:${cs * 0.08}px"&gt;&lt;animate attributeName="fill-opacity" values=".25;.5;.25" dur="1.6s" repeatCount="indefinite"/&gt;&lt;/rect&gt;`
+  }
+  const spots = (o: unknown) =&gt; Object.values((o as Record&lt;string, string&gt;) || {}).map((k) =&gt; k.split(',').map(Number) as [number, number])
+  v += spots(m.al)
+    .map(([ax, ay]) =&gt; {
+      const cx = (ax + 0.5) * cs
+      const cy = (ay + 0.5) * cs
+      if (p.markers.al) return markerImg(p.markers.al, cx, cy, cs * 1.2)
+      return `&lt;g&gt;&lt;circle cx="${cx}" cy="${cy}" r="${cs * 0.52}" style="fill:#ffc830;opacity:.35"&gt;&lt;animate attributeName="opacity" values=".2;.5;.2" dur="2.4s" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;circle cx="${cx}" cy="${cy}" r="${cs * 0.4}" style="fill:#3a2a08;stroke:#f5c542;stroke-width:${cs * 0.05}px"/&gt;&lt;path d="M${cx} ${cy - cs * 0.3}L${cx + cs * 0.2} ${cy}L${cx} ${cy + cs * 0.3}L${cx - cs * 0.2} ${cy}Z" style="fill:#ffd866;stroke:#fff3b0;stroke-width:${cs * 0.02}px"/&gt;&lt;/g&gt;`
+    })
+    .join('')
+  const emojiSpot = (key: 'bf' | 'gd', emoji: string) =&gt;
+    spots(m[key])
+      .map(([x, y]) =&gt;
+        p.markers[key]
+          ? markerImg(p.markers[key]!, (x + 0.5) * cs, (y + 0.5) * cs, cs * 1.2)
+          : `&lt;text x="${(x + 0.5) * cs}" y="${(y + 0.5) * cs}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.8}px"&gt;${emoji}&lt;/text&gt;`,
+      )
+      .join('')
+  v += emojiSpot('bf', '🔥')
+  v += emojiSpot('gd', '🍺')
+  for (const pq of Object.values((m.pn as Record&lt;string, { x: number; y: number; l?: string }&gt;) || {})) {
+    if (!dm &amp;&amp; fogHidden(g, seers, Math.floor(pq.x), Math.floor(pq.y))) continue
+    v += `&lt;text x="${pq.x * cs}" y="${pq.y * cs}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.8}px"&gt;📍&lt;/text&gt;&lt;text x="${pq.x * cs}" y="${(pq.y + 0.8) * cs}" text-anchor="middle" style="font:700 ${cs * 0.34}px sans-serif;fill:#fff;stroke:#000;stroke-width:${cs * 0.07}px;paint-order:stroke"&gt;${esc(pq.l || '')}&lt;/text&gt;`
+  }
+  const en0 = m.en as number[] | undefined
+  if (dm &amp;&amp; en0) v += `&lt;text x="${en0[0]! * cs}" y="${en0[1]! * cs}" text-anchor="middle" dy=".35em" style="font-size:${cs * 0.7}px"&gt;🚩&lt;/text&gt;`
+  if (m.fog) v += `&lt;path id="fgp" d="${fogPath(g, seers)}" style="fill:#000;fill-opacity:${dm ? 0.55 : 1}"/&gt;`
+&nbsp;
+  const token = (o: Sheet | Enemy, key: string, en: boolean) =&gt; {
+    if (o.mx == null || (en &amp;&amp; !dm &amp;&amp; enemyHidden(g, seers, o as Enemy))) return ''
+    if ((o.hp as number) &lt;= 0) return tomb(o as Enemy, en, cs)
+    const id = key.slice(2)
+    const z = en ? (o as Enemy).sz || 1 : 1
+    if (p.minis) return `&lt;rect x="${o.mx * cs}" y="${(o.my as number) * cs}" width="${z * cs}" height="${z * cs}" style="fill:#000"/&gt;`
+    const x = (o.mx + z / 2) * cs
+    const y = ((o.my as number) + z / 2) * cs
+    const r = cs * (z === 1 ? 0.4 : z * 0.47)
+    const sl = key === p.selected ? '#fff' : en ? 'var(--hp)' : '#000'
+    const img = (o as { iv?: unknown }).iv &amp;&amp; p.icons[id]
+    const ring = `&lt;circle cx="${x}" cy="${y}" r="${r}" style="fill:${en ? 'var(--hp)' : 'var(--ac)'};stroke:${sl};stroke-width:${cs / 10}"/&gt;`
+    const body = img
+      ? ring +
+        `&lt;clipPath id="cp${id}"&gt;&lt;circle cx="${x}" cy="${y}" r="${r}"/&gt;&lt;/clipPath&gt;&lt;image href="${img}" x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#cp${id})"/&gt;&lt;circle cx="${x}" cy="${y}" r="${r}" style="fill:none;stroke:${sl};stroke-width:${cs / 10}"/&gt;`
+      : ring + `&lt;text x="${x}" y="${y}" text-anchor="middle" dy=".35em" style="fill:#fff;font:600 ${cs * 0.45 * Math.min(z, 2)}px sans-serif"&gt;${esc((o.name || '?')[0])}&lt;/text&gt;`
+    const ht = (o as { ht?: number }).ht
+    const hit = !!ht &amp;&amp; p.now - ht &lt; 4500
+    const shake = hit
+      ? `&lt;animateTransform attributeName="transform" type="translate" values="0 0;${-cs * 0.12} 0;${cs * 0.12} ${cs * 0.05};${-cs * 0.08} 0;${cs * 0.08} 0;0 0" dur=".5s" repeatCount="1"/&gt;`
+      : ''
+    const hv = (o as { hv?: unknown }).hv
+    return `&lt;g&gt;${shake}${body}${effects(o as Enemy, en, x, y, r, cs)}${en ? riders(p, id, x, y, r, cs) : ''}${
+      hit
+        ? `&lt;circle cx="${x}" cy="${y}" r="${r}" style="fill:#ff2a2a;opacity:0"&gt;&lt;animate attributeName="opacity" values=".65;0" dur=".7s" repeatCount="1"/&gt;&lt;/circle&gt;&lt;text x="${x}" y="${y - r}" text-anchor="middle" style="font:700 ${cs * 0.4}px sans-serif;fill:#ff5a4d;stroke:#000;stroke-width:${cs * 0.04}px;paint-order:stroke;opacity:0"&gt;-${hv || ''}&lt;animate attributeName="y" values="${y - r * 0.6};${y - r * 1.7}" dur="1.2s" repeatCount="1"/&gt;&lt;animate attributeName="opacity" values="1;1;0" dur="1.2s" repeatCount="1"/&gt;&lt;/text&gt;`
+        : ''
+    }&lt;/g&gt;`
+  }
+  for (const i in enemies) if (onMap(enemies[i]!, g.id) &amp;&amp; enemies[i]!.hd) v += token(enemies[i]!, `e:${i}`, true)
+  for (const i in enemies) if (onMap(enemies[i]!, g.id) &amp;&amp; !enemies[i]!.hd) v += token(enemies[i]!, `e:${i}`, true)
+  for (const i in chars) if (approved(chars[i]!) &amp;&amp; onMap(chars[i]!, g.id) &amp;&amp; !(chars[i]!.mt &amp;&amp; chars[i]!.mon)) v += token(chars[i]!, `c:${i}`, false)
+  return v
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://vitest.dev/" target="_blank" rel="noopener noreferrer">Vitest</a>
+                at 2026-11-25T01:53:41.948Z
+            </div>
+        <script src="../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
+    </body>
+</html>
+    
