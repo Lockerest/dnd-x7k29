@@ -58,7 +58,8 @@ the game's identity, art style and working habits the same from one chat to the 
   can skip for a pure icon/sound swap).
 - Bump `APP_VERSION` in `app/src/config.ts` and add one line to README.md's version log.
 - Publish in batches of 3–4 enemies: build each one as he approves it, then commit and push the batch
-  together. Run the browser tests (`npx playwright test`) only once per batch, before the push. Don't wait
+  together. Run the browser tests (`npx playwright test`) only once per batch, in the
+  background, and keep talking with him while they run; push as soon as they pass. Don't wait
   for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
 ## Status (late Nov 2026, version 1.28.0)
