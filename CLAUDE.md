@@ -72,8 +72,7 @@ the game's identity, art style and working habits the same from one chat to the 
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
 - Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common),
   Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere, Cursed Drider (elite, 2x2),
-  Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite; built without his review
-  of the move list, he may tweak it) done. Spider
+  Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite) done. Spider
   venom slows, and a failed save while already slowed paralyses (pale, milky venom; never vivid green).
 - Next: the rest of the Caves of Ifstrid (Web of Tyranny, the Remade / Cult of the Fleshsmith, the Drow bundle),
   then the other regions, story, encounters, balance, cutscenes (one per main-boss phase change), French
