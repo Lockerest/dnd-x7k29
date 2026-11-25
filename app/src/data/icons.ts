@@ -122,7 +122,7 @@ export const SKILL_ICONS: Record<string, string> = {
   collector_of_souls: '59ce8ede-3e08-4129-89cd-ac0e2420015c.jpg',
   // Alithrax (halfway boss, Sky region).
   rending_claw: 'bcf04c07-bd68-4380-87ed-93bbafe4401d.jpg',
-  tendril_maw: '01755f59-ec08-438e-ac95-8027aa895693.jpg',
+  tendril_maw: '384962f1-7aeb-4afe-8343-e45b303f84ae.jpg',
   tattered_gale: '500d4f5d-6836-4205-9edc-97ad1f71dac1.jpg',
   rot_breath: '2fdd9fa3-d6ae-4834-a011-b693740bd40f.jpg',
   storm_dive: 'eafb3489-10b5-4a48-bd40-0e6c3b3b7768.jpg',

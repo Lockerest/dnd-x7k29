@@ -159,6 +159,7 @@ npm run build
    The Stats menu now has every main boss phase too (Aethelric to Izat'al, tuned to each region's level), and every boss preset is Unique so bosses stay dead after an altar rest (1.24.1).
    The Frozen North's enemies: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte and Revenant Hound, plus two mini-bosses (Morwen, the Shadow of Calden, who stalks the party across two meetings, and the Knight of the Gravid Moon at the Inner Court gate), each with its own move icons and sounds. The Stats menu is now grouped: bosses, then each region's enemies (1.25.0).
    Desidia's nightmares join the Frozen North: Lullaby Gent, Priest of Slumber, Flickering Knight, Horror Summoner (its wraith breaks free as a Shackled Horror when it dies), Shackled Horror, Sleeping Deceit and the Timekeeper Hag, plus her three horrors (Bogeyman, Dream Eater, Nightmare Aberration) and her guardian, the Insomnia Beast, each built from its miniature with its own move icons and sounds (1.26.0).
+   Alithrax's Tendril Maw has a new icon drawn from his portrait (three eyes, tendril beard) (1.26.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity
