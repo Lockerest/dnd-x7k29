@@ -162,6 +162,7 @@ npm run build
    Alithrax's Tendril Maw has a new icon drawn from his portrait (three eyes, tendril beard) (1.26.1).
    The Caves of Ifstrid's first enemy: the All-seeing Ooze, an elite that is Arachne's living eye (marks heroes for its allies, swallows one hero at a time, and no one can hide near it), with its own move icons and sounds (1.27.0).
    The Mapinguari Demon joins the Caves of Ifstrid: a large common brute whose belly tentacles grab a hero for its belly maw to bite, with its own move icons and sounds (1.27.1).
+   Three more Caves of Ifstrid enemies, each with its own move icons and sounds: the Arachnid Priestess (a drow caster whose pale venom slows, then paralyses a hero already slowed, and who sends a tide of spiderlings that fire burns away), Arachne's Sentinel (an elite that drops from the ceiling, and hears anyone stepping on her webs) and the Spiderwere (lassoes a hero with silk, reels them in and bites) (1.28.0).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

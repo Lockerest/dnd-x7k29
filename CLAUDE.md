@@ -57,10 +57,11 @@ the game's identity, art style and working habits the same from one chat to the 
   `npm run test:coverage` (100% coverage required), `npm run build`, `npx playwright test` (~10 min;
   can skip for a pure icon/sound swap).
 - Bump `APP_VERSION` in `app/src/config.ts` and add one line to README.md's version log.
-- Commit to `main` and push. Don't wait for the "Deploy to GitHub Pages" run: say it's pushed and move
-  on to the next enemy. Run the browser tests (`npx playwright test`) only once per batch, before the push.
+- Publish in batches of 3–4 enemies: build each one as he approves it, then commit and push the batch
+  together. Run the browser tests (`npx playwright test`) only once per batch, before the push. Don't wait
+  for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
-## Status (late Nov 2026, version 1.27.1)
+## Status (late Nov 2026, version 1.28.0)
 - All bosses done: 7 main, 9 halfway, 5 secret (Desidia, Iniha Yunvra, Cadmus, Aldrich, Tenjin).
 - Frozen North enemies done: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte,
   Revenant Hound; mini-bosses Morwen, the Shadow of Calden (stalker, two meetings) and the Knight of the
@@ -68,7 +69,8 @@ the game's identity, art style and working habits the same from one chat to the 
   Shackled Horror, Sleeping Deceit, Timekeeper Hag), her horrors (Bogeyman, Dream Eater, Nightmare
   Aberration) and guardian (Insomnia Beast). The Jailer stays the halfway boss.
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
-- Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common) done. Spider
+- Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common),
+  Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere done. Spider
   venom slows, and a failed save while already slowed paralyses (pale, milky venom; never vivid green).
 - Next: the rest of the Caves of Ifstrid (Web of Tyranny, the Remade / Cult of the Fleshsmith, the Drow bundle),
   then the other regions, story, encounters, balance, cutscenes (one per main-boss phase change), French

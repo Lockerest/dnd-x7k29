@@ -371,6 +371,20 @@ export const SKILL_ICONS: Record<string, string> = {
   stone_hammer: 'c0308ef7-f472-4762-b856-8fa9c142f606.jpg',
   gut_tendrils: '2858c699-f18d-47cb-9398-38ea50a1244b.jpg',
   gut_maw: '2b50fd83-4362-49a3-b539-30df55df8855.jpg',
+  // Caves of Ifstrid: Arachnid Priestess.
+  spider_glaive: 'e406c09a-e0ce-43d6-898d-dbd5589b5a2e.jpg',
+  pale_venom: '55219f15-da89-404d-95db-7da09ef93121.jpg',
+  spiderling_tide: 'e2ee5345-2e10-42ad-8c1a-b647e1a96bcc.jpg',
+  // Caves of Ifstrid: Arachne's Sentinel (elite).
+  four_claw_rake: '63fc4656-4509-44f9-be90-60453bfbdd04.jpg',
+  sentinel_fang: '077e49fe-c621-463a-b845-40af5376c918.jpg',
+  stalactite_pounce: 'dc40a94b-80fd-4ba5-894b-7ae0012b03be.jpg',
+  the_webs_listen: '98261f84-e3e6-478a-a9c5-b2caf9a60f8f.jpg',
+  arachne_s_sentinel: '4062b6d1-8457-463f-aaa2-4128bf148780.jpg',
+  // Caves of Ifstrid: Spiderwere.
+  hooked_claws: 'd65cbd1f-99c9-45a7-98c8-924c35c65520.jpg',
+  silk_lasso: 'b06e26c2-e8e3-4343-93d9-e1b4595f7445.jpg',
+  turning_bite: '839ee737-95c3-4ab2-a543-f6ce4177e75a.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

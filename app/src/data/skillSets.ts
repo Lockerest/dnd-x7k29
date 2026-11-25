@@ -3144,5 +3144,88 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "s",
       "text": "The belly maw bites the hero it holds: attack roll with advantage. Can't be parried. If no hero is grappled, it uses Stone Hammer instead. Free your friend before its next turn."
     }
+  ],
+  "Caves of Ifstrid: Arachnid Priestess": [
+    {
+      "name": "Spider Glaive",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: attack roll vs one hero up to 2 squares away with her bone-bladed glaive. Can be parried. On a miss: nothing. Roll a d4 for her turn: 1 Spider Glaive, 2-3 Pale Venom, 4 Spiderling Tide."
+    },
+    {
+      "name": "Pale Venom",
+      "dice": "1d6",
+      "range": 6,
+      "target": "s",
+      "text": "A spell: attack roll vs one hero up to 6 squares away. Dodge only (can't be parried). On a hit: damage, and a CON save against 10 + her attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
+    },
+    {
+      "name": "Spiderling Tide",
+      "dice": "1d4",
+      "range": 5,
+      "target": "a",
+      "text": "The little spiders at her feet pour into a 2x2 zone up to 5 squares away for 2 rounds (mark it as a Poison danger zone). A hero who starts their turn inside makes a DEX save against 10 + her attack bonus or takes the damage and is slowed until the end of their next turn. Dodge only. A torch or fire put into the zone (an action) burns them away. Only one tide at a time: a new one replaces the old."
+    }
+  ],
+  "Caves of Ifstrid: Arachne's Sentinel (elite)": [
+    {
+      "name": "Four-Claw Rake",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one adjacent hero, all four claws at once. Can be parried, but a parry still takes half (too many claws to stop). On a miss: nothing."
+    },
+    {
+      "name": "Sentinel Fang",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero. Can be parried (beaten parry: no damage, no venom). On a hit: damage, and a CON save against 10 + its attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
+    },
+    {
+      "name": "Stalactite Pounce",
+      "dice": "2d6",
+      "range": 6,
+      "target": "s",
+      "text": "Only from a wall or the ceiling: it drops onto one hero up to 6 squares away (this movement never gives free attacks). Attack roll. Dodge only. On a hit: damage, and a STR save against 10 + its attack bonus or knocked prone. On a miss: it lands next to them anyway. If it's on the floor when this is rolled, it climbs up a wall or onto the ceiling instead (no free attacks): that's the warning that it drops next turn."
+    },
+    {
+      "name": "The Webs Listen",
+      "dice": "0",
+      "range": 12,
+      "target": "a",
+      "text": "Passive, no action (if rolled, it uses Four-Claw Rake instead). A hero who steps onto a web square alerts every Sentinel within 12 squares: they wake, move toward the sound and can't be surprised. Burning a web square first (a torch, as an action) lets the party cross it unheard. GM applies it."
+    },
+    {
+      "name": "Arachne's Sentinel",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite guarding Arachne's web paths, for a level 3-4 party: HP 450, AC 14, size 2x2, speed 7, climbs walls and ceilings at full speed. Roll a d4: 1 Four-Claw Rake, 2 Sentinel Fang, 3 Stalactite Pounce, 4 Four-Claw Rake. It waits on a ceiling or a rock spire above a web path; it starts the fight up high if the party didn't alert it."
+    }
+  ],
+  "Caves of Ifstrid: Spiderwere": [
+    {
+      "name": "Hooked Claws",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one adjacent hero. Can be parried. On a miss: nothing. It climbs walls at full speed. Roll a d4 for its turn: 1-2 Hooked Claws, 3 Silk Lasso, 4 Turning Bite."
+    },
+    {
+      "name": "Silk Lasso",
+      "dice": "0",
+      "range": 5,
+      "target": "s",
+      "text": "No damage. It flings a silk line at one hero up to 5 squares away: DEX save against 10 + its attack bonus or restrained. Dodge only. At the start of its next turn it reels them up to 3 squares toward it (no free attacks against them). They tear free with a STR check against 10 + its attack bonus (an action); an adjacent ally can cut the line (an action); fire burns it away at once. On a success: nothing."
+    },
+    {
+      "name": "Turning Bite",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero, with advantage if they're restrained. Can be parried, unless the hero is restrained (beaten parry: no damage, no venom). On a hit: damage, and a CON save against 10 + its attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
+    }
   ]
 }

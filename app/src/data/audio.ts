@@ -634,7 +634,18 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "eye_of_ifstrid": "855188d6-60cf-416d-a525-497383e018f7",
   "stone_hammer": "0f128d1c-39f3-462c-b262-12361a451d60",
   "gut_tendrils": "da2fec3a-b3f8-4b68-a06a-17213ff968f5",
-  "gut_maw": "e2e1e84e-82f6-4598-a48f-d6ccb8d2c0b8"
+  "gut_maw": "e2e1e84e-82f6-4598-a48f-d6ccb8d2c0b8",
+  "spider_glaive": "ab5d16ac-fec4-4dd2-8d91-31373d36b311",
+  "pale_venom": "adcf5cd1-7092-4c85-9491-7fbd7b9bf0b5",
+  "spiderling_tide": "0efd191a-611f-4ece-b6f1-ea04471a37a7",
+  "four_claw_rake": "c323d572-0304-4d14-ba94-399f3a6f119b",
+  "sentinel_fang": "d4b2699b-85d1-4e46-b3e0-58d3ae29d639",
+  "stalactite_pounce": "88a062b2-9dfd-4d59-ac5d-95dccb470aae",
+  "the_webs_listen": "39516ae2-17b8-488e-b4de-64a3aa5947e7",
+  "arachne_s_sentinel": "a650f76d-d810-45f2-a36a-66fd33d0dabf",
+  "hooked_claws": "e48107b9-0633-4d7a-baf2-623aee04b906",
+  "silk_lasso": "54988544-deb1-48b9-95d8-63b4b324b543",
+  "turning_bite": "10057e70-5884-4a89-8a78-6704894ec0e9"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`
