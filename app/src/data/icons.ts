@@ -367,6 +367,10 @@ export const SKILL_ICONS: Record<string, string> = {
   drowning_embrace: 'e0fbc20a-c289-4d42-b882-93ceac2021aa.jpg',
   nothing_hides: '79749ebf-e675-41d3-a9e6-8aa9a456ad34.jpg',
   eye_of_ifstrid: '2124ac8f-bc56-4858-af55-25cbf11b3c70.jpg',
+  // Caves of Ifstrid: Mapinguari Demon.
+  stone_hammer: 'c0308ef7-f472-4762-b856-8fa9c142f606.jpg',
+  gut_tendrils: '2858c699-f18d-47cb-9398-38ea50a1244b.jpg',
+  gut_maw: '2b50fd83-4362-49a3-b539-30df55df8855.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

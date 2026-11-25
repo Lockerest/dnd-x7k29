@@ -79,6 +79,7 @@ export const REGION_STATS: Record<string, Record<string, BossStats>> = {
   },
   'Caves of Ifstrid (Arachne, level 3-4)': {
     'All-seeing Ooze (elite)': { name: 'All-seeing Ooze', max: 450, ac: 13, sz: 1, ab: 5, spd: 4, rk: 'n' },
+    'Mapinguari Demon': { name: 'Mapinguari Demon', max: 300, ac: 13, sz: 2, ab: 5, spd: 5, rk: 'n' },
   },
 }
 

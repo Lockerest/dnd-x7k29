@@ -631,7 +631,10 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "gaze_of_ifstrid": "32aee80d-b730-4000-989f-09a4f4125097",
   "drowning_embrace": "07e4577b-9fbf-4bf6-8ddb-0836de35758a",
   "nothing_hides": "776f0ea2-2f2f-4f6d-a017-846ad837776d",
-  "eye_of_ifstrid": "855188d6-60cf-416d-a525-497383e018f7"
+  "eye_of_ifstrid": "855188d6-60cf-416d-a525-497383e018f7",
+  "stone_hammer": "0f128d1c-39f3-462c-b262-12361a451d60",
+  "gut_tendrils": "da2fec3a-b3f8-4b68-a06a-17213ff968f5",
+  "gut_maw": "e2e1e84e-82f6-4598-a48f-d6ccb8d2c0b8"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`

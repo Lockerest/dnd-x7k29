@@ -161,6 +161,7 @@ npm run build
    Desidia's nightmares join the Frozen North: Lullaby Gent, Priest of Slumber, Flickering Knight, Horror Summoner (its wraith breaks free as a Shackled Horror when it dies), Shackled Horror, Sleeping Deceit and the Timekeeper Hag, plus her three horrors (Bogeyman, Dream Eater, Nightmare Aberration) and her guardian, the Insomnia Beast, each built from its miniature with its own move icons and sounds (1.26.0).
    Alithrax's Tendril Maw has a new icon drawn from his portrait (three eyes, tendril beard) (1.26.1).
    The Caves of Ifstrid's first enemy: the All-seeing Ooze, an elite that is Arachne's living eye (marks heroes for its allies, swallows one hero at a time, and no one can hide near it), with its own move icons and sounds (1.27.0).
+   The Mapinguari Demon joins the Caves of Ifstrid: a large common brute whose belly tentacles grab a hero for its belly maw to bite, with its own move icons and sounds (1.27.1).
    French comes last, after the story and balancing.
 
 New bosses, skill sets, themes and ability sounds go in `app/src/data/` only. The parity

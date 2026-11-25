@@ -3121,5 +3121,28 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a",
       "text": "GM rules. Elite of Arachne's caves, her living eye where her webs can't hear, for a level 3-4 party: HP 450, AC 13, size 1x1, speed 4 (squeezes through cracks one square wide). Roll a d4: 1-2 Lashing Tendril, 3 Gaze of Ifstrid, 4 Drowning Embrace. When it dies, heroes can hide again at once."
     }
+  ],
+  "Caves of Ifstrid: Mapinguari Demon": [
+    {
+      "name": "Stone Hammer",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one hero up to 2 squares away with the crude stone hammer. Can be parried. On a miss: nothing. Roll a d4 for its turn: 1-2 Stone Hammer, 3 Gut Tendrils, 4 Gut Maw."
+    },
+    {
+      "name": "Gut Tendrils",
+      "dice": "1d6",
+      "range": 2,
+      "target": "s",
+      "text": "The tentacles around its belly maw lash at one hero up to 2 squares away: attack roll. Dodge only. On a hit: damage, pulled to a free square next to it and grappled until they break free (STR check against 10 + its attack bonus, as an action). It holds one hero at a time: if it already holds one, it uses Stone Hammer instead. On a miss: nothing."
+    },
+    {
+      "name": "Gut Maw",
+      "dice": "2d8",
+      "range": 1,
+      "target": "s",
+      "text": "The belly maw bites the hero it holds: attack roll with advantage. Can't be parried. If no hero is grappled, it uses Stone Hammer instead. Free your friend before its next turn."
+    }
   ]
 }
