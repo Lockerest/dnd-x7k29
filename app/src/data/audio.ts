@@ -645,7 +645,25 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "arachne_s_sentinel": "a650f76d-d810-45f2-a36a-66fd33d0dabf",
   "hooked_claws": "e48107b9-0633-4d7a-baf2-623aee04b906",
   "silk_lasso": "54988544-deb1-48b9-95d8-63b4b324b543",
-  "turning_bite": "10057e70-5884-4a89-8a78-6704894ec0e9"
+  "turning_bite": "10057e70-5884-4a89-8a78-6704894ec0e9",
+  "twin_axe_chop": "c2e87c33-5d3b-4d5d-bec0-7ee6a854da19",
+  "whirling_axes": "e6962a64-efc1-4c53-ab3a-84635b31eef6",
+  "pinning_legs": "bbbcc1ae-3a0a-49a0-a1e5-ccd4c68f775c",
+  "debt_of_silk": "09523a23-86de-4d1a-92f1-e3715abf3e63",
+  "scythe_leg": "b63f64ef-d7e2-41bd-bad8-447a29666171",
+  "leg_storm": "caafa91b-eba5-4271-9f35-be9c6fc13aaf",
+  "impale_and_lift": "118ad84f-a8df-4afb-9054-06733dbaa5d7",
+  "skittering_dread": "bdcbba9e-8724-4dc1-95bf-cf4710ef0c1a",
+  "venom_barbs": "91b83689-7695-462a-9b77-4fd80a16d61c",
+  "too_many_legs": "99051240-2f23-4fa3-bd4e-d16fbddd6e21",
+  "grave_touch": "9ad78df3-8d40-49d6-99f9-19a38eacea54",
+  "wail_of_the_webbed": "1de06ca5-139c-42ea-b03b-3eddc7e527da",
+  "phantom_web": "b1a32606-203f-4818-9e95-bf9d9261d8c9",
+  "twin_blade_slash": "84f8d607-4d21-40da-9b60-c653c0e96e7a",
+  "reaping_sweep": "7b3d5ca0-fb7b-4696-a711-379224423bf7",
+  "mandible_bite": "bc60c9b0-41ee-4d92-a95f-699cb8939345",
+  "leaping_strike": "c9b3ff4f-6ecf-4db5-a19f-101226fed653",
+  "myrmidon_s_discipline": "e91ee63c-d11e-4390-8014-3d4435bf5380"
 }
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`

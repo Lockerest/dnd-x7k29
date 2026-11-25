@@ -83,6 +83,10 @@ export const REGION_STATS: Record<string, Record<string, BossStats>> = {
     'Arachnid Priestess': { name: 'Arachnid Priestess', max: 200, ac: 13, sz: 1, ab: 5, spd: 6, rk: 'n' },
     "Arachne's Sentinel (elite)": { name: "Arachne's Sentinel", max: 450, ac: 14, sz: 2, ab: 5, spd: 7, rk: 'n' },
     'Spiderwere': { name: 'Spiderwere', max: 250, ac: 14, sz: 1, ab: 5, spd: 7, rk: 'n' },
+    'Cursed Drider (elite)': { name: 'Cursed Drider', max: 480, ac: 15, sz: 2, ab: 5, spd: 7, rk: 'n' },
+    'Arachnophobic Horror (mini-boss)': { name: 'Arachnophobic Horror', max: 850, ac: 15, sz: 2, ab: 5, spd: 8, rk: 'u' },
+    'Ghostweb Specter': { name: 'Ghostweb Specter', max: 180, ac: 13, sz: 1, ab: 5, spd: 6, rk: 'n' },
+    'Arthropod Myrmidon (elite)': { name: 'Arthropod Myrmidon', max: 450, ac: 16, sz: 1, ab: 5, spd: 7, rk: 'n' },
   },
 }
 

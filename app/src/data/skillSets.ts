@@ -3227,5 +3227,139 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "s",
       "text": "Attack roll vs one adjacent hero, with advantage if they're restrained. Can be parried, unless the hero is restrained (beaten parry: no damage, no venom). On a hit: damage, and a CON save against 10 + its attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
     }
+  ],
+  "Caves of Ifstrid: Cursed Drider (elite)": [
+    {
+      "name": "Twin Axe Chop",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one adjacent hero, both axes at once. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Whirling Axes",
+      "dice": "2d8",
+      "range": 1,
+      "target": "a",
+      "text": "Its heavy attack: it spins on its spider legs, axes out, and hits every adjacent hero, one attack roll per hero. A parry still takes half. On a miss: nothing for that hero."
+    },
+    {
+      "name": "Pinning Legs",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "The spider legs stab down at one adjacent hero: attack roll. Dodge only (too many legs to parry). On a hit: damage, and a STR save against 10 + its attack bonus or pinned (prone and restrained) until the start of its next turn. On a miss: nothing."
+    },
+    {
+      "name": "Debt of Silk",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite of Arachne's caves, a dwarf who broke a bargain with her and paid with his body, for a level 3-4 party: HP 480, AC 15, size 2x2, speed 7, climbs walls. Roll a d4: 1 Twin Axe Chop, 2 Whirling Axes, 3 Pinning Legs, 4 Twin Axe Chop with advantage against a pinned hero. No venom: steel and legs. When it dies, the dwarf comes back for a moment and whispers one secret he once sold Arachne (a lore drop of your choice)."
+    }
+  ],
+  "Caves of Ifstrid: Arachnophobic Horror (mini-boss)": [
+    {
+      "name": "Scythe Leg",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one hero up to 2 squares away with a bone scythe leg. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Leg Storm",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "Its heavy attack, no attack roll: every leg lashes out at once. Every hero within 2 squares makes a DEX save against 10 + its attack bonus: full damage on a fail, half on a success. Dodge only."
+    },
+    {
+      "name": "Impale and Lift",
+      "dice": "2d6",
+      "range": 2,
+      "target": "s",
+      "text": "Attack roll vs one hero up to 2 squares away. Dodge only. On a hit: damage, and the hero is skewered and lifted into the air, restrained. At the start of its next turn it slams them down: 1d8 (x10) more damage, and they land prone 2 squares away (your pick). They get free early with a STR check against 10 + its attack bonus (an action), or when an ally hits it for 60 or more in one blow. On a miss: nothing. Never two turns in a row: roll again."
+    },
+    {
+      "name": "Skittering Dread",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 4 squares makes a WIS save against 10 + its attack bonus or is frightened until the end of their next turn: they can't move closer to it (they can still attack if already in reach). Can't be dodged or parried. On a success: nothing."
+    },
+    {
+      "name": "Venom Barbs",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "Attack roll vs one hero up to 2 squares away with a barbed leg. Can be parried (beaten parry: no damage, no venom). On a hit: damage, and a CON save against 10 + its attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
+    },
+    {
+      "name": "Too Many Legs",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Mini-boss of Arachne's caves, for a level 3-4 party: HP 850, AC 15, size 2x2, speed 8, climbs walls and ceilings, can't be knocked prone. Roll a d6: 1 Scythe Leg, 2 Leg Storm, 3 Impale and Lift, 4 Skittering Dread, 5 Venom Barbs, 6 Scythe Leg. At 425 HP it sheds its broken legs: 2 Leg Swarms scuttle off on free squares next to it (each HP 60, AC 12, size 1x1, speed 6; light attack 1d6 vs an adjacent hero, attack roll, can be parried). They act right after it in initiative."
+    }
+  ],
+  "Caves of Ifstrid: Ghostweb Specter": [
+    {
+      "name": "Grave Touch",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one adjacent hero. Can't be parried (the hand passes through steel): dodge only. On a hit: damage, and the hero loses 1 stamina. On a miss: nothing. GHOSTLY: light and heavy attacks deal only half damage to it; abilities and fire deal full damage. It floats through webs. When it dies it sighs, finally free. Roll a d4 for its turn: 1-2 Grave Touch, 3 Wail of the Webbed, 4 Phantom Web."
+    },
+    {
+      "name": "Wail of the Webbed",
+      "dice": "1d6",
+      "range": 3,
+      "target": "a",
+      "text": "No attack roll: a scream. Every hero within 3 squares makes a WIS save against 10 + its attack bonus. Fail: damage, and frightened until the end of their next turn (can't move closer to it). Success: half damage, not frightened. Can't be dodged or parried."
+    },
+    {
+      "name": "Phantom Web",
+      "dice": "0",
+      "range": 6,
+      "target": "a",
+      "text": "No damage. A 2x2 zone of ghost silk up to 6 squares away for 2 rounds (mark it as a Void danger zone). A hero who starts their turn inside makes a DEX save against 10 + its attack bonus or is restrained until the end of that turn. Fire and torches pass through it without burning it: only an ability used on it (an action) clears it. Only one at a time: a new one replaces the old."
+    }
+  ],
+  "Caves of Ifstrid: Arthropod Myrmidon (elite)": [
+    {
+      "name": "Twin-Blade Slash",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: attack roll vs one hero up to 2 squares away with the double-bladed glaive. Can be parried. On a miss: nothing."
+    },
+    {
+      "name": "Reaping Sweep",
+      "dice": "2d8",
+      "range": 2,
+      "target": "a",
+      "text": "Its heavy attack: a wide arc in front of it hitting up to 2 heroes within 2 squares, one attack roll per hero. A parry still takes half. On a miss: nothing for that hero."
+    },
+    {
+      "name": "Mandible Bite",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "The helmet's mandible tusks bite one adjacent hero: attack roll. Can be parried (beaten parry: no damage, no venom). On a hit: damage, and a CON save against 10 + its attack bonus or slowed (half movement) until the end of their next turn. If the hero was already slowed, a failed save paralyses them instead until the end of their next turn (no actions; attacks against them have advantage). On a miss: nothing."
+    },
+    {
+      "name": "Leaping Strike",
+      "dice": "2d6",
+      "range": 5,
+      "target": "s",
+      "text": "It leaps up to 5 squares (this movement never gives free attacks) and brings the glaive down on one hero it lands next to: attack roll. Dodge only. On a hit: damage, and a STR save against 10 + its attack bonus or knocked prone. On a miss: it lands next to them anyway."
+    },
+    {
+      "name": "Myrmidon's Discipline",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite of Arachne's caves, a disciplined arthropod warrior, for a level 3-4 party: HP 450, AC 16, size 1x1, speed 7. Roll a d4: 1 Twin-Blade Slash, 2 Reaping Sweep, 3 Mandible Bite, 4 Leaping Strike. COUNTER-STANCE: once per round, when a hero's melee attack misses it, it answers at once with a free Twin-Blade Slash against that hero (normal attack roll, can be parried)."
+    }
   ]
 }

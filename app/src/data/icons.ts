@@ -385,6 +385,28 @@ export const SKILL_ICONS: Record<string, string> = {
   hooked_claws: 'd65cbd1f-99c9-45a7-98c8-924c35c65520.jpg',
   silk_lasso: 'b06e26c2-e8e3-4343-93d9-e1b4595f7445.jpg',
   turning_bite: '839ee737-95c3-4ab2-a543-f6ce4177e75a.jpg',
+  // Caves of Ifstrid: Cursed Drider (elite).
+  twin_axe_chop: 'b87367a3-2b03-430d-8c93-4ac38a14da2f.jpg',
+  whirling_axes: '5083cdf1-b902-4729-9dd7-9aff1d16d76c.jpg',
+  pinning_legs: '65f8f39c-f3d6-4831-ab7b-e214b5ff19f0.jpg',
+  debt_of_silk: '0136b802-bb3b-43c2-8f2b-19d7b18fb84f.jpg',
+  // Caves of Ifstrid: Arachnophobic Horror (mini-boss).
+  scythe_leg: '05cae0e3-bd17-4562-8b1e-b17e740946c7.jpg',
+  leg_storm: 'a0fdc8fd-b5b6-4e38-a4d7-e6b2ac22cb1a.jpg',
+  impale_and_lift: 'dec1a9e2-a31a-4853-afc4-2e764c4547fd.jpg',
+  skittering_dread: '8fb5f577-36a2-49ad-9d8d-963956d9d36b.jpg',
+  venom_barbs: '989a2812-faaa-47ed-88d0-84efdb9945d6.jpg',
+  too_many_legs: 'b23e4d54-9be1-4071-a2a3-3c2eb1bfb8eb.jpg',
+  // Caves of Ifstrid: Ghostweb Specter.
+  grave_touch: '932e6f4d-ccc9-45ae-b437-700c4f347a0f.jpg',
+  wail_of_the_webbed: 'e60b2266-6c64-4829-a488-51bd2d01e197.jpg',
+  phantom_web: '8cf50bed-c9df-4776-9128-8b2b3633ddda.jpg',
+  // Caves of Ifstrid: Arthropod Myrmidon (elite).
+  twin_blade_slash: 'c3470553-5dfb-45d5-bf28-370fd2b0aa3c.jpg',
+  reaping_sweep: '89e5abfa-d914-43c5-8888-201b927a0916.jpg',
+  mandible_bite: 'e8e0b369-e426-4fca-b61e-ebacbc6ff0d2.jpg',
+  leaping_strike: '0e404e8a-c104-44c0-b5fb-aa793c9b4cf8.jpg',
+  myrmidon_s_discipline: '6bf02ae1-32ac-4a5b-9d58-ac4b60c3c1cd.jpg',
 }
 
 // Class ability icons (all 169), by ability name slug: the same import saves them on the

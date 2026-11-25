@@ -62,7 +62,7 @@ the game's identity, art style and working habits the same from one chat to the 
   background, and keep talking with him while they run; push as soon as they pass. Don't wait
   for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
-## Status (late Nov 2026, version 1.28.0)
+## Status (late Nov 2026, version 1.29.0)
 - All bosses done: 7 main, 9 halfway, 5 secret (Desidia, Iniha Yunvra, Cadmus, Aldrich, Tenjin).
 - Frozen North enemies done: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte,
   Revenant Hound; mini-bosses Morwen, the Shadow of Calden (stalker, two meetings) and the Knight of the
@@ -71,7 +71,9 @@ the game's identity, art style and working habits the same from one chat to the 
   Aberration) and guardian (Insomnia Beast). The Jailer stays the halfway boss.
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
 - Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common),
-  Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere done. Spider
+  Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere, Cursed Drider (elite, 2x2),
+  Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite; built without his review
+  of the move list, he may tweak it) done. Spider
   venom slows, and a failed save while already slowed paralyses (pale, milky venom; never vivid green).
 - Next: the rest of the Caves of Ifstrid (Web of Tyranny, the Remade / Cult of the Fleshsmith, the Drow bundle),
   then the other regions, story, encounters, balance, cutscenes (one per main-boss phase change), French
