@@ -4,7 +4,7 @@
 import type { Enemy } from '../logic/types'
 
 /** Preset: what it sets on the sheet (hp is set to max). */
-export type BossStats = { name: string; max: number; ac: number; sz: number; ab: number; spd: number; rk: 'n' | 'l' | 'm' | 'u' }
+export type BossStats = { name: string; max: number; ac: number; sz: number; ab: number; spd: number; rk: 'n' | 'm' | 'u' }
 
 /** Main, secret and halfway bosses for the enemy sheet's Stats menu. Every boss is Unique: it stays dead after an altar rest. */
 export const BOSS_STATS: Record<string, BossStats> = {
@@ -65,6 +65,17 @@ export const REGION_STATS: Record<string, Record<string, BossStats>> = {
     'Revenant Hound': { name: 'Revenant Hound', max: 160, ac: 13, sz: 1, ab: 4, spd: 8, rk: 'n' },
     'Morwen, the Shadow of Calden (mini-boss)': { name: 'Morwen, the Shadow of Calden', max: 900, ac: 16, sz: 2, ab: 5, spd: 7, rk: 'u' },
     'Knight of the Gravid Moon (mini-boss)': { name: 'Knight of the Gravid Moon', max: 1000, ac: 17, sz: 3, ab: 5, spd: 6, rk: 'u' },
+    'Lullaby Gent (nightmare)': { name: 'Lullaby Gent', max: 180, ac: 13, sz: 1, ab: 4, spd: 6, rk: 'n' },
+    'Priest of Slumber (nightmare)': { name: 'Priest of Slumber', max: 180, ac: 13, sz: 1, ab: 4, spd: 5, rk: 'n' },
+    'Flickering Knight (nightmare)': { name: 'Flickering Knight', max: 280, ac: 16, sz: 1, ab: 4, spd: 5, rk: 'n' },
+    'Horror Summoner (nightmare)': { name: 'Horror Summoner', max: 160, ac: 13, sz: 1, ab: 4, spd: 5, rk: 'n' },
+    'Shackled Horror (nightmare)': { name: 'Shackled Horror', max: 300, ac: 13, sz: 2, ab: 4, spd: 5, rk: 'n' },
+    'Sleeping Deceit (nightmare)': { name: 'Sleeping Deceit', max: 220, ac: 12, sz: 1, ab: 4, spd: 5, rk: 'n' },
+    'Timekeeper Hag (nightmare elite)': { name: 'Timekeeper Hag', max: 450, ac: 14, sz: 1, ab: 5, spd: 5, rk: 'n' },
+    'Bogeyman (horror, Desidia phase 2)': { name: 'The Bogeyman', max: 650, ac: 15, sz: 2, ab: 5, spd: 7, rk: 'u' },
+    'Dream Eater (horror, Desidia phase 2)': { name: 'The Dream Eater', max: 700, ac: 14, sz: 2, ab: 5, spd: 6, rk: 'u' },
+    'Nightmare Aberration (horror, Desidia phase 2)': { name: 'Nightmare Aberration', max: 850, ac: 14, sz: 3, ab: 5, spd: 6, rk: 'u' },
+    'Insomnia Beast (guardian)': { name: 'Insomnia Beast', max: 1100, ac: 14, sz: 3, ab: 5, spd: 6, rk: 'u' },
   },
 }
 

@@ -2719,5 +2719,370 @@ export const SKILL_SETS: Record<string, SkillRow[]> = {
       "target": "a",
       "text": "GM rules. Mini-boss guarding the gate of Calden's Inner Court, for a level 2-3 party: HP 1,000, AC 17, size 3x3, speed 6 (can't be pushed, pulled or knocked prone). Roll a d6: 1 Broken Oath, 2 Moonlit Cleave, 3 Crescent Pounce, 4 Howl of the Gravid Moon, 5 Savage Maul, 6 Broken Oath. At 500 HP his armour cracks and he goes feral: from then on he rolls twice each turn, but his AC drops to 15."
     }
+  ],
+  "Frozen North: Lullaby Gent (nightmare)": [
+    {
+      "name": "Sandman's Toss",
+      "dice": "1d8",
+      "range": 4,
+      "target": "s",
+      "text": "His light attack: he flings golden dream-sand at one hero up to 4 squares away. Attack roll; dodge only. On a critical hit the target also gains +1 Slumber."
+    },
+    {
+      "name": "Gent's Lullaby",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 4 squares makes a WIS save against 10 + his attack bonus or gains +1 Slumber. You hear the music box before you see him: describe it a round before he shows up. A hero holding a lit torch has advantage. Can't be dodged or parried."
+    },
+    {
+      "name": "Bow and Vanish",
+      "dice": "0",
+      "range": 4,
+      "target": "s",
+      "text": "No damage. He tips his cap and teleports to a free square up to 4 squares away (never gives free attacks). Use it when a hero gets next to him."
+    }
+  ],
+  "Frozen North: Priest of Slumber (nightmare)": [
+    {
+      "name": "Dream Lash",
+      "dice": "1d8",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: the crescent hook on its chain lashes one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Sleep Sermon",
+      "dice": "0",
+      "range": 5,
+      "target": "s",
+      "text": "No damage, no attack roll. One hero within 5 squares makes a WIS save against 10 + her attack bonus or gains +1 Slumber. Can't be dodged or parried (it's a prayer)."
+    },
+    {
+      "name": "Bless the Sleepers",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage. Every nightmare within 4 squares (herself included) gets +1 to attack until the start of her next turn. Never twice in a row: roll again."
+    }
+  ],
+  "Frozen North: Flickering Knight (nightmare)": [
+    {
+      "name": "Candle Blade",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "His light attack: a flaming sword slash vs one adjacent hero, fire damage. Attack roll. Can be parried."
+    },
+    {
+      "name": "Wax Burst",
+      "dice": "1d8",
+      "range": 1,
+      "target": "a",
+      "text": "No attack roll: scalding wax sprays every hero next to him, fire damage. DEX save against 10 + his attack bonus for half. Dodge only. It also burns away Desidia's Velvet Smoke on the squares around him."
+    },
+    {
+      "name": "Last Light",
+      "dice": "0",
+      "range": 2,
+      "target": "a",
+      "text": "Passive: when he dies, his candles flare. Every hero within 2 squares loses all Slumber, and any who were asleep wake up. Teaches the players that light beats sleep. If rolled, he uses Candle Blade instead."
+    }
+  ],
+  "Frozen North: Horror Summoner (nightmare)": [
+    {
+      "name": "Horror's Claws",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: the bound wraith's bloody hands claw one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Dread Command",
+      "dice": "0",
+      "range": 4,
+      "target": "s",
+      "text": "No damage. One hero within 4 squares makes a WIS save against 10 + its attack bonus or is frightened of the Summoner until the end of their next turn (disadvantage on attacks against it, can't move closer). Can't be dodged or parried."
+    },
+    {
+      "name": "Shielded by the Horror",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "Passive, once per round: the wraith takes half of one hit meant for the summoner (halve that damage). Area attacks ignore it. When the Summoner dies, its wraith breaks free: put a Shackled Horror at 150 HP (half) on its square. If rolled, it uses Horror's Claws instead."
+    }
+  ],
+  "Frozen North: Shackled Horror (nightmare)": [
+    {
+      "name": "Chain Swing",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: a chain lashes one hero up to 2 squares away. Attack roll. On a hit, damage and the hero is pulled 1 square closer (no save). Can be parried (beaten parry: no damage, no pull)."
+    },
+    {
+      "name": "Shackle Grab",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero with its yoked hands. On a hit: damage and the hero is restrained until they break free (STR check against 10 + its attack bonus, as an action). It can hold one hero at a time. Can be parried."
+    },
+    {
+      "name": "Rampage",
+      "dice": "1d8",
+      "range": 1,
+      "target": "a",
+      "text": "No attack roll: robes, chains and ooze lash every hero next to it. DEX save against 10 + its attack bonus for half. Dodge only. A hero it is holding gets no save."
+    }
+  ],
+  "Frozen North: Sleeping Deceit (nightmare)": [
+    {
+      "name": "The Rescue",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "Her trap, before any fight. She waits as a captive princess. The first hero who comes next to her to free or help her triggers it: she reveals the maw in her back and makes a free Back Maw at that hero with advantage, before initiative. If rolled in a fight, she uses Back Maw instead."
+    },
+    {
+      "name": "Back Maw",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Her light attack: the maw in her back bites one adjacent hero. Attack roll. She heals half the damage dealt. Can be parried."
+    },
+    {
+      "name": "Unmasked Shriek",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 3 squares makes a WIS save against 10 + her attack bonus or can't take reactions (Dodge Roll, Parry, free attacks) until the end of their next turn. Can't be dodged or parried."
+    }
+  ],
+  "Frozen North: Timekeeper Hag (nightmare elite)": [
+    {
+      "name": "Ticking Tendrils",
+      "dice": "1d10",
+      "range": 2,
+      "target": "s",
+      "text": "Her light attack: the tendrils under her clock face lash one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Rewind",
+      "dice": "0",
+      "range": 6,
+      "target": "s",
+      "text": "No damage. One hero within 6 squares makes a WIS save against 10 + her attack bonus or is sent back to the square where they started their last turn (no free attacks on the way). Can't be dodged or parried."
+    },
+    {
+      "name": "Frozen Moment",
+      "dice": "0",
+      "range": 5,
+      "target": "s",
+      "text": "No damage. She raises the hourglass: one hero within 5 squares makes a WIS save against 10 + her attack bonus or can't move on their next turn (they can still act, dodge and parry). Never twice in a row: roll again."
+    },
+    {
+      "name": "Borrowed Time",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Elite of the frozen forest, for a level 2-3 party: HP 450, AC 14, speed 5, floats. Roll a d4: 1-2 Ticking Tendrils, 3 Rewind, 4 Frozen Moment. Once per fight, when she would drop to 0 HP, every watch on her back turns backward and she is at 100 HP instead."
+    }
+  ],
+  "Frozen North: Bogeyman (horror)": [
+    {
+      "name": "Bogey Claws",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "His light attack: a claw rake vs one adjacent hero. Attack roll. Can be parried."
+    },
+    {
+      "name": "From the Shadows",
+      "dice": "2d8",
+      "range": 2,
+      "target": "s",
+      "text": "His heavy attack: a pounce at one hero up to 2 squares away. Attack roll, with advantage if that hero isn't within 2 squares of a lit torch or a fire. A parry still takes half."
+    },
+    {
+      "name": "Grasping Tongues",
+      "dice": "1d8",
+      "range": 3,
+      "target": "s",
+      "text": "The tongues shoot from his maw at one hero up to 3 squares away. Attack roll. On a hit: damage, pulled to a free square next to him and restrained until they break free (STR check against 10 + his attack bonus, as an action). Dodge only."
+    },
+    {
+      "name": "Midnight Crunch",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "A bite vs one adjacent restrained hero: attack roll with advantage. Can't be parried. If no hero is restrained, he uses Bogey Claws instead."
+    },
+    {
+      "name": "Into the Dark",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "No damage. He sinks into a shadow and rises from another one up to 8 squares away (never gives free attacks), ending next to a hero if he can. He can't end in bright light."
+    },
+    {
+      "name": "Night Fright",
+      "dice": "0",
+      "range": 3,
+      "target": "a",
+      "text": "No damage, no attack roll. Every hero within 3 squares makes a WIS save against 10 + his attack bonus or is frightened of him until the end of their next turn and gains +1 Slumber. Can't be dodged or parried."
+    },
+    {
+      "name": "Under the Bed",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. One of Desidia's three horrors (only in her phase 2), for a level 3 party: HP 650, AC 15, size 2x2, speed 7. Roll a d6 (1-6 in this order). He never stands in bright light: a hero who holds a lit torch next to him at the end of their turn forces him to use Into the Dark on his next turn instead of rolling."
+    }
+  ],
+  "Frozen North: Dream Eater (horror)": [
+    {
+      "name": "Dream Rake",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Its light attack: a claw rake vs one adjacent hero. Attack roll. Can be parried."
+    },
+    {
+      "name": "Devour Dream",
+      "dice": "2d8",
+      "range": 1,
+      "target": "s",
+      "text": "A skull bite vs one adjacent hero. Attack roll. It heals half the damage dealt, or all of it against a sleeping hero (who still wakes from the damage). Can be parried by an awake hero."
+    },
+    {
+      "name": "Pull Under",
+      "dice": "0",
+      "range": 3,
+      "target": "s",
+      "text": "No damage. Its tendrils wrap one hero up to 3 squares away: WIS save against 10 + its attack bonus, fail = +2 Slumber, success = +1 Slumber. Can't be dodged or parried."
+    },
+    {
+      "name": "Ravenous Hunger",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "It rushes to the hero with the most Slumber within 8 squares (never gives free attacks) and uses Devour Dream on them with advantage. If no hero has Slumber, it uses Pull Under instead."
+    },
+    {
+      "name": "Mist Form",
+      "dice": "0",
+      "range": 1,
+      "target": "s",
+      "text": "No damage. Until the start of its next turn it takes half damage from weapons (spells and fire hit it fully) and can drift through creatures."
+    },
+    {
+      "name": "Broken Shackles",
+      "dice": "1d10",
+      "range": 2,
+      "target": "a",
+      "text": "No attack roll: its wrist chains whip around it, hitting every hero within 2 squares. DEX save against 10 + its attack bonus for half. Dodge only."
+    },
+    {
+      "name": "Eater of Dreams",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. One of Desidia's three horrors (only in her phase 2), for a level 3 party: HP 700, AC 14, size 2x2, speed 6, flies. Roll a d6 (1-6 in this order). It always knows where every sleeping hero is and goes for the nearest one first. Keep your friends awake."
+    }
+  ],
+  "Frozen North: Nightmare Aberration (horror)": [
+    {
+      "name": "Flailing Limbs",
+      "dice": "1d8",
+      "range": 2,
+      "target": "a",
+      "text": "Its many arms lash out: one attack roll vs every hero within 2 squares. Each can be parried on its own."
+    },
+    {
+      "name": "Gaping Maw",
+      "dice": "2d10",
+      "range": 1,
+      "target": "s",
+      "text": "The vertical mouth bites one adjacent hero. Attack roll. On a hit: damage, and the hero is grabbed (restrained until they break free with a STR check against 10 + its attack bonus, as an action). A parry still takes half."
+    },
+    {
+      "name": "Mind Scream",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage, no attack roll. The head on top shrieks: every hero within 4 squares makes a WIS save against 10 + its attack bonus or loses their next action (they keep the other one and their movement). Can't be dodged or parried."
+    },
+    {
+      "name": "Coil Crush",
+      "dice": "1d10",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero. On a hit: it wraps around them, restrained, and they take the damage again at the start of each of their turns until they break free (STR check against 10 + its attack bonus, as an action). Dodge only."
+    },
+    {
+      "name": "Bone Spike Volley",
+      "dice": "1d8",
+      "range": 5,
+      "target": "s",
+      "text": "It shoots bone spikes at up to 3 heroes within 5 squares: one attack roll each. Dodge only."
+    },
+    {
+      "name": "Many-Legged Skitter",
+      "dice": "0",
+      "range": 8,
+      "target": "s",
+      "text": "It scuttles up to 8 squares along walls or the ceiling (never gives free attacks), then uses Flailing Limbs where it lands."
+    },
+    {
+      "name": "Wrong in Every Way",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. The biggest of Desidia's three horrors (only in her phase 2), for a level 3 party: HP 850, AC 14, size 3x3, speed 6, climbs (can't be pushed, pulled or knocked prone). Roll a d6 (1-6 in this order). It has 3 red eye clusters that can be targeted (AC 13, 80 HP each, damage to them doesn't hurt it). While any remain it can't be surprised or flanked. Each cluster destroyed: -1 to its attacks. All three gone: it is blinded (disadvantage on attacks)."
+    }
+  ],
+  "Frozen North: Insomnia Beast (guardian)": [
+    {
+      "name": "Serpent Blade",
+      "dice": "1d12",
+      "range": 2,
+      "target": "s",
+      "text": "Its light attack: a wavy-sword slash vs one hero up to 2 squares away. Attack roll. Can be parried."
+    },
+    {
+      "name": "Sleepless Fury",
+      "dice": "2d6",
+      "range": 2,
+      "target": "s",
+      "text": "Its heavy attack: two sword swings at one hero up to 2 squares away, each with its own attack roll and damage. A parry still takes half."
+    },
+    {
+      "name": "Thrash",
+      "dice": "1d10",
+      "range": 1,
+      "target": "a",
+      "text": "No attack roll: limbs and spines lash every hero next to it. STR save against 10 + its attack bonus: fail = damage and knocked prone, success = half and stays standing. Dodge only."
+    },
+    {
+      "name": "Bloodshot Roar",
+      "dice": "0",
+      "range": 4,
+      "target": "a",
+      "text": "No damage. Every hero within 4 squares makes a WIS save against 10 + its attack bonus or is frightened of it until the end of their next turn. It's so loud that every hero within 4 squares (asleep or not) also loses all Slumber and wakes up. Can't be dodged or parried."
+    },
+    {
+      "name": "Tendril Beard",
+      "dice": "1d8",
+      "range": 1,
+      "target": "s",
+      "text": "Attack roll vs one adjacent hero. On a hit: restrained, and they take the damage again at the start of each of their turns until they break free (STR check against 10 + its attack bonus, as an action). Can be parried."
+    },
+    {
+      "name": "The Sleepless Guardian",
+      "dice": "0",
+      "range": 20,
+      "target": "a",
+      "text": "GM rules. Desidia's guardian, before her sealed door, for a level 3 party: HP 1,100, AC 14, size 3x3, speed 6 (can't be pushed, pulled or knocked prone). Roll a d6: 1 Serpent Blade, 2 Sleepless Fury, 3 Thrash, 4 Bloodshot Roar, 5 Tendril Beard, 6 Serpent Blade. It starts ASLEEP and doesn't act. It wakes when it takes damage, at a loud noise, or when a hero within 6 squares fails a stealth check (DEX, 13). On waking: an immediate free turn, then +2 to attack for 2 rounds. Sneaking past it all the way to Desidia's door is possible."
+    }
   ]
 }
