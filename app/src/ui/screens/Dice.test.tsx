@@ -131,6 +131,26 @@ describe('scene and sound settings on the Dice card', () => {
   })
 })
 
+describe('region music on the Dice card', () => {
+  it("the GM picks a region track or none; players never see it", () => {
+    const pick = vi.fn()
+    const props = { tables: tables(), me: 'a', dice: defaultDice(), secretRolls: [], actions: { setDice: vi.fn(), rollDie: vi.fn() }, region: { key: 'ifstrid', pick } }
+    render(<DicePanel {...props} dm={false} />)
+    expect(screen.queryByLabelText('Region music')).toBeNull()
+    cleanup()
+    render(<DicePanel {...props} dm />)
+    const sel = screen.getByLabelText('Region music')
+    expect(sel).toHaveValue('ifstrid')
+    expect(within(sel).getAllByRole('option').map((o) => o.textContent)).toEqual(['No region music', 'Frozen North (snowy forest)', "Calden's Keep (inside)", "Desidia's dream-wing", 'Caves of Ifstrid'])
+    fireEvent.change(sel, { target: { value: 'caldenskeep' } })
+    fireEvent.change(sel, { target: { value: '' } })
+    expect(pick.mock.calls).toEqual([['caldenskeep'], [null]])
+    cleanup()
+    render(<DicePanel {...props} dm region={{ key: null, pick }} />)
+    expect(screen.getByLabelText('Region music')).toHaveValue('')
+  })
+})
+
 describe("the GM's test lab", () => {
   it('shown and hidden with its button; players never see it', () => {
     const props = { tables: tables(), me: 'a', dice: defaultDice(), secretRolls: [], actions: { setDice: vi.fn(), rollDie: vi.fn() }, lab: <p>The lab</p> }

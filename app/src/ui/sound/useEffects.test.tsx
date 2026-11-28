@@ -8,6 +8,7 @@ import { createGameStore } from '../../state/store'
 import type { SoundEngine } from './engine'
 import { useEffectsPlayer, type EffectsOptions } from './useEffects'
 import { fakeEngine } from '../../testing/fakeEngine'
+import { themeUrl } from '../../data/audio'
 
 afterEach(cleanup)
 beforeEach(() =>
@@ -357,5 +358,83 @@ describe('boss intros and battle music', () => {
     await act(async () => void (ok = await box.latest!.playSkillSound('Bite')))
     expect(engine.playClip).toHaveBeenCalledWith('ab:bite')
     expect(ok).toBe(true)
+  })
+})
+
+describe('region music', () => {
+  const fakeTrack = () => {
+    const made: { url: string; volume: number; paused: boolean; play: ReturnType<typeof vi.fn>; pause: ReturnType<typeof vi.fn>; loop: boolean }[] = []
+    const track = (url: string) => {
+      const t = { url, loop: false, volume: 0, paused: true, play: vi.fn(() => void (t.paused = false)), pause: vi.fn(() => void (t.paused = true)) }
+      made.push(t)
+      return t
+    }
+    return { made, track }
+  }
+
+  it("the GM's pick plays here; a boss theme starting, or the battle music stopping, moves it; leaving stops it", async () => {
+    const ticks: (() => void)[] = []
+    const win = { document, setInterval: (f: () => void) => (ticks.push(f), ticks.length), clearInterval: vi.fn() } as unknown as Window
+    const { made, track } = fakeTrack()
+    const x = setup({ win, track, db: fakeDb({ __keys: ['aethelric'], 'themes/aethelric': { data: AUDIO } }) })
+    expect(box.latest!.regionKey).toBeNull()
+    act(() => box.latest!.setRegion('ifstrid'))
+    expect(x.engine.unlock).toHaveBeenCalled()
+    expect(box.latest!.regionKey).toBe('ifstrid')
+    await flush()
+    const t = made[0]!
+    expect(t.play).toHaveBeenCalled()
+    // A fade runs on the window's timer (the last one made).
+    for (let i = 0; i < 20; i++) ticks.at(-1)!()
+    expect(t.volume).toBeCloseTo(0.3) // half volume, at 0.6 of the battle music
+    // Volume changes reach it.
+    act(() => box.latest!.setFx({ volume: 1 }))
+    expect(t.volume).toBeCloseTo(0.6)
+    // A boss intro starts the battle music: the region track fades out.
+    x.engine.bgId.mockReturnValue('b')
+    act(() => x.store.getState().effects!.boss({ k: 'e:b', n: 'Aethelric', t: '', th: '' }))
+    for (let i = 0; i < 20; i++) ticks.at(-1)!()
+    expect(t.pause).toHaveBeenCalled()
+    // The battle music watch (the first timer) brings it back once the theme stops.
+    x.engine.bgId.mockReturnValue(null)
+    ticks[0]!()
+    await flush()
+    expect(t.play).toHaveBeenCalledTimes(2)
+    // "No region music".
+    act(() => box.latest!.setRegion(null))
+    expect(box.latest!.regionKey).toBeNull()
+    act(() => box.latest!.setRegion('frozennorth'))
+    cleanup()
+    expect(made[1]!.pause).toHaveBeenCalled()
+  })
+
+  it('stays silent with sound off on this screen', async () => {
+    const { made, track } = fakeTrack()
+    setup({ track, storage: mem({ sn: '0' }) })
+    act(() => box.latest!.setRegion('caldenskeep'))
+    await flush()
+    expect(made[0]!.play).not.toHaveBeenCalled()
+  })
+
+  it('streams with an <audio> element by default', () => {
+    const made: string[] = []
+    vi.stubGlobal(
+      'Audio',
+      class {
+        loop = false
+        volume = 1
+        paused = true
+        constructor(u: string) {
+          made.push(u)
+        }
+        play() {
+          return Promise.resolve()
+        }
+        pause() {}
+      },
+    )
+    setup()
+    act(() => box.latest!.setRegion('dreamwing'))
+    expect(made).toEqual([themeUrl('76cd4df7-953d-4c3a-9b80-b65da49fa36d')])
   })
 })

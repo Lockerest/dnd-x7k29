@@ -18,6 +18,7 @@ import { createSoundEngine, type FxEvent, type SoundEngine } from './engine'
 import { loadFxSettings, saveFxSettings, type FxSettings } from './settings'
 import { playWave, waveCenter } from './wave'
 import { useSoundTools } from './useSoundTools'
+import { createRegionPlayer, type Track } from './region'
 
 type Wave = { m?: string | null; x: number; y: number }
 
@@ -44,6 +45,8 @@ export type EffectsOptions = {
   themeVersion?: unknown
   /** Boss art by enemy id (when loaded). */
   bossArt?: Record<string, string>
+  /** Makes a region music track (an <audio> element by default). */
+  track?: (url: string) => Track
 }
 
 /** The settings, kept outside React so the sound engine can read them any time. */
@@ -85,6 +88,27 @@ export function useEffectsPlayer(o: EffectsOptions) {
   useEffect(() => {
     opts.current = o
   })
+
+  // Region music (the GM's pick, this screen only): quieter than the battle music,
+  // silent with sound off, and stepping aside while a boss theme plays.
+  const [region] = useState(() =>
+    createRegionPlayer({
+      make: o.track ?? ((u) => new Audio(u)),
+      volume: () => {
+        const s = settings.get()
+        return s.sound ? s.volume * 0.6 : 0
+      },
+      every: (f, ms) => win.setInterval(f, ms),
+      stop: (h) => win.clearInterval(h as number),
+    }),
+  )
+  const [regionKey, setRegionKey] = useState<string | null>(null)
+  useEffect(() => () => region.select(null, false), [region])
+  const setRegion = (k: string | null) => {
+    engine.unlock()
+    region.select(k, !!engine.bgId())
+    setRegionKey(region.key())
+  }
 
   // The GM's clips (raw), decoded once audio may play.
   const clips = useRef<Record<string, string>>({})
@@ -206,14 +230,17 @@ export function useEffectsPlayer(o: EffectsOptions) {
       const art = opts.current.bossArt?.[id]
       setBoss((x) => ({ n: (x?.n ?? 0) + 1, b, seconds, image: art ?? opts.current.picture(b.k), art: !!art }))
       if (!(buf && engine.bgStart(buf, id)) && !(buf && engine.playTheme(buf, seconds))) engine.boss()
+      region.sync(!!engine.bgId())
     },
-    [loader, engine, settings],
+    [loader, engine, settings, region],
   )
 
-  // The battle music stops when its boss falls or leaves the map, or when sound stops.
+  // The battle music stops when its boss falls or leaves the map, or when sound stops;
+  // the region music follows (back in once no boss theme plays).
   useEffect(() => {
     const h = win.setInterval(() => {
       const id = engine.bgId()
+      region.sync(!!id)
       if (!id) return
       if (!engine.live()) return engine.bgStop(0.3)
       if (id === 'pv') return
@@ -221,7 +248,7 @@ export function useEffectsPlayer(o: EffectsOptions) {
       if (!e || !((e.hp as number) > 0) || e.mx == null) engine.bgStop(2)
     }, 1000)
     return () => win.clearInterval(h)
-  }, [engine, store, win])
+  }, [engine, store, win, region])
 
   // The store plays my own scenes, waves and boss intros here (and shares them).
   useEffect(() => {
@@ -247,6 +274,7 @@ export function useEffectsPlayer(o: EffectsOptions) {
     if (p.volume != null) engine.volumeTest()
     if (p.music === false) engine.bgStop(0.8)
     if (p.reverb != null) engine.setReverb(p.reverb)
+    region.sync(!!engine.bgId())
   }
 
   const tools = useSoundTools({
@@ -300,5 +328,5 @@ export function useEffectsPlayer(o: EffectsOptions) {
 
   const bossIntro = boss && <BossIntroOverlay key={boss.n} b={boss.b} image={boss.image} art={boss.art} seconds={boss.seconds} onDone={() => setBoss(null)} />
 
-  return { fx, setFx, scene, bossIntro, remote, engine, playSkillSound, cinematicSounds: engine.cinematic, tools, lab }
+  return { fx, setFx, scene, bossIntro, remote, engine, playSkillSound, cinematicSounds: engine.cinematic, tools, lab, regionKey, setRegion }
 }

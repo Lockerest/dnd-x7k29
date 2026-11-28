@@ -680,6 +680,14 @@ export const ABILITY_SOUNDS: Record<string, string> = {
 
 export const themeUrl = (id: string) => `${AUDIO_BASE}${id}.mp3`
 
+/** Region music: loops in the background on the GM's screen (picked on the Dice card) and steps aside for boss themes. */
+export const REGION_TRACKS: ThemeInfo[] = [
+  { key: 'frozennorth', name: 'Frozen North (snowy forest)', id: 'd0e7fd41-d0ee-42c7-a0eb-dde3460510e3' },
+  { key: 'caldenskeep', name: "Calden's Keep (inside)", id: 'd8687c79-54d9-4ff2-a039-98351f4246fe' },
+  { key: 'dreamwing', name: "Desidia's dream-wing", id: '76cd4df7-953d-4c3a-9b80-b65da49fa36d' },
+  { key: 'ifstrid', name: 'Caves of Ifstrid', id: '04ac7b0a-2447-4dfb-a331-5e7a788b70ef' },
+]
+
 /** The GM's base attack sounds on the audio host, by clip slot ("Import base attack sounds from web"). */
 export const BASE_SOUNDS: Record<string, string> = {
   swing: 'de0e6e2b-d041-4f3a-bca1-e01f611048ff',

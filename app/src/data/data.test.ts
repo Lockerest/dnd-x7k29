@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import { isUtilitySkill } from '../logic/skills'
 import { abilitySlug, parseDice } from '../logic/text'
-import { ABILITY_SOUNDS, AUDIO_BASE, THEME_GROUPS, THEMES, themeUrl } from './audio'
+import { ABILITY_SOUNDS, AUDIO_BASE, REGION_TRACKS, THEME_GROUPS, THEMES, themeUrl } from './audio'
 import { CLASSES } from './classes'
 import { EFFECT_EMOJI, EFFECT_KEYWORDS } from './effects'
 import { ABILITY_DAMAGE, ABILITY_HEAL, CLASS_STAT, SC, WEAPON_REACH } from './rules'
@@ -74,6 +74,11 @@ describe('audio', () => {
   it('themes have unique keys and file ids', () => {
     expect(new Set(THEMES.map((t) => t.key)).size).toBe(THEMES.length)
     for (const t of THEMES) expect(t.id, t.key).toMatch(UUID)
+  })
+  it('four region tracks with their own keys and file ids', () => {
+    expect(REGION_TRACKS.map((t) => t.key)).toEqual(['frozennorth', 'caldenskeep', 'dreamwing', 'ifstrid'])
+    for (const t of REGION_TRACKS) expect(t.id, t.key).toMatch(UUID)
+    expect(new Set([...THEMES, ...REGION_TRACKS].map((t) => t.id)).size).toBe(THEMES.length + REGION_TRACKS.length)
   })
   it('ability sound ids are file ids', () => {
     for (const [k, id] of Object.entries(ABILITY_SOUNDS)) {

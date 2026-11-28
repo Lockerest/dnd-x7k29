@@ -1,6 +1,7 @@
 // The Dice card: dice buttons, how many, the bonus (and a player's stat), the
 // dice style, the GM's Secret box, and the shared log. Same as the live page.
 import { useState, type ReactNode } from 'react'
+import { REGION_TRACKS } from '../../data/audio'
 import { DIE_SIZES, SKINS } from '../../data/dice'
 import { diceLog, rollLine, type RollEntry } from '../../logic/dice'
 import type { Sheet } from '../../logic/sheet'
@@ -26,6 +27,8 @@ export type DicePanelProps = {
   onFx?: (p: Partial<FxSettings>) => void
   /** The GM's test lab, behind its Show test lab button. */
   lab?: ReactNode
+  /** The GM's region music on this screen (not shown when missing). */
+  region?: { key: string | null; pick: (k: string | null) => void }
 }
 
 function LogLine({ r }: { r: RollEntry }) {
@@ -47,7 +50,7 @@ function LogLine({ r }: { r: RollEntry }) {
   )
 }
 
-export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions, fx, onFx = () => {}, lab }: DicePanelProps) {
+export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, actions, fx, onFx = () => {}, lab, region }: DicePanelProps) {
   const [showLab, setShowLab] = useState(false)
   const c = tables.chars[me] as Sheet | undefined
   const gates = Object.values(tables.enemies).filter((e) => e?.gr)
@@ -109,6 +112,16 @@ export function DicePanel({ tables, dm, me, dice, busy = false, secretRolls, act
               </label>
               <input type="range" min={0} max={100} value={Math.round(fx.volume * 100)} style={{ width: 90 }} aria-label="Volume" onChange={(e) => onFx({ volume: +e.target.value / 100 })} />
             </>
+          )}
+          {dm && region && (
+            <select title="Region music (loops here; steps aside for boss themes)" aria-label="Region music" style={{ width: 'auto' }} value={region.key ?? ''} onChange={(e) => region.pick(e.target.value || null)}>
+              <option value="">No region music</option>
+              {REGION_TRACKS.map((t) => (
+                <option key={t.key} value={t.key}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
           )}
           {dm && lab && <button onClick={() => setShowLab((v) => !v)}>{showLab ? 'Hide' : 'Show'} test lab</button>}
           {dm && (

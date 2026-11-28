@@ -489,6 +489,7 @@ export function Game({
             actions={diceActions}
             fx={fxp.fx}
             onFx={fxp.setFx}
+            region={{ key: fxp.regionKey, pick: fxp.setRegion }}
             lab={
               <TestLab
                 chars={tables.chars as Record<string, Sheet>}

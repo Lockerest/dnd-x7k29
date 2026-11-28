@@ -38,6 +38,10 @@ the game's identity, art style and working habits the same from one chat to the 
   rusted iron. Drow: match the Drow Queen's portrait, natural skin tones (not purple); where a sculpt is
   bare-chested, add a chainmail top in a tone that blends with the skin (not extra armour).
 - Sounds: Creative Claw `generate_sound_effect` (ElevenLabs), 1.5–4 s, 1–2 credits; "No voice, no music".
+- Region music: `REGION_TRACKS` in `app/src/data/audio.ts` (same AUDIO_BASE/id format as boss themes); the GM picks
+  one in the Dice card's "Region music" box. It streams and loops on the GM's screen only (`app/src/ui/sound/region.ts`),
+  fades out and pauses while a boss theme plays, then fades back in. Tracks so far: Frozen North (snowy forest),
+  Calden's Keep (inside), Desidia's dream-wing, Caves of Ifstrid. Add a region's track there when he sends one.
 - If his upload fails, his PC is linked: read the file from his Downloads folder instead.
 
 ## Enemy design conventions
@@ -67,7 +71,7 @@ the game's identity, art style and working habits the same from one chat to the 
   background, and keep talking with him while they run; push as soon as they pass. Don't wait
   for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
-## Status (late Nov 2026, version 1.30.0)
+## Status (late Nov 2026, version 1.31.0)
 - All bosses done: 7 main, 9 halfway, 5 secret (Desidia, Iniha Yunvra, Cadmus, Aldrich, Tenjin).
 - Frozen North enemies done: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte,
   Revenant Hound; mini-bosses Morwen, the Shadow of Calden (stalker, two meetings) and the Knight of the
