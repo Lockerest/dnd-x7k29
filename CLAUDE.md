@@ -82,7 +82,12 @@ the game's identity, art style and working habits the same from one chat to the 
 - Table decisions (Nov 28): the game is built for exactly 4 players (balance every encounter for a party
   of 4); minis and the projected grid are 50 mm per square (not 75 mm); hit dice are already in.
 - To do: rename the Thief class to Assassin (keep saved heroes working) and replace its level 1 ability
-  Pilfer (useless: no loot, gold or trading in this game) with an assassin move he approves.
+  Pilfer (useless: no loot, gold or trading in this game) with Garrote (approved): grab an adjacent
+  enemy from behind; restrained, takes damage at the start of its turns, can't cast or call out
+  until it breaks free (the only silence in the game).
+- Final balance pass (after all classes and minions are done, before the story): review every
+  ability for a party of 4. Known worry: the Assassin's level 1 burst (Backstab 3d6 + its bonus
+  2d6 + the sneak passive 2d6 = 7d6 at level 1) is too high.
 - Region names (Norse): Niflheim (Frozen North, Aethelric), Svartalfheim (Caves of Ifstrid, Arachne),
   Vanaheim (the Wilds, Kernunos), Jotunheim (Sky, Nameless King), Muspelheim (Odi'ram), Ginnungagap
   (the Void, Xibalba), Alfheim (Izat'al's golden city).
