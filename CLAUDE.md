@@ -79,6 +79,13 @@ the game's identity, art style and working habits the same from one chat to the 
   Shackled Horror, Sleeping Deceit, Timekeeper Hag), her horrors (Bogeyman, Dream Eater, Nightmare
   Aberration) and guardian (Insomnia Beast). The Jailer stays the halfway boss.
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
+- Table decisions (Nov 28): the game is built for exactly 4 players (balance every encounter for a party
+  of 4); minis and the projected grid are 50 mm per square (not 75 mm); hit dice are already in.
+- To do: rename the Thief class to Assassin (keep saved heroes working) and replace its level 1 ability
+  Pilfer (useless: no loot, gold or trading in this game) with an assassin move he approves.
+- Region names (Norse): Niflheim (Frozen North, Aethelric), Svartalfheim (Caves of Ifstrid, Arachne),
+  Vanaheim (the Wilds, Kernunos), Jotunheim (Sky, Nameless King), Muspelheim (Odi'ram), Ginnungagap
+  (the Void, Xibalba), Alfheim (Izat'al's golden city).
 - Caves of Ifstrid enemies in progress: All-seeing Ooze (elite), Mapinguari Demon (2x2 common),
   Arachnid Priestess, Arachne's Sentinel (elite, 2x2), Spiderwere, Cursed Drider (elite, 2x2),
   Arachnophobic Horror (mini-boss), Ghostweb Specter, Arthropod Myrmidon (elite), Dark Elf Arachneborn
