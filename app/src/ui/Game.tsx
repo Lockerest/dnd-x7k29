@@ -34,7 +34,7 @@ import { TestLab } from './screens/TestLab'
 import type { Sheet } from '../logic/sheet'
 import { Overview } from './screens/MapTools'
 import { parentOf, type MapEntry } from '../logic/mapTools'
-import { boardOrDefault, type Board } from '../logic/board'
+import { boardOrDefault, upgradeBoard, upgradeEquip, type Board } from '../logic/board'
 import { useEffectsPlayer } from './sound/useEffects'
 import type { SoundEngine } from './sound/engine'
 
@@ -179,6 +179,14 @@ export function Game({
       )
     }
   }, [db, view, tables.chars])
+
+  // The GM's screen saves renamed abilities (the Thief's Pilfer became the Assassin's Garrote).
+  useEffect(() => {
+    if (status !== 'live' || !dm) return
+    const b = tables.board as Board | null
+    const old = (b && upgradeBoard(b) !== b) || Object.values(tables.chars).some((c) => upgradeEquip((c as { eq?: unknown }).eq))
+    if (old) void store.getState().upgradeSaved()
+  }, [status, dm, tables.board, tables.chars, store])
 
   // Uploaded ability pictures: downloaded again whenever the GM changes one (iv stamps).
   const [abilityImages, setAbilityImages] = useState<Record<string, string>>({})

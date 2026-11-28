@@ -110,3 +110,32 @@ describe('players equipping', () => {
     expect(def.f.writes[0]![2]).toMatchObject({ eq: { _: true, fighter_multi_slash: true, fighter_shield_bash: true } })
   })
 })
+
+describe('the Thief became the Assassin: Pilfer is now Garrote', () => {
+  const old: Board = { a1: { n: 'A' }, thief_pilfer: { n: 'Pilfer', v: 'thief', l: 1, k: 'check', iv: 3 }, z9: { n: 'Z' } }
+  const chars = { a: { name: 'Vex', cls: 'thief', level: 1, eq: { _: true, thief_pilfer: true, a1: true } }, b: { name: 'Bo', cls: 'fighter', level: 1 } }
+
+  it('the GM saves Garrote in the same place on the board and on heroes who had Pilfer equipped', async () => {
+    const { s, f } = setup({ board: old, chars } as Partial<Tables>)
+    await s.getState().upgradeSaved()
+    const b = s.getState().tables.board as Board
+    expect(Object.keys(b)).toEqual(['a1', 'thief_garrote', 'z9'])
+    expect(b.thief_garrote).toEqual(defaultBoard().thief_garrote)
+    expect(b.thief_garrote).toMatchObject({ n: 'Garrote', k: 'check', b: 'dex' })
+    expect(f.writes[0]).toEqual(['PUT', 'board', b])
+    expect(f.writes[1]).toEqual(['PATCH', 'chars/a', expect.objectContaining({ eq: { _: true, thief_garrote: true, a1: true } })])
+    expect(f.writes).toHaveLength(2)
+    // Nothing left to do the second time.
+    await s.getState().upgradeSaved()
+    expect(f.writes).toHaveLength(2)
+  })
+
+  it('players never write it, and a board already on Garrote is left alone', async () => {
+    const pl = setup({ board: old, chars } as Partial<Tables>, 'player', 'a')
+    await pl.s.getState().upgradeSaved()
+    expect(pl.f.writes).toEqual([])
+    const none = setup({})
+    await none.s.getState().upgradeSaved()
+    expect(none.f.writes).toEqual([])
+  })
+})

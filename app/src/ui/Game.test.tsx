@@ -206,6 +206,21 @@ describe('<Game /> characters', () => {
 })
 
 describe('<Game /> Game Master', () => {
+  it("the GM's screen saves the Thief's Pilfer as the Assassin's Garrote, on the board and on heroes", async () => {
+    const h = await gmPinHash('secret')
+    const board = { thief_backstab: { n: 'Backstab', v: 'thief', l: 1 }, thief_pilfer: { n: 'Pilfer', v: 'thief', l: 1 } }
+    const chars = { a: { name: 'Vex', cls: 'thief', hp: 100, maxHp: 100, x10: true, eq: { _: true, thief_pilfer: true } } }
+    const { fb } = setup({ tables: { dragon42: { meta: { dm: h }, board, chars } } })
+    type(/Table PIN/, 'dragon42')
+    type(/Game Master PIN/, 'secret')
+    click('Open as Game Master')
+    await vi.waitFor(() => expect(fb.get('tables/dragon42/chars/a/eq')).toEqual({ _: true, thief_garrote: true }))
+    expect(Object.keys(fb.get('tables/dragon42/board') as object)).toEqual(['thief_backstab', 'thief_garrote'])
+    // A hero alone (the board already on Garrote) is fixed too.
+    fb.set('tables/dragon42/chars/b', { name: 'Kit', cls: 'thief', hp: 100, maxHp: 100, x10: true, eq: { thief_pilfer: true } })
+    await vi.waitFor(() => expect(fb.get('tables/dragon42/chars/b/eq')).toEqual({ thief_garrote: true }))
+  })
+
   it("the Boss abilities list on the Reference tab, with the GM's notes", async () => {
     const h = await gmPinHash('secret')
     const { fb, storage } = setup({ tables: { dragon42: { meta: { dm: h } } } })

@@ -331,7 +331,7 @@ export const ABILITY_SOUNDS: Record<string, string> = {
   "void_lance": "6b2a2339-ad67-43a6-822f-36cb1f812626",
   "backstab": "bfa09cec-f8f5-43de-a350-7536045c1087",
   "cutting_flurry": "b8707269-4f12-4e6a-83a6-96cbf1f6c6f0",
-  "pilfer": "fa47f8ff-2f6f-47bc-958c-0f244118d679",
+  "garrote": "1c3f2502-88ad-4339-9531-6a7c864ce94d",
   "smoke_bomb": "611dd391-0a0a-48b0-8b0a-ff0e2f11bdf0",
   "pocket_sand": "6342a0da-d280-4070-a960-c8e071d824a5",
   "shadow_flurry": "6929bd70-fe44-4829-8ba1-104e91f70d3f",

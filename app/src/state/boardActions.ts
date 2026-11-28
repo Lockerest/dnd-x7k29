@@ -2,7 +2,7 @@
 // players equipping and attuning. The rules are in logic/abilityBoard.ts.
 import type { Db } from '../db/client'
 import { attuneChange, boardFieldValue, equipChange, NEW_ABILITY, type EquipResult } from '../logic/abilityBoard'
-import { boardOrDefault, goldenHidden, type Board } from '../logic/board'
+import { boardOrDefault, goldenHidden, upgradeBoard, upgradeEquip, type Board } from '../logic/board'
 import { altarsOf, bonfiresOf, guildsOf, nearSpot } from '../logic/geometry'
 import { currentMap, type MapView } from './sheetActions'
 import type { GameState, Tables } from './store'
@@ -23,6 +23,8 @@ export type BoardActions = {
   attune: (key: string) => Promise<void>
   /** GM: an ability's own icon (a 96 px PNG); null goes back to the drawn or emoji icon. */
   setAbilityIcon: (key: string, data: string | null) => Promise<void>
+  /** GM: saves renamed abilities (Pilfer became Garrote) on the board and on heroes' equipped lists. */
+  upgradeSaved: () => Promise<void>
 }
 
 type Get = () => GameState
@@ -79,6 +81,21 @@ export function boardActions(get: Get, set: Set_, save: Save, now: () => number 
       delete b[id]
       setBoard(b)
       await save((d) => d.del(`board/${id}`))
+    },
+    upgradeSaved: async () => {
+      const { dm, tables } = get()
+      if (!dm) return
+      const b = tables.board as Board | null
+      if (b && upgradeBoard(b) !== b) {
+        const nb = upgradeBoard(b)
+        setBoard(nb)
+        await save((d) => d.put('board', nb))
+      }
+      for (const [id, c] of Object.entries(get().tables.chars)) {
+        const eq = upgradeEquip((c as { eq?: unknown }).eq)
+        if (!eq) continue
+        await get().updateCharacter(id, { eq } as Parameters<GameState['updateCharacter']>[1], 'Pilfer became Garrote')
+      }
     },
     replaceBoard: async (b) => {
       setBoard(b)

@@ -477,11 +477,11 @@ export const CLASS_ICONS: Record<string, string> = {
   greater_mending: '3be43cec-b1e1-49d8-8910-6691442692d8.jpg',
   blink_step: '4518e6bf-f249-4498-97be-a78dabb4b9e0.jpg',
   void_lance: '49c36dc3-3df9-4647-8b3c-d7e8eb026060.jpg',
-  // Thief.
+  // Assassin (class id "thief").
   backstab: 'b4da3a16-b863-472b-b200-2ad970a24959.jpg',
   cutting_flurry: '3996c604-0866-461b-8fc3-db075a3dc225.jpg',
   smoke_bomb: '42cd96c3-7f1c-4648-8e0d-1c5f89e741c6.jpg',
-  pilfer: '929a7805-ac09-4765-b836-451ddb0c50b8.jpg',
+  garrote: 'f7b5bc60-d960-4126-9b34-523cb064d9ab.jpg',
   shadow_flurry: '7c745da1-3fe7-4010-b10d-04a9cb4a24b0.jpg',
   choking_smoke: '0b41e210-6a7a-4aaf-8b99-0825e83f293d.jpg',
   venomous_edge: '08e4208a-0204-4fba-b872-57353621dbd2.jpg',

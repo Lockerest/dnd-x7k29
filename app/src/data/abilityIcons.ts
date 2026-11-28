@@ -117,7 +117,7 @@ export const VOCATIONS: [string, string][] = [
   ],
   [
     "thief",
-    "Thief"
+    "Assassin"
   ],
   [
     "warrior",

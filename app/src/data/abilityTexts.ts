@@ -130,15 +130,15 @@ export const ABILITY_TEXTS: Record<string, string> = {
   'Blink Step': 'Teleport up to 4 squares to a free square you can see. Doesn’t provoke free attacks and costs no movement stamina. Can’t pass through magical barriers.',
   'Void Lance': 'Attack, range 10 squares: a single lance of void energy at one enemy, 5d10 + INT on a hit. It can’t be parried, only dodged.',
 
-  // ---- Thief (DEX) ----
+  // ---- Assassin (DEX; class id "thief" so saved heroes keep working) ----
   Backstab:
     'Attack, adjacent: 3d6 + DEX on a hit. If you have advantage on the attack or an ally is next to the target, it deals +2d6 more. This bonus is separate from Sneak Attack, and both can apply.',
   'Cutting Flurry':
     'Two quick light-weapon strikes at one adjacent enemy, each rolled to hit separately; each hit deals 1d6 + DEX. Each can be dodged or parried on its own; the second stops if the target dies.',
   'Smoke Bomb':
     'A 1-square cloud (3x3, centred on you) that blocks sight completely until the start of your next turn. Creatures inside can’t be targeted by attacks from outside, and you can move out of it without provoking free attacks this turn. Area attacks still hit inside.',
-  Pilfer:
-    'DEX check (d20 + DEX) against the GM’s DC to lift a small item (a potion, a key, a pouch) from an adjacent creature mid-fight. On a fail it notices. Can’t take something held in a hand or worn as armour.',
+  Garrote:
+    'DEX check (d20 + DEX) against the AC of an adjacent enemy that can’t see you coming (unaware, distracted, or flanked by an ally). Size 3+ enemies can’t be garroted. On a success the wire is around its throat: it is restrained and silenced (it can’t cast spells, use calls, roars or shouts, or call for help; the only silence in the game) and takes 1d6 + DEX at the start of each of its turns. At the end of each of its turns it makes a STR or DEX save against 10 + your DEX to break free; it also ends after 3 rounds, or if you move, attack another target, are knocked prone or drop to 0 HP. While you hold it you can still attack it, with advantage. On a fail it notices you and the grab is lost. Can’t be parried, only dodged.',
   'Shadow Flurry': 'Three light strikes at one adjacent enemy with one attack roll: on a hit all three land, 3d6 + DEX in total. On a miss, none do.',
   'Shadow Flurry (Golden)': 'Golden form of Shadow Flurry. Needs Shadow Flurry equipped. One attack roll, adjacent: 8d6 + DEX in total on a hit. Costs 10% of your max HP (never below 1 HP).',
   'Choking Smoke': 'A 3x3-square cloud within 6 squares, until the start of your next turn: enemies inside have disadvantage on attack rolls. Allies inside are not affected. It doesn’t block sight.',

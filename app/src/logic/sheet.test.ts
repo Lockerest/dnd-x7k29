@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { COMMON_ABILITIES, PARRY } from '../data/abilities'
-import { attunedSet, boardIndex, boardOrDefault, DEFAULT_SPOILERS, defaultBoard, equippedIds, goldenHidden, parryMode, sheetAbilities, slotsOf, spoilerList, type Board, spoilerParts } from './board'
+import { attunedSet, boardIndex, boardOrDefault, DEFAULT_SPOILERS, defaultBoard, equippedIds, goldenHidden, parryMode, sheetAbilities, slotsOf, spoilerList, type Board, spoilerParts, upgradeBoard, upgradeEquip } from './board'
 import { altarsOf, blocked, bonfiresOf, geometry, lineOfSight, nearSpot, revealAround, waveCenter } from './geometry'
 import {
   abilityLocked,
@@ -31,6 +31,18 @@ import {
 } from './sheet'
 
 describe('ability board', () => {
+  it('boards and heroes saved with Pilfer read it as Garrote (Thief became Assassin)', () => {
+    const old: Board = { thief_backstab: defaultBoard().thief_backstab!, thief_pilfer: { n: 'Pilfer', v: 'thief', l: 1 } }
+    const b = boardOrDefault(old)
+    expect(Object.keys(b)).toEqual(['thief_backstab', 'thief_garrote'])
+    expect(upgradeBoard({ ...old, thief_garrote: { n: 'Mine' } })).toEqual({ thief_backstab: old.thief_backstab, thief_garrote: { n: 'Mine' } })
+    expect(upgradeBoard(b)).toBe(b)
+    const c = { name: 'Vex', cls: 'thief', level: 1, eq: { _: true, thief_pilfer: true } }
+    expect(equippedIds(c, b, false)).toEqual(['thief_garrote'])
+    expect(upgradeEquip(c.eq)).toEqual({ _: true, thief_garrote: true })
+    expect([upgradeEquip(null), upgradeEquip('x'), upgradeEquip({ _: true, a: true })]).toEqual([null, null, null])
+  })
+
   it('the default board has three abilities per class plus the extras, with kinds filled in', () => {
     const b = defaultBoard()
     expect(Object.keys(b)).toHaveLength(31 + 8) // 31 class abilities
@@ -38,7 +50,7 @@ describe('ability board', () => {
     expect(b.fighter_shield_bash).toMatchObject({ k: 'atk', a: 1 })
     expect(b.fighter_second_wind).toMatchObject({ k: 'heal', d: '1d10', b: 'level' })
     expect(b.mage_mending_light).toMatchObject({ k: 'heal', b: 'int' })
-    expect(b.thief_pilfer).toMatchObject({ k: 'check', b: 'dex' })
+    expect(b.thief_garrote).toMatchObject({ k: 'check', b: 'dex' })
     expect(b.mage_fireball).toMatchObject({ l: 3, k: 'atk', d: '8d6', a: 1 })
     expect(Object.values(b).some((e) => e.k === 'util')).toBe(true)
   })

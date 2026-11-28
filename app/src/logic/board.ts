@@ -43,15 +43,40 @@ export function defaultBoard(): Board {
       const heal = ABILITY_HEAL[n]
       if (dmg) Object.assign(e, { k: 'atk', d: dmg.dice, r: dmg.range, a: dmg.autoHit ? 1 : 0 })
       else if (heal) Object.assign(e, { k: 'heal', d: heal.dice, b: n === 'Second Wind' ? 'level' : 'int' })
-      else if (n === 'Pilfer') Object.assign(e, { k: 'check', b: 'dex' })
+      else if (n === 'Garrote') Object.assign(e, { k: 'check', b: 'dex' })
       b[`${cls}_${slug(n)}`] = e
     }
   for (const [v, n, c, l, k, d, r, a, bb, t] of DEFAULT_BOARD_EXTRAS) b[`${v}_${slug(n)}`] = { n, c, l, v, k, d, r, a, b: bb, t }
   return b
 }
 
-/** The saved board, or the default one when the table has none. */
-export const boardOrDefault = (b: Board | null | undefined): Board => (b && Object.keys(b).length ? b : defaultBoard())
+/**
+ * Board keys renamed since tables were saved: the Thief became the Assassin (its class id
+ * stays "thief" so saved heroes keep working) and its Pilfer became Garrote.
+ */
+export const RENAMED_KEYS: Record<string, string> = { thief_pilfer: 'thief_garrote' }
+
+/** A saved board with renamed abilities swapped for their new default entries, in the same place. */
+export function upgradeBoard(b: Board): Board {
+  if (!Object.keys(RENAMED_KEYS).some((k) => b[k])) return b
+  const fresh = defaultBoard()
+  const out: Board = {}
+  for (const [k, e] of Object.entries(b)) {
+    const nk = RENAMED_KEYS[k]
+    if (!nk) out[k] = e
+    else if (!b[nk]) out[nk] = fresh[nk]!
+  }
+  return out
+}
+
+/** A hero's equipped keys (eq) with renamed abilities under their new keys, or null when nothing changed. */
+export function upgradeEquip(eq: unknown): Record<string, true> | null {
+  if (!eq || typeof eq !== 'object' || !Object.keys(eq).some((k) => RENAMED_KEYS[k])) return null
+  return Object.fromEntries(Object.keys(eq).map((k) => [RENAMED_KEYS[k] ?? k, true]))
+}
+
+/** The saved board (upgraded), or the default one when the table has none. */
+export const boardOrDefault = (b: Board | null | undefined): Board => (b && Object.keys(b).length ? upgradeBoard(b) : defaultBoard())
 
 /** What each ability name does, looked up by name (the live page's AD, HEAL, CHK and HC). */
 export type BoardIndex = {
@@ -138,7 +163,7 @@ export const slotsOf = (c: Character) => Math.min(6, (c.level || 1) + 2)
  */
 export function equippedIds(c: Character & { eq?: unknown }, board: Board, hideGolden: boolean): string[] {
   let L: string[]
-  if (c.eq && typeof c.eq === 'object') L = Object.keys(c.eq).filter((k) => board[k])
+  if (c.eq && typeof c.eq === 'object') L = Object.keys(c.eq).map((k) => RENAMED_KEYS[k] ?? k).filter((k) => board[k])
   else
     L = Object.keys(board)
       .filter((k) => {

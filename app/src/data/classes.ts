@@ -98,8 +98,8 @@ export const CLASSES: Record<ClassId, ClassInfo> = {
     ]
   },
   "thief": {
-    "name": "Thief",
-    "description": "Quick, opportunistic",
+    "name": "Assassin",
+    "description": "Silent, strikes from behind",
     "hp": 100,
     "stamina": 100,
     "regen": 20,
@@ -120,9 +120,9 @@ export const CLASSES: Record<ClassId, ClassInfo> = {
         "text": "5 ft cloud, heavily obscured, free Disengage"
       },
       {
-        "name": "Pilfer",
-        "cost": 1,
-        "text": "Sleight of Hand to lift an item mid-fight"
+        "name": "Garrote",
+        "cost": 2,
+        "text": "Wire grab from behind: restrained, silenced, bleeds each turn"
       }
     ]
   },

@@ -71,7 +71,7 @@ the game's identity, art style and working habits the same from one chat to the 
   background, and keep talking with him while they run; push as soon as they pass. Don't wait
   for the "Deploy to GitHub Pages" run: say it's pushed and move on to the next enemy.
 
-## Status (late Nov 2026, version 1.31.0)
+## Status (late Nov 2026, version 1.32.0)
 - All bosses done: 7 main, 9 halfway, 5 secret (Desidia, Iniha Yunvra, Cadmus, Aldrich, Tenjin).
 - Frozen North enemies done: Revenant Phalanx, Revenant Courtier, Accursed Servant, Necrolyte,
   Revenant Hound; mini-bosses Morwen, the Shadow of Calden (stalker, two meetings) and the Knight of the
@@ -81,12 +81,14 @@ the game's identity, art style and working habits the same from one chat to the 
 - Open: the beast replacing the starved yeti in Calden's forest (he'll decide).
 - Table decisions (Nov 28): the game is built for exactly 4 players (balance every encounter for a party
   of 4); minis and the projected grid are 50 mm per square (not 75 mm); hit dice are already in.
-- To do: rename the Thief class to Assassin (keep saved heroes working) and replace its level 1 ability
-  Pilfer (useless: no loot, gold or trading in this game) with Garrote (approved): grab an adjacent
-  enemy from behind; restrained, takes damage at the start of its turns, can't cast or call out
-  until it breaks free (the only silence in the game).
+- Done (1.32.0): the Thief is now the Assassin. Its class id stays "thief" in code and data (so saved
+  heroes load as Assassin); only names changed. Pilfer became Garrote (level 1, 2 stamina, d20 + DEX check
+  vs the target's AC; restrained + silenced, 1d6 + DEX at the start of its turns, STR/DEX save vs 10 + DEX at
+  the end of its turns, max 3 rounds; size 3+ can't be garroted; dodge only). Old boards/heroes with
+  `thief_pilfer` are read as `thief_garrote` (`RENAMED_KEYS` in `logic/board.ts`), and the GM's screen saves
+  the fix (`upgradeSaved`). Use RENAMED_KEYS for any future ability rename.
 - Final balance pass (after all classes and minions are done, before the story): review every
-  ability for a party of 4. Known worry: the Assassin's level 1 burst (Backstab 3d6 + its bonus
+  ability for a party of 4. Known worry: the Assassin's (class id thief) level 1 burst (Backstab 3d6 + its bonus
   2d6 + the sneak passive 2d6 = 7d6 at level 1) is too high.
 - Region names (Norse): Niflheim (Frozen North, Aethelric), Svartalfheim (Caves of Ifstrid, Arachne),
   Vanaheim (the Wilds, Kernunos), Jotunheim (Sky, Nameless King), Muspelheim (Odi'ram), Ginnungagap
