@@ -71,8 +71,9 @@ describe('Import icons from web', () => {
       </ImagesContext.Provider>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Import icons from web' }))
-    await act(async () => void (await new Promise((r) => setTimeout(r, 100))))
     const total = Object.keys(SKILL_ICONS).length
+    // Wait for the whole import (hundreds of icons) rather than a fixed delay, so a slow CI machine can't fail it.
+    await screen.findByText(`${total} icons imported, 1 failed`, undefined, { timeout: 15_000 })
     expect(download).toHaveBeenCalledWith(ICON_BASE + SKILL_ICONS.skyward_lance)
     expect(setSkillIcon).toHaveBeenCalledTimes(total - 1)
     expect(setSkillIcon).toHaveBeenCalledWith('skyward_lance', 'data:image/png;96x96')
